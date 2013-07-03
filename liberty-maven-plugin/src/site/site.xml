@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="${project.name}">
+    
+    <body>
+        
+        ${parentProject}
+        
+        ${modules}
+        
+        <menu name="${project.name}">
+            <item name="Overview" href="index.html"/>            
+        </menu>
+        
+        <menu name="Usage">
+            <item name="Server Goals" href="usage/server.html"/>
+            <item name="Applications Goals" href="usage/applications.html"/>            
+        </menu>
+        
+        ${reports}
+        
+    </body>
+
+</project>
+
+

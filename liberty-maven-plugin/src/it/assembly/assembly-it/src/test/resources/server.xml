@@ -1,0 +1,6 @@
+<server description="default server">
+    <featureManager>    
+        <feature>wab-1.0</feature>
+        <feature>jsp-2.2</feature>
+    </featureManager>     
+</server>

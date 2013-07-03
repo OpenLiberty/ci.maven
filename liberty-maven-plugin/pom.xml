@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.wasdev.wlp.maven</groupId>
+        <artifactId>liberty-maven</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+    <name>liberty-maven-plugin</name>
+    <description>Liberty Maven Plugin : Install, Start/Stop, Package, Create Server, Deploy/Undeploy applications</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.wasdev.wlp.ant</groupId>
+            <artifactId>wlp-anttasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>plugin-support</artifactId>
+            <version>1.0-alpha-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>run-its</id>
+            <activation>
+                <property>
+                    <name>wlpInstallDir</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <debug>false</debug>
+                            <goals>
+                                <goal>install</goal>
+                            </goals>
+                            <projectsDirectory>src/it</projectsDirectory>
+                            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                            <preBuildHookScript>setup</preBuildHookScript>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                            <properties>
+                                <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
+                            </properties>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

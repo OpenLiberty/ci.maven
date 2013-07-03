@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-set>
+    <components>
+        <component>
+            <role>org.codehaus.plexus.archiver.UnArchiver</role>
+            <role-hint>liberty-assembly</role-hint>
+            <implementation>org.codehaus.plexus.archiver.zip.ZipUnArchiver</implementation>
+            <instantiation-strategy>per-lookup</instantiation-strategy>
+        </component>
+
+        <!--
+        Custom packaging for liberty assemblies.
+        -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>liberty-assembly</role-hint>
+            <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
+            <configuration>
+                <lifecycles>
+                    <lifecycle>
+                        <id>default</id>
+                        <phases>
+                            <process-resources>
+                                org.apache.maven.plugins:maven-resources-plugin:resources,
+                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server
+                            </process-resources>
+                            <compile>net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps</compile>
+                            <package>net.wasdev.wlp.maven.plugins:liberty-maven-plugin:package-server</package>
+                            <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                            <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+                        </phases>
+                    </lifecycle>
+                </lifecycles>
+            </configuration>
+        </component>
+
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+            <role-hint>liberty-assembly</role-hint>
+            <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+            <configuration>
+                <type>liberty-assembly</type>
+                <extension>zip</extension>
+                <packaging>liberty-assembly</packaging>
+                <addedToClasspath>false</addedToClasspath>
+                <!--<language>java</language>-->
+            </configuration>
+        </component>
+
+    </components>
+</component-set>
+

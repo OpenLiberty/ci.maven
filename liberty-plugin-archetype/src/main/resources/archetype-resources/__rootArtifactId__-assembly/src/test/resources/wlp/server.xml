@@ -1,0 +1,13 @@
+<server description="production server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>servlet-3.0</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="localhost"
+                  httpPort="8080"
+                  httpsPort="8443" />
+
+</server>

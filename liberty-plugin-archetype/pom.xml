@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.wasdev.wlp.maven</groupId>
+        <artifactId>liberty-maven</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>liberty-plugin-archetype</artifactId>
+    <name>Archetype - liberty-test-archetype</name>
+    <packaging>maven-archetype</packaging>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>2.2</version>
+            </extension>
+        </extensions>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-archetype-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>run-its</id>
+            <activation>
+                <property>
+                    <name>wlpInstallDir</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>generate-projects</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <cloneProjectsTo>${project.build.directory}/it/projects</cloneProjectsTo>
+                                    <goals>
+                                        <goal>org.apache.maven.plugins:maven-archetype-plugin:generate</goal>
+                                    </goals>
+                                    <pomIncludes>
+                                        <pomInclude>*</pomInclude>
+                                    </pomIncludes>
+                                    <projectsDirectory>${basedir}/src/it/projects</projectsDirectory>
+                                    <properties>
+                                        <archetypeArtifactId>${project.artifactId}</archetypeArtifactId>
+                                        <archetypeGroupId>${project.groupId}</archetypeGroupId>
+                                        <archetypeRepository>local</archetypeRepository>
+                                        <archetypeVersion>${project.version}</archetypeVersion>
+                                        <interactiveMode>false</interactiveMode>
+                                        <artifactId>myProject</artifactId>
+                                        <groupId>myGroup</groupId>
+                                        <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
+                                        <wlpPluginVersion>${project.version}</wlpPluginVersion>
+                                    </properties>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-projects</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <goals>
+                                        <goal>install</goal>
+                                    </goals>
+                                    <pomIncludes>
+                                        <pomInclude>*/*/pom.xml</pomInclude>
+                                    </pomIncludes>
+                                    <projectsDirectory>${project.build.directory}/it/projects</projectsDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

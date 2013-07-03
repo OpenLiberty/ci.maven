@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>${groupId}</groupId>
+        <artifactId>${rootArtifactId}-parent</artifactId>
+        <version>${version}</version>
+    </parent>
+
+    <artifactId>${rootArtifactId}-test</artifactId>
+    <name>Simple Web Application Iteration Tests</name>
+
+    <!-- Define variables that will be substituted in server.xml and
+         passed to the integration tests -->
+    <properties>
+        <httpPort>9080</httpPort>
+        <httpsPort>9443</httpsPort>
+    </properties>
+
+    <dependencies>
+         <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>${rootArtifactId}-web</artifactId>
+            <version>${version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Enable resource filtering so that variables in server.xml get substituted -->
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- Prevent surefire from executing integration tests as unit tests -->
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <!-- Pass contextPath and httpPort to the integration tests -->
+                    <systemPropertyVariables>
+                        <contextPath>/${rootArtifactId}-web-${project.version}</contextPath>
+                        <httpPort>${httpPort}</httpPort>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <executions>
+                    <!-- Start server with a custom server.xml -->
+                    <execution>
+                        <id>start-liberty-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start-server</goal>
+                        </goals>
+                        <configuration>
+                            <verifyTimeout>40</verifyTimeout>
+                            <!-- Use server.xml from target/ directory with variables replaced -->
+                            <configFile>${project.build.testOutputDirectory}/wlp/server.xml</configFile>
+                        </configuration>
+                    </execution>
+                    <!-- Deploy the generated war file -->
+                    <execution>
+                        <id>deploy web application</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArtifact>
+                                <groupId>${groupId}</groupId>
+                                <artifactId>${rootArtifactId}-web</artifactId>
+                                <type>war</type>
+                            </appArtifact>
+                        </configuration>
+                    </execution>
+                    <!-- Undeploy the war file -->
+                    <execution>
+                        <id>undeploy web application</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArtifact>
+                                <groupId>${groupId}</groupId>
+                                <artifactId>${rootArtifactId}-web</artifactId>
+                                <type>war</type>
+                            </appArtifact>                        
+                        </configuration>
+                    </execution>
+                    <!-- Stop the server -->
+                    <execution>
+                        <id>stop-liberty-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop-server</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <serverHome>${wlp.install.dir}</serverHome>
+                    <serverName>test</serverName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
