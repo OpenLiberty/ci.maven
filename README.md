@@ -3,6 +3,14 @@ ci.maven
 
 Collection of Maven plugins and archetypes for managing WebSphere Application Server Liberty Profile and applications.
 
+* [Build](#build)
+* [Plugins](#plugins)
+ * [liberty-maven-plugin](#liberty-maven-plugin)
+     * [Configuration](#configuration)
+     * [Goals](#goals)
+* [Archetypes](#archetypes)
+ * [liberty-plugin-archetype](#liberty-plugin-archetype)
+
 ## Build
 
 Use Maven 2.x or 3.x to build the Liberty plugins and archetypes. 
