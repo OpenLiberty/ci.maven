@@ -21,7 +21,7 @@ Use Maven 2.x or 3.x to build the Liberty plugins and archetypes.
 
 To enable `liberty-maven-plugin` in your project add the following to your `pom.xml`:
 
-    <project>  
+    <project>
         ...
         <build>
             <plugins>
@@ -37,6 +37,43 @@ To enable `liberty-maven-plugin` in your project add the following to your `pom.
         </build>
         ...
     </project>
+
+`liberty-maven-plugin` must first be configured with Liberty Profile installation information. The installation information can be specified as an existing installation directory, a compressed archive, or as a Maven artifact. 
+
+* Use the `serverHome` parameter to specify the directory of an existing Liberty Profile server installation. For example:
+
+        <plugin>
+            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <artifactId>liberty-maven-plugin</artifactId> 
+            <configuration>
+                <serverHome>/opt/ibm/wlp</serverHome>
+            </configuration>
+        </plugin>
+
+* Use the `assemblyArchive` parameter to specify a compressed archive that contains Liberty Profile server files. For example:
+
+        <plugin>
+            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <artifactId>liberty-maven-plugin</artifactId> 
+            <configuration>
+                <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
+            </configuration>
+        </plugin>
+
+* Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains Liberty Profile server files. For example:
+
+        <plugin>
+            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <artifactId>liberty-maven-plugin</artifactId> 
+            <configuration>
+                <assemblyArtifact> 
+                    <groupId>net.wasdev.wlp.test</groupId> 
+                    <artifactId>liberty-test-server</artifactId>
+                    <version>1.0</version>
+                    <type>zip</type>
+                </assemblyArtifact>         
+            </configuration>
+        </plugin>
 
 #### Goals
 
