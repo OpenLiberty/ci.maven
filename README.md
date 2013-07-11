@@ -292,7 +292,7 @@ Undeploy an application to a Liberty Profile server. The server instance must ex
 | timeout | Maximum time to wait (in milliseconds) to verify that the undeployment has completed successfully. The default value is 40 seconds. | No |
 
 Example:
-```
+
     <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
         <artifactId>liberty-maven-plugin</artifactId> 
