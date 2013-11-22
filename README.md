@@ -8,6 +8,8 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
  * [liberty-maven-plugin](#liberty-maven-plugin)
      * [Configuration](#configuration)
      * [Goals](#goals)
+* [Packaging types](#packaging-types)
+ * [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
  * [liberty-plugin-archetype](#liberty-plugin-archetype)
 
@@ -323,6 +325,49 @@ Example:
            <serverName>test</serverName>
         </configuration>              
     </plugin>
+
+## Packaging types
+
+### liberty-assembly
+
+The `liberty-assembly` Maven packaging type is used to create a packaged Liberty profile server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server in the _dropins/_ directory.
+
+Example:
+
+    <project>
+        ...
+        <groupId>myGroup</groupId>
+        <artifactId>myServer</artifactId>
+        <!-- Create Liberty profile server assembly -->
+        <packaging>liberty-assembly</packaging>
+        ...
+        <dependencies>
+            <!-- Package SimpleServlet.war with server assembly -->
+            <dependency>
+                <groupId>wasdev</groupId>
+                <artifactId>SimpleServlet</artifactId>
+                <version>1.0</version>
+                <type>war</type>
+            </dependency>
+        </dependencies>
+        ...
+        <build>
+            <plugins>
+                <!-- Enable liberty-maven-plugin -->
+                <plugin>
+                    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId> 
+                    <version>1.0-SNAPSHOT</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <serverHome>/opt/ibm/wlp</serverHome>
+                        <serverName>test</serverName>
+                    </configuration>         
+                </plugin>
+            </plugins>
+        </build>
+        ...
+    </project>
 
 ## Archetypes
 
