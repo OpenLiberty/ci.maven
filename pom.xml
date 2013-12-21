@@ -3,18 +3,27 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <groupId>net.wasdev.wlp.maven</groupId>
     <artifactId>liberty-maven</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WebSphere Application Server Liberty Profile Maven Tools</name>
-    <description>Parent pom for maven tools supporting development with WebSphere Application Server Liberty Profile</description>
+    <description>
+        Parent pom for Maven tools supporting development with 
+        WebSphere Application Server Liberty Profile
+    </description>
     <url>https://wasdev.github.io</url>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://github.com/WASdev/ci.maven/blob/master/LICENSE</url>
+            <url>https://raw.github.com/WASdev/ci.maven/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -24,14 +33,13 @@
         <url>https://github.com/WASdev/ci.maven</url>
     </scm>
 
-  <developers>
-    <developer>
-      <id>jgawor</id>
-      <name>Jarek Gawor</name>
-      <email>jgawor@gmail.com</email>
-    </developer>
-  </developers>
-
+    <developers>
+        <developer>
+            <id>jgawor</id>
+            <name>Jarek Gawor</name>
+            <email>jgawor@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
