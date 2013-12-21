@@ -48,6 +48,27 @@ To enable `liberty-maven-plugin` in your project add the following to your `pom.
         ...
     </project>
 
+If you are using a snapshot version of `liberty-maven-plugin` then you will also need to add the following plugin repository to your `pom.xml`:
+
+    <project>
+        ...
+        <pluginRepositories>
+            <!-- Configure Sonatype OSS Maven snapshots repository -->
+            <pluginRepository>
+                <id>sonatype-nexus-snapshots</id>
+                <name>Sonatype Nexus Snapshots</name>
+                <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+                <releases>
+                    <enabled>false</enabled>
+                </releases>
+            </pluginRepository>
+        </pluginRepositories>
+        ...
+    </project>
+
 `liberty-maven-plugin` must first be configured with Liberty Profile installation information. The installation information can be specified as an existing installation directory, a compressed archive, or as a Maven artifact. 
 
 * Use the `serverHome` parameter to specify the directory of an existing Liberty Profile server installation. For example:
