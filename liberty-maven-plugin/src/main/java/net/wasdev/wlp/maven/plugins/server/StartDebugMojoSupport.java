@@ -43,7 +43,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * 
      * Location of jvm options file jvm.options
      * 
-     * @parameter expression="${bootProps}"
+     * @parameter expression="${jvmOptions}"
      *            default-value="${basedir}/src/test/resources/jvm.options"
      */
     protected File jvmOptions;
@@ -52,7 +52,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * 
      * Location of customized server environment file server.env
      * 
-     * @parameter expression="${bootProps}"
+     * @parameter expression="${serverEnv}"
      *            default-value="${basedir}/src/test/resources/server.env"
      */
     protected File serverEnv;
@@ -125,7 +125,6 @@ public class StartDebugMojoSupport extends BasicSupport {
         // copy configuration file to server directory if end-user set it.
         if (serverEnv != null && serverEnv.exists()) {
             Copy copy = (Copy) ant.createTask("copy");
-            copy.setTodir(serverDirectory);
             copy.setFile(serverEnv);
             copy.setTofile(new File(serverDirectory, "server.env"));
             copy.setOverwrite(overwrite);
