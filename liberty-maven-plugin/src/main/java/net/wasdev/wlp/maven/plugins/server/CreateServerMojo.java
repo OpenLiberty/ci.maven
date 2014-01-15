@@ -15,6 +15,13 @@ import net.wasdev.wlp.ant.ServerTask;
  */
 public class CreateServerMojo extends StartDebugMojoSupport {
 
+    /**
+     * Name of the template to use when creating a server.
+     * 
+     * @parameter expression="${template}"
+     */
+    private String template;
+    
     @Override
     protected void doExecute() throws Exception {
         if (isInstall) {
@@ -38,6 +45,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             log.info(MessageFormat.format(messages.getString("info.server.start.create"), serverName));
             ServerTask serverTask = initializeJava();
             serverTask.setOperation("create");
+            serverTask.setTemplate(template);
             serverTask.execute();
             // copy files _after_ we create the server
             copyConfigFiles(true);
