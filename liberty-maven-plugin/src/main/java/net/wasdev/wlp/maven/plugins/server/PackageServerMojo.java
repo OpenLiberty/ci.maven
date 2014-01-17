@@ -3,10 +3,9 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.text.MessageFormat;
 
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-
 import net.wasdev.wlp.ant.ServerTask;
+
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Package a liberty server
@@ -36,12 +35,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     private boolean attach;
 
-    /**
-     * @parameter expression="${project}"
-     * 
-     */
-    private MavenProject mavenProject;
-
     @Override
     protected void doExecute() throws Exception {
         if (isInstall) {
@@ -68,8 +61,8 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
-        if (attach || (mavenProject != null && "liberty-assembly".equals(mavenProject.getPackaging()))) {
-            if (mavenProject == null) {
+        if (attach || (project != null && "liberty-assembly".equals(project.getPackaging()))) {
+            if (project == null) {
                 throw new MojoFailureException(MessageFormat.format(messages.getString("error.server.package.no.project"), ""));
             }
             project.getArtifact().setFile(packageFile);

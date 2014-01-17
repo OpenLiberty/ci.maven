@@ -12,7 +12,6 @@ import org.codehaus.mojo.pluginsupport.ant.AntHelper;
  * Liberty Abstract Mojo Support
  * 
  */
-
 public abstract class AbstractLibertySupport extends MojoSupport {
     /**
      * Maven Project
@@ -29,20 +28,11 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @required
      */
     protected ArtifactRepository artifactRepository = null;
-
+    
     /**
-     * Liberty Server Host Name, default is localhost
-     * 
-     * @parameter expression="${hostname}" default-value="localhost"
+     * @component
      */
-    protected String hostName = null;
-
-    /**
-     * Liberty server port, default is 9080
-     * 
-     * @parameter expression="${port}" default-value="9080"
-     */
-    protected int port = -1;
+    protected AntHelper ant;
 
     protected MavenProject getProject() {
         return project;
@@ -52,13 +42,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return artifactRepository;
     }
 
-    /**
-     * @component
-     */
-    protected AntHelper ant;
-
     protected void init() throws MojoExecutionException, MojoFailureException {
-
         super.init();
         // Initialize ant helper instance
         ant.setProject(getProject());
