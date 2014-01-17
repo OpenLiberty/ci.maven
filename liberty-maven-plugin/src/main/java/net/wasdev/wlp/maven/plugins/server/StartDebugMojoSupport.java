@@ -95,10 +95,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
-        serverTask.setClean(false);
-
         return serverTask;
-
     }
 
     protected void copyConfigFiles() throws IOException {

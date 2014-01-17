@@ -25,6 +25,13 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     private File packageFile = null;
 
     /**
+     * Package type. One of "all", "usr", or "minify".
+     * 
+     * @parameter expression="${include}"
+     */
+    private String include;
+    
+    /**
      * @parameter
      */
     private boolean attach;
@@ -45,13 +52,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             checkServerDirectoryExists();
         }
 
-        // First check server is stopped via server lock file
-        log.info(MessageFormat.format(messages.getString("info.server.package.check"), ""));
-        File lockFile = new File(serverDirectory, "workarea/.sLock");
-        if (lockFile.exists()) {
-            log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), ""));
-        }
-
         log.info(MessageFormat.format(messages.getString("info.server.package"), serverName));
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
@@ -64,6 +64,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             packageFile = new File(serverDirectory, serverName + ".zip");
         }
         serverTask.setArchive(packageFile);
+        serverTask.setInclude(include);
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 

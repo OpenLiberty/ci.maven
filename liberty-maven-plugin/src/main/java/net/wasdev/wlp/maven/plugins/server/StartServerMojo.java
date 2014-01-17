@@ -43,11 +43,11 @@ public class StartServerMojo extends StartDebugMojoSupport {
     private String applications;
 
     /**
-     * Flag to control if the server is started clean.
+     * Clean all cached information on server start up.
      * 
-     * @parameter expression="${cleanStart}" default-value="true"
+     * @parameter expression="${cleanStart}" default-value="false"
      */
-    protected boolean cleanStart = true;
+    protected boolean cleanStart;
 
     @Override
     protected void doExecute() throws Exception {
