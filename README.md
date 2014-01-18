@@ -132,6 +132,7 @@ Start a Liberty Profile server. The server instance will be automatically create
 | bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
 | jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
 | serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
+| clean | Clean all cached information on server start up. The default value is `false`. | No | 
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The default value is 30 seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the applications have started. This timeout only has effect if the `applications` parameter is set. The default value is 30 seconds. | No |
 | applications | A comma-separated list of application names to wait for during server start-up. | No |
@@ -250,6 +251,7 @@ Package a Liberty Profile server.
 | jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
 | serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${serverHome}/usr/servers/${serverName}.zip` if `serverHome` is set. Otherwise, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
+| include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | No |
 
 Example:
 

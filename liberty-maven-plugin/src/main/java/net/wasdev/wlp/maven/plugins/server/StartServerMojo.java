@@ -45,9 +45,9 @@ public class StartServerMojo extends StartDebugMojoSupport {
     /**
      * Clean all cached information on server start up.
      * 
-     * @parameter expression="${cleanStart}" default-value="false"
+     * @parameter expression="${clean}" default-value="false"
      */
-    protected boolean cleanStart;
+    protected boolean clean;
 
     @Override
     protected void doExecute() throws Exception {
@@ -60,7 +60,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
 
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
-        serverTask.setClean(cleanStart);
+        serverTask.setClean(clean);
         serverTask.setOperation(debug ? "debug" : "start");
         // Set server start timeout
         if (serverStartTimeout < 0) {
