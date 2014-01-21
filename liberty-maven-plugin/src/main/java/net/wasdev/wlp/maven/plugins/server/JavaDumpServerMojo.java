@@ -7,18 +7,24 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Dump diagnostic information from the server JVM.
  * 
- * @goal javadump-server
+ * @goal java-dump-server
  * 
  */
 public class JavaDumpServerMojo extends StartDebugMojoSupport {
 
     /**
-     * Type of dump information to collect. 
-     * Valid values are "heap", and "system".
+     * Include heap dump information. 
      * 
-     * @parameter expression="${include}"
+     * @parameter expression="${heapDump}"
      */
-    private String include;
+    private boolean heapDump;
+    
+    /**
+     * Include system dump information. 
+     * 
+     * @parameter expression="${systemDump}"
+     */
+    private boolean systemDump;
 
     @Override
     protected void doExecute() throws Exception {
@@ -33,7 +39,23 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("javadump");
-        serverTask.setInclude(include);
+        serverTask.setInclude(generateInclude());
         serverTask.execute();
+    }
+    
+    private String generateInclude() {
+        StringBuilder builder = new StringBuilder();
+        
+        if (heapDump) {
+            builder.append("heap");
+        } 
+        if (systemDump) {
+            if (builder.length() != 0) {
+                builder.append(",");
+            }
+            builder.append("system");
+        }
+        
+        return (builder.length() == 0) ? null : builder.toString();
     }
 }

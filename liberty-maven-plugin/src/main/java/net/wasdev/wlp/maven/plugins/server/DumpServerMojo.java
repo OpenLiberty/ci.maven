@@ -21,12 +21,25 @@ public class DumpServerMojo extends StartDebugMojoSupport {
     private File archive;
 
     /**
-     * Type of dump information to collect. 
-     * Valid values are "heap", "system", and "thread".
+     * Include heap dump information. 
      * 
-     * @parameter expression="${include}"
+     * @parameter expression="${heapDump}"
      */
-    private String include;
+    private boolean heapDump;
+    
+    /**
+     * Include system dump information. 
+     * 
+     * @parameter expression="${systemDump}"
+     */
+    private boolean systemDump;
+    
+    /**
+     * Include thread dump information. 
+     * 
+     * @parameter expression="${threadDump}"
+     */
+    private boolean threadDump;
 
     @Override
     protected void doExecute() throws Exception {
@@ -42,7 +55,29 @@ public class DumpServerMojo extends StartDebugMojoSupport {
         copyConfigFiles();
         serverTask.setOperation("dump");
         serverTask.setArchive(archive);
-        serverTask.setInclude(include);
+        serverTask.setInclude(generateInclude());
         serverTask.execute();
+    }
+    
+    private String generateInclude() {
+        StringBuilder builder = new StringBuilder();
+        
+        if (heapDump) {
+            builder.append("heap");
+        } 
+        if (systemDump) {
+            if (builder.length() != 0) {
+                builder.append(",");
+            }
+            builder.append("system");
+        }
+        if (threadDump) {
+            if (builder.length() != 0) {
+                builder.append(",");
+            }
+            builder.append("thread");
+        }
+        
+        return (builder.length() == 0) ? null : builder.toString();
     }
 }

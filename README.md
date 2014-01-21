@@ -278,6 +278,90 @@ Example:
         </configuration>              
     </plugin>
 
+##### dump-server
+---
+Dump diagnostic information from the server into an archive.
+
+###### Additional Parameters
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
+| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
+| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
+| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
+| archive | Location of the target archive file. | No |
+| systemDump | Include system dump information. The default value is `false`. | No |
+| heapDump | Include heap dump information. The default value is `false`. | No |
+| threadDump | Include thread dump information. The default value is `false`. | No |
+
+Example:
+
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <executions>
+            ...
+            <execution>
+                <id>dump-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                    <goal>dump-server</goal>
+                </goals>
+                <configuration>
+                    <archive>${project.build.directory}/dump.zip</archive> 
+                    <heapDump>true</heapDump>                       
+                </configuration>
+            </execution>
+            ...
+        <executions>
+        <configuration>
+           <serverHome>/opt/ibm/wlp</serverHome>
+           <serverName>test</serverName>
+        </configuration>              
+    </plugin>
+
+##### java-dump-server
+---
+Dump diagnostic information from the server JVM.
+
+###### Additional Parameters
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
+| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
+| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
+| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
+| systemDump | Include system dump information. The default value is `false`. | No |
+| heapDump | Include heap dump information. The default value is `false`. | No |
+
+Example:
+
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <executions>
+            ...
+            <execution>
+                <id>java-dump-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                    <goal>java-dump-server</goal>
+                </goals>
+                <configuration>
+                    <heapDump>true</heapDump>
+                    <systemDump>true</systemDump>                       
+                </configuration>
+            </execution>
+            ...
+        <executions>
+        <configuration>
+           <serverHome>/opt/ibm/wlp</serverHome>
+           <serverName>test</serverName>
+        </configuration>              
+    </plugin>
+
 ##### deploy
 ---
 Deploy an application to a Liberty Profile server. The server instance must exist and must be running.
