@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.codehaus.plexus.util.FileUtils;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
@@ -72,12 +71,6 @@ public class StartDebugMojoSupport extends BasicSupport {
             throw new NullPointerException("server task not found");
         serverTask.setInstallDir(serverHome);
         serverTask.setServerName(serverName);
-
-        // delete pre-existing log file avoiding server
-        // start check problem
-        if (logFile != null && logFile.exists()) {
-            FileUtils.forceDelete(logFile);
-        }
 
         if (serverEnv != null && serverEnv.exists()) {
             Properties env = new Properties();

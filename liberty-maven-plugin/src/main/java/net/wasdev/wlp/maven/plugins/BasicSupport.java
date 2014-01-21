@@ -21,7 +21,6 @@ import org.codehaus.plexus.util.FileUtils;
  * 
  * 
  */
-
 public class BasicSupport extends AbstractLibertySupport {
 
     //Note these next two are regular expressions, not just the code.
@@ -97,20 +96,6 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     protected ArtifactItem assemblyArtifact;
 
-    /**
-     * The directory where log files will be put under.
-     * 
-     * @parameter expression="${logOutputDirectory}" default-value="${project.build.directory}/liberty"
-     */
-    protected File logOutputDirectory;
-
-    /**
-     * The output is logged to the file location specified here.
-     * 
-     * @parameter expression="${logFile}"
-     */
-    protected File logFile = null;
-
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
@@ -162,10 +147,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 serverDirectory = new File(serverHome, "usr/servers/" + serverName);
             }
 
-            // force create logoutput directory by sub mojo.
-            FileUtils.forceMkdir(logOutputDirectory);
-
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
