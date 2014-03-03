@@ -84,6 +84,7 @@ public class UndeployAppMojo extends BasicSupport {
 
         undeployTask.setInstallDir(serverHome);
         undeployTask.setServerName(serverName);
+        undeployTask.setUserDir(userDirectory);
         undeployTask.setFile(appArchive);
         undeployTask.setTimeout(Long.toString(timeout));
         undeployTask.execute();

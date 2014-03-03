@@ -1,11 +1,9 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -65,29 +63,13 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected boolean overwrite;
 
     protected ServerTask initializeJava() throws Exception {
-
         ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
-        if (serverTask == null)
+        if (serverTask == null) {
             throw new NullPointerException("server task not found");
+        }
         serverTask.setInstallDir(serverHome);
         serverTask.setServerName(serverName);
-
-        if (serverEnv != null && serverEnv.exists()) {
-            Properties env = new Properties();
-            FileInputStream in = new FileInputStream(serverEnv);
-            try {
-                env.load(in);
-            } finally {
-                in.close();
-            }
-            if (env.containsKey("WLP_USER_DIR")) {
-                serverTask.setUserDir(new File(env.getProperty("WLP_USER_DIR")).getCanonicalFile());
-            }
-            if (env.containsKey("WLP_OUTPUT_DIR")) {
-                serverTask.setOutputDir(new File(env.getProperty("WLP_OUTPUT_DIR")).getCanonicalFile());
-            }
-        }
-
+        serverTask.setUserDir(userDirectory);
         return serverTask;
     }
 

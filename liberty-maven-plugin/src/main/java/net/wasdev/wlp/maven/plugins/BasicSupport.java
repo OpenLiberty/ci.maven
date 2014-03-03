@@ -67,11 +67,17 @@ public class BasicSupport extends AbstractLibertySupport {
      * @parameter expression="${serverName}" default-value="defaultServer"
      */
     protected String serverName = null;
+    
+    /**
+     * Liberty user directory (<tT>WLP_USER_DIR</tt>).
+     * 
+     * @parameter expression="${userDirectory}"
+     */
+    protected File userDirectory = null;
 
     /**
      * Server Directory: serverHome/usr/servers/${serverName}/
      */
-
     protected File serverDirectory;
 
     protected static enum InstallType {
@@ -142,10 +148,15 @@ public class BasicSupport extends AbstractLibertySupport {
             }
 
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverName", serverName));
-            // Set server directory serverHome/user/servers/serverName
-            if (serverDirectory == null) {
+            
+            // Set server directory
+            if (userDirectory == null) {
                 serverDirectory = new File(serverHome, "usr/servers/" + serverName);
+            } else {
+                serverDirectory = new File(userDirectory, "servers/" + serverName);
             }
+            
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
 
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
