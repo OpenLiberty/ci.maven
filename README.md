@@ -183,7 +183,7 @@ Stop a Liberty Profile server. The server instance must exist and must be runnin
 | bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
 | jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
 | serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
-| timeout | Maximum time to wait (in milliseconds) to verify that the server has stopped. The default value is 40 seconds. | No |
+| serverStopTimeout | Maximum time to wait (in seconds) to verify that the server has stopped. The default value is 30 seconds. | No |
 
 Example:
 
@@ -199,7 +199,7 @@ Example:
                     <goal>stop-server</goal>
                 </goals>
                 <configuration>
-                    <timeout>60000</timeout>            
+                    <serverStopTimeout>60</serverStopTimeout>            
                 </configuration>
             </execution>
             ...

@@ -79,6 +79,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
             for (String archiveName : apps) {
                 String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName, timeout, serverTask.getLogFile());
                 if (startMessage == null) {
+                    stopServer();
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
                 }
                 timeout = endTime - System.currentTimeMillis();
@@ -86,4 +87,14 @@ public class StartServerMojo extends StartDebugMojoSupport {
         }
     }
 
+    private void stopServer() {
+        try {
+            ServerTask serverTask = initializeJava();
+            serverTask.setOperation("stop");
+            serverTask.execute(); 
+        } catch (Exception e) {
+            // ignore
+            log.debug("Error stopping server", e);
+        }
+    }
 }

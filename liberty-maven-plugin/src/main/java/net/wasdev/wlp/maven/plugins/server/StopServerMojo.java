@@ -16,9 +16,9 @@ public class StopServerMojo extends StartDebugMojoSupport {
     /**
      * Timeout to verify stop successfully
      * 
-     * @parameter expression="${timeout}" default-value="40000"
+     * @parameter expression="${serverStopTimeout}" default-value="30"
      */
-    protected long timeout = 40000;
+    protected long serverStopTimeout = 30;
 
     @Override
     protected void doExecute() throws Exception {
@@ -32,7 +32,7 @@ public class StopServerMojo extends StartDebugMojoSupport {
 
         log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
         ServerTask serverTask = initializeJava();
-        serverTask.setTimeout(Long.toString(timeout));
+        serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
         serverTask.setOperation("stop");
         serverTask.execute();
     }
