@@ -298,7 +298,7 @@ Dump diagnostic information from the server into an archive.
 
 ###### Additional Parameters
 
-The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the[common parameters](#common-parameters).
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
