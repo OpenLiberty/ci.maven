@@ -118,6 +118,8 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 
 ##### Common Parameters
 
+Parameters shared by all goals.
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | serverHome | Directory location of the Liberty profile server installation. | Yes, only when `assemblyArchive` and `assemblyArtifact` parameters are not set. |
@@ -129,18 +131,27 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 | installDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty profile server into the local directory. This is only used when when the server is installed using the assembly archive or artifact option. The default value is false. | No |
 
+##### Common Server Parameters
+
+Additional parameters shared by all server-based goals.
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
+| bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
+| jvmOptionsFile | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
+| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
+
 ##### start-server
 ---
 Start a Liberty Profile server. The server instance will be automatically created if it does not exist.
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | clean | Clean all cached information on server start up. The default value is `false`. | No | 
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The default value is 30 seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the applications have started. This timeout only has effect if the `applications` parameter is set. The default value is 30 seconds. | No |
@@ -178,12 +189,10 @@ Stop a Liberty Profile server. The server instance must exist and must be runnin
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | serverStopTimeout | Maximum time to wait (in seconds) to verify that the server has stopped. The default value is 30 seconds. | No |
 
 Example:
@@ -217,12 +226,10 @@ Create a Liberty Profile server.
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | template | Name of the template to use when creating a new server. | No |
 
 Example:
@@ -253,12 +260,10 @@ Package a Liberty Profile server.
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${serverHome}/usr/servers/${serverName}.zip` if `serverHome` is set. Otherwise, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
 | include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | No |
 
@@ -293,12 +298,10 @@ Dump diagnostic information from the server into an archive.
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the[common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | archive | Location of the target archive file. | No |
 | systemDump | Include system dump information. The default value is `false`. | No |
 | heapDump | Include heap dump information. The default value is `false`. | No |
@@ -336,12 +339,10 @@ Dump diagnostic information from the server JVM.
 
 ###### Additional Parameters
 
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootProps | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
 | systemDump | Include system dump information. The default value is `false`. | No |
 | heapDump | Include heap dump information. The default value is `false`. | No |
 
@@ -376,6 +377,8 @@ Example:
 Deploy an application to a Liberty Profile server. The server instance must exist and must be running.
 
 ###### Additional Parameters
+
+The following are the parameters supported by this goal in addition to the [common parameters](#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
@@ -412,6 +415,8 @@ Example:
 Undeploy an application to a Liberty Profile server. The server instance must exist and must be running.
 
 ###### Additional Parameters
+
+The following are the parameters supported by this goal in addition to the [common parameters](#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
