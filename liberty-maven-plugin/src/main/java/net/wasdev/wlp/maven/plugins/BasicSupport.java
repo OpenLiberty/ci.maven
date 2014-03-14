@@ -76,6 +76,13 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File userDirectory = null;
 
     /**
+     * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
+     * 
+     * @parameter expression="${outputDirectory}"
+     */
+    protected File outputDirectory = null;
+    
+    /**
      * Server Directory: serverHome/usr/servers/${serverName}/
      */
     protected File serverDirectory;
@@ -148,16 +155,24 @@ public class BasicSupport extends AbstractLibertySupport {
             }
 
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverName", serverName));
-            
-            // Set server directory
+                                  
+            // Set user directory
             if (userDirectory == null) {
-                serverDirectory = new File(serverHome, "usr/servers/" + serverName);
-            } else {
-                serverDirectory = new File(userDirectory, "servers/" + serverName);
+                userDirectory = new File(serverHome, "usr");
             }
             
+            File serversDirectory = new File(userDirectory, "servers");
+            
+            // Set server directory
+            serverDirectory = new File(serversDirectory, serverName);
+            
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
-
+            
+            // Set output directory
+            if (outputDirectory == null) {
+                outputDirectory = serversDirectory; 
+            }
+            
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

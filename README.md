@@ -125,6 +125,7 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 | assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `installDirectory` parameter. | Yes, only when `serverHome` and `assemblyArchive` parameters are not set. |
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
+| outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No | 
 | installDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty profile server into the local directory. This is only used when when the server is installed using the assembly archive or artifact option. The default value is false. | No |
 

@@ -79,6 +79,7 @@ public class DeployAppMojo extends BasicSupport {
             deployTask.setInstallDir(serverHome);
             deployTask.setServerName(serverName);
             deployTask.setUserDir(userDirectory);
+            deployTask.setOutputDir(outputDirectory);
             deployTask.setFile(appArchive);
             deployTask.setTimeout(Long.toString(timeout));
             deployTask.execute();

@@ -70,6 +70,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         serverTask.setInstallDir(serverHome);
         serverTask.setServerName(serverName);
         serverTask.setUserDir(userDirectory);
+        serverTask.setOutputDir(outputDirectory);
         return serverTask;
     }
 
