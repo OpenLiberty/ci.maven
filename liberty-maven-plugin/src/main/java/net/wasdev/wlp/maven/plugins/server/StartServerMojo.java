@@ -11,7 +11,6 @@ import net.wasdev.wlp.ant.ServerTask;
  * 
  * @goal start-server
  */
-
 public class StartServerMojo extends StartDebugMojoSupport {
 
     /**
@@ -27,13 +26,6 @@ public class StartServerMojo extends StartDebugMojoSupport {
      * @parameter expression="${serverStartTimeout}" default-value="30"
      */
     private int serverStartTimeout = 30;
-
-    /**
-     * whether to start the server in debug mode as defined by the script
-     * 
-     * @parameter expression="${debug}" default-value=false
-     */
-    private boolean debug;
 
     /**
      * comma separated list of app names to wait for
@@ -61,7 +53,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setClean(clean);
-        serverTask.setOperation(debug ? "debug" : "start");
+        serverTask.setOperation("start");
         // Set server start timeout
         if (serverStartTimeout < 0) {
             serverStartTimeout = 30;
