@@ -383,7 +383,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes |
-| timeout | Maximum time to wait (in milliseconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
+| timeout | Maximum time to wait (in seconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
 
 Example:
 
@@ -421,7 +421,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | appArchive | Name of an application to be undeployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes |
-| timeout | Maximum time to wait (in milliseconds) to verify that the undeployment has completed successfully. The default value is 40 seconds. | No |
+| timeout | Maximum time to wait (in seconds) to verify that the undeployment has completed successfully. The default value is 40 seconds. | No |
 
 Example:
 

@@ -37,11 +37,11 @@ public class UndeployAppMojo extends BasicSupport {
     protected ArtifactItem appArtifact;
 
     /**
-     * Timeout to verify undeploy successfully
+     * Timeout to verify undeploy successfully, in seconds.
      * 
-     * @parameter expression="${timeout}" default-value="40000"
+     * @parameter expression="${timeout}" default-value="40"
      */
-    protected long timeout = 40000;
+    protected int timeout = 40;
 
     @Override
     protected void doExecute() throws Exception {
@@ -87,7 +87,8 @@ public class UndeployAppMojo extends BasicSupport {
         undeployTask.setUserDir(userDirectory);
         undeployTask.setOutputDir(outputDirectory);
         undeployTask.setFile(appArchive);
-        undeployTask.setTimeout(Long.toString(timeout));
+        // Convert from seconds to milliseconds
+        undeployTask.setTimeout(Long.toString(timeout*1000));
         undeployTask.execute();
 
     }
