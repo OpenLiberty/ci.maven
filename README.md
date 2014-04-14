@@ -79,13 +79,13 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 
 `liberty-maven-plugin` must first be configured with Liberty Profile installation information. The installation information can be specified as an existing installation directory, a compressed archive, or as a Maven artifact. 
 
-* Use the `serverHome` parameter to specify the directory of an existing Liberty Profile server installation. For example:
+* Use the `installDirectory` parameter to specify the directory of an existing Liberty Profile server installation. For example:
 
         <plugin>
             <groupId>net.wasdev.wlp.maven.plugins</groupId>
             <artifactId>liberty-maven-plugin</artifactId> 
             <configuration>
-                <serverHome>/opt/ibm/wlp</serverHome>
+                <installDirectory>/opt/ibm/wlp</installDirectory>
             </configuration>
         </plugin>
 
@@ -122,13 +122,13 @@ Parameters shared by all goals.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| serverHome | Directory location of the Liberty profile server installation. | Yes, only when `assemblyArchive` and `assemblyArtifact` parameters are not set. |
-| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `installDirectory` parameter. | Yes, only when `serverHome` and `assemblyArtifact` parameters are not set. |
-| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `installDirectory` parameter. | Yes, only when `serverHome` and `assemblyArchive` parameters are not set. |
+| installDirectory | Local installation directory of the Liberty profile server. | Yes, only when `assemblyArchive` and `assemblyArtifact` parameters are not set. |
+| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArtifact` parameters are not set. |
+| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArchive` parameters are not set. |
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No | 
-| installDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
+| assemblyInstallDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty profile server into the local directory. This is only used when when the server is installed using the assembly archive or artifact option. The default value is false. | No |
 
 ##### Common Server Parameters
@@ -208,7 +208,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -245,7 +245,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -279,7 +279,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -294,7 +294,7 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${serverHome}/usr/servers/${serverName}.zip` if `serverHome` is set. Otherwise, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
+| packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `installDirectory` is set. Otherwise, it defaults to `${assemblyInstallDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
 | include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | No |
 
 Example:
@@ -317,7 +317,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -358,7 +358,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -397,7 +397,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -435,7 +435,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -473,7 +473,7 @@ Example:
             ...
         <executions>
         <configuration>
-           <serverHome>/opt/ibm/wlp</serverHome>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
     </plugin>
@@ -512,7 +512,7 @@ Example:
                     <version>1.0-SNAPSHOT</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <serverHome>/opt/ibm/wlp</serverHome>
+                        <installDirectory>/opt/ibm/wlp</installDirectory>
                         <serverName>test</serverName>
                     </configuration>         
                 </plugin>

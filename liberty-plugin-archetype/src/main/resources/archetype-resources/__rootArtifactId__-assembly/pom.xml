@@ -29,7 +29,7 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverHome>${wlp.install.dir}</serverHome>  
+                    <installDirectory>${wlp.install.dir}</installDirectory>  
                     <serverName>production</serverName>
                     <!-- Use custom server.xml -->
                     <configFile>${project.basedir}/src/test/resources/wlp/server.xml</configFile>

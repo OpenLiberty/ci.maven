@@ -46,20 +46,22 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Server Install Directory
      * 
-     * @parameter expression="${installDirectory}" default-value="${project.build.directory}/liberty"
+     * @parameter expression="${assemblyInstallDirectory}" default-value="${project.build.directory}/liberty"
+     */
+    protected File assemblyInstallDirectory;
+    
+    /**
+     * Installation directory of Liberty profile. 
+     * 
+     * @parameter expression="${installDirectory}"
      */
     protected File installDirectory;
 
     /**
-     * The directory where the assembly has been installed to.
-     * 
-     * Normally this value is detected, but if it is set, then it is assumed to
-     * be the location where a pre-installed assembly exists and no installation
-     * will be done.
-     * 
+     * @deprecated Use installDirectory parameter instead.
      * @parameter expression="${serverHome}"
      */
-    protected File serverHome;
+    private File serverHome;
 
     /**
      * Liberty server name, default is defaultServer
@@ -83,7 +85,7 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File outputDirectory = null;
     
     /**
-     * Server Directory: serverHome/usr/servers/${serverName}/
+     * Server Directory: ${installDirectory}/usr/servers/${serverName}/
      */
     protected File serverDirectory;
 
@@ -102,7 +104,7 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File assemblyArchive;
 
     /**
-     * maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
+     * Maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
      * be omitted.
      * 
      * @parameter
@@ -112,19 +114,22 @@ public class BasicSupport extends AbstractLibertySupport {
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
+        // for backwards compatibility
+        if (installDirectory == null) {
+            installDirectory = serverHome;
+        }
         try {
-            // First check if serverHome is set, if it is, then we can skip
-            // this
-            if (serverHome != null) {
-                serverHome = serverHome.getCanonicalFile();
+            // First check if installDirectory is set, if it is, then we can skip this
+            if (installDirectory != null) {
+                installDirectory = installDirectory.getCanonicalFile();
 
                 // Quick sanity check
-                File file = new File(serverHome, "lib/ws-launch.jar");
+                File file = new File(installDirectory, "lib/ws-launch.jar");
                 if (!file.exists()) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.validate"), ""));
                 }
 
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", serverHome));
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", installDirectory));
                 installType = InstallType.ALREADY_EXISTS;
             } else {
                 if (assemblyArchive != null && assemblyArtifact != null) {
@@ -145,8 +150,8 @@ public class BasicSupport extends AbstractLibertySupport {
 
                 installType = InstallType.FROM_FILE;
 
-                serverHome = checkServerHome(assemblyArchive);
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverHome", serverHome));
+                installDirectory = checkServerHome(assemblyArchive);
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             }
 
             // set server name
@@ -158,7 +163,7 @@ public class BasicSupport extends AbstractLibertySupport {
                                   
             // Set user directory
             if (userDirectory == null) {
-                userDirectory = new File(serverHome, "usr");
+                userDirectory = new File(installDirectory, "usr");
             }
             
             File serversDirectory = new File(userDirectory, "servers");
@@ -178,6 +183,18 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
 
+    protected void checkServerHomeExists() throws MojoExecutionException {
+        if (!installDirectory.exists()) {
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), installDirectory));
+        }
+    }
+    
+    protected void checkServerDirectoryExists() throws MojoExecutionException {
+        if (!serverDirectory.exists()) {
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.noexist"), serverName));
+        }
+    }
+    
     private File checkServerHome(final File archive) throws IOException,
                     MojoExecutionException {
         log.debug(MessageFormat.format(messages.getString("debug.discover.server.home"), ""));
@@ -192,7 +209,7 @@ public class BasicSupport extends AbstractLibertySupport {
             while (n.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) n.nextElement();
                 if (entry.getName().endsWith("lib/ws-launch.jar")) {
-                    File file = new File(installDirectory, entry.getName());
+                    File file = new File(assemblyInstallDirectory, entry.getName());
                     dir = file.getParentFile().getParentFile();
                     break;
                 }
@@ -226,9 +243,8 @@ public class BasicSupport extends AbstractLibertySupport {
             return;
         }
 
-        // Check if there is a newer archive or missing marker to trigger
-        // assembly install
-        File installMarker = new File(serverHome, ".installed");
+        // Check if there is a newer archive or missing marker to trigger assembly install
+        File installMarker = new File(installDirectory, ".installed");
 
         if (!refresh) {
             if (!installMarker.exists()) {
@@ -242,9 +258,9 @@ public class BasicSupport extends AbstractLibertySupport {
         }
 
         if (refresh) {
-            if (serverHome.exists()) {
-                log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), serverHome));
-                FileUtils.forceDelete(serverHome);
+            if (installDirectory.exists()) {
+                log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
+                FileUtils.forceDelete(installDirectory);
             }
         }
 
@@ -252,18 +268,18 @@ public class BasicSupport extends AbstractLibertySupport {
         if (!installMarker.exists()) {
             log.info("Installing assembly...");
 
-            FileUtils.forceMkdir(serverHome);
+            FileUtils.forceMkdir(installDirectory);
 
             Expand unzip = (Expand) ant.createTask("unzip");
 
             unzip.setSrc(assemblyArchive);
-            unzip.setDest(installDirectory.getCanonicalFile());
+            unzip.setDest(assemblyInstallDirectory.getCanonicalFile());
             unzip.execute();
 
             // Make scripts executable, since Java unzip ignores perms
             Chmod chmod = (Chmod) ant.createTask("chmod");
             chmod.setPerm("ugo+rx");
-            chmod.setDir(serverHome);
+            chmod.setDir(installDirectory);
             chmod.setIncludes("bin/*");
             chmod.setExcludes("bin/*.bat");
             chmod.execute();

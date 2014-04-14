@@ -5,8 +5,8 @@ import java.text.MessageFormat;
 import java.util.Set;
 
 import net.wasdev.wlp.maven.plugins.BasicSupport;
+
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
@@ -34,14 +34,8 @@ public class InstallAppsMojo extends BasicSupport {
     protected boolean stripVersion;
     
     protected void doExecute() throws Exception {
-        if (!serverHome.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), serverHome));
-        }
-
-        // check server directory
-        if (!serverDirectory.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.noexist"), serverName));
-        }
+        checkServerHomeExists();
+        checkServerDirectoryExists();
 
         File destDir = new File(serverDirectory, appsDirectory);
         for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {

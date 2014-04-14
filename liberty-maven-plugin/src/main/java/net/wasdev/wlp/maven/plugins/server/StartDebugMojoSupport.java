@@ -11,7 +11,6 @@ import java.util.Map;
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
 
 /**
@@ -79,7 +78,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (serverTask == null) {
             throw new NullPointerException("server task not found");
         }
-        serverTask.setInstallDir(serverHome);
+        serverTask.setInstallDir(installDirectory);
         serverTask.setServerName(serverName);
         serverTask.setUserDir(userDirectory);
         serverTask.setOutputDir(outputDirectory);
@@ -191,18 +190,6 @@ public class StartDebugMojoSupport extends BasicSupport {
         File parentDir = file.getParentFile();
         if (parentDir != null) {
             parentDir.mkdirs();
-        }
-    }
-
-    protected void checkServerHomeExists() throws MojoExecutionException {
-        if (!serverHome.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), serverHome));
-        }
-    }
-
-    protected void checkServerDirectoryExists() throws MojoExecutionException {
-        if (!serverDirectory.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.noexist"), serverName));
         }
     }
 

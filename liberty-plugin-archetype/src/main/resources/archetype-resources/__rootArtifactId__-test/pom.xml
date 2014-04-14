@@ -120,7 +120,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <serverHome>${wlp.install.dir}</serverHome>
+                    <installDirectory>${wlp.install.dir}</installDirectory>
                     <serverName>test</serverName>
                 </configuration>
             </plugin>

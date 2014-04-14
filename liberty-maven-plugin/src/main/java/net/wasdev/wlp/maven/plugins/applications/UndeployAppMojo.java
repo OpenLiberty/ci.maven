@@ -45,15 +45,9 @@ public class UndeployAppMojo extends BasicSupport {
 
     @Override
     protected void doExecute() throws Exception {
-        if (!serverHome.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), serverHome));
-        }
-
-        // check server directory
-        if (!serverDirectory.exists()) {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.noexist"), serverName));
-        }
-
+        checkServerHomeExists();
+        checkServerDirectoryExists();
+        
         if (appArchive != null && appArtifact != null) {
             throw new MojoExecutionException(messages.getString("error.app.set.twice"));
         }
@@ -82,7 +76,7 @@ public class UndeployAppMojo extends BasicSupport {
         if (undeployTask == null)
             throw new NullPointerException("server task not found");
 
-        undeployTask.setInstallDir(serverHome);
+        undeployTask.setInstallDir(installDirectory);
         undeployTask.setServerName(serverName);
         undeployTask.setUserDir(userDirectory);
         undeployTask.setOutputDir(outputDirectory);
