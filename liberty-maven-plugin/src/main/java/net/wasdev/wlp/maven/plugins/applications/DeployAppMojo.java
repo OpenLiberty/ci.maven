@@ -34,11 +34,11 @@ public class DeployAppMojo extends BasicSupport {
     protected ArtifactItem appArtifact;
 
     /**
-     * Timeout to verify deploy successfully
+     * Timeout to verify deploy successfully, in seconds.
      * 
-     * @parameter expression="${timeout}" default-value="40000"
+     * @parameter expression="${timeout}" default-value="40"
      */
-    protected long timeout = 40000;
+    protected int timeout = 40;
 
     @Override
     protected void doExecute() throws Exception {
@@ -81,7 +81,8 @@ public class DeployAppMojo extends BasicSupport {
             deployTask.setUserDir(userDirectory);
             deployTask.setOutputDir(outputDirectory);
             deployTask.setFile(appArchive);
-            deployTask.setTimeout(Long.toString(timeout));
+            // Convert from seconds to milliseconds
+            deployTask.setTimeout(Long.toString(timeout*1000));
             deployTask.execute();
         } else {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.deploy"), ""));
