@@ -11,8 +11,7 @@ import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
- * Copy applications to liberty server dropins directory
- * So far this doesn't start the server and actually make sure the apps deploy.
+ * Copy applications to the specified directory of the Liberty server.
  * 
  * @goal install-apps
  * 
@@ -20,6 +19,20 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  */
 public class InstallAppsMojo extends BasicSupport {
 
+    /**
+     * Application directory. 
+     * 
+     * @parameter expression="${appsDirectory}" default-value="dropins"
+     */
+    protected String appsDirectory = null;
+    
+    /**
+     * Strip version. 
+     * 
+     * @parameter expression="${stripVersion}" default-value="false"
+     */
+    protected boolean stripVersion;
+    
     protected void doExecute() throws Exception {
         if (!serverHome.exists()) {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), serverHome));
@@ -30,7 +43,7 @@ public class InstallAppsMojo extends BasicSupport {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.noexist"), serverName));
         }
 
-        File destDir = new File(serverDirectory, "dropins/");
+        File destDir = new File(serverDirectory, appsDirectory);
         for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
@@ -41,13 +54,12 @@ public class InstallAppsMojo extends BasicSupport {
 
                 Copy copyFile = (Copy) ant.createTask("copy");
                 copyFile.setFile(dep.getFile());
-                if ("war".equals(dep.getType())) {
-                    copyFile.setTofile(new File(destDir, dep.getArtifactId() + ".war"));
+                if (stripVersion) {
+                    copyFile.setTofile(new File(destDir, dep.getArtifactId() + "." + dep.getType()));
                 } else {
                     copyFile.setTodir(destDir);
                 }
                 copyFile.execute();
-
             }
         }
 
