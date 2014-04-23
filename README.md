@@ -47,7 +47,7 @@ To enable `liberty-maven-plugin` in your project add the following to your `pom.
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>
                     <artifactId>liberty-maven-plugin</artifactId> 
-                    <version>1.0-SNAPSHOT</version>
+                    <version>1.0</version>
                     <!-- Specify configuration, executions for liberty-maven-plugin --> 
                     ...             
                 </plugin>
@@ -509,7 +509,7 @@ Example:
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>
                     <artifactId>liberty-maven-plugin</artifactId> 
-                    <version>1.0-SNAPSHOT</version>
+                    <version>1.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <installDirectory>/opt/ibm/wlp</installDirectory>
