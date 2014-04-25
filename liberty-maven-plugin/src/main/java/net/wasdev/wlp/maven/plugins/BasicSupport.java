@@ -44,6 +44,13 @@ public class BasicSupport extends AbstractLibertySupport {
     protected static final ResourceBundle messages = ResourceBundle.getBundle("net.wasdev.wlp.maven.plugins.MvnMessages");
 
     /**
+     * Skips the specific goal
+     *
+     * @parameter expression="${skip}" default-value="false"
+     */
+    protected boolean skip = false;
+
+    /**
      * Enable forced install refresh.
      * 
      * @parameter expression="${refresh}" default-value="false"

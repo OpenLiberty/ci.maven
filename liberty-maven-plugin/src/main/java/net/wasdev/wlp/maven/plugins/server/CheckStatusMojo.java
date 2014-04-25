@@ -28,6 +28,9 @@ import net.wasdev.wlp.ant.ServerTask;
 public class CheckStatusMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         if (isInstall) {
             installServerAssembly();
         } else {

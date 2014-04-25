@@ -60,6 +60,9 @@ public class UndeployAppMojo extends BasicSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         checkServerHomeExists();
         checkServerDirectoryExists();
         

@@ -31,7 +31,9 @@ public class InstallServerMojo extends BasicSupport {
 
     protected void doExecute() throws MojoExecutionException,
                     MojoFailureException {
-
+        if (skip) {
+            return;
+        }
         try {
             installServerAssembly();
         } catch (Exception e) {

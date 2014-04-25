@@ -18,9 +18,9 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.text.MessageFormat;
 
-import net.wasdev.wlp.ant.ServerTask;
-
 import org.apache.maven.plugin.MojoFailureException;
+
+import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Package a liberty server
@@ -52,6 +52,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         if (isInstall) {
             installServerAssembly();
         } else {

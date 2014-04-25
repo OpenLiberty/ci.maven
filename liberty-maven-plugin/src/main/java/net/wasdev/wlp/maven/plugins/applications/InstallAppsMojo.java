@@ -19,11 +19,11 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.Set;
 
-import net.wasdev.wlp.maven.plugins.BasicSupport;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+
+import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
@@ -49,6 +49,9 @@ public class InstallAppsMojo extends BasicSupport {
     protected boolean stripVersion;
     
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         checkServerHomeExists();
         checkServerDirectoryExists();
 

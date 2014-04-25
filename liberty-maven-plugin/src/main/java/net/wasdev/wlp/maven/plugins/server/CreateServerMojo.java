@@ -39,6 +39,9 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         if (isInstall) {
             installServerAssembly();
         } else {
