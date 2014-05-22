@@ -46,4 +46,5 @@ You can download the CLAs here:
 If you are an IBMer, please contact us directly as the contribution process is
 slightly different.
 
-[issue tracker]: https://github.com/WASdev/ci.maven
+[issue tracker]: https://github.com/WASdev/ci.maven/issues
+
