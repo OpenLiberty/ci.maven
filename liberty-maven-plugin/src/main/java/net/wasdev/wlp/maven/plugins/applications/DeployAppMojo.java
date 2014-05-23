@@ -57,6 +57,9 @@ public class DeployAppMojo extends BasicSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
         checkServerHomeExists();
         checkServerDirectoryExists();
 
