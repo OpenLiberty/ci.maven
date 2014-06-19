@@ -130,6 +130,7 @@ Parameters shared by all goals.
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No | 
 | assemblyInstallDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty profile server into the local directory. This is only used when when the server is installed using the assembly archive or artifact option. The default value is false. | No |
+| skip | If true, the specified goal is bypassed entirely. The default value is false. | No |
 
 ##### Common Server Parameters
 
