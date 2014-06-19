@@ -12,7 +12,7 @@ trying to do and what went wrong. Also, provide as much context as possible so w
 
 ## New features
 
-Please raise any new feature requests on the project's [issue tracker[].
+Please raise any new feature requests on the project's [issue tracker][].
 
 ## Pull-Requests
 
