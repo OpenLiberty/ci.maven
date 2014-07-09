@@ -10,6 +10,7 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
      * [Goals](#goals)
        * [create-server](#create-server)
        * [start-server](#start-server)
+       * [run-server](#run-server)
        * [stop-server](#stop-server)
        * [package-server](#package-server)
        * [dump-server](#dump-server)
@@ -85,42 +86,42 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 
 Use the `installDirectory` parameter to specify the directory of an existing Liberty profile server installation. For example:
 
-        <plugin>
-            <groupId>net.wasdev.wlp.maven.plugins</groupId>
-            <artifactId>liberty-maven-plugin</artifactId> 
-            <configuration>
-                <installDirectory>/opt/ibm/wlp</installDirectory>
-            </configuration>
-        </plugin>
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <configuration>
+            <installDirectory>/opt/ibm/wlp</installDirectory>
+        </configuration>
+    </plugin>
 
 ###### Using a packaged server
 
 Use the `assemblyArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty profile server files. For example:
 
-        <plugin>
-            <groupId>net.wasdev.wlp.maven.plugins</groupId>
-            <artifactId>liberty-maven-plugin</artifactId> 
-            <configuration>
-                <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
-            </configuration>
-        </plugin>
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <configuration>
+            <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
+        </configuration>
+    </plugin>
 
 ###### Using Maven artifact
 
 Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains Liberty profile server files. For example:
 
-        <plugin>
-            <groupId>net.wasdev.wlp.maven.plugins</groupId>
-            <artifactId>liberty-maven-plugin</artifactId> 
-            <configuration>
-                <assemblyArtifact> 
-                    <groupId>net.wasdev.wlp.test</groupId> 
-                    <artifactId>liberty-test-server</artifactId>
-                    <version>1.0</version>
-                    <type>zip</type>
-                </assemblyArtifact>         
-            </configuration>
-        </plugin>
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <configuration>
+            <assemblyArtifact> 
+                <groupId>net.wasdev.wlp.test</groupId> 
+                <artifactId>liberty-test-server</artifactId>
+                <version>1.0</version>
+                <type>zip</type>
+            </assemblyArtifact>         
+        </configuration>
+    </plugin>
 
 ###### Using a repository 
 
@@ -165,6 +166,8 @@ The `install` parameter has the following sub-parameters:
 | password | Password needed for basic authentication. | No | 
 | serverId | Id of the `server` definition with the username and password in the `~/.m2/settings.xml` file. Used for basic authentication. | No | 
 | maxDownloadTime | Maximum time in seconds the download can take. The default value is `0` (no maximum time). | No | 
+
+---
 
 #### Goals
 
@@ -227,7 +230,7 @@ Example:
 
 ##### start-server
 ---
-Start a Liberty Profile server. The server instance will be automatically created if it does not exist.
+Start a Liberty Profile server in background. The server instance will be automatically created if it does not exist.
 
 ###### Additional Parameters
 
@@ -265,6 +268,34 @@ Example:
            <serverName>test</serverName>
         </configuration>              
     </plugin>
+
+##### run-server
+---
+Start a Liberty Profile server in foreground. The server instance will be automatically created if it does not exist. 
+**Note:** This goal is designed to be executed directly from the Maven command line.
+
+###### Additional Parameters
+
+The following are the parameters supported by this goal in addition to the [common server parameters](#common-server-parameters) and the [common parameters](#common-parameters).
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| clean | Clean all cached information on server start up. The default value is `false`. | No | 
+
+Example:
+
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId> 
+        <configuration>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
+           <serverName>test</serverName>
+        </configuration>              
+    </plugin>
+
+```bash
+$ mvn liberty:run-server
+```
 
 ##### stop-server
 ---
