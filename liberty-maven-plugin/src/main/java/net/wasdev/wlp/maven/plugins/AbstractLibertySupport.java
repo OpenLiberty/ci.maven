@@ -15,11 +15,11 @@
  */
 package net.wasdev.wlp.maven.plugins;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-
+import org.apache.maven.settings.Settings;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 
@@ -44,6 +44,15 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      */
     protected ArtifactRepository artifactRepository = null;
     
+    /**
+    * The build settings.
+    *
+    * @parameter expression="${settings}" 
+    * @required
+    * @readonly
+    */
+    protected Settings settings;
+
     /**
      * @component
      */

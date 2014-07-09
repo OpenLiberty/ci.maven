@@ -77,9 +77,13 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
         ...
     </project>
 
-`liberty-maven-plugin` must first be configured with Liberty Profile installation information. The installation information can be specified as an existing installation directory, a compressed archive, or as a Maven artifact. 
+##### Liberty installation configuration
 
-* Use the `installDirectory` parameter to specify the directory of an existing Liberty Profile server installation. For example:
+`liberty-maven-plugin` must first be configured with Liberty profile installation information. The installation information can be specified as an existing installation directory, a packaged server, or as a Maven artifact. The `liberty-maven-plugin` can also download and install Libery profile server from the WASdev repository or other location.
+
+###### Using an existing installation
+
+Use the `installDirectory` parameter to specify the directory of an existing Liberty profile server installation. For example:
 
         <plugin>
             <groupId>net.wasdev.wlp.maven.plugins</groupId>
@@ -89,7 +93,9 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
             </configuration>
         </plugin>
 
-* Use the `assemblyArchive` parameter to specify a compressed archive that contains Liberty Profile server files. For example:
+###### Using a packaged server
+
+Use the `assemblyArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty profile server files. For example:
 
         <plugin>
             <groupId>net.wasdev.wlp.maven.plugins</groupId>
@@ -99,7 +105,9 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
             </configuration>
         </plugin>
 
-* Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains Liberty Profile server files. For example:
+###### Using Maven artifact
+
+Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains Liberty profile server files. For example:
 
         <plugin>
             <groupId>net.wasdev.wlp.maven.plugins</groupId>
@@ -113,6 +121,50 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
                 </assemblyArtifact>         
             </configuration>
         </plugin>
+
+###### Using a repository 
+
+Use the `install` parameter to download and install Libery profile server from the WASdev repository or other location.
+
+The Liberty license code must always be specified in order to install the Liberty server. If you are installing Liberty from the WASdev repository, you can obtain the license code by reading the [current license](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/8.5.5.2/lafiles/runtime//en.html) and looking for the `D/N: <license code>` line. Otherwise, download the Liberty runtime archive and execute `java -jar wlp*runtime.jar --viewLicenseInfo` command and look for the `D/N: <license code>` line.
+
+* Install using the WASdev repository. The plugin will use the WASdev repository to find the Liberty runtime archive to install based on the given version.
+
+        <plugin>
+            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <artifactId>liberty-maven-plugin</artifactId> 
+            <configuration>
+                <install> 
+                    <licenseCode><license code></licenseCode> 
+                </install>         
+            </configuration>
+        </plugin>
+
+* Install from a given location. The `runtimeUrl` sub-parameter specifies a location of the Liberty runtime archive file to install. 
+
+        <plugin>
+            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <artifactId>liberty-maven-plugin</artifactId> 
+            <configuration>
+                <install> 
+                    <licenseCode><license code></licenseCode>
+                    <runtimeUrl><url to runtime.jar><runtimeUrl> 
+                </install>         
+            </configuration>
+        </plugin>
+
+The `install` parameter has the following sub-parameters:
+
+| Name | Description | Required |
+| --------  | ----------- | -------  |
+| licenseCode | Liberty profile license code. See [above](#install-from-repository). | Yes |
+| version | Exact or wildcard version of the Liberty profile server to install. Only used if `runtimeUrl` is not set. The default value is `8.5.+`. | No |
+| runtimeUrl | URL to the Liberty profile's `wlp*runtime.jar`. If not set, the WASdev repository will be used to find the Liberty runtime archive. | No |
+| cacheDirectory | The directory used for caching downloaded files such as the license or `.jar` files. The default value is `${settings.localRepository}/wlp-cache`. | No | 
+| username | Username needed for basic authentication. | No | 
+| password | Password needed for basic authentication. | No | 
+| serverId | Id of the `server` definition with the username and password in the `~/.m2/settings.xml` file. Used for basic authentication. | No | 
+| maxDownloadTime | Maximum time in seconds the download can take. The default value is `0` (no maximum time). | No | 
 
 #### Goals
 
@@ -128,7 +180,7 @@ Parameters shared by all goals.
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No | 
-| assemblyInstallDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive or artifact option. The default value is `${project.build.directory}/liberty`.  | No |
+| assemblyInstallDirectory | Local installation directory location of the Liberty profile server when the server is installed using the assembly archive, assembly artifact or repository option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty profile server into the local directory. This is only used when when the server is installed using the assembly archive or artifact option. The default value is false. | No |
 | skip | If true, the specified goal is bypassed entirely. The default value is false. | No |
 

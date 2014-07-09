@@ -23,9 +23,12 @@ import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import net.wasdev.wlp.ant.install.InstallLibertyTask;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Server;
 import org.apache.tools.ant.taskdefs.Chmod;
 import org.apache.tools.ant.taskdefs.Expand;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
@@ -112,7 +115,7 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File serverDirectory;
 
     protected static enum InstallType {
-        FROM_FILE, ALREADY_EXISTS
+        FROM_FILE, ALREADY_EXISTS, FROM_ARCHIVE
     }
 
     protected InstallType installType;
@@ -132,6 +135,14 @@ public class BasicSupport extends AbstractLibertySupport {
      * @parameter
      */
     protected ArtifactItem assemblyArtifact;
+    
+    /**
+     * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
+     * the given URL.
+     * 
+     * @parameter
+     */
+    protected Install install;
 
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
@@ -153,27 +164,29 @@ public class BasicSupport extends AbstractLibertySupport {
 
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", installDirectory));
                 installType = InstallType.ALREADY_EXISTS;
-            } else {
-                if (assemblyArchive != null && assemblyArtifact != null) {
-                    throw new MojoExecutionException("Server assembly specified twice: specify only one of maven coordinates in assemblyArtifact or a file in assemblyArchive");
-                }
-                if (assemblyArtifact != null) {
-                    Artifact artifact = getArtifact(assemblyArtifact);
-                    assemblyArchive = artifact.getFile();
-                    log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", assemblyArtifact));
-                } else {
-                    log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based assembly archive", assemblyArchive));
-                }
+            } else if (assemblyArchive != null) {
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based assembly archive", assemblyArchive));
+                assemblyArchive = assemblyArchive.getCanonicalFile();
+                installType = InstallType.FROM_FILE;
+                installDirectory = checkServerHome(assemblyArchive);
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+            } else if (assemblyArtifact != null) {
+                Artifact artifact = getArtifact(assemblyArtifact);
+                assemblyArchive = artifact.getFile();
                 if (assemblyArchive == null) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.assembly.validate"), "artifact based assembly archive", ""));
                 }
-
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", assemblyArtifact));
                 assemblyArchive = assemblyArchive.getCanonicalFile();
-
                 installType = InstallType.FROM_FILE;
-
                 installDirectory = checkServerHome(assemblyArchive);
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+            } else if (install != null) {
+                installType = InstallType.FROM_ARCHIVE;
+                installDirectory = new File(assemblyInstallDirectory, "wlp");
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+            } else {
+                throw new MojoExecutionException("Liberty profile installation option is not set."); 
             }
 
             // set server name
@@ -262,9 +275,14 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void installServerAssembly() throws Exception {
         if (installType == InstallType.ALREADY_EXISTS) {
             log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-            return;
+        } else if (installType == InstallType.FROM_ARCHIVE) {
+            installFromArchive();
+        } else {
+            installFromFile();
         }
-
+    }
+    
+    protected void installFromFile() throws Exception {
         // Check if there is a newer archive or missing marker to trigger assembly install
         File installMarker = new File(installDirectory, ".installed");
 
@@ -315,4 +333,40 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
 
+    protected void installFromArchive() throws Exception {
+        InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:net/wasdev/wlp/ant:install-liberty");
+        if (installTask == null) {
+            throw new NullPointerException("install-liberty task not found");
+        }
+        installTask.setBaseDir(assemblyInstallDirectory.getAbsolutePath());
+        installTask.setLicenseCode(install.getLicenseCode());
+        installTask.setVersion(install.getVersion());
+        installTask.setRuntimeUrl(install.getRuntimeUrl());
+        installTask.setVerbose(install.isVerbose());
+        installTask.setMaxDownloadTime(install.getMaxDownloadTime());
+        
+        String cacheDir = install.getCacheDirectory();
+        if (cacheDir == null) {
+            File dir = new File(artifactRepository.getBasedir(), "wlp-cache");
+            installTask.setCacheDir(dir.getAbsolutePath());
+        } else {
+            installTask.setCacheDir(cacheDir);
+        }
+        
+        String serverId = install.getServerId();
+        if (serverId != null) {
+            Server server = settings.getServer(serverId);
+            if (server == null) {
+                throw new MojoExecutionException("Server id not found: " + serverId);
+            }
+            installTask.setUsername(server.getUsername());
+            installTask.setPassword(server.getPassword());
+        } else {
+            installTask.setUsername(install.getUsername());
+            installTask.setPassword(install.getPassword());
+        }
+        
+        installTask.execute();
+    }
+    
 }
