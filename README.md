@@ -224,7 +224,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>                     
+        </executions>                     
     </plugin>
 
 
@@ -262,7 +262,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -327,7 +327,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -361,7 +361,7 @@ Example:
                 </goals>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -399,7 +399,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -440,7 +440,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -479,7 +479,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -517,7 +517,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
@@ -555,7 +555,7 @@ Example:
                 </configuration>
             </execution>
             ...
-        <executions>
+        </executions>
         <configuration>
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
