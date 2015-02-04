@@ -146,6 +146,9 @@ public class BasicSupport extends AbstractLibertySupport {
 
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            return;
+        }        
         super.init();
         // for backwards compatibility
         if (installDirectory == null) {
