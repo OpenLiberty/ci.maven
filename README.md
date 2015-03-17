@@ -16,6 +16,7 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
        * [java-dump-server](#java-dump-server)
        * [deploy](#deploy)
        * [undeploy](#undeploy)
+       * [install-feature](#install-feature)
 * [Packaging types](#packaging-types)
  * [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
@@ -559,6 +560,50 @@ Example:
            <installDirectory>/opt/ibm/wlp</installDirectory>
            <serverName>test</serverName>
         </configuration>              
+    </plugin>
+
+##### install-feature
+---
+Install a feature packaged as a Subsystem Archive (esa) to the runtime.
+
+###### Additional Parameters
+
+The following are the parameters supported by this goal in addition to the [common parameters](#common-parameters).
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| feature | Specify the location of the Subsystem archive to be used. This can be an esa file an IBM-Shortname or the Subsystem-SymbolicName of the Subsystem archive. The value can be a file name or a URL to the esa file. | Yes |
+| acceptLicense | Automatically indicate acceptance of license terms and conditions. | No |
+| to | Specify where to install the feature. The feature can be installed to any configured product extension location, or as a user feature (usr, extension). If this option is not specified the feature will be installed as a user feature. | No |
+| whenFileExists |  If a file that is part of the ESA already exists on the system, you must specify what actions to take. Valid options are: fail - abort the installation; ignore - continue the installation and ignore the file that exists; replace - overwrite the existing file. | No |
+
+Example:
+
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <executions>
+            ...
+            <execution>
+                <id>install-feature</id>
+                <phase>pre-intregration-test</phase>
+                <goals>
+                    <goal>install-feature</goal>
+                </goals>
+                <configuration>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                        <feature>mongodb-2.0</feature>
+                        <feature>ejbLite-3.2</feature>
+                    </features>
+                </configuration>
+            </execution>
+            ...
+        </executions>
+        <configuration>
+           <installDirectory>/opt/ibm/wlp</installDirectory>
+           <serverName>test</serverName>
+        </configuration>
     </plugin>
 
 ## Packaging types
