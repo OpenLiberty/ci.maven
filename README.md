@@ -1,5 +1,4 @@
-ci.maven
-========
+# ci.maven [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven)
 
 Collection of Maven plugins and archetypes for managing WebSphere Application Server Liberty Profile and applications.
 
