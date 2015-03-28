@@ -24,7 +24,10 @@
                                 org.apache.maven.plugins:maven-resources-plugin:resources,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server
                             </process-resources>
-                            <compile>net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps</compile>
+                            <compile>
+                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps,
+                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-feature
+                            </compile>
                             <package>net.wasdev.wlp.maven.plugins:liberty-maven-plugin:package-server</package>
                             <install>org.apache.maven.plugins:maven-install-plugin:install</install>
                             <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>

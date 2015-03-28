@@ -610,7 +610,7 @@ Example:
 
 ### liberty-assembly
 
-The `liberty-assembly` Maven packaging type is used to create a packaged Liberty profile server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server in the _dropins/_ directory.
+The `liberty-assembly` Maven packaging type is used to create a packaged Liberty profile server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](#install-feature) can also be installed and packaged with the assembled server.
 
 Example:
 

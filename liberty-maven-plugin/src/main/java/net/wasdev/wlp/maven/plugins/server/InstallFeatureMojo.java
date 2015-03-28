@@ -28,12 +28,12 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @goal install-feature
  */
 public class InstallFeatureMojo extends BasicSupport {
+    
     /**
      * Define a set of features to install in the server and the configuration
      * to be applied for all instances.
      *
      * @parameter
-     * @required
      */
     private Features features;
 
@@ -46,7 +46,12 @@ public class InstallFeatureMojo extends BasicSupport {
         if (skip == true) {
             return;
         }
-
+        
+        // for liberty-assembly integration
+        if (features == null) {
+            return;
+        }
+        
         if (features.getFeatures().size() <= 0) {
             throw new MojoExecutionException(
                     messages.getString("error.install.feature.set.validate"));
