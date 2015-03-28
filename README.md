@@ -642,6 +642,10 @@ Example:
                     <configuration>
                         <installDirectory>/opt/ibm/wlp</installDirectory>
                         <serverName>test</serverName>
+                        <features>
+                            <acceptLicense>true</acceptLicense>
+                            <feature>mongodb-2.0</feature>
+                        </features>
                     </configuration>         
                 </plugin>
             </plugins>
