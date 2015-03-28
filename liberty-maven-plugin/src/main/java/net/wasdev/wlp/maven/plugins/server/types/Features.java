@@ -16,6 +16,7 @@
 package net.wasdev.wlp.maven.plugins.server.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,14 +28,14 @@ public class Features {
      * Acceptance of terms and conditions of all the features. By default the
      * license value is false.
      */
-    public boolean acceptLicense = false;
+    private boolean acceptLicense = false;
 
     /**
      * Specify where to install the features. The features can be installed to
      * any configured product extension location, or as a user feature. If this
      * option is not specified the feature will be installed as a user feature.
      */
-    public String to = "usr";
+    private String to = "usr";
 
     /**
      * If a file that is part of the ESA already exists on the system, you must
@@ -43,12 +44,36 @@ public class Features {
      * exists; replace - overwrite the existing file. Do not use the replace
      * option to reinstall features.
      */
-    public String whenFileExists = null;
+    private String whenFileExists = null;
 
     /**
      * A list with the names of the features.
      */
-    private List<String> featuresList = new ArrayList<String>();
+    private List<String> featureList = new ArrayList<String>();
+
+    public boolean isAcceptLicense() {
+        return acceptLicense;
+    }
+
+    public void setAcceptLicense(boolean acceptLicense) {
+        this.acceptLicense = acceptLicense;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getWhenFileExists() {
+        return whenFileExists;
+    }
+
+    public void setWhenFileExists(String whenFileExists) {
+        this.whenFileExists = whenFileExists;
+    }
 
     /**
      * Get all the current features.
@@ -56,22 +81,34 @@ public class Features {
      * @return A list with the name of the features.
      */
     public List<String> getFeatures() {
-        return featuresList;
+        return featureList;
     }
 
     /**
-     * Set a feature into a list.
+     * Add a feature into a list.
      *
-     * @param feature
-     *            A feature name.
+     * @param feature A feature name.
      */
-    public void setFeature(String feature) {
-        if (feature.isEmpty()) {
+    public void addFeature(String feature) {
+        if (feature == null) {
             throw new NullPointerException();
-        } else if (feature.contains(" ")) {
-            throw new IllegalArgumentException();
         }
-
-        featuresList.add(feature);
+        feature = feature.trim();
+        if (!feature.isEmpty()) { 
+            featureList.add(feature);
+        }
     }
+    
+    public String getFeaturesAsString() {
+        StringBuilder buffer = new StringBuilder();
+        int size = featureList.size();
+        for (int i = 0; i < size;  i++) {
+            buffer.append(featureList.get(i));
+            if (i + 1 < size) {
+                buffer.append(",");
+            }
+        }
+        return buffer.toString();
+    }
+
 }

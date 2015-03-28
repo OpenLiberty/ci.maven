@@ -63,15 +63,11 @@ public class InstallFeatureMojo extends BasicSupport {
         installFeatureTask.setServerName(serverName);
         installFeatureTask.setUserDir(userDirectory);
         installFeatureTask.setOutputDir(outputDirectory);
-        installFeatureTask.setAcceptLicense(features.acceptLicense);
-        installFeatureTask.setTo(features.to);
-        installFeatureTask.setWhenFileExists(features.whenFileExists);
-
-        for (String feature : features.getFeatures()) {
-            installFeatureTask.setName(feature);
-            installFeatureTask.execute();
-        }
-
+        installFeatureTask.setAcceptLicense(features.isAcceptLicense());
+        installFeatureTask.setTo(features.getTo());
+        installFeatureTask.setWhenFileExists(features.getWhenFileExists());
+        installFeatureTask.setName(features.getFeaturesAsString());
+        installFeatureTask.execute();
     }
 
 }
