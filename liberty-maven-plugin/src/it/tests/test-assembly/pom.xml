@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>assembly</artifactId>
+        <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     
@@ -38,11 +38,15 @@
                     <stripVersion>true</stripVersion>
                     <assemblyArtifact>
                         <groupId>${project.groupId}</groupId>
-                        <artifactId>test-server</artifactId>
+                        <artifactId>assembly-server</artifactId>
                         <version>${project.version}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                        <feature>mongodb-2.0</feature>
+                    </features>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,6 +1,5 @@
 language: java
 jdk:
   - oraclejdk8
-script: "mvn verify"
-
-
+script: 
+  - "mvn verify -Ponline-its -DwlpVersion=8.5.5_05 -DwlpLicense=L-MCAO-9SYMVC"
