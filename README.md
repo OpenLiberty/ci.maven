@@ -496,37 +496,44 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes |
+| appArtifact | Maven coordinates of an application to be deployed. | Yes, if appArchive is not set. |
+| appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes, if appArtifact is not set. |
 | timeout | Maximum time to wait (in seconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
 
 Example:
 
-    <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
-        <artifactId>liberty-maven-plugin</artifactId> 
-        <executions>
-            ...
-            <execution>
-                <id>deploy-app</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                    <goal>deploy</goal>
-                </goals>
-                <configuration>
-                    <appArchive>HelloWorld.war</appArchive>                        
-                </configuration>
-            </execution>
-            ...
-        </executions>
+    <!-- Single deploy of an application with the path of a file. -->
+    <execution>
+        <id>deploy-app</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>deploy</goal>
+        </goals>
         <configuration>
-           <installDirectory>/opt/ibm/wlp</installDirectory>
-           <serverName>test</serverName>
-        </configuration>              
-    </plugin>
+            <appArchive>HelloWorld.war</appArchive>
+        </configuration>
+    </execution>
+
+    <!-- Single deploy of an application with maven coordinates. -->
+    <execution>
+        <id>deploy-by-appArtifact</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>deploy</goal>
+        </goals>
+        <configuration>
+            <appArtifact>
+                <groupId>com.mycompany.webapp</groupId>
+                <artifactId>webapp</artifactId>
+                <version>1.0</version>
+                <type>war</type>
+            </appArtifact>
+        </configuration>
+    </execution>
 
 ##### undeploy
 ---
-Undeploy an application to a Liberty Profile server. The server instance must exist and must be running.
+Undeploy an application to a Liberty Profile server. The server instance must exist and must be running. If appArtifact or appArchive are not defined, the goal will undeploy all applications from the server.
 
 ###### Additional Parameters
 
@@ -534,33 +541,65 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| appArchive | Name of an application to be undeployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes |
+| appArtifact | Maven coordinates of an application to be undeployed. | No |
+| appArchive | Name of an application to be undeployed. The application type can be war, ear, rar, eba, zip, or jar. | No |
+| patternSet | Includes and excludes patterns of applications to be undeployed. | No |
 | timeout | Maximum time to wait (in seconds) to verify that the undeployment has completed successfully. The default value is 40 seconds. | No |
 
 Example:
 
-    <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
-        <artifactId>liberty-maven-plugin</artifactId> 
-        <executions>
-            ...
-            <execution>
-                <id>undeploy-app</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                    <goal>undeploy</goal>
-                </goals>
-                <configuration>
-                    <appArchive>HelloWorld.war</appArchive>                        
-                </configuration>
-            </execution>
-            ...
-        </executions>
+    <!-- Single undeploy from an application file. -->
+    <execution>
+        <id>undeploy-by-appArchive</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>undeploy</goal>
+        </goals>
         <configuration>
-           <installDirectory>/opt/ibm/wlp</installDirectory>
-           <serverName>test</serverName>
-        </configuration>              
-    </plugin>
+            <appArchive>HelloWorld.war</appArchive>
+        </configuration>
+    </execution>
+
+    <!-- Single undeploy from an application with maven coordinates. -->
+    <execution>
+        <id>undeploy-by-appArtifact</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>undeploy</goal>
+        </goals>
+        <configuration>
+            <appArtifact>
+                <groupId>com.mycompany.webapp</groupId>
+                <artifactId>webapp</artifactId>
+                <version>1.0</version>
+                <type>war</type>
+            </appArtifact>
+        </configuration>
+    </execution>
+
+    <!-- Undeploy all. -->
+    <execution>
+        <id>undeploy-by-appArtifact</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>undeploy</goal>
+        </goals>
+    </execution>
+
+    <!-- Undeploy from a patternSet. -->
+    <execution>
+        <id>undeploy-by-appArtifact</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>undeploy</goal>
+        </goals>
+        <configuration>
+            <patternSet>
+                <includes>*.war</includes>
+                <excludes>webapp.war</excludes>
+            </patternSet>
+        </configuration>
+    </execution>
 
 ##### install-feature
 ---
