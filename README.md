@@ -27,8 +27,9 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
 Use Maven 2.x or 3.x to build the Liberty plugins and archetypes. 
 
 * `mvn install` : builds the plugin and the archetype. 
-* `mvn install -DwlpInstallDir=<liberty_install_directory>` : builds the plugin, archetype and runs the integration tests.
-  * Liberty Profile installation is required to run the integration tests.
+* `mvn install -Poffline-its-DwlpInstallDir=<liberty_install_directory>` : builds the plugin, archetype and runs the integration tests by providing an existing installation.
+* `mvn install -Ponline-its-DwlpVersion=<liberty_version> -DwlpLicense=<liberty_license_code>` : builds the plugin, archetype and runs the integration tests by downloading a new server.
+  * Liberty versions and their respective license code can be found in the [index.yml](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/index.yml) file.
 
 ## Plugins
 

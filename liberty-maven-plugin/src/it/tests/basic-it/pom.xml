@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>assembly</artifactId>
+        <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>assembly-it</artifactId>
+    <artifactId>basic-it</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -82,7 +82,6 @@
                         <configuration>
                             <background>true</background>
                             <verifyTimeout>40</verifyTimeout>
-                            <applications>test-war, test-eba</applications>
                         </configuration>
                     </execution>
                     <execution>
@@ -93,17 +92,70 @@
                         </goals>
                     </execution>
                     <execution>
+                        <id>deployapp</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArchive>../../setup/test-eba/target/test-eba.eba</appArchive>
+                            <timeout>50</timeout>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>undeploy app</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArchive>test-eba.eba</appArchive>
+                            <timeout>50</timeout>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>deploy web application</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArchive>../../setup/test-war/target/test-war.war</appArchive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>undeploy web application</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <appArchive>test-war.war</appArchive>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>stop-liberty-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop-server</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>package-server</id>
+                        <!-- phase must be after integration tests since they create the "test" server -->
+                        <phase>install</phase>
+                        <goals>
+                            <goal>package-server</goal>
+                        </goals>
+                        <configuration>
+                            <packageFile>${project.build.directory}</packageFile>
+                        </configuration>
+                    </execution>
                 </executions>
                 <configuration>
                     <assemblyArtifact>
                         <groupId>${project.groupId}</groupId>
-                        <artifactId>test-assembly</artifactId>
+                        <artifactId>assembly-server</artifactId>
                         <version>${project.version}</version>
                         <type>zip</type>
                     </assemblyArtifact>

@@ -34,12 +34,7 @@
 
     <profiles>
         <profile>
-            <id>run-its</id>
-            <activation>
-                <property>
-                    <name>wlpInstallDir</name>
-                </property>
-            </activation>
+            <id>offline-its</id>
             <build>
                 <plugins>
                     <plugin>
@@ -52,19 +47,54 @@
                             </goals>
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-                            <preBuildHookScript>setup</preBuildHookScript>
-                            <postBuildHookScript>verify</postBuildHookScript>
                             <properties>
                                 <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
                             </properties>
+                            <profiles>
+                                <profile>offline-its</profile>
+                            </profiles>
                         </configuration>
                         <executions>
                             <execution>
                                 <id>integration-test</id>
                                 <goals>
                                     <goal>install</goal>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>online-its</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <debug>false</debug>
+                            <goals>
+                                <goal>install</goal>
+                            </goals>
+                            <projectsDirectory>src/it</projectsDirectory>
+                            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                            <properties>
+                                <wlpVersion>${wlpVersion}</wlpVersion>
+                                <wlpLicense>${wlpLicense}</wlpLicense>
+                            </properties>
+                            <profiles>
+                                <profile>online-its</profile>
+                            </profiles>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -73,5 +103,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
