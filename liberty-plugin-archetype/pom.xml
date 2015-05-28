@@ -28,20 +28,135 @@
                     <artifactId>maven-archetype-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
     <profiles>
         <profile>
-            <id>run-its</id>
-            <activation>
-                <property>
-                    <name>wlpInstallDir</name>
-                </property>
-            </activation>
+            <id>offline-its</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>generate-projects</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <cloneProjectsTo>${project.build.directory}/it/projects</cloneProjectsTo>
+                                    <goals>
+                                        <goal>org.apache.maven.plugins:maven-archetype-plugin:generate</goal>
+                                    </goals>
+                                    <pomIncludes>
+                                        <pomInclude>*</pomInclude>
+                                    </pomIncludes>
+                                    <projectsDirectory>${basedir}/src/it/projects</projectsDirectory>
+                                    <properties>
+                                        <archetypeArtifactId>${project.artifactId}</archetypeArtifactId>
+                                        <archetypeGroupId>${project.groupId}</archetypeGroupId>
+                                        <archetypeRepository>local</archetypeRepository>
+                                        <archetypeVersion>${project.version}</archetypeVersion>
+                                        <interactiveMode>false</interactiveMode>
+                                        <artifactId>myProject</artifactId>
+                                        <groupId>myGroup</groupId>
+                                        <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
+                                        <wlpPluginVersion>${project.version}</wlpPluginVersion>
+                                    </properties>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-projects</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <goals>
+                                        <goal>install</goal>
+                                    </goals>
+                                    <pomIncludes>
+                                        <pomInclude>*/*/pom.xml</pomInclude>
+                                    </pomIncludes>
+                                    <projectsDirectory>${project.build.directory}/it/projects</projectsDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>online-its</id>
+            <properties>
+                <wlpInstallDir>${project.build.directory}/wlp</wlpInstallDir>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>getting-server</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <!-- This artifact is generated by the setup IT of 
+                                                the plugin's project -->
+                                            <groupId>net.wasdev.wlp.maven.it</groupId>
+                                            <artifactId>assembly-server</artifactId>
+                                            <version>1.0-SNAPSHOT</version>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <overWrite>yes</overWrite>
+                                    <outputDirectory>${wlpInstallDir}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>setting-file-permissions-if-necessary</id>
+                                <phase>process-sources</phase>
+                                <configuration>
+                                    <target>
+                                        <chmod perm="+x" verbose="true">
+                                            <fileset dir="${wlpInstallDir}/bin">
+                                                <exclude name="*.bat"/>
+                                                <exclude name="/tools/*.*"/>
+                                            </fileset>
+                                        </chmod>
+                                      </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
