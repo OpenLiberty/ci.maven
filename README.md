@@ -128,7 +128,7 @@ Use the `assemblyArtifact` parameter to specify the name of the Maven artifact t
 
 Use the `install` parameter to download and install Liberty profile server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location.
 
-The Liberty license code must always be specified in order to install the Liberty server. If you are installing Liberty from the Liberty repository, you can obtain the license code by reading the [current license](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/8.5.5.2/lafiles/runtime/en.html) and looking for the `D/N: <license code>` line. Otherwise, download the Liberty runtime archive and execute `java -jar wlp*runtime.jar --viewLicenseInfo` command and look for the `D/N: <license code>` line.
+The Liberty license code must always be specified in order to install the Liberty server. If you are installing Liberty from the Liberty repository, you can obtain the license code by reading the [current license](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/8.5.5.5/lafiles/runtime/en.html) and looking for the `D/N: <license code>` line. Otherwise, download the Liberty runtime archive and execute `java -jar wlp*runtime.jar --viewLicenseInfo` command and look for the `D/N: <license code>` line.
 
 * Install using the Liberty repository. The plugin will use the Liberty repository to find the Liberty runtime archive to install based on the given version.
 
