@@ -1,5 +1,6 @@
+sudo: false
 language: java
 jdk:
   - oraclejdk8
 script: 
-  - "mvn verify -Ponline-its -DwlpVersion=8.5.5_05 -DwlpLicense=L-MCAO-9SYMVC"
+  - "mvn verify -Ponline-its -DwlpVersion=8.5.5_06 -DwlpLicense=L-MCAO-9SYMVC"
