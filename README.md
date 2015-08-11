@@ -159,7 +159,7 @@ The Liberty license code must always be specified in order to install the Libert
         <configuration>
             <install>
                 <licenseCode><license code></licenseCode>
-                <runtimeUrl><url to runtime.jar><runtimeUrl>
+                <runtimeUrl><url to runtime.jar></runtimeUrl>
             </install>
         </configuration>
     </plugin>
@@ -656,7 +656,7 @@ Example:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>pre-intregration-test</phase>
+            <phase>pre-integration-test</phase>
             <goals>
                 <goal>install-feature</goal>
             </goals>
@@ -698,7 +698,7 @@ Example:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>post-intregration-test</phase>
+            <phase>post-integration-test</phase>
             <goals>
                 <goal>uninstall-feature</goal>
             </goals>
