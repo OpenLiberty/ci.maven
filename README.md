@@ -656,7 +656,7 @@ Example:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>pre-intregration-test</phase>
+            <phase>pre-integration-test</phase>
             <goals>
                 <goal>install-feature</goal>
             </goals>
@@ -698,7 +698,7 @@ Example:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>post-intregration-test</phase>
+            <phase>post-integration-test</phase>
             <goals>
                 <goal>uninstall-feature</goal>
             </goals>
