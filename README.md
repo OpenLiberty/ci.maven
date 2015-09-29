@@ -117,16 +117,18 @@ Use the `assemblyArchive` parameter to specify a packaged server archive (create
 
 ###### Using Maven artifact
 
-Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains Liberty profile server files. For example:
+Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty profile server or use one of the provided from our IBM DHE repository. [See how to set up the DHE repository in this link.](#ibm-dhe-repository) 
+
+Example for using the `assemblyArtifact` parameter:
 ```xml
 <plugin>
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
         <assemblyArtifact>
-            <groupId>net.wasdev.wlp.test</groupId>
-            <artifactId>liberty-test-server</artifactId>
-            <version>1.0</version>
+            <groupId>com.ibm.websphere.appserver.runtime</groupId>
+            <artifactId>wlp-javaee7</artifactId>
+            <version>8.5.5.7</version>
             <type>zip</type>
         </assemblyArtifact>
     </configuration>
@@ -825,3 +827,26 @@ Example:
         -Dversion=1.0-SNAPSHOT \
         -DwlpInstallDir=<liberty_install_directory>
 
+## IBM DHE repository
+
+There are a set of maven artifacts already zipped for your use in the IBM DHE repository. In this, you can find following profiles of WAS Liberty: 
+
+|Name | Available versions| Artifact ID |
+| --- | ----------------- | ----------- |
+| WAS Liberty with Java EE 7 Full Platform | 8.5.5.6, 8.5.5.7 | wlp-javaee7 |
+| WAS Liberty with Java EE 7 Web Profile | 8.5.5.6, 8.5.5.7 | wlp-webProfile7 |
+
+Note: The group ID for this artifacts is: `com.ibm.websphere.appserver.runtime`
+
+### Configuring the repository
+
+To access the artifacts you should set up the IBM DHE repository in your pom.xml or settings.xml files by adding following snipped:
+
+```xml
+<repositories>
+    <repository>
+      <id>ibm-maven-repo</id>
+      <name>ibm-maven-repo</name>
+      <url>http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/maven/repository/</url>
+    </repository>
+</repositories>```
