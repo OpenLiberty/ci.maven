@@ -149,6 +149,8 @@
                         </goals>
                         <configuration>
                             <packageFile>${project.build.directory}</packageFile>
+			                <include>minify</include>
+			                <os>Windows8</os>
                         </configuration>
                     </execution>
                 </executions>
