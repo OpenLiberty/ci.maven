@@ -44,6 +44,13 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @parameter expression="${include}"
      */
     private String include;
+
+    /**
+     * Support for specific OS. Comma-delimited list of values.
+     * 
+     * @parameter expression="${os}"
+     */
+    private String os;
     
     /**
      * @parameter
@@ -76,6 +83,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
+        serverTask.setOs(os);
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
