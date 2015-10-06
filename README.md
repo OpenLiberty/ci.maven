@@ -7,6 +7,7 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
  * [liberty-maven-plugin](#liberty-maven-plugin)
      * [Configuration](#configuration)
      * [Goals](#goals)
+       * [install-server](#install-server)
        * [create-server](#create-server)
        * [start-server](#start-server)
        * [run-server](#run-server)
@@ -203,9 +204,10 @@ Parameters shared by all goals.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| installDirectory | Local installation directory of the Liberty profile server. | Yes, only when `assemblyArchive` and `assemblyArtifact` parameters are not set. |
-| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArtifact` parameters are not set. |
-| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArchive` parameters are not set. |
+| installDirectory | Local installation directory of the Liberty profile server. | Yes, only when `assemblyArchive`, `assemblyArtifact`, and `install` parameters are not set. |
+| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArtifact`, and `install` parameters are not set. |
+| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArchive`, and `install` parameters are not set. |
+| install | Install Liberty runtime from the [Liberty repository](#using-a-repository). | Yes, only when `installDirectory`, `assemblyArchive`, and `assemblyArtifact` parameters are not set. |
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No |
@@ -247,6 +249,34 @@ Example:
                 <jvmOptions>
                     <param>-Xmx768m</param>
                 </jvmOptions>
+            </configuration>
+        </execution>
+        ...
+    </executions>
+</plugin>
+```
+
+##### install-server
+---
+Installs Liberty profile runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. However, there might be cases where explicit execution might be needed.
+
+This goal only supports the [common parameters](#common-parameters).
+
+Example:
+```xml
+<plugin>
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <executions>
+        ...
+        <execution>
+            <id>install-server</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>install-server</goal>
+            </goals>
+            <configuration>
+                <type>javaee7</type>
             </configuration>
         </execution>
         ...
