@@ -16,7 +16,7 @@
 package net.wasdev.wlp.maven.plugins;
 
 public class Install {
-    
+
     private String cacheDirectory;
     private boolean verbose;
     private String licenseCode;
@@ -26,11 +26,12 @@ public class Install {
     private String password;
     private long maxDownloadTime;
     private String serverId;
-    
+    private String type;
+
     public String getCacheDirectory() {
         return cacheDirectory;
     }
-    
+
     public void setCacheDirectory(String cacheDirectory) {
         this.cacheDirectory = cacheDirectory;
     }
@@ -38,23 +39,23 @@ public class Install {
     public String getLicenseCode() {
         return licenseCode;
     }
-    
+
     public void setLicenseCode(String licenseCode) {
         this.licenseCode = licenseCode;
     }
-    
+
     public String getVersion() {
         return version;
     }
-    
+
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
     public String getRuntimeUrl() {
         return runtimeUrl;
     }
-    
+
     public void setRuntimeUrl(String runtimeUrl) {
         this.runtimeUrl = runtimeUrl;
     }
@@ -62,11 +63,11 @@ public class Install {
     public boolean isVerbose() {
         return verbose;
     }
-    
+
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -97,5 +98,13 @@ public class Install {
 
     public void setServerId(String serverId) {
         this.serverId = serverId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

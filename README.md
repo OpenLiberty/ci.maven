@@ -7,6 +7,7 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
  * [liberty-maven-plugin](#liberty-maven-plugin)
      * [Configuration](#configuration)
      * [Goals](#goals)
+       * [install-server](#install-server)
        * [create-server](#create-server)
        * [start-server](#start-server)
        * [run-server](#run-server)
@@ -136,30 +137,44 @@ Use the `assemblyArtifact` parameter to specify the name of the Maven artifact t
 
 Use the `install` parameter to download and install Liberty profile server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location.
 
-The Liberty license code must always be specified in order to install the Liberty server. If you are installing Liberty from the Liberty repository, you can obtain the license code by reading the [current license](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/8.5.5.5/lafiles/runtime/en.html) and looking for the `D/N: <license code>` line. Otherwise, download the Liberty runtime archive and execute `java -jar wlp*runtime.jar --viewLicenseInfo` command and look for the `D/N: <license code>` line.
+In certain cases, the Liberty license code may need to be provided in order to install the runtime. If the license code is required and if you are installing Liberty from the Liberty repository, you can obtain the license code by reading the [current license](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/8.5.5.7/lafiles/runtime/en.html) and looking for the `D/N: <license code>` line. Otherwise, download the Liberty runtime archive and execute `java -jar wlp*runtime.jar --viewLicenseInfo` command and look for the `D/N: <license code>` line.
 
-* Install using the Liberty repository. The plugin will use the Liberty repository to find the Liberty runtime archive to install based on the given version.
+* Install using the Liberty repository. The plugin will use the Liberty repository to find the Liberty runtime archive to install based on the given version and type. In this case, install Liberty runtime with Java EE 7 Web Profile features.
  ```xml
     <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
             <install>
+                <type>webProfile7</type>
+            </install>
+        </configuration>
+    </plugin>
+ ```
+
+* Same as above but install Liberty runtime with Java EE 6 Web Profile features (must provide `licenseCode`).
+ ```xml
+    <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <configuration>
+            <install>
+                <type>webProfile6</type>
                 <licenseCode><license code></licenseCode>
             </install>
         </configuration>
     </plugin>
  ```
 
-* Install from a given location. The `runtimeUrl` sub-parameter specifies a location of the Liberty runtime archive file to install.
+* Install from a given location. The `runtimeUrl` sub-parameter specifies a location of the Liberty profile's runtime `.jar` or `.zip` file to install. The `licenseCode` is only needed when installing from `.jar` file.
  ```xml
     <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
             <install>
+                <runtimeUrl><url to .jar or .zip file></runtimeUrl>
                 <licenseCode><license code></licenseCode>
-                <runtimeUrl><url to runtime.jar></runtimeUrl>
             </install>
         </configuration>
     </plugin>
@@ -169,9 +184,10 @@ The `install` parameter has the following sub-parameters:
 
 | Name | Description | Required |
 | --------  | ----------- | -------  |
-| licenseCode | Liberty profile license code. See [above](#install-from-repository). | Yes |
+| licenseCode | Liberty profile license code. See [above](#install-from-repository). | Yes, if `type` is `webProfile6` or `runtimeUrl` specifies a `.jar` file. |
 | version | Exact or wildcard version of the Liberty profile server to install. Available versions are listed in the [index.yml](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/index.yml) file. Only used if `runtimeUrl` is not set. The default value is `8.5.+`. | No |
-| runtimeUrl | URL to the Liberty profile's `wlp*runtime.jar`. If not set, the Liberty repository will be used to find the Liberty runtime archive. | No |
+| type | Liberty runtime type to download from the Liberty repository. Currently, the following types are supported: `kernel`, `webProfile6`, `webProfile7`, and `javaee7`. Only used if `runtimeUrl` is not set. The default value is `webProfile6`. | No |
+| runtimeUrl | URL to the Liberty profile's runtime `.jar` or a `.zip` file. If not set, the Liberty repository will be used to find the Liberty runtime archive. | No |
 | cacheDirectory | The directory used for caching downloaded files such as the license or `.jar` files. The default value is `${settings.localRepository}/wlp-cache`. | No |
 | username | Username needed for basic authentication. | No |
 | password | Password needed for basic authentication. | No |
@@ -188,9 +204,10 @@ Parameters shared by all goals.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| installDirectory | Local installation directory of the Liberty profile server. | Yes, only when `assemblyArchive` and `assemblyArtifact` parameters are not set. |
-| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArtifact` parameters are not set. |
-| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory` and `assemblyArchive` parameters are not set. |
+| installDirectory | Local installation directory of the Liberty profile server. | Yes, only when `assemblyArchive`, `assemblyArtifact`, and `install` parameters are not set. |
+| assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArtifact`, and `install` parameters are not set. |
+| assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArchive`, and `install` parameters are not set. |
+| install | Install Liberty runtime from the [Liberty repository](#using-a-repository). | Yes, only when `installDirectory`, `assemblyArchive`, and `assemblyArtifact` parameters are not set. |
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No |
@@ -232,6 +249,34 @@ Example:
                 <jvmOptions>
                     <param>-Xmx768m</param>
                 </jvmOptions>
+            </configuration>
+        </execution>
+        ...
+    </executions>
+</plugin>
+```
+
+##### install-server
+---
+Installs Liberty profile runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. However, there might be cases where explicit execution might be needed.
+
+This goal only supports the [common parameters](#common-parameters).
+
+Example:
+```xml
+<plugin>
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <executions>
+        ...
+        <execution>
+            <id>install-server</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>install-server</goal>
+            </goals>
+            <configuration>
+                <type>javaee7</type>
             </configuration>
         </execution>
         ...
