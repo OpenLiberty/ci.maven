@@ -439,7 +439,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `installDirectory` is set. Otherwise, it defaults to `${assemblyInstallDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
-| include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | No |
+| include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | Yes, only when os parameter is set |
+| os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute must be set to 'minify'. | No |
 
 Example:
 ```xml
@@ -456,6 +457,8 @@ Example:
             </goals>
             <configuration>
                 <packageFile>${project.build.directory}/test.zip</packageFile>
+                <include>minify</include>
+                <os>OS/400,-z/OS</os>
             </configuration>
         </execution>
         ...
