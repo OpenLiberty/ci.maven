@@ -347,6 +347,7 @@ public class BasicSupport extends AbstractLibertySupport {
         installTask.setRuntimeUrl(install.getRuntimeUrl());
         installTask.setVerbose(install.isVerbose());
         installTask.setMaxDownloadTime(install.getMaxDownloadTime());
+        installTask.setType(install.getType());
         installTask.setOffline(settings.isOffline());
         
         String cacheDir = install.getCacheDirectory();
