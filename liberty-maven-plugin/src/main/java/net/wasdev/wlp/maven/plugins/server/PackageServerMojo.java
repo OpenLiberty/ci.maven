@@ -44,6 +44,21 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @parameter expression="${include}"
      */
     private String include;
+
+    /**
+     * Os supported. Specifies the operating systems that you want the packaged server to support. 
+     *     Supply a comma-separated list. The default value is any, indicating that the server is to 
+     *     be deployable to any operating system supported by the source. To specify that an operating 
+     *     system is not to be supported, prefix it with a minus sign ("-"). For a list of operating system 
+     *     values, refer to the OSGi Alliance web site at the following URL: 
+     *     http://www.osgi.org/Specifications/Reference#os. 
+     *     This option applies only to the package operation, and can be used only with the 
+     *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
+     *     repeat the minify operation on the archive.
+     * 
+     * @parameter expression="${os}"
+     */
+    private String os;
     
     /**
      * @parameter
@@ -76,6 +91,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
+        serverTask.setOs(os);
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
