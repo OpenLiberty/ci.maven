@@ -184,12 +184,13 @@ public class BasicSupport extends AbstractLibertySupport {
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
-            } else if (install != null) {
+            } else {
+                if (install == null) {
+                    install = new Install();
+                }
                 installType = InstallType.FROM_ARCHIVE;
                 installDirectory = new File(assemblyInstallDirectory, "wlp");
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
-            } else {
-                throw new MojoExecutionException("Liberty profile installation option is not set."); 
             }
 
             // set server name
