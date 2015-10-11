@@ -118,7 +118,7 @@ Use the `assemblyArchive` parameter to specify a packaged server archive (create
 
 ###### Using Maven artifact
 
-Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty profile server or use one of the provided from our IBM DHE repository. [See how to set up the DHE repository in this link.](#ibm-dhe-repository) 
+Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty profile server or use one of the provided from the IBM DHE repository. In order to use one of the provided runtimes, you must [define the DHE repository](#ibm-dhe-repository) in your `pom.xml` file. 
 
 Example for using the `assemblyArtifact` parameter:
 ```xml
@@ -128,7 +128,7 @@ Example for using the `assemblyArtifact` parameter:
     <configuration>
         <assemblyArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
-            <artifactId>wlp-javaee7</artifactId>
+            <artifactId>wlp-webProfile7</artifactId>
             <version>8.5.5.7</version>
             <type>zip</type>
         </assemblyArtifact>
@@ -826,24 +826,25 @@ Example:
 
 ## IBM DHE repository
 
-There are a set of maven artifacts already zipped for your use in the IBM DHE repository. In this, you can find following profiles of WAS Liberty: 
+There are a set of Maven artifacts already provided for your use in the IBM DHE repository. The repository includes the following Liberty runtime artifacts:
 
-|Name | Available versions| Artifact ID |
+|Artifact ID | Versions | Description |
 | --- | ----------------- | ----------- |
-| WAS Liberty with Java EE 7 Full Platform | 8.5.5.6, 8.5.5.7 | wlp-javaee7 |
-| WAS Liberty with Java EE 7 Web Profile | 8.5.5.6, 8.5.5.7 | wlp-webProfile7 |
+| wlp-javaee7 | 8.5.5.6, 8.5.5.7 | Liberty runtime with all Java EE 7 Full Platform features. |
+| wlp-webProfile7 | 8.5.5.6, 8.5.5.7 | Liberty runtime with Java EE 7 Web Profile features. |
 
 Note: The group ID for this artifacts is: `com.ibm.websphere.appserver.runtime`
 
 ### Configuring the repository
 
-To access the artifacts you should set up the IBM DHE repository in your pom.xml or settings.xml files by adding following snipped:
+To access the artifacts you should set up the IBM DHE repository in your `pom.xml` or `~/.m2/settings.xml` files by adding following snippet:
 
 ```xml
 <repositories>
     <repository>
       <id>ibm-maven-repo</id>
       <name>ibm-maven-repo</name>
-      <url>http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/maven/repository/</url>
+      <url>https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/maven/repository/</url>
     </repository>
-</repositories>```
+</repositories>
+```
