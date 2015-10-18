@@ -812,7 +812,7 @@ Example:
 
 ### liberty-plugin-archetype
 
-`liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application, deploys and tests it on the Liberty Profile server. It also creates a Liberty Profile server package that includes the application.
+`liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application, deploys and tests it on the Liberty profile server. It also creates a Liberty profile server package that includes the application.
 
 #### Usage
 
@@ -821,8 +821,7 @@ Example:
         -DarchetypeArtifactId=liberty-plugin-archetype \
         -DgroupId=test \
         -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT \
-        -DwlpInstallDir=<liberty_install_directory>
+        -Dversion=1.0-SNAPSHOT
 
 ## IBM DHE repository
 

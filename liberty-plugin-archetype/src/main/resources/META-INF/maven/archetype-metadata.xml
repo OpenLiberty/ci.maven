@@ -5,7 +5,6 @@
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <requiredProperties>
-        <requiredProperty key="wlpInstallDir"/>
         <requiredProperty key="wlpPluginVersion">
           <defaultValue>1.0</defaultValue>
         </requiredProperty>
@@ -27,7 +26,7 @@
                 </fileSet>
             </fileSets>
         </module>
-        
+
         <module id="${rootArtifactId}-test" dir="__rootArtifactId__-test" name="${rootArtifactId}-test">
             <fileSets>
                 <fileSet filtered="true" packaged="true" encoding="UTF-8">
@@ -56,6 +55,6 @@
                     </includes>
                 </fileSet>
             </fileSets>
-        </module>        
+        </module>
     </modules>
 </archetype-descriptor>

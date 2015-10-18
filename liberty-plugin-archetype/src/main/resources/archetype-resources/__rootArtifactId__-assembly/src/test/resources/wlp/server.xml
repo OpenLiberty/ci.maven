@@ -2,12 +2,14 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>servlet-3.0</feature>
+        <feature>servlet-3.1</feature>
     </featureManager>
 
     <httpEndpoint id="defaultHttpEndpoint"
                   host="localhost"
                   httpPort="8080"
                   httpsPort="8443" />
+
+    <application location="${rootArtifactId}-web-${version}.war" />
 
 </server>

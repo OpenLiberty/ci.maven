@@ -10,9 +10,6 @@
     <version>${version}</version>
 
     <properties>
-        <!-- Specify Liberty profile server installation directory -->
-        <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
-        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -31,9 +28,9 @@
                 <version>3.1</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                <version>1.0</version>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -58,7 +55,7 @@
                         <source>1.6</source>
                         <target>1.6</target>
                     </configuration>
-                </plugin>             
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -107,6 +104,51 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>default-liberty</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <wlp.install.dir>../target/wlp</wlp.install.dir>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>install-server</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                          <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+       </profile>
+
+       <profile>
+            <id>custom-liberty</id>
+            <activation>
+                <property>
+                    <name>wlpInstallDir</name>
+                </property>
+            </activation>
+            <properties>
+                <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
+            </properties>
+       </profile>
+
+   </profiles>
 
     <modules>
         <module>${artifactId}-web</module>

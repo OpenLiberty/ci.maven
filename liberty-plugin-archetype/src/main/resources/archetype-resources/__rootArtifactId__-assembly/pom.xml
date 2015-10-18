@@ -8,7 +8,7 @@
         <artifactId>${rootArtifactId}-parent</artifactId>
         <version>${version}</version>
     </parent>
-    
+
     <artifactId>${rootArtifactId}-assembly</artifactId>
     <name>Simple Web Application Server Assembly</name>
     <packaging>liberty-assembly</packaging>
@@ -29,10 +29,13 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <installDirectory>${wlp.install.dir}</installDirectory>  
+                    <installDirectory>${wlp.install.dir}</installDirectory>
+                    <userDirectory>${project.build.directory}</userDirectory>
                     <serverName>production</serverName>
                     <!-- Use custom server.xml -->
                     <configFile>${project.basedir}/src/test/resources/wlp/server.xml</configFile>
+                    <!-- Drop application into apps/ directory -->
+                    <appsDirectory>apps</appsDirectory>
                 </configuration>
             </plugin>
         </plugins>
