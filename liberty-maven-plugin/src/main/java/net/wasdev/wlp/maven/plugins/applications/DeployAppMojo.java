@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.tools.ant.util.FileUtils;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.ant.DeployTask;
@@ -52,6 +53,13 @@ public class DeployAppMojo extends BasicSupport {
      * @parameter expression="${timeout}" default-value="40"
      */
     protected int timeout = 40;
+    
+    /**
+     * Strip version. 
+     * 
+     * @parameter expression="${stripVersion}" default-value="false"
+     */
+    protected boolean stripVersion;
 
     @Override
     protected void doExecute() throws Exception {
@@ -64,10 +72,21 @@ public class DeployAppMojo extends BasicSupport {
         if (appArchive != null && appArtifact != null) {
             throw new MojoExecutionException(messages.getString("error.app.set.twice"));
         }
+        
+        File strippedFile = null;
 
         if (appArtifact != null) {
             Artifact artifact = getArtifact(appArtifact);
             appArchive = artifact.getFile();
+            if (stripVersion) {
+                strippedFile = new File(appArchive.getParentFile(), artifact.getArtifactId() + "." + artifact.getType());
+                log.info(strippedFile.getAbsolutePath());
+                FileUtils.getFileUtils().copyFile(appArchive, strippedFile);
+                if (!strippedFile.exists()) {
+                    throw new MojoExecutionException("Couldn't strip archive.");
+                }
+                appArchive = strippedFile;
+            }
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
         } else if (appArchive != null) {
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
@@ -93,5 +112,9 @@ public class DeployAppMojo extends BasicSupport {
         // Convert from seconds to milliseconds
         deployTask.setTimeout(Long.toString(timeout*1000));
         deployTask.execute();
+        
+        if (stripVersion && strippedFile != null) {
+            FileUtils.delete(strippedFile);
+        }
     }
 }
