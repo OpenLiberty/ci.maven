@@ -8,15 +8,15 @@
         <artifactId>${rootArtifactId}-parent</artifactId>
         <version>${version}</version>
     </parent>
-    
+
     <artifactId>${rootArtifactId}-web</artifactId>
     <name>Simple Web Application</name>
     <packaging>war</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
