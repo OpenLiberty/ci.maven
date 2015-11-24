@@ -275,7 +275,9 @@ Example:
                 <goal>install-server</goal>
             </goals>
             <configuration>
-                <type>javaee7</type>
+                <install>
+                    <type>javaee7</type>
+                </install>
             </configuration>
         </execution>
         ...
