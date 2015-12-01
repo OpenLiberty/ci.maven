@@ -67,7 +67,7 @@ public class UninstallFeatureMojo extends BasicSupport {
         uninstallFeatureTask.setServerName(serverName);
         uninstallFeatureTask.setUserDir(userDirectory);
         uninstallFeatureTask.setOutputDir(outputDirectory);
-        uninstallFeatureTask.setName(features.getFeaturesAsString());
+        uninstallFeatureTask.setFeatures(features.getFeatures());
         uninstallFeatureTask.execute();
     }
 
