@@ -71,7 +71,7 @@ public class InstallFeatureMojo extends BasicSupport {
         installFeatureTask.setAcceptLicense(features.isAcceptLicense());
         installFeatureTask.setTo(features.getTo());
         installFeatureTask.setWhenFileExists(features.getWhenFileExists());
-        installFeatureTask.setName(features.getFeaturesAsString());
+        installFeatureTask.setFeatures(features.getFeatures());
         installFeatureTask.execute();
     }
 

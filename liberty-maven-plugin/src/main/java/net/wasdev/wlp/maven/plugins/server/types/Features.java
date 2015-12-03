@@ -16,8 +16,9 @@
 package net.wasdev.wlp.maven.plugins.server.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
 
 /**
  * A class to store a set of features and the install configuration.
@@ -49,7 +50,7 @@ public class Features {
     /**
      * A list with the names of the features.
      */
-    private List<String> featureList = new ArrayList<String>();
+    private List<Feature> featureList = new ArrayList<Feature>();
 
     public boolean isAcceptLicense() {
         return acceptLicense;
@@ -80,7 +81,7 @@ public class Features {
      *
      * @return A list with the name of the features.
      */
-    public List<String> getFeatures() {
+    public List<Feature> getFeatures() {
         return featureList;
     }
 
@@ -95,20 +96,10 @@ public class Features {
         }
         feature = feature.trim();
         if (!feature.isEmpty()) { 
-            featureList.add(feature);
+            Feature newFeature = new Feature();
+            newFeature.addText(feature);
+            featureList.add(newFeature);
         }
-    }
-    
-    public String getFeaturesAsString() {
-        StringBuilder buffer = new StringBuilder();
-        int size = featureList.size();
-        for (int i = 0; i < size;  i++) {
-            buffer.append(featureList.get(i));
-            if (i + 1 < size) {
-                buffer.append(",");
-            }
-        }
-        return buffer.toString();
     }
 
 }

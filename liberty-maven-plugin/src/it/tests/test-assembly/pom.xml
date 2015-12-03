@@ -46,6 +46,8 @@
                     <features>
                         <acceptLicense>true</acceptLicense>
                         <feature>mongodb-2.0</feature>
+                        <feature>oauth-2.0</feature>
+                        <feature>couchdb-1.0</feature>
                     </features>
                 </configuration>
             </plugin>
