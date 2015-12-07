@@ -52,11 +52,6 @@ public class InstallFeatureMojo extends BasicSupport {
             return;
         }
         
-        if (features.getFeatures().size() <= 0) {
-            throw new MojoExecutionException(
-                    messages.getString("error.install.feature.set.validate"));
-        }
-
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");
 
@@ -70,8 +65,10 @@ public class InstallFeatureMojo extends BasicSupport {
         installFeatureTask.setOutputDir(outputDirectory);
         installFeatureTask.setAcceptLicense(features.isAcceptLicense());
         installFeatureTask.setTo(features.getTo());
+        // whenFileExist is deprecated, but keep it to ensure backward compatibility
         installFeatureTask.setWhenFileExists(features.getWhenFileExists());
         installFeatureTask.setFeatures(features.getFeatures());
+        installFeatureTask.setFrom(features.getFrom());
         installFeatureTask.execute();
     }
 
