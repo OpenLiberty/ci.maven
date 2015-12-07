@@ -39,6 +39,7 @@ public class Features {
     private String to = "usr";
 
     /**
+     * @deprecated installUtility does not have a whenFileExist parameter
      * If a file that is part of the ESA already exists on the system, you must
      * specify what actions to take. Valid options are: fail - abort the
      * installation; ignore - continue the installation and ignore the file that
@@ -51,6 +52,13 @@ public class Features {
      * A list with the names of the features.
      */
     private List<Feature> featureList = new ArrayList<Feature>();
+    
+    /**
+     * A single directory-based repository as the source of the assets for the installUtility command.
+     * 
+     * @parameter expression="${from}"
+     */
+    private String from = null;
 
     public boolean isAcceptLicense() {
         return acceptLicense;
@@ -67,13 +75,27 @@ public class Features {
     public void setTo(String to) {
         this.to = to;
     }
-
+    
+    /**
+     * @deprecated installUtility does not have a whenFileExist parameter
+     */
     public String getWhenFileExists() {
         return whenFileExists;
     }
 
+    /**
+     * @deprecated installUtility does not have a whenFileExist parameter
+     */
     public void setWhenFileExists(String whenFileExists) {
         this.whenFileExists = whenFileExists;
+    }
+    
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     /**
