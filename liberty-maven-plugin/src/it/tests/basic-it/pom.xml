@@ -147,8 +147,8 @@
                             <goal>clean-server</goal>
                         </goals>
                         <configuration>
-                            <dropins>true</dropins>
-                            <apps>true</apps>
+                            <cleanDropins>true</cleanDropins>
+                            <cleanApps>true</cleanApps>
                         </configuration>
                     </execution>
                     <execution>

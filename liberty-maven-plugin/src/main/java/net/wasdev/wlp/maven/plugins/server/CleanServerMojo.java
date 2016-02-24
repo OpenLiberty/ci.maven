@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015.
+ * (C) Copyright IBM Corporation 2016.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,25 +27,25 @@ public class CleanServerMojo extends StartDebugMojoSupport {
     
     /**
      * Clean the logs directory.
-     * @parameter expression="${logs}" default-value="true"
+     * @parameter expression="${cleanLogs}" default-value="true"
      */
     private boolean logs = true;
     
     /**
      * Clean the workarea directory.
-     * @parameter expression="${workarea}" default-value="true"
+     * @parameter expression="${cleanWorkarea}" default-value="true"
      */
     private boolean workarea = true;
     
     /**
      * Clean the dropins directory.
-     * @parameter expression="${dropins}" default-value="false"
+     * @parameter expression="${cleanDropins}" default-value="false"
      */
     private boolean dropins = false;
     
     /**
      * Clean the apps directory.
-     * @parameter expression="${apps}" default-value="false"
+     * @parameter expression="${cleanApps}" default-value="false"
      */
     private boolean apps = false;
     
