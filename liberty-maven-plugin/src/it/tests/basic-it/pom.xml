@@ -141,6 +141,17 @@
                         </goals>
                     </execution>
                     <execution>
+                        <id>clean-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>clean-server</goal>
+                        </goals>
+                        <configuration>
+                            <dropins>true</dropins>
+                            <apps>true</apps>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>package-server</id>
                         <!-- phase must be after integration tests since they create the "test" server -->
                         <phase>install</phase>
