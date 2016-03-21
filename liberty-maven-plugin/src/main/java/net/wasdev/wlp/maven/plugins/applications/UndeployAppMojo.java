@@ -68,6 +68,13 @@ public class UndeployAppMojo extends BasicSupport {
      */
     protected int timeout = 40;
     
+    /**
+     * Undeploy stripped version appArtifact. 
+     * 
+     * @parameter expression="${strippedVersion}" default-value="false"
+     */
+    protected boolean strippedVersion;
+    
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -97,7 +104,11 @@ public class UndeployAppMojo extends BasicSupport {
             
             if (appArtifact != null) {
                 Artifact artifact = getArtifact(appArtifact);
-                appArchive = artifact.getFile().getName();
+                if (strippedVersion) {
+                    appArchive = artifact.getArtifactId() + "." + artifact.getType();
+                } else {
+                    appArchive = artifact.getFile().getName(); 
+                }
                 
                 log.info(MessageFormat.format(
                         messages.getString("info.variable.set"),

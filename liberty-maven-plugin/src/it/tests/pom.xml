@@ -16,6 +16,7 @@
     <modules>
         <module>test-assembly</module>
         <module>assembly-it</module>
+        <module>deploy-undeploy-it</module>
         <module>basic-it</module>
         <module>install-features-it</module>
     </modules>

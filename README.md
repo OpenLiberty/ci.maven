@@ -625,6 +625,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | appArtifact | Maven coordinates of an application to be deployed. | Yes, if appArchive is not set. |
 | appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes, if appArtifact is not set. |
 | timeout | Maximum time to wait (in seconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
+| stripVersion | Removes the version from the __appArtifact__. The default value is `false`. | No |
 
 Examples:
 
@@ -643,7 +644,7 @@ Examples:
     </execution>
    ```
 
- 2. Single deploy of an application with maven coordinates.
+ 2. Single deploy of an application with maven coordinates removing the version number. The resulting war will be *webapp.war* instead of *webapp-1.0.war*.
 
   ```xml
     <execution>
@@ -658,6 +659,7 @@ Examples:
                 <artifactId>webapp</artifactId>
                 <version>1.0</version>
                 <type>war</type>
+                <stripVersion>true</stripVersion>
             </appArtifact>
         </configuration>
     </execution>
@@ -677,6 +679,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | appArchive | Name of an application to be undeployed. The application type can be war, ear, rar, eba, zip, or jar. | No |
 | patternSet | Includes and excludes patterns of applications to be undeployed. | No |
 | timeout | Maximum time to wait (in seconds) to verify that the undeployment has completed successfully. The default value is 40 seconds. | No |
+| strippedVersion | Indicates that the __appArtifact__ deployed is a stripped-version. The default value is `false`. | No |
 
 Examples:
 
@@ -694,7 +697,7 @@ Examples:
     </execution>
   ```
 
- 2. Single undeploy from an application with maven coordinates.
+ 2. Single undeploy from a stripped-version application with maven coordinates.
    ```xml
     <execution>
         <id>undeploy-by-appArtifact</id>
@@ -708,6 +711,7 @@ Examples:
                 <artifactId>webapp</artifactId>
                 <version>1.0</version>
                 <type>war</type>
+                <strippedVersion>true</stripedVersion>
             </appArtifact>
         </configuration>
     </execution>
