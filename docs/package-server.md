@@ -1,0 +1,39 @@
+#### package-server
+---
+Package a Liberty Profile server.
+
+###### Additional Parameters
+
+The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `installDirectory` is set. Otherwise, it defaults to `${assemblyInstallDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
+| include | Packaging type. One of `all`, `usr`, or `minify`. The default value is `all`. | Yes, only when the `os` option is set |
+| os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute __must__ be set to 'minify'. | No |
+
+Example:
+```xml
+<plugin>
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <executions>
+        ...
+        <execution>
+            <id>package-server</id>
+            <phase>package</phase>
+            <goals>
+                <goal>package-server</goal>
+            </goals>
+            <configuration>
+                <packageFile>${project.build.directory}/test.zip</packageFile>
+            </configuration>
+        </execution>
+        ...
+    </executions>
+    <configuration>
+       <installDirectory>/opt/ibm/wlp</installDirectory>
+       <serverName>test</serverName>
+    </configuration>
+</plugin>
+```
