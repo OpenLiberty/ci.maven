@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2016.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 writer.print(entry.getKey());
                 writer.print("=");
-                writer.println(entry.getValue());
+                writer.println(entry.getValue().replace("\\", "/"));
             }
         } finally {
             if (writer != null) {
