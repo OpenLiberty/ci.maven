@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014-2015.
+ * (C) Copyright IBM Corporation 2014-2016.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,13 @@ public class DeployAppMojo extends BasicSupport {
      * @parameter expression="${timeout}" default-value="40"
      */
     protected int timeout = 40;
+    
+    /**
+     *  The file name of the deployed application in the `dropins` directory.
+     *
+     * @parameter expression="${appDeployName}"
+     */
+    protected String appDeployName;
 
     @Override
     protected void doExecute() throws Exception {
@@ -90,6 +97,7 @@ public class DeployAppMojo extends BasicSupport {
         deployTask.setUserDir(userDirectory);
         deployTask.setOutputDir(outputDirectory);
         deployTask.setFile(appArchive);
+        deployTask.setDeployName(appDeployName);
         // Convert from seconds to milliseconds
         deployTask.setTimeout(Long.toString(timeout*1000));
         deployTask.execute();
