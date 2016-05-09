@@ -135,6 +135,31 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>deploy web applications by fileSet</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <fileSet>
+                                <dir>../../setup/test-war/target</dir>
+                                <includes>*.war</includes>
+                            </fileSet>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>undeploy-by-patternSet</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <patternSet>
+                                <includes>*.war</includes>
+                            </patternSet>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>stop-liberty-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
