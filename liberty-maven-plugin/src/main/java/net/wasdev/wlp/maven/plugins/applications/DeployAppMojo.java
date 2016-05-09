@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.tools.ant.types.FileSet;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.ant.DeployTask;
@@ -59,6 +60,13 @@ public class DeployAppMojo extends BasicSupport {
      * @parameter expression="${appDeployName}"
      */
     protected String appDeployName;
+    
+    /**
+     * Fileset to deploy multiple applications.
+     *
+     * @parameter expression="${fileSet}" 
+     */
+    protected FileSet fileSet;
 
     @Override
     protected void doExecute() throws Exception {
@@ -71,22 +79,11 @@ public class DeployAppMojo extends BasicSupport {
         if (appArchive != null && appArtifact != null) {
             throw new MojoExecutionException(messages.getString("error.app.set.twice"));
         }
-
-        if (appArtifact != null) {
-            Artifact artifact = getArtifact(appArtifact);
-            appArchive = artifact.getFile();
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
-        } else if (appArchive != null) {
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
-        } else {
-            throw new MojoExecutionException("Nothing to deploy - appArchive or appArtifact must be set.");
+        
+        if (appArtifact == null && appArchive == null && fileSet.getDir() == null) {
+            throw new MojoExecutionException("Nothing to deploy - appArchive, appArtifact or fileSet must be set.");
         }
-
-        if (!appArchive.exists() || appArchive.isDirectory()) {
-            throw new MojoExecutionException("Application file does not exist or is a directory: " + appArchive);
-        }
-
-        log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
+        
         DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
         if (deployTask == null) {
             throw new NullPointerException("Deploy task not found");
@@ -96,8 +93,29 @@ public class DeployAppMojo extends BasicSupport {
         deployTask.setServerName(serverName);
         deployTask.setUserDir(userDirectory);
         deployTask.setOutputDir(outputDirectory);
-        deployTask.setFile(appArchive);
-        deployTask.setDeployName(appDeployName);
+
+        if (appArtifact != null) {
+            Artifact artifact = getArtifact(appArtifact);
+            appArchive = artifact.getFile();
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
+        } else if (appArchive != null) {
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
+        } 
+        
+        if (fileSet.getDir() != null) {
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "fileSet", fileSet.getDir().toString()));
+            log.info(MessageFormat.format(messages.getString("info.deploy.apps"), fileSet.getDir().toString()));
+            deployTask.addFileset(fileSet);
+        }
+        if (appArchive != null) {
+            if (!appArchive.exists() || appArchive.isDirectory()) {
+                throw new MojoExecutionException("Application file does not exist or is a directory: " + appArchive);
+            }
+            log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
+            deployTask.setFile(appArchive);
+            deployTask.setDeployName(appDeployName);
+        }
+        
         // Convert from seconds to milliseconds
         deployTask.setTimeout(Long.toString(timeout*1000));
         deployTask.execute();
