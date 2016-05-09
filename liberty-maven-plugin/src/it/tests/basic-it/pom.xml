@@ -121,6 +121,7 @@
                         </goals>
                         <configuration>
                             <appArchive>../../setup/test-war/target/test-war.war</appArchive>
+                            <appDeployName>my-test-war.war</appDeployName>
                         </configuration>
                     </execution>
                     <execution>
@@ -130,7 +131,7 @@
                             <goal>undeploy</goal>
                         </goals>
                         <configuration>
-                            <appArchive>test-war.war</appArchive>
+                            <appArchive>my-test-war.war</appArchive>
                         </configuration>
                     </execution>
                     <execution>

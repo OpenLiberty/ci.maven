@@ -23,7 +23,7 @@ public class PluginWARTest {
     public void testWAR() throws Exception {
         URL url = null;
         try {
-            url = new URL(baseURL + "test-war/index.jsp");
+            url = new URL(baseURL + "my-test-war/index.jsp");
             String textToFind = "Liberty";
             assertTrue(textToFind, HttpUtils.findStringInUrl(url, textToFind));
         } catch (MalformedURLException e) {
