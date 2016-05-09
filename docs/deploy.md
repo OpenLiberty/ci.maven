@@ -8,10 +8,11 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| appArtifact | Maven coordinates of an application to be deployed. | Yes, if appArchive is not set. |
-| appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes, if appArtifact is not set. |
+| appArtifact | Maven coordinates of an application to be deployed. | Yes, if appArchive or fileSet are not set. |
+| appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes, if appArtifact or fileSet are not set. |
 | timeout | Maximum time to wait (in seconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
 | appDeployName| The file name of the deployed application in the `dropins` directory. It is possible to use Maven properties to define it, for example `${project.artifactId}` or `${project.name}`. | No. By default, the `deployName` is the same as the original file name.|
+| fileSet | Location of multiple applications to be deployed. | Yes, if appArtifact or appArchive are not set. |
 
 Examples:
 
@@ -50,3 +51,22 @@ Examples:
         </configuration>
     </execution>
   ```
+
+ 3. Multiple deploy of applications with fileSet.
+ 
+   ```xml
+     <execution>
+         <id>deploy-by-fileSet</id>
+         <phase>post-integration-test</phase>
+         <goals>
+             <goal>deploy</goal>
+         </goals>
+         <configuration>
+             <fileSet>
+                 <dir>${basedir}/target</dir>
+                 <includes>*.war</includes>
+             </fileSet>
+         </configuration>
+     </execution>
+   ```
+ 
