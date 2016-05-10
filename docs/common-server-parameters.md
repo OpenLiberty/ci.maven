@@ -5,7 +5,7 @@ Additional parameters shared by all server-based goals.
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| bootstrapProperties | List of bootstrap properties for the server instance. | No |
+| bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. | No |
 | bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
 | jvmOptions | List of JVM options for the server instance. | No |
 | jvmOptionsFile | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
