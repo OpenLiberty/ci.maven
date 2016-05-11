@@ -50,7 +50,7 @@ Examples:
  3. Undeploy all.
   ```xml
     <execution>
-        <id>undeploy-by-appArtifact</id>
+        <id>undeploy-all</id>
         <phase>post-integration-test</phase>
         <goals>
             <goal>undeploy</goal>
@@ -61,7 +61,7 @@ Examples:
  4. Undeploy from a patternSet.
   ```xml
     <execution>
-        <id>undeploy-by-appArtifact</id>
+        <id>undeploy-by-patternSet</id>
         <phase>post-integration-test</phase>
         <goals>
             <goal>undeploy</goal>
