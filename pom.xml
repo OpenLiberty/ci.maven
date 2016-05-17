@@ -12,7 +12,7 @@
 
     <groupId>net.wasdev.wlp.maven</groupId>
     <artifactId>liberty-maven</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
     <name>WebSphere Application Server Liberty Profile Maven Tools</name>
     <description>
@@ -33,7 +33,7 @@
         <connection>scm:git:git@github.com:WASdev/ci.maven.git</connection>
         <developerConnection>scm:git:git@github.com:WASdev/ci.maven.git</developerConnection>
         <url>git@github.com:WASdev/ci.maven.git</url>
-      <tag>HEAD</tag>
+      <tag>liberty-maven-1.2</tag>
   </scm>
 
     <developers>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>net.wasdev.wlp.ant</groupId>
                 <artifactId>wlp-anttasks</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>1.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
