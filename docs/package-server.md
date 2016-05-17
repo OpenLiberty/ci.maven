@@ -2,7 +2,7 @@
 ---
 Package a Liberty Profile server.
 
-To WAS Liberty 8.5.5.9 and above it is possible to package a server into a jar file using option `runnable` on `include` parameter. It creates a .jar file that include Liberty server, application and configuration. The `java -jar` command will run Liberty and the packaged application.
+Starting with WebSphere Liberty 8.5.5.9, it is possible to package a server into an executable jar file by setting the `include` parameter to `runnable`. The created jar file can be executed using the `java -jar` command.
 
 ###### Additional Parameters
 
@@ -12,7 +12,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | --------  | ----------- | -------  |
 | packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${serverName}.zip` file. If the target location is not specified, it defaults to `${installDirectory}/usr/servers/${serverName}.zip` if `installDirectory` is set. Otherwise, it defaults to `${assemblyInstallDirectory}/usr/servers/${serverName}.zip` if `assemblyArchive` or `assemblyArtifact` is set. | No |
 | include | Packaging type. One of `all`, `usr`, `minify` or `runnable` (8.5.5.9 and above). The default value is `all`. | Yes, only when the `os` option is set |
-| os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute __must__ be set to 'minify'. | No |
+| os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute __must__ be set to `minify`. | No |
 
 Examples:
 1. Package test server into a zip file.
