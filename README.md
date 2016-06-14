@@ -84,7 +84,8 @@ The `liberty-maven-plugin` provides the following goals.
 
 | Goal | Description |
 | --------- | ------------ |
-| [install-server](docs/install-server.md#install-server) | Installs Liberty profile runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. | | [create-server](docs/create-server.md#create-server) | Create a Liberty Profile server. |
+| [install-server](docs/install-server.md#install-server) | Installs Liberty profile runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
+| [create-server](docs/create-server.md#create-server) | Create a Liberty Profile server. |
 | [start-server](docs/start-server.md#start-server) | Start a Liberty Profile server in background. The server instance will be automatically created if it does not exist. |
 | [run-server](docs/run-server.md#run-server) | Start a Liberty Profile server in foreground. The server instance will be automatically created if it does not exist. |
 | [stop-server](docs/stop-server.md#stop-server) | Stop a Liberty Profile server. The server instance must exist and must be running. |
