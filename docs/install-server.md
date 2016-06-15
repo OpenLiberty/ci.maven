@@ -43,10 +43,12 @@ Examples:
                     <goal>install-server</goal>
                 </goals>
                 <configuration>
-                    <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                    <artifactId>wlp-webProfile7</artifactId>
-                    <version>8.5.5.7</version>
-                    <type>zip</type>
+                    <assemblyArtifact>
+                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                        <artifactId>wlp-webProfile7</artifactId>
+                        <version>8.5.5.7</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
                 </configuration>
             </execution>
             ...
