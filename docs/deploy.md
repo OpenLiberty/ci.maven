@@ -20,7 +20,7 @@ Examples:
   ```xml
     <execution>
         <id>deploy-app</id>
-        <phase>post-integration-test</phase>
+        <phase>pre-integration-test</phase>
         <goals>
             <goal>deploy</goal>
         </goals>
@@ -35,7 +35,7 @@ Examples:
   ```xml
     <execution>
         <id>deploy-by-appArtifact</id>
-        <phase>post-integration-test</phase>
+        <phase>pre-integration-test</phase>
         <goals>
             <goal>deploy</goal>
         </goals>
