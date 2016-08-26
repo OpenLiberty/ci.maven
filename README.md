@@ -98,6 +98,7 @@ The `liberty-maven-plugin` provides the following goals.
 | [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
 | [uninstall-feature](docs/uninstall-feature.md#uninstall-feature) | Uninstall a feature from the Liberty runtime. |
 | [install-apps](docs/install-apps.md#install-apps) | Copy applications specified as Maven compile dependencies to Liberty server's `dropins` or `apps` directory. |
+| [compile](docs/compile.md#compile-jsps) | Compile JSPs in the src/main/webapp into the target/classes directory
 
 ##### Common Parameters
 
