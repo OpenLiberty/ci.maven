@@ -39,16 +39,16 @@ public class CompileJspMojo extends BasicSupport {
         }
 
         compile.setInstallDir(installDirectory);
-        compile.setSrcdir(new File("src/main/webapp")); // TODO should this be configurable?
+        compile.setSrcdir(new File("src/main/webapp"));
         compile.setDestdir(new File("target/classes"));
 
         @SuppressWarnings("unchecked")
         List<Plugin> plugins = getProject().getBuildPlugins();
         for (Plugin plugin : plugins) {
-            if ("maven-compiler-plugin".equals(plugin.getArtifactId()) &&
-                "org.apache.maven.plugins".equals(plugin.getGroupId())) {
+            System.err.println(plugin.getKey());
+            if ("org.apache.maven.plugins:maven-compiler-plugin".equals(plugin.getKey())) {
                 Object config = plugin.getConfiguration();
-                if (config != null && config instanceof Xpp3Dom) {
+                if (config instanceof Xpp3Dom) {
                     Xpp3Dom dom = (Xpp3Dom) config;
                     Xpp3Dom val = dom.getChild("source");
                     if (val != null) {
@@ -56,6 +56,15 @@ public class CompileJspMojo extends BasicSupport {
                     }
                 }
                 break;
+            } else if ("org.apache.maven.plugins:maven-war-plugin".equals(plugin.getKey())) {
+                Object config = plugin.getConfiguration();
+                if (config instanceof Xpp3Dom) {
+                    Xpp3Dom dom = (Xpp3Dom) config;
+                    Xpp3Dom val = dom.getChild("warSourceDirectory");
+                    if (val != null) {
+                        compile.setSrcdir(new File(val.getValue()));
+                    }
+                }
             }
         }
 
