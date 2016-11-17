@@ -16,6 +16,7 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Set;
 
@@ -55,26 +56,34 @@ public class InstallAppsMojo extends BasicSupport {
         checkServerHomeExists();
         checkServerDirectoryExists();
 
-        File destDir = new File(serverDirectory, appsDirectory);
+        if (!"liberty-assembly".equals(project.getPackaging())) {
+            installApp(project.getArtifact());
+        }
+        
         for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
                 continue;
             }
             if (dep.getScope().equals("compile")) {
-                log.info(MessageFormat.format(messages.getString("info.install.app"), dep.getFile().getCanonicalPath()));
-
-                Copy copyFile = (Copy) ant.createTask("copy");
-                copyFile.setFile(dep.getFile());
-                if (stripVersion) {
-                    copyFile.setTofile(new File(destDir, dep.getArtifactId() + "." + dep.getType()));
-                } else {
-                    copyFile.setTodir(destDir);
-                }
-                copyFile.execute();
+                installApp(dep);
             }
         }
 
+    }
+    
+    private void installApp(Artifact artifact) throws Exception {
+        File destDir = new File(serverDirectory, appsDirectory);
+        log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
+
+        Copy copyFile = (Copy) ant.createTask("copy");
+        copyFile.setFile(artifact.getFile());
+        if (stripVersion) {
+            copyFile.setTofile(new File(destDir, artifact.getArtifactId() + "." + artifact.getType()));
+        } else {
+            copyFile.setTodir(destDir);
+        }
+        copyFile.execute();
     }
 
     private boolean matches(Artifact dep, ArtifactItem assemblyArtifact) {

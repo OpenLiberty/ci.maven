@@ -18,6 +18,7 @@
         <module>assembly-it</module>
         <module>basic-it</module>
         <module>install-features-it</module>
+        <module>install-apps-it</module>
     </modules>
 
 </project>
