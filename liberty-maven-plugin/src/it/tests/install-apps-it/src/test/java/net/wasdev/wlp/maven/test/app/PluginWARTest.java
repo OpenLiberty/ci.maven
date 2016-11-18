@@ -24,8 +24,9 @@ public class PluginWARTest {
         URL url = null;
         try {
             url = new URL(baseURL + "install-apps-it/index.jsp");
-            String textToFind = "Liberty";
-            assertTrue(textToFind, HttpUtils.findStringInUrl(url, textToFind));
+            String textToFind = "Successful creation of maven test war";
+            assertTrue("Failed to find expected text:" + textToFind, 
+            		HttpUtils.findStringInUrl(url, textToFind));
         } catch (MalformedURLException e) {
             fail("Fail to access " + url + " caused by " + e.getMessage());
         }

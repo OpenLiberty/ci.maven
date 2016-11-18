@@ -38,14 +38,14 @@ public class InstallAppsMojo extends BasicSupport {
     /**
      * Application directory. 
      * 
-     * @parameter expression="${appsDirectory}" default-value="dropins"
+     * @parameter property="appsDirectory" default-value="dropins"
      */
     protected String appsDirectory = null;
     
     /**
      * Strip version. 
      * 
-     * @parameter expression="${stripVersion}" default-value="false"
+     * @parameter property="stripVersion" default-value="false"
      */
     protected boolean stripVersion;
     
