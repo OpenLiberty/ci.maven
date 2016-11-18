@@ -5,6 +5,6 @@ matrix:
     - jdk: oraclejdk7
       env: WLP_VERSION=8.5.5_09 WLP_LICENSE=L-MCAO-9SYMVC
     - jdk: oraclejdk8
-      env: WLP_VERSION=16.0.0_2 WLP_LICENSE=L-SWIS-A99U5C
+      env: WLP_VERSION=16.0.0_02 WLP_LICENSE=L-SWIS-A99U5C
 script:
   - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION -DwlpLicense=$WLP_LICENSE
