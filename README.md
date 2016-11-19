@@ -165,6 +165,7 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-plugin-archetype \
+        -DarchetypeVersion=1.2 \
         -DwlpPluginVersion=1.2 \
         -DgroupId=test \
         -DartifactId=test \
