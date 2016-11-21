@@ -15,15 +15,10 @@
  */
 package net.wasdev.wlp.maven.plugins.applications;
 
-import java.io.File;
-import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-
-import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
@@ -32,21 +27,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
  * 
  * @requiresDependencyResolution compile
  */
-public class InstallAppsMojo extends BasicSupport {
-
-    /**
-     * Application directory. 
-     * 
-     * @parameter expression="${appsDirectory}" default-value="dropins"
-     */
-    protected String appsDirectory = null;
-    
-    /**
-     * Strip version. 
-     * 
-     * @parameter expression="${stripVersion}" default-value="false"
-     */
-    protected boolean stripVersion;
+public class InstallAppsMojo extends InstallArtifactMojoSupport {
     
     protected void doExecute() throws Exception {
         if (skip) {
@@ -55,23 +36,13 @@ public class InstallAppsMojo extends BasicSupport {
         checkServerHomeExists();
         checkServerDirectoryExists();
 
-        File destDir = new File(serverDirectory, appsDirectory);
         for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
                 continue;
             }
             if (dep.getScope().equals("compile")) {
-                log.info(MessageFormat.format(messages.getString("info.install.app"), dep.getFile().getCanonicalPath()));
-
-                Copy copyFile = (Copy) ant.createTask("copy");
-                copyFile.setFile(dep.getFile());
-                if (stripVersion) {
-                    copyFile.setTofile(new File(destDir, dep.getArtifactId() + "." + dep.getType()));
-                } else {
-                    copyFile.setTodir(destDir);
-                }
-                copyFile.execute();
+                installArtifact(dep);
             }
         }
 
