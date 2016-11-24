@@ -26,7 +26,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Install artifact into Liberty server support.
  */
-public class InstallArtifactMojoSupport extends BasicSupport {
+public class InstallAppMojoSupport extends BasicSupport {
 
     /**
      * Application directory. 
@@ -42,7 +42,7 @@ public class InstallArtifactMojoSupport extends BasicSupport {
      */
     protected boolean stripVersion;
     
-    protected void installArtifact(Artifact artifact) throws Exception {
+    protected void installApp(Artifact artifact) throws Exception {
         File destDir = new File(serverDirectory, appsDirectory);
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         

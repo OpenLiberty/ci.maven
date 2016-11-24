@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>install-artifact-it</artifactId>
+  <artifactId>install-apps-project-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -87,6 +87,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
+          <installAppPackages>project</installAppPackages>
         </configuration>
         <executions>
             <execution>
@@ -100,7 +101,7 @@
                 <id>install-artifact</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>install-artifact</goal>
+                    <goal>install-apps</goal>
                 </goals>
             </execution>
             <execution>

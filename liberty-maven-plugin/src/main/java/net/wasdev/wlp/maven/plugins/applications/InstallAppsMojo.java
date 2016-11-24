@@ -27,7 +27,14 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * 
  * @requiresDependencyResolution compile
  */
-public class InstallAppsMojo extends InstallArtifactMojoSupport {
+public class InstallAppsMojo extends InstallAppMojoSupport {
+
+    /**
+     * Packages to install. One of "all", "dependencies" or "project".
+     * 
+     * @parameter property="installAppPackages" default-value="dependencies"
+     */
+    protected String installAppPackages = null;
     
     protected void doExecute() throws Exception {
         if (skip) {
@@ -35,17 +42,42 @@ public class InstallAppsMojo extends InstallArtifactMojoSupport {
         }
         checkServerHomeExists();
         checkServerDirectoryExists();
-
+        
+        boolean installDependencies = false;
+        boolean installProject = false;
+        
+        switch (installAppPackages) {
+            case "all":
+                installDependencies = true;
+                installProject = true;
+                break;
+            case "dependencies":
+                installDependencies = true;
+                break;
+            case "project":
+                installProject = true;
+                break;
+            default:
+                return;
+        }
+        if (installDependencies) {
+            installDependencies();
+        }
+        if (installProject) {
+            installApp(project.getArtifact());
+        }
+    }
+    
+    private void installDependencies() throws Exception {
         for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
                 continue;
             }
             if (dep.getScope().equals("compile")) {
-                installArtifact(dep);
+                installApp(dep);
             }
         }
-
     }
 
     private boolean matches(Artifact dep, ArtifactItem assemblyArtifact) {

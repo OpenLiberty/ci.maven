@@ -23,7 +23,7 @@ public class PluginWARTest {
     public void testWAR() throws Exception {
         URL url = null;
         try {
-            url = new URL(baseURL + "install-artifact-it/index.jsp");
+            url = new URL(baseURL + "install-apps-project-it/index.jsp");
             String textToFind = "Successful installation of war";
             assertTrue("Failed to find expected text:" + textToFind, 
             		HttpUtils.findStringInUrl(url, textToFind));
