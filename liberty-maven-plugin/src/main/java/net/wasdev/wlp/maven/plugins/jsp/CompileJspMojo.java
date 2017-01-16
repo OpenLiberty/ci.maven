@@ -16,7 +16,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Compile the JSPs in the src/main/webapp folder.
  * 
- * @goal compile
+ * @goal compile-jsp
  * 
  * @phase compile
  * 
@@ -45,7 +45,6 @@ public class CompileJspMojo extends BasicSupport {
         @SuppressWarnings("unchecked")
         List<Plugin> plugins = getProject().getBuildPlugins();
         for (Plugin plugin : plugins) {
-            System.err.println(plugin.getKey());
             if ("org.apache.maven.plugins:maven-compiler-plugin".equals(plugin.getKey())) {
                 Object config = plugin.getConfiguration();
                 if (config instanceof Xpp3Dom) {

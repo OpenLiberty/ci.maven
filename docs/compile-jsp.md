@@ -18,7 +18,7 @@ Example:
      <executions>
           <execution>
               <goals>
-                  <goal>compile</goal>
+                  <goal>compile-jsp</goal>
               </goals>
           </execution>
       </executions>
