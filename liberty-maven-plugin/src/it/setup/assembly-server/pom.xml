@@ -106,10 +106,25 @@
                                     <goal>server-status</goal>
                                 </goals>
                                 <configuration>
-                                    <install>
-                                        <licenseCode>${wlpLicense}</licenseCode>
+                                    <assemblyArtifact>
+                                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                                        <artifactId>wlp-webProfile7</artifactId>
                                         <version>${wlpVersion}</version>
-                                    </install>
+                                        <type>zip</type>
+                                    </assemblyArtifact>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>install-wab-feature</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>install-feature</goal>
+                                </goals>
+                                <configuration>
+                                    <features>
+                                        <feature>osgiBundle-1.0</feature>
+                                        <acceptLicense>true</acceptLicense>
+                                    </features>
                                 </configuration>
                             </execution>
                         </executions>
