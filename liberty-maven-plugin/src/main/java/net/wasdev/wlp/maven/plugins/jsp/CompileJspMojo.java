@@ -95,6 +95,16 @@ public class CompileJspMojo extends BasicSupport {
 
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
+        boolean doInstall = (installDirectory == null);
+          
         super.init();
+
+        if (doInstall) {
+            try {
+                installServerAssembly();
+            } catch (Exception e) {
+                throw new MojoExecutionException("Failure installing server", e);
+            }
+        }
     }
 }

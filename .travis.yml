@@ -3,8 +3,8 @@ language: java
 matrix:
   include:
     - jdk: oraclejdk7
-      env: WLP_VERSION=16.0.0_03 WLP_LICENSE=L-SWIS-ABKSXS
+      env: WLP_VERSION=16.0.0.3
     - jdk: oraclejdk8
-      env: WLP_VERSION=16.0.0_04 WLP_LICENSE=L-SWIS-AE3RTG
+      env: WLP_VERSION=16.0.0.4
 script:
   - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION -DwlpLicense=$WLP_LICENSE

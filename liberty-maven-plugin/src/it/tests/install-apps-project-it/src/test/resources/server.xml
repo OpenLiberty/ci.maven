@@ -1,5 +1,5 @@
 <server description="default server">
     <featureManager>
-        <feature>jsp-2.2</feature>
+        <feature>jsp-2.3</feature>
     </featureManager>
 </server>
