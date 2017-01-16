@@ -12,7 +12,8 @@ The following are the parameters supported by this goal in addition to the [comm
 
 Example:
 ```xml
-<plugin>
+<pluginManagement>
+  <plugin>
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
      <executions>
@@ -22,7 +23,8 @@ Example:
               </goals>
           </execution>
       </executions>
-</plugin>
+  </plugin>
+</pluginManagement>
 ```
 
 ```bash
