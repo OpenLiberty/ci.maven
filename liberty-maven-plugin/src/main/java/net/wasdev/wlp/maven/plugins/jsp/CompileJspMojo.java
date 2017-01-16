@@ -16,7 +16,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Compile the JSPs in the src/main/webapp folder.
  * 
- * @goal compile
+ * @goal compile-jsp
  * 
  * @phase compile
  * 
