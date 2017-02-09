@@ -58,5 +58,13 @@
         <module>liberty-maven-plugin</module>
         <module>liberty-plugin-archetype</module>   
     </modules>
-
+<repositories>
+    <repository>
+        <id>central</id>
+        <url>https://na.artifactory.swg-devops.com:443/artifactory/wasliberty-ecosystem/net/wasdev/wlp/ant/wlp-anttasks</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+</repositories>
 </project>
