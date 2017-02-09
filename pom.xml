@@ -60,10 +60,10 @@
     </modules>
 <repositories>
     <repository>
-        <id>central</id>
+        <id>antRepo</id>
         <url>https://na.artifactory.swg-devops.com:443/artifactory/wasliberty-ecosystem</url>
         <snapshots>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
         </snapshots>
     </repository>
 </repositories>
