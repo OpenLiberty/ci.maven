@@ -62,7 +62,7 @@
     <repositories>
         <repository>
             <id>antArtifactory</id>
-            <url>https://na.artifactory.swg-devops.com:443/artifactory/wasliberty-ecosystem/net/wasdev/wlp/ant/wlp-anttasks</url>
+            <url>https://na.artifactory.swg-devops.com:443/artifactory/wasliberty-ecosystem</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
