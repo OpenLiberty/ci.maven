@@ -66,7 +66,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             serverTask.setTemplate(template);
             serverTask.execute();
             // copy files _after_ we create the server
-            copyConfigFiles(true);
+            copyConfigFiles();
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
         } else {
             // server exists - copy files over
