@@ -9,6 +9,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | template | Name of the template to use when creating a new server. | No |
+| configDirectory | Location of a server configuration directory to be used by the instance. Configuration 
+files and folder structure will be copied to target server. configDirectory files will take precedence over other common server parameters. | No |
 
 Example:
 ```xml
@@ -29,6 +31,7 @@ Example:
     <configuration>
        <installDirectory>/opt/ibm/wlp</installDirectory>
        <serverName>test</serverName>
+       <configDirectory>${project.build.testOutputDirectory}/testConfigDirectory</configDirectory>
     </configuration>
 </plugin>
 ```
