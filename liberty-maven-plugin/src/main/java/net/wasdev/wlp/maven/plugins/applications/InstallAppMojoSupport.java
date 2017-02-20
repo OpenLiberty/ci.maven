@@ -49,7 +49,14 @@ public class InstallAppMojoSupport extends BasicSupport {
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
         if (stripVersion) {
-            copyFile.setTofile(new File(destDir, artifact.getArtifactId() + "." + artifact.getType()));
+        	String extension = null;
+            String path = artifact.getFile().getCanonicalPath();
+            if (path.lastIndexOf('.')>0) {
+                extension = path.substring(path.lastIndexOf('.')+1);
+            } else {
+                extension = artifact.getType();
+            }
+            copyFile.setTofile(new File(destDir, artifact.getArtifactId() + "." + extension));        	
         } else {
             copyFile.setTodir(destDir);
         }
