@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,12 +65,9 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             serverTask.setOperation("create");
             serverTask.setTemplate(template);
             serverTask.execute();
-            // copy files _after_ we create the server
-            copyConfigFiles(true);
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
-        } else {
-            // server exists - copy files over
-            copyConfigFiles();
         }
+        //copy files over
+        copyConfigFiles();
     }
 }
