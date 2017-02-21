@@ -103,15 +103,12 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             serverTask.setOperation("create");
             serverTask.setTemplate(template);
             serverTask.execute();
-            // copy files _after_ we create the server
-            copyConfigFiles(true);
-            exportParametersToXml();
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
-        } else {
-            // server exists - copy files over
-            copyConfigFiles();
-            exportParametersToXml();
         }
+        
+        // copy files _after_ we create the server
+        copyConfigFiles(true);
+        exportParametersToXml();
     }
     
     /*

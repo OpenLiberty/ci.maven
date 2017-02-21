@@ -114,42 +114,28 @@ public class PluginConfigXmlDocument {
         }
         Element child = doc.createElement(name);
         
-        if (value.getCacheDirectory() != null) {
-            createElement(child, "cacheDirectory", value.getCacheDirectory());
-        }
-        if (value.getLicenseCode() != null) {
-            createElement(child, "licenseCode", value.getLicenseCode());
-        }
-        if (value.getType() != null) {
-            createElement(child, "type", value.getType());
-        }
-        if (value.getType() != null) {
-            createElement(child, "type", value.getType());
-        }
-        if (value.getRuntimeUrl() != null) {
-            createElement(child, "runtimeUrl", value.getRuntimeUrl());
-        }
-        if (value.getUsername() != null) {
-            createElement(child, "username", value.getUsername());
-        }
-        if (value.getPassword() != null) {
-            createElement(child, "password", "*********");
-        }
+        createElement(child, "cacheDirectory", value.getCacheDirectory());
+        createElement(child, "licenseCode", value.getLicenseCode());
+        createElement(child, "type", value.getType());
+        createElement(child, "type", value.getType());
+        createElement(child, "runtimeUrl", value.getRuntimeUrl());
+        createElement(child, "username", value.getUsername());
+        createElement(child, "password", "*********");
         createElement(child, "maxDownloadTime", Long.toString(value.getMaxDownloadTime()));
-        if (value.getRuntimeUrl() != null) {
-            createElement(child, "runtimeUrl", value.getRuntimeUrl());
-        }
+        createElement(child, "runtimeUrl", value.getRuntimeUrl());
         createElement(child, "type", value.isVerbose());
+        
         doc.getDocumentElement().appendChild(child);
     }
  
     public void createElement(String key, String value) {
-        Element child = doc.createElement(key);
-        child.appendChild(doc.createTextNode(value));
-        doc.getDocumentElement().appendChild(child);
+        createElement(doc.getDocumentElement(), key, value);
     }
     
     public void createElement(Element elem, String key, String value) {
+        if (value == null) {
+            return;
+        }
         Element child = doc.createElement(key);
         child.appendChild(doc.createTextNode(value));
         elem.appendChild(child);
