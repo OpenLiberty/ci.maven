@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014,2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,15 @@
  */
 package net.wasdev.wlp.maven.plugins.server;
 
+import java.io.File;
 import java.text.MessageFormat;
+import java.util.List;
 
+import org.apache.maven.model.Profile;
 import org.codehaus.plexus.util.FileUtils;
 
 import net.wasdev.wlp.ant.ServerTask;
+import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
 
 /**
  * Create a liberty server
@@ -36,6 +40,40 @@ public class CreateServerMojo extends StartDebugMojoSupport {
      * @parameter expression="${template}"
      */
     private String template;
+    
+    /**
+     * Packages to install. One of "all", "dependencies" or "project".
+     * 
+     * @parameter property="installAppPackages" default-value="dependencies"
+     * @readonly
+     */
+    private String installAppPackages = "dependencies";
+    
+    /**
+     * Application directory.
+     * 
+     * @parameter property="appsDirectory" default-value="dropins"
+     * @readonly
+     */
+    private String appsDirectory = "dropins";
+    
+    /**
+     * Strip version.
+     * 
+     * @parameter property="stripVersion" default-value="false"
+     * @readyOnly
+     */
+    private boolean stripVersion = false;
+    
+    /**
+     * Loose configuration. 
+     * 
+     * @parameter property="looseConfig" default-value="false"
+     * @readonly
+     */
+    private boolean looseConfig=false;
+    
+    private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";
     
     @Override
     protected void doExecute() throws Exception {
@@ -65,12 +103,74 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             serverTask.setOperation("create");
             serverTask.setTemplate(template);
             serverTask.execute();
-            // copy files _after_ we create the server
-            copyConfigFiles(true);
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
-        } else {
-            // server exists - copy files over
-            copyConfigFiles();
         }
+        
+        // copy files _after_ we create the server
+        copyConfigFiles(true);
+        exportParametersToXml();
+    }
+    
+    /*
+     * Export plugin configuration parameters to target/liberty-plugin-config.xml
+     */
+    private void exportParametersToXml() throws Exception {
+        PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
+        
+        @SuppressWarnings("unchecked")
+        List<Profile> profiles = project.getActiveProfiles();
+        configDocument.createActiveBuildProfilesElement("activeBuildProfiles", profiles);
+        
+        configDocument.createElement("installDirectory", installDirectory);
+        configDocument.createElement("serverDirectory", serverDirectory);
+        configDocument.createElement("userDirectory", userDirectory);
+        configDocument.createElement("serverOutputDirectory", new File(outputDirectory, serverName));
+        configDocument.createElement("serverName", serverName);
+        
+        if (getFileFromConfigDirectory("server.xml", configFile) != null) {
+            configDocument.createElement("configFile", getFileFromConfigDirectory("server.xml", configFile));
+        }
+        if (getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile) != null) {
+            configDocument.createElement("bootstrapPropertiesFile", getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile));
+        } else {
+            configDocument.createElement("bootstrapProperties", bootstrapProperties);
+        }
+        if (getFileFromConfigDirectory("jvm.option", jvmOptionsFile) != null) {
+            configDocument.createElement("jvmOptionsFile", getFileFromConfigDirectory("jvm.option", jvmOptionsFile));
+        } else {
+            configDocument.createElement("jvmOptions", jvmOptions);
+        }
+        if (getFileFromConfigDirectory("server.env", serverEnv) != null) {
+            configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
+        }
+        
+        configDocument.createElement("appsDirectory", appsDirectory);
+        configDocument.createElement("looseConfig", looseConfig);
+        configDocument.createElement("stripVersion", stripVersion);
+        configDocument.createElement("installAppPackages", installAppPackages);
+
+        configDocument.createElement("assemblyArtifact", assemblyArtifact);   
+        configDocument.createElement("assemblyArchive", assemblyArchive);
+        configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
+        configDocument.createElement("refresh", refresh);
+        configDocument.createElement("install", install);
+        
+        // write XML document to file
+        configDocument.writeXMLDocument(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
+    }
+    
+    /* 
+     * Get the file from configDrectory if it exists;
+     * otherwise return def only if it exists, or null if not
+     */
+    private File getFileFromConfigDirectory(String file, File def) {
+        File f = new File(configDirectory, file);
+        if (configDirectory != null && f.exists()) { 
+            return f;
+        }
+        if (def != null && def.exists()) {
+            return def;
+        } 
+        return null;
     }
 }
