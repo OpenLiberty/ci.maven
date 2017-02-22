@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016.
+ * (C) Copyright IBM Corporation 2016, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class InstallAppMojoSupport extends BasicSupport {
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
         if (stripVersion) {
-        	String extension = null;
+            String extension = null;
             String path = artifact.getFile().getCanonicalPath();
             if (path.lastIndexOf('.')>0) {
                 extension = path.substring(path.lastIndexOf('.')+1);
