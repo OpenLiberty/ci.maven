@@ -106,7 +106,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
         }
         
-        //copy files over
+        // copy files _after_ we create the server
         copyConfigFiles();
         exportParametersToXml();
     }
