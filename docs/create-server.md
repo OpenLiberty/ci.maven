@@ -30,7 +30,7 @@ Example:
     <configuration>
        <installDirectory>/opt/ibm/wlp</installDirectory>
        <serverName>test</serverName>
-       <configDirectory>${project.build.testOutputDirectory}/testConfigDirectory</configDirectory>
+       <configDirectory>${project.build.testOutputDirectory}/configDir</configDirectory>
     </configuration>
 </plugin>
 ```

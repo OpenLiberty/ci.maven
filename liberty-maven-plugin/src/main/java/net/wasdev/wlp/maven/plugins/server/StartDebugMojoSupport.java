@@ -88,14 +88,6 @@ public class StartDebugMojoSupport extends BasicSupport {
      */
     protected File serverEnv;
 
-    /**
-     * Overwrite existing configuration files even if they are newer.
-     * 
-     * @parameter expression="${overwrite}"
-     *            default-value="true"
-     */
-    protected boolean overwrite;
-
     protected ServerTask initializeJava() throws Exception {
         ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
         if (serverTask == null) {
@@ -108,16 +100,11 @@ public class StartDebugMojoSupport extends BasicSupport {
         return serverTask;
     }
 
-    protected void copyConfigFiles() throws IOException {
-        copyConfigFiles(overwrite);
-    }
-
     /**
-     * @param overwrite
      * @throws IOException
      * @throws FileNotFoundException
      */
-    protected void copyConfigFiles(boolean overwrite) throws IOException {
+    protected void copyConfigFiles() throws IOException {
 
         String serverXMLPath = null;
         String jvmOptionsPath = null;
@@ -131,7 +118,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             fileset.setDir(configDirectory);
             copydir.addFileset(fileset);
             copydir.setTodir(serverDirectory);
-            copydir.setOverwrite(overwrite);
+            copydir.setOverwrite(true);
             copydir.execute();
 
             File configDirServerXML = new File(configDirectory, "server.xml");
@@ -162,7 +149,7 @@ public class StartDebugMojoSupport extends BasicSupport {
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(configFile);
                 copy.setTofile(new File(serverDirectory, "server.xml"));
-                copy.setOverwrite(overwrite);
+                copy.setOverwrite(true);
                 copy.execute();
                 serverXMLPath = configFile.getCanonicalPath();
             }
@@ -172,15 +159,13 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (jvmOptionsPath == null || jvmOptionsPath.isEmpty()) {
             File optionsFile = new File(serverDirectory, "jvm.options");
             if (jvmOptions != null) {
-                if (overwrite || !optionsFile.exists()) {
-                    writeJvmOptions(optionsFile, jvmOptions);
-                    jvmOptionsPath = "inlined configuration";
-                }
+                writeJvmOptions(optionsFile, jvmOptions);
+                jvmOptionsPath = "inlined configuration";
             } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(jvmOptionsFile);
                 copy.setTofile(optionsFile);
-                copy.setOverwrite(overwrite);
+                copy.setOverwrite(true);
                 copy.execute();
                 jvmOptionsPath = jvmOptionsFile.getCanonicalPath();
             }
@@ -190,15 +175,13 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (bootStrapPropertiesPath == null || bootStrapPropertiesPath.isEmpty()) {
             File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
             if (bootstrapProperties != null) {
-                if (overwrite || !bootstrapFile.exists()) {
-                    writeBootstrapProperties(bootstrapFile, bootstrapProperties);
-                    bootStrapPropertiesPath = "inlined configuration";
-                }
+                writeBootstrapProperties(bootstrapFile, bootstrapProperties);
+                bootStrapPropertiesPath = "inlined configuration";
             } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(bootstrapPropertiesFile);
                 copy.setTofile(bootstrapFile);
-                copy.setOverwrite(overwrite);
+                copy.setOverwrite(true);
                 copy.execute();
                 bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
             }
@@ -210,7 +193,7 @@ public class StartDebugMojoSupport extends BasicSupport {
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(serverEnv);
                 copy.setTofile(new File(serverDirectory, "server.env"));
-                copy.setOverwrite(overwrite);
+                copy.setOverwrite(true);
                 copy.execute();
                 serverEnvPath = serverEnv.getCanonicalPath();
             }
