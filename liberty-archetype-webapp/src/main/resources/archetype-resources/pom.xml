@@ -14,8 +14,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
         <package.file>${project.build.directory}/${project.artifactId}.jar</package.file>
         <packaging.type>minify,runnable</packaging.type>
     </properties>
@@ -78,7 +76,6 @@
                     <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
-                    <appsDirectory>apps</appsDirectory>
                     <looseConfig>true</looseConfig>
                     <packageFile>${package.file}</packageFile>
                     <include>${packaging.type}</include>

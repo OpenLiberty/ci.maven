@@ -16,9 +16,9 @@
 <server description="Sample Servlet server">
     <featureManager>
         <feature>jsp-2.3</feature>
-	</featureManager>
-
+    </featureManager>
+    
     <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" />
-
+    
     <webApplication id="${artifactId}" location="${artifactId}.war" name="${artifactId}"/>
 </server>

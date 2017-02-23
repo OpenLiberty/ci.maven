@@ -160,7 +160,7 @@ Example:
 
 ### liberty-plugin-archetype
 
-`liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application, deploys and tests it on the Liberty profile server. It also creates a Liberty profile server package that includes the application.
+`liberty-plugin-archetype` is used to generate a basic multi-module project that that builds a simple web application then deploys and tests is on a Liberty server. It also creates a Liberty profile server package that includes the application.
 
 #### Usage
 
@@ -175,7 +175,7 @@ Example:
 
 ### liberty-archetype-webapp
 
-`liberty-plugin-archetype` is used to generate a basic single-module project that builds a simple web application, deploys and tests it on the Liberty profile server.  It also creates a minify and runnable Liberty profile server package that includes the application. The generated project includes [`liberty-maven-webapp-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+`liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests is on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-webapp-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
 
 #### Usage
 
