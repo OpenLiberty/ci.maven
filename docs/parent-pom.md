@@ -14,7 +14,7 @@ The following is the mapping of liberty goals to the Maven default build lifecyc
 | package | liberty:package-server |
 | pre-integration-test | liberty:start-server |
 | post-integration-test | liberty:stop-server |
-| clean | stop-server |
+| clean | liberty:stop-server |
 
 ######
 
