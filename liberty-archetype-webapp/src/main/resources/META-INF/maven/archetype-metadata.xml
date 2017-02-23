@@ -9,6 +9,9 @@
         <requiredProperty key="wlpRuntimeVersion">
             <defaultValue>16.0.0.4</defaultValue>
         </requiredProperty>
+        <requiredProperty key="wlpPluginVersion">
+            <defaultValue>1.3-SNAPSHOT</defaultValue>
+        </requiredProperty>
     </requiredProperties>
     <fileSets>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
@@ -37,4 +40,4 @@
             </includes>
         </fileSet>
     </fileSets>
-</archetype-descriptor>    
+</archetype-descriptor>

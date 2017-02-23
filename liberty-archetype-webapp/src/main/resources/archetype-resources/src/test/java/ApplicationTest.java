@@ -24,5 +24,4 @@ public class ApplicationTest {
 	public void testApplication() {
 		assertTrue("test fails!", true);
 	}
-
 }
