@@ -11,6 +11,7 @@ Collection of Maven plugins and archetypes for managing WebSphere Application Se
  * [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
  * [liberty-plugin-archetype](#liberty-plugin-archetype)
+ * [liberty-archetype-webapp](#liberty-archetype-webapp)
 
 ## Build
 
@@ -172,3 +173,16 @@ Example:
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
 
+### liberty-archetype-webapp
+
+`liberty-plugin-archetype` is used to generate a basic single-module project that builds a simple web application, deploys and tests it on the Liberty profile server.  It also creates a minify and runnable Liberty profile server package that includes the application. The generated project includes [`liberty-maven-webapp-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+
+#### Usage
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeArtifactId=liberty-archetype-webapp \
+        -DgroupId=test \
+        -DartifactId=test \
+        -Dversion=1.0-SNAPSHOT
+        
