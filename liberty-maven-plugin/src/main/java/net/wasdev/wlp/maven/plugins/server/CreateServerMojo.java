@@ -126,6 +126,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         configDocument.createElement("userDirectory", userDirectory);
         configDocument.createElement("serverOutputDirectory", new File(outputDirectory, serverName));
         configDocument.createElement("serverName", serverName);
+        configDocument.createElement("configDirectory", configDirectory);
         
         if (getFileFromConfigDirectory("server.xml", configFile) != null) {
             configDocument.createElement("configFile", getFileFromConfigDirectory("server.xml", configFile));
