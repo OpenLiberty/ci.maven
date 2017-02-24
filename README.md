@@ -160,7 +160,7 @@ Example:
 
 ### liberty-plugin-archetype
 
-`liberty-plugin-archetype` is used to generate a basic multi-module project that that builds a simple web application then deploys and tests is on a Liberty server. It also creates a Liberty profile server package that includes the application.
+`liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application then deploys and tests is on a Liberty server. It also creates a Liberty server package that includes the application.
 
 #### Usage
 
