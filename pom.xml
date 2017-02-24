@@ -55,8 +55,10 @@
     </dependencyManagement>
 
     <modules>
+        <module>liberty-maven-webapp-parent</module>
         <module>liberty-maven-plugin</module>
-        <module>liberty-plugin-archetype</module>   
+        <module>liberty-plugin-archetype</module>
+        <module>liberty-archetype-webapp</module>
     </modules>
 
 </project>
