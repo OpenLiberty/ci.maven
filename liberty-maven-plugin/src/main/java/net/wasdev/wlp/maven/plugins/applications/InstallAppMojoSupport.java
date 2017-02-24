@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
 
 import net.wasdev.wlp.maven.plugins.BasicSupport;
@@ -43,6 +44,11 @@ public class InstallAppMojoSupport extends BasicSupport {
     protected boolean stripVersion;
     
     protected void installApp(Artifact artifact) throws Exception {
+        
+        if (artifact.getFile() == null) {
+            throw new MojoExecutionException(messages.getString("error.install.app.missing"));
+        }
+        
         File destDir = new File(serverDirectory, appsDirectory);
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         
