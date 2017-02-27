@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,14 +49,14 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Skips the specific goal
      *
-     * @parameter expression="${skip}" default-value="false"
+     * @parameter property="skip" default-value="false"
      */
     protected boolean skip = false;
 
     /**
      * Enable forced install refresh.
      * 
-     * @parameter expression="${refresh}" default-value="false"
+     * @parameter property="refresh" default-value="false"
      */
     protected boolean refresh = false;
 
@@ -64,48 +64,48 @@ public class BasicSupport extends AbstractLibertySupport {
      * Set the false to skip the installation of the assembly, re-using anything
      * that is already there.
      * 
-     * @parameter expression="${isInstall}" default-value="true"
+     * @parameter property="isInstall" default-value="true"
      */
     protected boolean isInstall = true;
 
     /**
      * Server Install Directory
      * 
-     * @parameter expression="${assemblyInstallDirectory}" default-value="${project.build.directory}/liberty"
+     * @parameter property="assemblyInstallDirectory" default-value="${project.build.directory}/liberty"
      */
     protected File assemblyInstallDirectory;
     
     /**
      * Installation directory of Liberty profile. 
      * 
-     * @parameter expression="${installDirectory}"
+     * @parameter property="installDirectory"
      */
     protected File installDirectory;
 
     /**
      * @deprecated Use installDirectory parameter instead.
-     * @parameter expression="${serverHome}"
+     * @parameter property="serverHome"
      */
     private File serverHome;
 
     /**
      * Liberty server name, default is defaultServer
      * 
-     * @parameter expression="${serverName}" default-value="defaultServer"
+     * @parameter property="serverName" default-value="defaultServer"
      */
     protected String serverName = null;
     
     /**
      * Liberty user directory (<tT>WLP_USER_DIR</tt>).
      * 
-     * @parameter expression="${userDirectory}"
+     * @parameter property="userDirectory"
      */
     protected File userDirectory = null;
 
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
      * 
-     * @parameter expression="${outputDirectory}"
+     * @parameter property="outputDirectory"
      */
     protected File outputDirectory = null;
     
@@ -124,7 +124,7 @@ public class BasicSupport extends AbstractLibertySupport {
      * A file which points to a specific assembly ZIP archive. If this parameter
      * is set, then it will install server from archive
      * 
-     * @parameter expression="${assemblyArchive}"
+     * @parameter property="assemblyArchive"
      */
     protected File assemblyArchive;
 

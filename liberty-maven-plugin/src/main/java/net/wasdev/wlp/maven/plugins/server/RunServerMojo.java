@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class RunServerMojo extends StartDebugMojoSupport {
     /**
      * Clean all cached information on server start up.
      * 
-     * @parameter expression="${clean}" default-value="false"
+     * @parameter property="clean" default-value="false"
      */
     protected boolean clean;
 

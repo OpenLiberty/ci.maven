@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,14 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
     /**
      * Include heap dump information. 
      * 
-     * @parameter expression="${heapDump}"
+     * @parameter property="heapDump"
      */
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      * 
-     * @parameter expression="${systemDump}"
+     * @parameter property="systemDump"
      */
     private boolean systemDump;
 
