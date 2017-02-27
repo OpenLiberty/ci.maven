@@ -184,5 +184,5 @@ Example:
         -DarchetypeArtifactId=liberty-archetype-webapp \
         -DgroupId=test \
         -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
+        -Dversion=2.0-SNAPSHOT
         
