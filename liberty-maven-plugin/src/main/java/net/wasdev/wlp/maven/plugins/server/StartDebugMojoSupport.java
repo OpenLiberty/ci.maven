@@ -39,14 +39,14 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of customized configuration directory
      * 
-     * @parameter property="configDirectory"
+     * @parameter expression="${configDirectory}"
      */
     protected File configDirectory;
 
     /**
      * Location of customized configuration file server.xml
      * 
-     * @parameter property="configFile"
+     * @parameter expression="${configFile}"
      *            default-value="${basedir}/src/test/resources/server.xml"
      */
     protected File configFile;
@@ -55,7 +55,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * 
      * Location of bootstrap.properties file.
      * 
-     * @parameter property="bootstrapPropertiesFile"
+     * @parameter expression="${bootstrapPropertiesFile}"
      *            default-value="${basedir}/src/test/resources/bootstrap.properties"
      */
     protected File bootstrapPropertiesFile;
@@ -69,7 +69,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * 
      * Location of jvm.options file.
      * 
-     * @parameter property="jvmOptionsFile"
+     * @parameter expression="${jvmOptionsFile}"
      *            default-value="${basedir}/src/test/resources/jvm.options"
      */
     protected File jvmOptionsFile;
@@ -83,7 +83,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * 
      * Location of customized server environment file server.env
      * 
-     * @parameter property="serverEnv"
+     * @parameter expression="${serverEnv}"
      *            default-value="${basedir}/src/test/resources/server.env"
      */
     protected File serverEnv;

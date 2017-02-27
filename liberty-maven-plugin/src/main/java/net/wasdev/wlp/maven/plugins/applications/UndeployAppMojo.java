@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014-2015, 2017.
+ * (C) Copyright IBM Corporation 2014, 2015.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class UndeployAppMojo extends BasicSupport {
      * A file name which points to a specific module's jar | war | ear | eba |
      * zip archive.
      *
-     * @parameter property="appArchive"
+     * @parameter expression="${appArchive}"
      * @optional
      */
     protected String appArchive = null;
@@ -64,7 +64,7 @@ public class UndeployAppMojo extends BasicSupport {
     /**
      * Timeout to verify undeploy successfully, in seconds.
      *
-     * @parameter property="timeout" default-value="40"
+     * @parameter expression="${timeout}" default-value="40"
      */
     protected int timeout = 40;
     

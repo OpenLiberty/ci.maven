@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,28 +31,28 @@ public class StartServerMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait while verifying that the server has started.
      * 
-     * @parameter property="verifyTimeout" default-value="30"
+     * @parameter expression="${verifyTimeout}" default-value="30"
      */
     private int verifyTimeout = 30;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
      * 
-     * @parameter property="serverStartTimeout" default-value="30"
+     * @parameter expression="${serverStartTimeout}" default-value="30"
      */
     private int serverStartTimeout = 30;
 
     /**
      * comma separated list of app names to wait for
      * 
-     * @parameter property="applications"
+     * @parameter expression="${applications}"
      */
     private String applications;
 
     /**
      * Clean all cached information on server start up.
      * 
-     * @parameter property="clean" default-value="false"
+     * @parameter expression="${clean}" default-value="false"
      */
     protected boolean clean;
 

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,28 +31,28 @@ public class DumpServerMojo extends StartDebugMojoSupport {
     /**
      * Location of the target archive file.
      * 
-     * @parameter property="archive"
+     * @parameter expression="${archive}"
      */
     private File archive;
 
     /**
      * Include heap dump information. 
      * 
-     * @parameter property="heapDump"
+     * @parameter expression="${heapDump}"
      */
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      * 
-     * @parameter property="systemDump"
+     * @parameter expression="${systemDump}"
      */
     private boolean systemDump;
     
     /**
      * Include thread dump information. 
      * 
-     * @parameter property="threadDump"
+     * @parameter expression="${threadDump}"
      */
     private boolean threadDump;
 
