@@ -37,7 +37,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     /**
      * Name of the template to use when creating a server.
      * 
-     * @parameter expression="${template}"
+     * @parameter property="template"
      */
     private String template;
     

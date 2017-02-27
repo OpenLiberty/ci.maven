@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Locate where server is packaged.
      * 
-     * @parameter expression="${packageFile}"
+     * @parameter property="packageFile"
      */
     private File packageFile = null;
 
     /**
      * Package type. One of "all", "usr", or "minify".
      * 
-     * @parameter expression="${include}"
+     * @parameter property="include"
      */
     private String include;
 
@@ -56,7 +56,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
      *     repeat the minify operation on the archive.
      * 
-     * @parameter expression="${os}"
+     * @parameter property="os"
      */
     private String os;
     

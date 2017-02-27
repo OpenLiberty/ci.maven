@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015.
+ * (C) Copyright IBM Corporation 2015, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -56,7 +56,7 @@ public class Features {
     /**
      * A single directory-based repository as the source of the assets for the installUtility command.
      * 
-     * @parameter expression="${from}"
+     * @parameter property="from"
      */
     private String from = null;
 

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     /**
      * Maven Project
      * 
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
     protected MavenProject project = null;
 
     /**
-     * @parameter expression="${localRepository}"
+     * @parameter property="localRepository"
      * @readonly
      * @required
      */
@@ -47,7 +47,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     /**
     * The build settings.
     *
-    * @parameter expression="${settings}" 
+    * @parameter property="settings" 
     * @required
     * @readonly
     */

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014-2016.
+ * (C) Copyright IBM Corporation 2014-2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
      *
-     * @parameter expression="${appArchive}"
+     * @parameter property="appArchive"
      */
     protected File appArchive;
 
@@ -49,14 +49,14 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * Timeout to verify deploy successfully, in seconds.
      *
-     * @parameter expression="${timeout}" default-value="40"
+     * @parameter property="timeout" default-value="40"
      */
     protected int timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
      *
-     * @parameter expression="${appDeployName}"
+     * @parameter property="appDeployName"
      */
     protected String appDeployName;
 
