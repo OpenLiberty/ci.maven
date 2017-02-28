@@ -20,6 +20,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 
@@ -31,31 +33,29 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     /**
      * Maven Project
      * 
-     * @parameter property="project"
-     * @required
-     * @readonly
+     * @Parameter( property="project", required=true, readonly=true )
      */
+    @Parameter( property="project", required=true, readonly=true )
     protected MavenProject project = null;
 
     /**
-     * @parameter property="localRepository"
-     * @readonly
-     * @required
+     * @Parameter( property="artifactRepository", required=true, readonly=true )
      */
+    @Parameter( property="artifactRepository", required=true, readonly=true )
     protected ArtifactRepository artifactRepository = null;
     
     /**
     * The build settings.
     *
-    * @parameter property="settings" 
-    * @required
-    * @readonly
+    * @Parameter( property="settings", required=true, readonly=true )
     */
+    @Parameter( property="settings", required=true, readonly=true )
     protected Settings settings;
 
     /**
-     * @component
+     * @Component( role = AntHelper.class )
      */
+    @Component( role = AntHelper.class )
     protected AntHelper ant;
 
     protected MavenProject getProject() {

@@ -20,6 +20,9 @@ import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.ant.DeployTask;
@@ -28,36 +31,41 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Deploy application to liberty server
  *
- * @goal deploy
+ * @Mojo( name = "deploy" )
  */
+@Mojo( name = "deploy" )
 public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
      *
-     * @parameter property="appArchive"
+     * @Parameter( property="appArchive" )
      */
+    @Parameter( property="appArchive" )
     protected File appArchive;
 
     /**
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
      *
-     * @parameter
+     * @Component( role = ArtifactItem.class )
      */
+    @Component( role = ArtifactItem.class )
     protected ArtifactItem appArtifact;
 
     /**
      * Timeout to verify deploy successfully, in seconds.
      *
-     * @parameter property="timeout" default-value="40"
+     * @Parameter( property="timeout", defaultValue="40" )
      */
+    @Parameter( property = "timeout", defaultValue = "40" )
     protected int timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
      *
-     * @parameter property="appDeployName"
+     * @Parameter( property="appDeployName" )
      */
+    @Parameter( property="appDeployName" )
     protected String appDeployName;
 
     @Override

@@ -21,6 +21,9 @@ import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.UndeployTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -31,25 +34,29 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * Undeploy application from liberty server. If no parameters have been defined
  * the mojo will undeploy all applications from the server.
  *
- * @goal undeploy
+ * @Mojo( name = "undeploy" )
+ * 
  */
+@Mojo( name = "undeploy" )
+
 public class UndeployAppMojo extends BasicSupport {
     
     /**
      * A file name which points to a specific module's jar | war | ear | eba |
      * zip archive.
      *
-     * @parameter property="appArchive"
-     * @optional
+     * @Parameter( property="appArchive" )
      */
+    @Parameter( property="appArchive" )
     protected String appArchive = null;
     
     /**
      * Maven coordinates of an application to undeploy. This is best listed as a
      * dependency, in which case the version can be omitted.
      *
-     * @parameter
+     * @Component( role = ArtifactItem.class )
      */
+    @Component( role = ArtifactItem.class )
     protected ArtifactItem appArtifact;
     
     /**
@@ -57,15 +64,17 @@ public class UndeployAppMojo extends BasicSupport {
      * appArchive or appArtifact has been defined then this parameter will be
      * ignored.
      *
-     * @parameter
+     * @Parameter( property="patternSet" )
      */
+    @Parameter( property="patternSet" )
     private PatternSet patternSet;
     
     /**
      * Timeout to verify undeploy successfully, in seconds.
      *
-     * @parameter property="timeout" default-value="40"
+     * @Parameter( property="timeout", defaultValue="40" )
      */
+    @Parameter( property="timeout", defaultValue="40" )
     protected int timeout = 40;
     
     /*

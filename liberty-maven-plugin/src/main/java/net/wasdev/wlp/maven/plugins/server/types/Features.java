@@ -17,6 +17,7 @@ package net.wasdev.wlp.maven.plugins.server.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
 
@@ -56,8 +57,9 @@ public class Features {
     /**
      * A single directory-based repository as the source of the assets for the installUtility command.
      * 
-     * @parameter property="from"
+     * @Parameter( property="from" )
      */
+    @Parameter( property="from" )
     private String from = null;
 
     public boolean isAcceptLicense() {

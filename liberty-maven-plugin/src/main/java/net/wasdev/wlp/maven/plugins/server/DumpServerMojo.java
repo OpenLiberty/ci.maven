@@ -19,41 +19,48 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Dump diagnostic information from the server into an archive.
  * 
- * @goal dump-server
+ * @Mojo( name = "dump-server" )
  * 
  */
+@Mojo( name = "dump-server" )
 public class DumpServerMojo extends StartDebugMojoSupport {
 
     /**
      * Location of the target archive file.
      * 
-     * @parameter property="archive"
+     * @Parameter( property="archive" )
      */
+    @Parameter( property="archive" )
     private File archive;
 
     /**
      * Include heap dump information. 
      * 
-     * @parameter property="heapDump"
+     * @Parameter( property="heapDump" )
      */
+    @Parameter( property="heapDump" )
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      * 
-     * @parameter property="systemDump"
+     * @Parameter( property="systemDump" )
      */
+    @Parameter( property="systemDump" )
     private boolean systemDump;
     
     /**
      * Include thread dump information. 
      * 
-     * @parameter property="threadDump"
+     * @Parameter( property="threadDump" )
      */
+    @Parameter( property="threadDump" )
     private boolean threadDump;
 
     @Override

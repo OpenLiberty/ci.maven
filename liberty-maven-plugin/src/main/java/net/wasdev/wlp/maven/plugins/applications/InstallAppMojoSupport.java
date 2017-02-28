@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
 
@@ -32,15 +33,17 @@ public class InstallAppMojoSupport extends BasicSupport {
     /**
      * Application directory. 
      * 
-     * @parameter property="appsDirectory" default-value="dropins"
+     * @Parameter( property="appsDirectory", defaultValue="dropins" )
      */
+    @Parameter( property="appsDirectory", defaultValue="dropins" )
     protected String appsDirectory = null;
     
     /**
      * Strip version. 
      * 
-     * @parameter property="stripVersion" default-value="false"
+     * @Parameter( property="stripVersion", defaultValue="false" )
      */
+    @Parameter( property="stripVersion", defaultValue="false" )
     protected boolean stripVersion;
     
     protected void installApp(Artifact artifact) throws Exception {

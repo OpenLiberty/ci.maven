@@ -18,27 +18,32 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Dump diagnostic information from the server JVM.
  * 
- * @goal java-dump-server
+ * @Mojo( name = "java-dump-server" ) 
  * 
  */
+@Mojo( name = "java-dump-server" ) 
 public class JavaDumpServerMojo extends StartDebugMojoSupport {
 
     /**
      * Include heap dump information. 
      * 
-     * @parameter property="heapDump"
+     * @Parameter( property="heapDump" )
      */
+    @Parameter( property="heapDump" )
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      * 
-     * @parameter property="systemDump"
+     * @Parameter( property="systemDump" )
      */
+	@Parameter( property="systemDump" )
     private boolean systemDump;
 
     @Override

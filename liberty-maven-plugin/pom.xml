@@ -30,6 +30,13 @@
             <artifactId>maven-project</artifactId>
             <version>2.0.5</version>
         </dependency>
+        <!-- dependencies to annotations -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.5</version>
+            <scope>provided</scope><!-- annotations are needed only to build the plugin -->
+        </dependency>     
     </dependencies>
 
     <profiles>
@@ -55,6 +62,10 @@
                             </profiles>
                         </configuration>
                         <executions>
+                            <execution>
+                                <id>default-descriptor</id>
+                                <phase>process-classes</phase>
+                            </execution>                     
                             <execution>
                                 <id>integration-test</id>
                                 <goals>
@@ -90,6 +101,10 @@
                             </profiles>
                         </configuration>
                         <executions>
+                            <execution>
+                                <id>default-descriptor</id>
+                                <phase>process-classes</phase>
+                            </execution>                     
                             <execution>
                                 <id>integration-test</id>
                                 <goals>

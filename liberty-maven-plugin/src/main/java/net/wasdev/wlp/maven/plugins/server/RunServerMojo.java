@@ -16,21 +16,25 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.text.MessageFormat;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Start a liberty server
  * 
- * @goal run-server
+ * @Mojo( name = "jrun-server" ) 
  */
+@Mojo( name = "jrun-server" ) 
 public class RunServerMojo extends StartDebugMojoSupport {
 
     /**
      * Clean all cached information on server start up.
      * 
-     * @parameter property="clean" default-value="false"
+     * @Parameter( property="clean", defaultValue="false" )
      */
+    @Parameter( property="clean", defaultValue="false" )
     protected boolean clean;
 
     @Override

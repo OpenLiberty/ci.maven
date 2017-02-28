@@ -19,30 +19,35 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Package a liberty server
  * 
- * @goal package-server
+ * @Mojo( name = "package-server", defaultPhase = LifecyclePhase.PACKAGE ) 
  * 
- * @phase package
  */
+@Mojo( name = "package-server", defaultPhase = LifecyclePhase.PACKAGE ) 
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     /**
      * Locate where server is packaged.
      * 
-     * @parameter property="packageFile"
+     * @Parameter( property="packageFile" )
      */
+    @Parameter( property="packageFile" )
     private File packageFile = null;
 
     /**
      * Package type. One of "all", "usr", or "minify".
      * 
-     * @parameter property="include"
+     * @Parameter( property="include" )
      */
+    @Parameter( property="include" )
     private String include;
 
     /**
@@ -56,13 +61,15 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
      *     repeat the minify operation on the archive.
      * 
-     * @parameter property="os"
+     * @Parameter( property="os" )
      */
+    @Parameter( property="os" )
     private String os;
     
     /**
-     * @parameter
+     * @Parameter( property="attach" )
      */
+    @Parameter( property="attach" )
     private boolean attach;
 
     @Override

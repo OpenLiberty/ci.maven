@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,25 @@ package net.wasdev.wlp.maven.plugins.applications;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
  * 
- * @goal install-apps
- * 
- * @requiresDependencyResolution compile
+ * @Mojo( name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE )   
  */
+@Mojo( name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE )   
 public class InstallAppsMojo extends InstallAppMojoSupport {
 
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      * 
-     * @parameter property="installAppPackages" default-value="dependencies"
+     * @Parameter( property="installAppPackages", defaultValue="dependencies" )
      */
+    @Parameter( property="installAppPackages", defaultValue="dependencies" )
     protected String installAppPackages = null;
     
     protected void doExecute() throws Exception {
