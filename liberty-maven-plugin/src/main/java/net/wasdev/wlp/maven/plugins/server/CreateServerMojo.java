@@ -60,7 +60,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     /**
      * Loose configuration. 
      */
-	@Parameter( property="looseConfig", defaultValue="false", readonly=true )
+    @Parameter( property="looseConfig", defaultValue="false", readonly=true )
     private boolean looseConfig=false;
     
     private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";
