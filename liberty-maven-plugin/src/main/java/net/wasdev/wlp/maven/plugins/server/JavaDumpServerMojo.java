@@ -36,7 +36,7 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
     /**
      * Include system dump information. 
      */
-	@Parameter( property="systemDump" )
+    @Parameter( property="systemDump" )
     private boolean systemDump;
 
     @Override
