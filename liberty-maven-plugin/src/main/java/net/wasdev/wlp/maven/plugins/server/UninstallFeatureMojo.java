@@ -27,8 +27,6 @@ import org.apache.maven.plugins.annotations.Component;
 /**
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
  * runtime.
- *
- * @Mojo( name = "uninstall-feature" ) 
  */
 @Mojo( name = "uninstall-feature" ) 
 
@@ -36,8 +34,6 @@ public class UninstallFeatureMojo extends BasicSupport {
     
     /**
      * Define a set of features to uninstall.
-     *
-     * @Component( role = Features.class )
      */
 	@Component( role = Features.class )
     private Features features;

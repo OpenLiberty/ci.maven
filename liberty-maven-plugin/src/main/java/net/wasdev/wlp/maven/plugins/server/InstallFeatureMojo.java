@@ -24,8 +24,6 @@ import org.apache.maven.plugins.annotations.Component;
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
  * runtime.
- *
- * @Mojo( name = "install-feature" ) 
  */
 @Mojo( name = "install-feature" ) 
 public class InstallFeatureMojo extends BasicSupport {
@@ -33,8 +31,6 @@ public class InstallFeatureMojo extends BasicSupport {
     /**
      * Define a set of features to install in the server and the configuration
      * to be applied for all instances.
-     *
-     * @Component( role = Features.class ) 
      */
 	@Component( role = Features.class )
     private Features features;

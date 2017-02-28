@@ -50,16 +50,12 @@ public class BasicSupport extends AbstractLibertySupport {
 
     /**
      * Skips the specific goal
-     *
-     * @Parameter( property="skip", defaultValue="false" )
      */
     @Parameter( property="skip", defaultValue="false" )
     protected boolean skip = false;
 
     /**
      * Enable forced install refresh.
-     * 
-     * @Parameter( property="refresh", defaultValue="false" )
      */
     @Parameter( property="refresh", defaultValue="false" )
     protected boolean refresh = false;
@@ -67,55 +63,42 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Set the false to skip the installation of the assembly, re-using anything
      * that is already there.
-     * 
-     * @Parameter( property="isInstall", defaultValue="true" )
      */
     @Parameter( property="isInstall", defaultValue="true" )
     protected boolean isInstall = true;
 
     /**
      * Server Install Directory
-     * 
-     * @Parameter( property="assemblyInstallDirectory", defaultValue="${project.build.directory}/liberty" )
      */
     @Parameter( property="assemblyInstallDirectory", defaultValue="${project.build.directory}/liberty" )
     protected File assemblyInstallDirectory;
     
     /**
      * Installation directory of Liberty profile. 
-     * 
-     * @Parameter( property="installDirectory" )
      */
     @Parameter( property="installDirectory" )
     protected File installDirectory;
 
     /**
      * @deprecated Use installDirectory parameter instead.
-     * @Parameter( property="serverHome" )
      */
     @Parameter( property="serverHome" )
     private File serverHome;
 
     /**
      * Liberty server name, default is defaultServer
-     * 
-     * @Parameter( property="serverName", defaultValue="defaultServer" )
      */
     @Parameter( property="serverName", defaultValue="defaultServer" )
     protected String serverName = null;
     
     /**
      * Liberty user directory (<tT>WLP_USER_DIR</tt>).
-     * 
-     * @Parameter( property="userDirectory" )
      */
     @Parameter( property="userDirectory" )
     protected File userDirectory = null;
 
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
-     * 
-     * @Parameter( property="outputDirectory" )
      */
     @Parameter( property="outputDirectory" )
     protected File outputDirectory = null;
@@ -134,8 +117,6 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * A file which points to a specific assembly ZIP archive. If this parameter
      * is set, then it will install server from archive
-     * 
-     * @Parameter( property="assemblyArchive" )
      */
     @Parameter( property="assemblyArchive" )
     protected File assemblyArchive;
@@ -143,8 +124,6 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
      * be omitted.
-     * 
-     * @Component( role = ArtifactItem.class )
      */
     @Component( role = ArtifactItem.class )
     protected ArtifactItem assemblyArtifact;
@@ -152,8 +131,6 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
      * the given URL.
-     * 
-     * @Component( role = Install.class )
      */
     @Component( role = Install.class )
     protected Install install;

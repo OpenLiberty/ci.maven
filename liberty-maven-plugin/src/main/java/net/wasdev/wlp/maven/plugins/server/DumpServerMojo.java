@@ -24,41 +24,30 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Dump diagnostic information from the server into an archive.
- * 
- * @Mojo( name = "dump-server" )
- * 
- */
+  */
 @Mojo( name = "dump-server" )
 public class DumpServerMojo extends StartDebugMojoSupport {
 
     /**
      * Location of the target archive file.
-     * 
-     * @Parameter( property="archive" )
      */
     @Parameter( property="archive" )
     private File archive;
 
     /**
      * Include heap dump information. 
-     * 
-     * @Parameter( property="heapDump" )
      */
     @Parameter( property="heapDump" )
     private boolean heapDump;
     
     /**
      * Include system dump information. 
-     * 
-     * @Parameter( property="systemDump" )
      */
     @Parameter( property="systemDump" )
     private boolean systemDump;
     
     /**
      * Include thread dump information. 
-     * 
-     * @Parameter( property="threadDump" )
      */
     @Parameter( property="threadDump" )
     private boolean threadDump;

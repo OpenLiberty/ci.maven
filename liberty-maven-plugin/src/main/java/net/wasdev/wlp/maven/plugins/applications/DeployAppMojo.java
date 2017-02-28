@@ -30,15 +30,11 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 /**
  * Deploy application to liberty server
- *
- * @Mojo( name = "deploy" )
  */
 @Mojo( name = "deploy" )
 public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
-     *
-     * @Parameter( property="appArchive" )
      */
     @Parameter( property="appArchive" )
     protected File appArchive;
@@ -46,24 +42,18 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
-     *
-     * @Component( role = ArtifactItem.class )
      */
     @Component( role = ArtifactItem.class )
     protected ArtifactItem appArtifact;
 
     /**
      * Timeout to verify deploy successfully, in seconds.
-     *
-     * @Parameter( property="timeout", defaultValue="40" )
      */
     @Parameter( property = "timeout", defaultValue = "40" )
     protected int timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
-     *
-     * @Parameter( property="appDeployName" )
      */
     @Parameter( property="appDeployName" )
     protected String appDeployName;

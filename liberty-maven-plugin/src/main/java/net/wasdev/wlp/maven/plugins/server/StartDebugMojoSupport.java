@@ -39,55 +39,36 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     /**
      * Location of customized configuration directory
-     * 
-     * @Parameter( property="configDirectory" )
      */
     @Parameter( property="configDirectory" )
     protected File configDirectory;
 
     /**
      * Location of customized configuration file server.xml
-     * 
-     * @Parameter( property="configFile", defaultValue="${basedir}/src/test/resources/server.xml" )
      */
     @Parameter( property="configFile", defaultValue="${basedir}/src/test/resources/server.xml" )
     protected File configFile;
 
     /**
-     * 
      * Location of bootstrap.properties file.
-     * 
-     * @@Parameter( property="bootstrapPropertiesFile", defaultValue="${basedir}/src/test/resources/bootstrap.properties" )
      */
     @Parameter( property="bootstrapPropertiesFile", defaultValue="${basedir}/src/test/resources/bootstrap.properties" )
     protected File bootstrapPropertiesFile;
 
-    /**
-     * @Parameter( property="bootstrapProperties" )
-     */
     @Parameter( property="bootstrapProperties" )
     protected Map<String, String> bootstrapProperties;
     
     /**
-     * 
      * Location of jvm.options file.
-     * 
-     * @Parameter( property="jvmOptionsFile", defaultValue="${basedir}/src/test/resources/jvm.options")
      */
     @Parameter( property="jvmOptionsFile", defaultValue="${basedir}/src/test/resources/jvm.options")
     protected File jvmOptionsFile;
     
-    /**
-     * @Parameter( property="jvmOptions" )
-     */
     @Parameter( property="jvmOptions" )
     protected List<String> jvmOptions;
 
     /**
-     * 
      * Location of customized server environment file server.env
-     * 
-     * @Parameter( property="serverEnv", defaultValue="${basedir}/src/test/resources/server.env")
      */
     @Parameter( property="serverEnv", defaultValue="${basedir}/src/test/resources/server.env")
     protected File serverEnv;

@@ -32,16 +32,12 @@ public class InstallAppMojoSupport extends BasicSupport {
 
     /**
      * Application directory. 
-     * 
-     * @Parameter( property="appsDirectory", defaultValue="dropins" )
      */
     @Parameter( property="appsDirectory", defaultValue="dropins" )
     protected String appsDirectory = null;
     
     /**
      * Strip version. 
-     * 
-     * @Parameter( property="stripVersion", defaultValue="false" )
      */
     @Parameter( property="stripVersion", defaultValue="false" )
     protected boolean stripVersion;
