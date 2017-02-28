@@ -33,6 +33,14 @@ public class CompileJspMojo extends BasicSupport {
      */
     protected String jspVersion;
 
+    /**
+     * Timeout for JSP compile. Stop the server if the jsp compile isn't finish within the given
+     * timeout (given in seconds).
+     *
+     * @parameter default-value="30"
+     */
+    protected int timeout;
+
     @Override
     protected void doExecute() throws Exception {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:net/wasdev/wlp/ant:compileJSPs");
@@ -45,6 +53,7 @@ public class CompileJspMojo extends BasicSupport {
         compile.setSrcdir(new File("src/main/webapp"));
         compile.setDestdir(new File(getProject().getBuild().getOutputDirectory()));
         compile.setTempdir(new File(getProject().getBuild().getDirectory()));
+        compile.setTimeout(timeout);
 
         // don't delete temporary server dir
         compile.setCleanup(false);
