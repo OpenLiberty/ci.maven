@@ -35,7 +35,7 @@ public class UninstallFeatureMojo extends BasicSupport {
     /**
      * Define a set of features to uninstall.
      */
-	@Component( role = Features.class )
+	  @Component( role = Features.class )
     private Features features;
 
     /*
