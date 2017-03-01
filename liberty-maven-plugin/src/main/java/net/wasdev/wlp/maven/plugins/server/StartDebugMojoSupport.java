@@ -61,7 +61,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of jvm.options file.
      */
-    @Parameter( property="jvmOptionsFile", defaultValue="${basedir}/src/test/resources/jvm.options")
+    @Parameter( property="jvmOptionsFile", defaultValue="${basedir}/src/test/resources/jvm.options" )
     protected File jvmOptionsFile;
     
     @Parameter( property="jvmOptions" )
@@ -70,7 +70,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of customized server environment file server.env
      */
-    @Parameter( property="serverEnv", defaultValue="${basedir}/src/test/resources/server.env")
+    @Parameter( property="serverEnv", defaultValue="${basedir}/src/test/resources/server.env" )
     protected File serverEnv;
 
     protected ServerTask initializeJava() throws Exception {
