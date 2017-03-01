@@ -22,7 +22,7 @@ import net.wasdev.wlp.maven.plugins.server.types.Features;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
@@ -35,7 +35,7 @@ public class UninstallFeatureMojo extends BasicSupport {
     /**
      * Define a set of features to uninstall.
      */
-    @Component( role = Features.class )
+    @Parameter( property="features" )
     private Features features;
 
     /*

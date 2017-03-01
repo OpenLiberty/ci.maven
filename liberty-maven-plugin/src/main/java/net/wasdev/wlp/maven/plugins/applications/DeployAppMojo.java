@@ -21,7 +21,6 @@ import java.text.MessageFormat;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
@@ -43,7 +42,7 @@ public class DeployAppMojo extends BasicSupport {
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
      */
-    @Component( role = ArtifactItem.class )
+    @Parameter( property="appArtifact" )
     protected ArtifactItem appArtifact;
 
     /**

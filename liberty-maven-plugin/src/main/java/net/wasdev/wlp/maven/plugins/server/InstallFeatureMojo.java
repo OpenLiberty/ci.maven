@@ -19,7 +19,7 @@ import net.wasdev.wlp.ant.InstallFeatureTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import net.wasdev.wlp.maven.plugins.server.types.Features;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
@@ -32,7 +32,7 @@ public class InstallFeatureMojo extends BasicSupport {
      * Define a set of features to install in the server and the configuration
      * to be applied for all instances.
      */
-    @Component( role = Features.class )
+    @Parameter( property="features" )
     private Features features;
 
     /*

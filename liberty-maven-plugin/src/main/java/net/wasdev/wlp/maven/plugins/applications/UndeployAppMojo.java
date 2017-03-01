@@ -22,7 +22,6 @@ import java.text.MessageFormat;
 import net.wasdev.wlp.ant.UndeployTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import org.apache.maven.artifact.Artifact;
@@ -49,7 +48,7 @@ public class UndeployAppMojo extends BasicSupport {
      * Maven coordinates of an application to undeploy. This is best listed as a
      * dependency, in which case the version can be omitted.
      */
-    @Component( role = ArtifactItem.class )
+    @Parameter( property="appArtifact" )
     protected ArtifactItem appArtifact;
     
     /**
@@ -57,7 +56,7 @@ public class UndeployAppMojo extends BasicSupport {
      * appArchive or appArtifact has been defined then this parameter will be
      * ignored.
      */
-    @Component( role = PatternSet.class )
+    @Parameter( property="patternSet" )
     private PatternSet patternSet;
     
     /**

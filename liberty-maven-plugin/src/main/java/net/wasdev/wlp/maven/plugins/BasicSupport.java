@@ -28,7 +28,6 @@ import net.wasdev.wlp.ant.install.InstallLibertyTask;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
 import org.apache.tools.ant.taskdefs.Chmod;
@@ -125,14 +124,14 @@ public class BasicSupport extends AbstractLibertySupport {
      * Maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
      * be omitted.
      */
-    @Component( role = ArtifactItem.class )
+    @Parameter( property="assemblyArtifact" )
     protected ArtifactItem assemblyArtifact;
     
     /**
      * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
      * the given URL.
      */
-    @Component( role = Install.class )
+    @Parameter( property="install" )
     protected Install install;
 
     @Override
