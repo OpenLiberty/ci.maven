@@ -1,6 +1,6 @@
 #### compile-jsp
 ---
-Compile the JSP files in src/main/webapp. This goal relies on starting a server in the background, so it requires a configured Liberty server. This goal is designed to run during the normal compile phase of the Maven build.
+Compile the JSP files in the `src/main/webapp` directory. This goal relies on a running server, so a Liberty server must be configured. This goal is designed to run during the normal compile phase of the Maven build.
 
 ###### Additional Parameters
 
@@ -8,8 +8,8 @@ The following parameters are supported by this goal in addition to the [common p
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| jspVersion | Sets the version of JSP to be used. Can be 2.2 or 2.3. The default value is `2.3`. | No |
-| timeout | Stop the server if the JSP files are not compiled within the specified time. The default value is `30` seconds. | No 
+| jspVersion | Sets the JSP version to use. Valid values are `2.2` or `2.3`. The default value is `2.3`. | No 
+| timeout | Maximum time to wait (in seconds) for all the JSP files to compile. The server is stopped and the goal ends after this specified time. The default value is `30` seconds. | No 
 
 Example:
 ```xml
