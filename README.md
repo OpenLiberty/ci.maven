@@ -182,7 +182,9 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-webapp \
+        -DarchetypeVersion=2.0-SNAPSHOT \
+        -DwlpPluginVersion=2.0-SNAPSHOT \
         -DgroupId=test \
         -DartifactId=test \
-        -Dversion=2.0-SNAPSHOT
+        -Dversion=1.0-SNAPSHOT
         
