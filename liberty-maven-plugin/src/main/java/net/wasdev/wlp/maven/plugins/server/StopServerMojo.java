@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,18 +40,17 @@ public class StopServerMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
-        if (isInstall) {
-            installServerAssembly();
-        } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-            checkServerHomeExists();
-            checkServerDirectoryExists();
-        }
-
+        
         log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
-        ServerTask serverTask = initializeJava();
-        serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
-        serverTask.setOperation("stop");
-        serverTask.execute();
+        
+        if (serverDirectory.exists()) {
+            ServerTask serverTask = initializeJava();
+            serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
+            serverTask.setOperation("stop");
+            serverTask.execute();
+        }
+        else {
+            log.info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
+        }
     }
 }
