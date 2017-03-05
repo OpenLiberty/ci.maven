@@ -63,10 +63,21 @@ public class PluginConfigXmlTest {
 
         expression = "/liberty-plugin-config/appsDirectory/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <appsDirectory/> ==>", "dropins",value);
+        Assert.assertEquals("Value of <appsDirectory/> ==>", "dropins", value);
         
         expression = "/liberty-plugin-config/installAppPackages/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <appsDirectory/> ==>", "project", value);
+        Assert.assertEquals("Value of <installAppPackages/> ==>", "project", value);
+        
+        expression = "/liberty-plugin-config/applicationFilename/text()";
+        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+        Assert.assertEquals("Value of <applicationFilename/> ==>", "install-apps-project-it.war", value);
+
+    }
+    
+    @Test
+    public void testApplicationFileExist() throws Exception {
+        File f = new File("liberty/usr/servers/test/dropins/install-apps-project-it.war");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
 }
