@@ -33,13 +33,13 @@ public class InstallAppMojoSupport extends BasicSupport {
     /**
      * Application directory. 
      */
-    @Parameter( defaultValue="dropins" )
+    @Parameter( property="install-apps.appsDirectory", defaultValue="dropins" )
     protected String appsDirectory = null;
     
     /**
      * Strip version. 
      */
-    @Parameter( defaultValue="false" )
+    @Parameter( property="install-apps.stripVersion", defaultValue="false" )
     protected boolean stripVersion;
     
     protected void installApp(Artifact artifact) throws Exception {
