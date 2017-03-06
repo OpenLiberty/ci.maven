@@ -40,37 +40,37 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of customized configuration directory
      */
-    @Parameter( property="configDirectory" )
+    @Parameter
     protected File configDirectory;
 
     /**
      * Location of customized configuration file server.xml
      */
-    @Parameter( property="configFile", defaultValue="${basedir}/src/test/resources/server.xml" )
+    @Parameter( defaultValue="${basedir}/src/test/resources/server.xml" )
     protected File configFile;
 
     /**
      * Location of bootstrap.properties file.
      */
-    @Parameter( property="bootstrapPropertiesFile", defaultValue="${basedir}/src/test/resources/bootstrap.properties" )
+    @Parameter( defaultValue="${basedir}/src/test/resources/bootstrap.properties" )
     protected File bootstrapPropertiesFile;
 
-    @Parameter( property="bootstrapProperties" )
+    @Parameter
     protected Map<String, String> bootstrapProperties;
     
     /**
      * Location of jvm.options file.
      */
-    @Parameter( property="jvmOptionsFile", defaultValue="${basedir}/src/test/resources/jvm.options" )
+    @Parameter( defaultValue="${basedir}/src/test/resources/jvm.options" )
     protected File jvmOptionsFile;
     
-    @Parameter( property="jvmOptions" )
+    @Parameter
     protected List<String> jvmOptions;
 
     /**
      * Location of customized server environment file server.env
      */
-    @Parameter( property="serverEnv", defaultValue="${basedir}/src/test/resources/server.env" )
+    @Parameter( defaultValue="${basedir}/src/test/resources/server.env" )
     protected File serverEnv;
 
     protected ServerTask initializeJava() throws Exception {
