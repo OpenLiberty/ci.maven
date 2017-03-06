@@ -33,15 +33,15 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     /**
      * Maven Project
      */
-    @Parameter( property="project", required=true, readonly=true )
+    @Parameter( defaultValue="${project}", required=true, readonly=true )
     protected MavenProject project = null;
-    @Parameter( property="localRepository", required=true, readonly=true )
+    @Parameter( defaultValue="${localRepository}", required=true, readonly=true )
     protected ArtifactRepository artifactRepository = null;
     
     /**
     * The build settings.
     */
-    @Parameter( property="settings", required=true, readonly=true )
+    @Parameter( defaultValue="${settings}", required=true, readonly=true )
     protected Settings settings;
 
     @Component( role=AntHelper.class )  

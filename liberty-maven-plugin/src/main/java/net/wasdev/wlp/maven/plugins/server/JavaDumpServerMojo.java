@@ -30,13 +30,13 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
     /**
      * Include heap dump information. 
      */
-    @Parameter( property="heapDump" )
+    @Parameter( property="java-dump-server.heapDump" )
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      */
-    @Parameter( property="systemDump" )
+    @Parameter( property="java-dump-server.systemDump" )
     private boolean systemDump;
 
     @Override

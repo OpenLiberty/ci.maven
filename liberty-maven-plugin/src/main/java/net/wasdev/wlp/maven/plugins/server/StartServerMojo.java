@@ -33,25 +33,25 @@ public class StartServerMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
-    @Parameter( property="verifyTimeout", defaultValue="30" )
+    @Parameter( property="start-server.verifyTimeout", defaultValue="30" )
     private int verifyTimeout = 30;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
-    @Parameter( property="serverStartTimeout", defaultValue="30" )
+    @Parameter( property="start-server.serverStartTimeout", defaultValue="30" )
     private int serverStartTimeout = 30;
 
     /**
      * comma separated list of app names to wait for
      */
-    @Parameter( property="applications" )
+    @Parameter( property="start-server.applications" )
     private String applications;
 
     /**
      * Clean all cached information on server start up.
      */
-    @Parameter( property="clean", defaultValue="false" )
+    @Parameter( property="start-server.clean", defaultValue="false" )
     protected boolean clean;
 
     @Override

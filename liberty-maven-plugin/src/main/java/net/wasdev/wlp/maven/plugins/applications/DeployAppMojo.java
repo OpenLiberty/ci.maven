@@ -35,26 +35,26 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
      */
-    @Parameter( property="appArchive" )
+    @Parameter( property="deploy.appArchive" )
     protected File appArchive;
 
     /**
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
      */
-    @Parameter( property="appArtifact" )
+    @Parameter
     protected ArtifactItem appArtifact;
 
     /**
      * Timeout to verify deploy successfully, in seconds.
      */
-    @Parameter( property = "timeout", defaultValue = "40" )
+    @Parameter( property = "deploy.timeout", defaultValue = "40" )
     protected int timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
      */
-    @Parameter( property="appDeployName" )
+    @Parameter( property="deploy.appDeployName" )
     protected String appDeployName;
 
     @Override
