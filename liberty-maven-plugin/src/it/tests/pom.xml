@@ -19,6 +19,7 @@
         <module>basic-it</module>
         <module>install-features-it</module>
         <module>install-apps-project-it</module>
+        <module>config-directory-it</module>
     </modules>
 
 </project>
