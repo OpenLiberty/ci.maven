@@ -40,9 +40,10 @@ public class StopServerMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
-
+        
+        log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
+        
         if (serverDirectory.exists()) {
-            log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
             ServerTask serverTask = initializeJava();
             serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
             serverTask.setOperation("stop");
