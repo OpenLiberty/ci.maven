@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>install-apps-project-it</artifactId>
+  <artifactId>config-directory-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -88,6 +88,7 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <installAppPackages>project</installAppPackages>
+          <configDirectory>src/test/resources/testConfig</configDirectory>
         </configuration>
         <executions>
             <execution>
@@ -103,9 +104,6 @@
                 <goals>
                     <goal>install-apps</goal>
                 </goals>
-                <configuration>
-                    <stripVersion>true</stripVersion>
-                </configuration>
             </execution>
             <execution>
                <id>start-liberty-server</id>
