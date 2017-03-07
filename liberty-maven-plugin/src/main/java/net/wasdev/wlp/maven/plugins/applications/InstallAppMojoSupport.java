@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2017.
+ * (C) Copyright IBM Corporation 2016.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.taskdefs.Copy;
 
 import net.wasdev.wlp.maven.plugins.BasicSupport;
@@ -44,25 +43,13 @@ public class InstallAppMojoSupport extends BasicSupport {
     protected boolean stripVersion;
     
     protected void installApp(Artifact artifact) throws Exception {
-        
-        if (artifact.getFile() == null) {
-            throw new MojoExecutionException(messages.getString("error.install.app.missing"));
-        }
-        
         File destDir = new File(serverDirectory, appsDirectory);
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
         if (stripVersion) {
-            String extension = null;
-            String path = artifact.getFile().getCanonicalPath();
-            if (path.lastIndexOf('.')>0) {
-                extension = path.substring(path.lastIndexOf('.')+1);
-            } else {
-                extension = artifact.getType();
-            }
-            copyFile.setTofile(new File(destDir, artifact.getArtifactId() + "." + extension));        	
+            copyFile.setTofile(new File(destDir, artifact.getArtifactId() + "." + artifact.getType()));
         } else {
             copyFile.setTodir(destDir);
         }
