@@ -63,10 +63,6 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>default-descriptor</id>
-                                <phase>process-classes</phase>
-                            </execution>                     
-                            <execution>
                                 <id>integration-test</id>
                                 <goals>
                                     <goal>install</goal>
@@ -101,10 +97,6 @@
                             </profiles>
                         </configuration>
                         <executions>
-                            <execution>
-                                <id>default-descriptor</id>
-                                <phase>process-classes</phase>
-                            </execution>                     
                             <execution>
                                 <id>integration-test</id>
                                 <goals>

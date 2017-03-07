@@ -41,7 +41,7 @@ public class UndeployAppMojo extends BasicSupport {
      * A file name which points to a specific module's jar | war | ear | eba |
      * zip archive.
      */
-    @Parameter( property="undeploy.appArchive" )
+    @Parameter
     protected String appArchive = null;
     
     /**
@@ -62,7 +62,7 @@ public class UndeployAppMojo extends BasicSupport {
     /**
      * Timeout to verify undeploy successfully, in seconds.
      */
-    @Parameter( property="undeploy.timeout", defaultValue="40" )
+    @Parameter( defaultValue="40" )
     protected int timeout = 40;
     
     /*

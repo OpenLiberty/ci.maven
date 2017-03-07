@@ -30,7 +30,7 @@ public class RunServerMojo extends StartDebugMojoSupport {
     /**
      * Clean all cached information on server start up.
      */
-    @Parameter( property="run-server.clean", defaultValue="false" )
+    @Parameter( defaultValue="false" )
     protected boolean clean;
 
     @Override

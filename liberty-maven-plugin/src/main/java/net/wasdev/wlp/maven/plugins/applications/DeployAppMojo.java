@@ -35,7 +35,7 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
      */
-    @Parameter( property="deploy.appArchive" )
+    @Parameter
     protected File appArchive;
 
     /**
@@ -48,13 +48,13 @@ public class DeployAppMojo extends BasicSupport {
     /**
      * Timeout to verify deploy successfully, in seconds.
      */
-    @Parameter( property = "deploy.timeout", defaultValue = "40" )
+    @Parameter( defaultValue = "40" )
     protected int timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
      */
-    @Parameter( property="deploy.appDeployName" )
+    @Parameter
     protected String appDeployName;
 
     @Override

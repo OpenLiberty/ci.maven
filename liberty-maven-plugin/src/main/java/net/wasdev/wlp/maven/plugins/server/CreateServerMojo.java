@@ -42,25 +42,25 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter( property="create-server.installAppPackages", defaultValue="dependencies", readonly=true )
+    @Parameter( defaultValue="dependencies", readonly=true )
     private String installAppPackages = "dependencies";
     
     /**
      * Application directory.
      */
-    @Parameter( property="create-server.appsDirectory", defaultValue="dropins", readonly=true )
+    @Parameter( defaultValue="dropins", readonly=true )
     private String appsDirectory = "dropins";
     
     /**
      * Strip version.
      */
-    @Parameter( property="create-server.stripVersion", defaultValue="false", readonly=true )
+    @Parameter( defaultValue="false", readonly=true )
     private boolean stripVersion = false;
     
     /**
      * Loose configuration. 
      */
-    @Parameter( property="create-server.looseConfig", defaultValue="false", readonly=true )
+    @Parameter( defaultValue="false", readonly=true )
     private boolean looseConfig = false;
     
     private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";

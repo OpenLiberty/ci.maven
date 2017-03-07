@@ -34,13 +34,13 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Locate where server is packaged.
      */
-    @Parameter( property="package-server.packageFile" )
+    @Parameter
     private File packageFile = null;
 
     /**
      * Package type. One of "all", "usr", or "minify".
      */
-    @Parameter( property="package-server.include" )
+    @Parameter
     private String include;
 
     /**
@@ -54,7 +54,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
      *     repeat the minify operation on the archive.
      */
-    @Parameter( property="package-server.os" )
+    @Parameter
     private String os;
     
     @Parameter
