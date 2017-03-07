@@ -61,7 +61,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
      * Loose configuration. 
      */
     @Parameter( property="create-server.looseConfig", defaultValue="false", readonly=true )
-    private boolean looseConfig=false;
+    private boolean looseConfig = false;
     
     private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";
     
@@ -139,7 +139,8 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         configDocument.createElement("looseConfig", looseConfig);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
-
+        configDocument.createElement("applicationFilename", getApplicationFilename());
+        
         configDocument.createElement("assemblyArtifact", assemblyArtifact);   
         configDocument.createElement("assemblyArchive", assemblyArchive);
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
@@ -163,5 +164,40 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             return def;
         } 
         return null;
+    }
+    
+    /*
+     * return the filename of the project artifact to be installed by install-apps goal
+     */
+    private String getApplicationFilename() {
+        // project artifact has not be created yet when create-server goal is called in pre-package phase
+        String name = project.getBuild().getFinalName();
+        if (stripVersion) {
+            int versionBeginIndex = project.getBuild().getFinalName().lastIndexOf("-" + project.getVersion());
+            if ( versionBeginIndex != -1) {
+                name = project.getBuild().getFinalName().substring(0, versionBeginIndex);
+            }
+        }
+        
+        // liberty only supports these application types: ear, war, eba, esa
+        switch (project.getPackaging()) {
+        case "ear":
+        case "war":
+        case "eba":
+        case "esa":
+            name += "." + project.getPackaging();
+            break;
+        case "liberty-assembly":
+            // assuming liberty-assembly project will also have a war file output.
+            name += ".war";
+            break;
+        default:
+            log.debug("The project artifact can't be installed to Liberty server because " + 
+                    project.getPackaging() + " is not one of the supported types");
+            name = null;
+            break;
+        }
+        
+        return name;
     }
 }

@@ -103,6 +103,9 @@
                 <goals>
                     <goal>install-apps</goal>
                 </goals>
+                <configuration>
+                    <stripVersion>true</stripVersion>
+                </configuration>
             </execution>
             <execution>
                <id>start-liberty-server</id>
