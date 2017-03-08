@@ -42,7 +42,7 @@ public class DeployAppMojo extends BasicSupport {
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
      */
-    @Parameter
+    @Parameter( property="appArtifact" )
     protected ArtifactItem appArtifact;
 
     /**
