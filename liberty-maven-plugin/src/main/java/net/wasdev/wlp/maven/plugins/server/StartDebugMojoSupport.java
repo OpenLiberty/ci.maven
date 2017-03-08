@@ -55,7 +55,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     @Parameter(property = "bootstrapPropertiesFile", defaultValue = "${basedir}/src/test/resources/bootstrap.properties")
     protected File bootstrapPropertiesFile;
 
-    @Parameter(property = "bootstrapProperties")
+    @Parameter
     protected Map<String, String> bootstrapProperties;
     
     /**
@@ -64,7 +64,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     @Parameter(property = "jvmOptionsFile", defaultValue = "${basedir}/src/test/resources/jvm.options")
     protected File jvmOptionsFile;
     
-    @Parameter(property = "jvmOptions")
+    @Parameter
     protected List<String> jvmOptions;
 
     /**

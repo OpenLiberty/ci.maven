@@ -35,7 +35,7 @@ public class UninstallFeatureMojo extends BasicSupport {
     /**
      * Define a set of features to uninstall.
      */
-    @Parameter(property = "features")
+    @Parameter
     private Features features;
 
     /*

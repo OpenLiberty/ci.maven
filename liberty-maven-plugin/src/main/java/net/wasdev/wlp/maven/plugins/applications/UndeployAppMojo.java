@@ -56,7 +56,7 @@ public class UndeployAppMojo extends BasicSupport {
      * appArchive or appArtifact has been defined then this parameter will be
      * ignored.
      */
-    @Parameter(property = "patternSet")
+    @Parameter
     private PatternSet patternSet;
     
     /**
