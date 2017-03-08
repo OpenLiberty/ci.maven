@@ -57,7 +57,7 @@ public class Features {
     /**
      * A single directory-based repository as the source of the assets for the installUtility command.
      */
-    @Parameter
+    @Parameter( property="from" )
     private String from = null;
 
     public boolean isAcceptLicense() {

@@ -30,7 +30,7 @@ public class StopServerMojo extends StartDebugMojoSupport {
     /**
      * Timeout to verify stop successfully
      */
-    @Parameter( defaultValue="30" )
+    @Parameter( property="serverStopTimeout", defaultValue="30" )
     protected long serverStopTimeout = 30;
 
     @Override

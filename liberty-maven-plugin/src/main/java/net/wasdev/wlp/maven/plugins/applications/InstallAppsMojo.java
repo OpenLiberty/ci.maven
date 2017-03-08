@@ -32,7 +32,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter( defaultValue="dependencies" )
+    @Parameter( property="installAppPackages", defaultValue="dependencies" )
     protected String installAppPackages = null;
     
     protected void doExecute() throws Exception {

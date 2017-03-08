@@ -32,7 +32,7 @@ public class InstallFeatureMojo extends BasicSupport {
      * Define a set of features to install in the server and the configuration
      * to be applied for all instances.
      */
-    @Parameter
+    @Parameter( property="features" )
     private Features features;
 
     /*

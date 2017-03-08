@@ -31,25 +31,25 @@ public class DumpServerMojo extends StartDebugMojoSupport {
     /**
      * Location of the target archive file.
      */
-    @Parameter
+    @Parameter( property="archive" )
     private File archive;
 
     /**
      * Include heap dump information. 
      */
-    @Parameter
+    @Parameter( property="heapDump" )
     private boolean heapDump;
     
     /**
      * Include system dump information. 
      */
-    @Parameter
+    @Parameter( property="systemDump" )
     private boolean systemDump;
     
     /**
      * Include thread dump information. 
      */
-    @Parameter
+    @Parameter( property="threadDump" )
     private boolean threadDump;
 
     @Override
