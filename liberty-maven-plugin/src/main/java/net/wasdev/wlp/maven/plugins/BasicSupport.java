@@ -103,12 +103,6 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File outputDirectory = null;
     
     /**
-     * Application directory.
-     */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
-    protected String appsDirectory = null;
-    
-    /**
      * Server Directory: ${installDirectory}/usr/servers/${serverName}/
      */
     protected File serverDirectory;
