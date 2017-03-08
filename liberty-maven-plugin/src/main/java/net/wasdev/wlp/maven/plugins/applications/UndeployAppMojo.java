@@ -48,7 +48,7 @@ public class UndeployAppMojo extends BasicSupport {
      * Maven coordinates of an application to undeploy. This is best listed as a
      * dependency, in which case the version can be omitted.
      */
-    @Parameter( property="appArtifact" )
+    @Parameter
     protected ArtifactItem appArtifact;
     
     /**
