@@ -20,6 +20,8 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.maven.model.Profile;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 
 import net.wasdev.wlp.ant.ServerTask;
@@ -27,50 +29,38 @@ import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
 
 /**
  * Create a liberty server
- * 
- * @goal create-server
- * 
- * 
- */
+  */
+@Mojo(name = "create-server") 
 public class CreateServerMojo extends StartDebugMojoSupport {
 
     /**
      * Name of the template to use when creating a server.
-     * 
-     * @parameter expression="${template}"
      */
+    @Parameter(property = "template")
     private String template;
     
     /**
      * Packages to install. One of "all", "dependencies" or "project".
-     * 
-     * @parameter property="installAppPackages" default-value="dependencies"
-     * @readonly
      */
+    @Parameter(property = "installAppPackages", defaultValue = "dependencies", readonly = true)
     private String installAppPackages = "dependencies";
     
     /**
      * Application directory.
-     * 
-     * @parameter property="appsDirectory" default-value="dropins"
-     * @readonly
      */
+    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
     private String appsDirectory = "dropins";
     
     /**
      * Strip version.
-     * 
-     * @parameter property="stripVersion" default-value="false"
-     * @readyOnly
      */
+    @Parameter(property = "stripVersion", defaultValue = "false", readonly = true)
     private boolean stripVersion = false;
     
     /**
      * Loose configuration. 
-     * 
-     * @parameter property="looseConfig" default-value="false"
-     * @readonly
      */
+    @Parameter(property = "looseConfig", defaultValue = "false", readonly = true)
     private boolean looseConfig = false;
     
     private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";

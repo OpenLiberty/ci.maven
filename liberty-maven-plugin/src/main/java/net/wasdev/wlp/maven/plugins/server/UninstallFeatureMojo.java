@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015.
+ * (C) Copyright IBM Corporation 2015, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,19 +21,21 @@ import net.wasdev.wlp.maven.plugins.server.types.Features;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
 /**
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
  * runtime.
- *
- * @goal uninstall-feature
  */
+@Mojo(name = "uninstall-feature") 
+
 public class UninstallFeatureMojo extends BasicSupport {
     
     /**
      * Define a set of features to uninstall.
-     *
-     * @parameter
      */
+    @Parameter
     private Features features;
 
     /*

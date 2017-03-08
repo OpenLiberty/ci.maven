@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.text.MessageFormat;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Start a liberty server
- * 
- * @goal run-server
  */
+@Mojo(name = "run-server") 
 public class RunServerMojo extends StartDebugMojoSupport {
 
     /**
      * Clean all cached information on server start up.
-     * 
-     * @parameter expression="${clean}" default-value="false"
      */
+    @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
 
     @Override

@@ -28,6 +28,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Start/Debug server support.
@@ -38,54 +39,38 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     /**
      * Location of customized configuration directory
-     * 
-     * @parameter expression="${configDirectory}"
      */
+    @Parameter(property = "configDirectory")
     protected File configDirectory;
 
     /**
      * Location of customized configuration file server.xml
-     * 
-     * @parameter expression="${configFile}"
-     *            default-value="${basedir}/src/test/resources/server.xml"
      */
+    @Parameter(property = "configFile", defaultValue = "${basedir}/src/test/resources/server.xml")
     protected File configFile;
 
     /**
-     * 
      * Location of bootstrap.properties file.
-     * 
-     * @parameter expression="${bootstrapPropertiesFile}"
-     *            default-value="${basedir}/src/test/resources/bootstrap.properties"
      */
+    @Parameter(property = "bootstrapPropertiesFile", defaultValue = "${basedir}/src/test/resources/bootstrap.properties")
     protected File bootstrapPropertiesFile;
 
-    /**
-     * @parameter
-     */
+    @Parameter
     protected Map<String, String> bootstrapProperties;
     
     /**
-     * 
      * Location of jvm.options file.
-     * 
-     * @parameter expression="${jvmOptionsFile}"
-     *            default-value="${basedir}/src/test/resources/jvm.options"
      */
+    @Parameter(property = "jvmOptionsFile", defaultValue = "${basedir}/src/test/resources/jvm.options")
     protected File jvmOptionsFile;
     
-    /**
-     * @parameter
-     */
+    @Parameter
     protected List<String> jvmOptions;
 
     /**
-     * 
      * Location of customized server environment file server.env
-     * 
-     * @parameter expression="${serverEnv}"
-     *            default-value="${basedir}/src/test/resources/server.env"
      */
+    @Parameter(property = "serverEnv", defaultValue = "${basedir}/src/test/resources/server.env")
     protected File serverEnv;
 
     protected ServerTask initializeJava() throws Exception {

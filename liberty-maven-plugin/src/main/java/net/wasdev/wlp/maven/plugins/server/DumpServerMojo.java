@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,41 +19,37 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Dump diagnostic information from the server into an archive.
- * 
- * @goal dump-server
- * 
- */
+  */
+@Mojo(name = "dump-server")
 public class DumpServerMojo extends StartDebugMojoSupport {
 
     /**
      * Location of the target archive file.
-     * 
-     * @parameter expression="${archive}"
      */
+    @Parameter(property = "archive")
     private File archive;
 
     /**
      * Include heap dump information. 
-     * 
-     * @parameter expression="${heapDump}"
      */
+    @Parameter(property = "heapDump")
     private boolean heapDump;
     
     /**
      * Include system dump information. 
-     * 
-     * @parameter expression="${systemDump}"
      */
+    @Parameter(property = "systemDump")
     private boolean systemDump;
     
     /**
      * Include thread dump information. 
-     * 
-     * @parameter expression="${threadDump}"
      */
+    @Parameter(property = "threadDump")
     private boolean threadDump;
 
     @Override

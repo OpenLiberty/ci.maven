@@ -8,6 +8,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import net.wasdev.wlp.ant.jsp.CompileJSPs;
@@ -15,21 +19,15 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 /**
  * Compile the JSPs in the src/main/webapp folder.
- * 
- * @goal compile-jsp
- * 
- * @phase compile
- * 
- * @requiresDependencyResolution compile
- *
  */
+@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, 
+      requiresDependencyResolution = ResolutionScope.COMPILE)  
 public class CompileJspMojo extends BasicSupport {
 
     /**
      * The version of JSP that should be compiled against. Defaults to 2.3. Can be 2.2 or 2.3
-     * 
-     * @parameter
      */
+    @Parameter
     protected String jspVersion;
     
     protected void doExecute() throws Exception {
