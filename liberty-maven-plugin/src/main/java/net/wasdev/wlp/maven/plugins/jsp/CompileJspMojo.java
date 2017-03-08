@@ -27,7 +27,7 @@ public class CompileJspMojo extends BasicSupport {
     /**
      * The version of JSP that should be compiled against. Defaults to 2.3. Can be 2.2 or 2.3
      */
-    @Parameter(property = "jspVersion")
+    @Parameter
     protected String jspVersion;
     
     protected void doExecute() throws Exception {
