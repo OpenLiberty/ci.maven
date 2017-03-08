@@ -28,7 +28,7 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Package a liberty server
  */
-@Mojo(name = "package-server",defaultPhase = LifecyclePhase.PACKAGE) 
+@Mojo(name = "package-server", defaultPhase = LifecyclePhase.PACKAGE) 
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     /**

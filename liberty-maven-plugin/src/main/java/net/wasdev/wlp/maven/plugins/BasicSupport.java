@@ -50,26 +50,26 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Skips the specific goal
      */
-    @Parameter(property = "skip",defaultValue = "false")
+    @Parameter(property = "skip", defaultValue = "false")
     protected boolean skip = false;
 
     /**
      * Enable forced install refresh.
      */
-    @Parameter(property = "refresh",defaultValue = "false")
+    @Parameter(property = "refresh", defaultValue = "false")
     protected boolean refresh = false;
 
     /**
      * Set the false to skip the installation of the assembly, re-using anything
      * that is already there.
      */
-    @Parameter(property = "isInstall",defaultValue = "true")
+    @Parameter(property = "isInstall", defaultValue = "true")
     protected boolean isInstall = true;
 
     /**
      * Server Install Directory
      */
-    @Parameter(property = "assemblyInstallDirectory",defaultValue = "${project.build.directory}/liberty")
+    @Parameter(property = "assemblyInstallDirectory", defaultValue = "${project.build.directory}/liberty")
     protected File assemblyInstallDirectory;
     
     /**
@@ -87,7 +87,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Liberty server name, default is defaultServer
      */
-    @Parameter(property = "serverName",defaultValue = "defaultServer")
+    @Parameter(property = "serverName", defaultValue = "defaultServer")
     protected String serverName = null;
     
     /**
@@ -101,6 +101,12 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(property = "outputDirectory")
     protected File outputDirectory = null;
+    
+    /**
+     * Application directory.
+     */
+    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
+    protected String appsDirectory = null;
     
     /**
      * Server Directory: ${installDirectory}/usr/servers/${serverName}/

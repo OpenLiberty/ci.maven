@@ -62,7 +62,7 @@ public class UndeployAppMojo extends BasicSupport {
     /**
      * Timeout to verify undeploy successfully, in seconds.
      */
-    @Parameter(property = "timeout",defaultValue = "40")
+    @Parameter(property = "timeout", defaultValue = "40")
     protected int timeout = 40;
     
     /*

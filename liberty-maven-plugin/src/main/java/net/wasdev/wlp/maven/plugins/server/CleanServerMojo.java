@@ -28,25 +28,25 @@ public class CleanServerMojo extends StartDebugMojoSupport {
     /**
      * Clean the logs directory.
      */
-    @Parameter(property = "cleanLogs",defaultValue = "true")
+    @Parameter(property = "cleanLogs", defaultValue = "true")
     private boolean logs = true;
     
     /**
      * Clean the workarea directory.
      */
-    @Parameter(property = "cleanWorkarea",defaultValue = "true")
+    @Parameter(property = "cleanWorkarea", defaultValue = "true")
     private boolean workarea = true;
     
     /**
      * Clean the dropins directory.
      */
-    @Parameter(property = "cleanDropins",defaultValue = "false")
+    @Parameter(property = "cleanDropins", defaultValue = "false")
     private boolean dropins = false;
     
     /**
      * Clean the apps directory.
      */
-    @Parameter(property = "cleanApps",defaultValue = "false")
+    @Parameter(property = "cleanApps", defaultValue = "false")
     private boolean apps = false;
     
     protected void doExecute() throws Exception {
