@@ -24,13 +24,13 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Start a liberty server
  */
-@Mojo( name = "run-server" ) 
+@Mojo(name = "run-server") 
 public class RunServerMojo extends StartDebugMojoSupport {
 
     /**
      * Clean all cached information on server start up.
      */
-    @Parameter( property="clean", defaultValue="false" )
+    @Parameter(property = "clean",defaultValue = "false")
     protected boolean clean;
 
     @Override

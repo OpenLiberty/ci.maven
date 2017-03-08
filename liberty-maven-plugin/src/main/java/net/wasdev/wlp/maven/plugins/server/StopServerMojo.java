@@ -24,13 +24,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Stop a liberty server
  */
-@Mojo( name = "stop-server" ) 
+@Mojo(name = "stop-server") 
 public class StopServerMojo extends StartDebugMojoSupport {
 
     /**
      * Timeout to verify stop successfully
      */
-    @Parameter( property="serverStopTimeout", defaultValue="30" )
+    @Parameter(property = "serverStopTimeout",defaultValue = "30")
     protected long serverStopTimeout = 30;
 
     @Override

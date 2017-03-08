@@ -20,14 +20,14 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Compile the JSPs in the src/main/webapp folder.
  */
-@Mojo( name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, 
-       requiresDependencyResolution = ResolutionScope.COMPILE )  
+@Mojo(name = "compile-jsp",defaultPhase = LifecyclePhase.COMPILE, 
+       requiresDependencyResolution = ResolutionScope.COMPILE)  
 public class CompileJspMojo extends BasicSupport {
 
     /**
      * The version of JSP that should be compiled against. Defaults to 2.3. Can be 2.2 or 2.3
      */
-	@Parameter( property="jspVersion" )
+	@Parameter(property = "jspVersion")
     protected String jspVersion;
     
     protected void doExecute() throws Exception {

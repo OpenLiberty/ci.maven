@@ -26,13 +26,13 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
-@Mojo( name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE )   
+@Mojo(name = "install-apps",requiresDependencyResolution=ResolutionScope.COMPILE)   
 public class InstallAppsMojo extends InstallAppMojoSupport {
 
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter( property="installAppPackages", defaultValue="dependencies" )
+    @Parameter(property = "installAppPackages",defaultValue = "dependencies")
     protected String installAppPackages = null;
     
     protected void doExecute() throws Exception {

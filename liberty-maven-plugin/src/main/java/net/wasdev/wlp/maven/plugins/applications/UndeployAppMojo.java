@@ -33,7 +33,7 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * Undeploy application from liberty server. If no parameters have been defined
  * the mojo will undeploy all applications from the server.
  */
-@Mojo( name = "undeploy" )
+@Mojo(name = "undeploy")
 
 public class UndeployAppMojo extends BasicSupport {
     
@@ -41,7 +41,7 @@ public class UndeployAppMojo extends BasicSupport {
      * A file name which points to a specific module's jar | war | ear | eba |
      * zip archive.
      */
-    @Parameter( property="appArchive" )
+    @Parameter(property = "appArchive")
     protected String appArchive = null;
     
     /**
@@ -56,13 +56,13 @@ public class UndeployAppMojo extends BasicSupport {
      * appArchive or appArtifact has been defined then this parameter will be
      * ignored.
      */
-    @Parameter( property="patternSet" )
+    @Parameter(property = "patternSet")
     private PatternSet patternSet;
     
     /**
      * Timeout to verify undeploy successfully, in seconds.
      */
-    @Parameter( property="timeout", defaultValue="40" )
+    @Parameter(property = "timeout",defaultValue = "40")
     protected int timeout = 40;
     
     /*

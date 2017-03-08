@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 /**
  * Check a liberty server status
  */
-@Mojo( name = "server-status" )
+@Mojo(name = "server-status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {

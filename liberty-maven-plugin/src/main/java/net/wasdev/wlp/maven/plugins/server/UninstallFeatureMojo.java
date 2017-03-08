@@ -28,14 +28,14 @@ import org.apache.maven.plugins.annotations.Parameter;
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
  * runtime.
  */
-@Mojo( name = "uninstall-feature" ) 
+@Mojo(name = "uninstall-feature") 
 
 public class UninstallFeatureMojo extends BasicSupport {
     
     /**
      * Define a set of features to uninstall.
      */
-    @Parameter( property="features" )
+    @Parameter(property = "features")
     private Features features;
 
     /*

@@ -21,7 +21,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 /**
  * Install a liberty server
  */
-@Mojo( name = "install-server" )  
+@Mojo(name = "install-server")  
 public class InstallServerMojo extends BasicSupport {
 
     protected void doExecute() throws Exception {
