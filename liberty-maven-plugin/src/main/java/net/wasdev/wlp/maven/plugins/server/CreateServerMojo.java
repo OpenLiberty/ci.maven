@@ -186,10 +186,19 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         case "eba":
         case "esa":
             name += "." + project.getPackaging();
+            if (looseConfig) {
+                name += ".xml";
+            }
             break;
         case "liberty-assembly":
             // assuming liberty-assembly project will also have a war file output.
-            name += ".war";
+            File dir = new File(project.getBasedir() + "/src/main/webapp");
+            if (dir.exists()) {
+                name += ".war";
+                if (looseConfig) {
+                    name += ".xml";
+                }
+            }
             break;
         default:
             log.debug("The project artifact can't be installed to Liberty server because " + 
