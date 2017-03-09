@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015.
+ * (C) Copyright IBM Corporation 2015, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,6 +17,7 @@ package net.wasdev.wlp.maven.plugins.server.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
 
@@ -55,9 +56,8 @@ public class Features {
     
     /**
      * A single directory-based repository as the source of the assets for the installUtility command.
-     * 
-     * @parameter expression="${from}"
      */
+    @Parameter(property = "from")
     private String from = null;
 
     public boolean isAcceptLicense() {

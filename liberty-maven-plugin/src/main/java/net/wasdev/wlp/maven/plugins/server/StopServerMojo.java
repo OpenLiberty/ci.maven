@@ -18,21 +18,19 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Stop a liberty server
- * 
- * @goal stop-server
- * 
- * 
  */
+@Mojo(name = "stop-server") 
 public class StopServerMojo extends StartDebugMojoSupport {
 
     /**
      * Timeout to verify stop successfully
-     * 
-     * @parameter expression="${serverStopTimeout}" default-value="30"
      */
+    @Parameter(property = "serverStopTimeout", defaultValue = "30")
     protected long serverStopTimeout = 30;
 
     @Override

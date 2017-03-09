@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Check a liberty server status
- * 
- * @goal server-status
- * 
  */
+@Mojo(name = "server-status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {

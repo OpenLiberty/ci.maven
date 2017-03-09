@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015.
+ * (C) Copyright IBM Corporation 2015, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,23 +18,21 @@ package net.wasdev.wlp.maven.plugins.server;
 import net.wasdev.wlp.ant.InstallFeatureTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import net.wasdev.wlp.maven.plugins.server.types.Features;
-
-import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
  * runtime.
- *
- * @goal install-feature
  */
+@Mojo(name = "install-feature") 
 public class InstallFeatureMojo extends BasicSupport {
     
     /**
      * Define a set of features to install in the server and the configuration
      * to be applied for all instances.
-     *
-     * @parameter
      */
+    @Parameter
     private Features features;
 
     /*

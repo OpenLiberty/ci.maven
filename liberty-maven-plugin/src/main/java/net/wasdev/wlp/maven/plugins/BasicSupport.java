@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import net.wasdev.wlp.ant.install.InstallLibertyTask;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
 import org.apache.tools.ant.taskdefs.Chmod;
 import org.apache.tools.ant.taskdefs.Expand;
@@ -48,65 +49,57 @@ public class BasicSupport extends AbstractLibertySupport {
 
     /**
      * Skips the specific goal
-     *
-     * @parameter expression="${skip}" default-value="false"
      */
+    @Parameter(property = "skip", defaultValue = "false")
     protected boolean skip = false;
 
     /**
      * Enable forced install refresh.
-     * 
-     * @parameter expression="${refresh}" default-value="false"
      */
+    @Parameter(property = "refresh", defaultValue = "false")
     protected boolean refresh = false;
 
     /**
      * Set the false to skip the installation of the assembly, re-using anything
      * that is already there.
-     * 
-     * @parameter expression="${isInstall}" default-value="true"
      */
+    @Parameter(property = "isInstall", defaultValue = "true")
     protected boolean isInstall = true;
 
     /**
      * Server Install Directory
-     * 
-     * @parameter expression="${assemblyInstallDirectory}" default-value="${project.build.directory}/liberty"
      */
+    @Parameter(property = "assemblyInstallDirectory", defaultValue = "${project.build.directory}/liberty")
     protected File assemblyInstallDirectory;
     
     /**
      * Installation directory of Liberty profile. 
-     * 
-     * @parameter expression="${installDirectory}"
      */
+    @Parameter(property = "installDirectory")
     protected File installDirectory;
 
     /**
      * @deprecated Use installDirectory parameter instead.
-     * @parameter expression="${serverHome}"
      */
+    @Parameter(property = "serverHome")
     private File serverHome;
 
     /**
      * Liberty server name, default is defaultServer
-     * 
-     * @parameter expression="${serverName}" default-value="defaultServer"
      */
+    @Parameter(property = "serverName", defaultValue = "defaultServer")
     protected String serverName = null;
     
     /**
      * Liberty user directory (<tT>WLP_USER_DIR</tt>).
-     * 
-     * @parameter expression="${userDirectory}"
      */
+    @Parameter(property = "userDirectory")
     protected File userDirectory = null;
 
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
-     * 
-     * @parameter expression="${outputDirectory}"
      */
+    @Parameter(property = "outputDirectory")
     protected File outputDirectory = null;
     
     /**
@@ -123,25 +116,22 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * A file which points to a specific assembly ZIP archive. If this parameter
      * is set, then it will install server from archive
-     * 
-     * @parameter expression="${assemblyArchive}"
      */
+    @Parameter(property = "assemblyArchive")
     protected File assemblyArchive;
 
     /**
      * Maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
      * be omitted.
-     * 
-     * @parameter
      */
+    @Parameter
     protected ArtifactItem assemblyArtifact;
     
     /**
      * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
      * the given URL.
-     * 
-     * @parameter
      */
+    @Parameter
     protected Install install;
 
     @Override
