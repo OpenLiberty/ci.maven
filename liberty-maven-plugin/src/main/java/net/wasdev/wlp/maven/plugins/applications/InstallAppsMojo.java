@@ -15,18 +15,21 @@
  */
 package net.wasdev.wlp.maven.plugins.applications;
 
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
-@Mojo(name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE)   
+@Mojo(name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE)
 public class InstallAppsMojo extends InstallAppMojoSupport {
 
     /**
@@ -63,12 +66,18 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             installDependencies();
         }
         if (installProject) {
-            installApp(project.getArtifact());
+            installProject();
         }
     }
     
     private void installDependencies() throws Exception {
-        for (Artifact dep : (Set<Artifact>) project.getDependencyArtifacts()) {
+        @SuppressWarnings("unchecked")
+        Set<Artifact> artifacts = (Set<Artifact>) project.getDependencyArtifacts();
+        for (Artifact dep : artifacts) {
+            // skip if not an application type supported by Liberty
+            if (!isSupportedType(dep.getType())) {
+                continue;
+            }
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
                 continue;
@@ -78,6 +87,37 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             }
         }
     }
+    
+    private void installProject() throws Exception {
+        if (isSupportedType(project.getPackaging())) {
+            if (looseApplication) {
+                switch(project.getPackaging()) {
+                    case "war":
+                        installLooseConfigApp();
+                        break;
+                    case "liberty-assembly":
+                        File dir = new File(project.getBasedir() + "/src/main/webapp");
+                        if (dir.exists()) {
+                            installLooseConfigApp();
+                        } else {
+                            log.debug("liberty-assembly project does not have source code for web project.");
+                        }
+                        break;
+                    default:
+                        //TODO: revise and move message to MvnMessages.properties
+                        log.info(MessageFormat.format("Loose application configuration is not supported for packaging type {0}. The project artifact will be installed as is.", 
+                                project.getPackaging()));
+                        installApp(project.getArtifact());
+                        break;
+                }
+            } else {
+                installApp(project.getArtifact());
+            }
+        } else {
+            // TODO: revise and put the message in MvnMessgaes.properties.
+            throw new MojoExecutionException("Application type is not supported," + project.getPackaging());
+        }
+    }
 
     private boolean matches(Artifact dep, ArtifactItem assemblyArtifact) {
         return dep.getGroupId().equals(assemblyArtifact.getGroupId())
@@ -85,4 +125,17 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 && dep.getType().equals(assemblyArtifact.getType());
     }
     
+    private boolean isSupportedType(String type) {
+        switch (type) {
+        case "ear":
+        case "war":
+        case "eba":
+        case "esa":
+        case "liberty-assembly":
+            return true;
+        default:
+            return false;
+        }
+    }
+   
 }
