@@ -83,7 +83,7 @@ public class PluginConfigXmlDocument extends XmlDocument {
         createElement(child, "groupId", value.getGroupId());
         createElement(child, "artifactId", value.getArtifactId());
         createElement(child, "version", value.getVersion());
-        createElement(child, "version", value.getType());
+        createElement(child, "type", value.getType());
         doc.getDocumentElement().appendChild(child);
     }
     
@@ -96,13 +96,13 @@ public class PluginConfigXmlDocument extends XmlDocument {
         createElement(child, "cacheDirectory", value.getCacheDirectory());
         createElement(child, "licenseCode", value.getLicenseCode());
         createElement(child, "type", value.getType());
-        createElement(child, "type", value.getType());
+        createElement(child, "version", value.getVersion());
         createElement(child, "runtimeUrl", value.getRuntimeUrl());
         createElement(child, "username", value.getUsername());
         createElement(child, "password", "*********");
         createElement(child, "maxDownloadTime", Long.toString(value.getMaxDownloadTime()));
         createElement(child, "runtimeUrl", value.getRuntimeUrl());
-        createElement(child, "type", value.isVerbose());
+        createElement(child, "verbose", value.isVerbose());
         
         doc.getDocumentElement().appendChild(child);
     }

@@ -55,34 +55,35 @@ public class LooseConfigData extends XmlDocument {
         if (!dirs.isEmpty()) {
             for(Map.Entry<String, String> entry : dirs.entrySet()){
                 Element child = doc.createElement("dir");
-                child.setAttribute("sourceOnDisk", entry.getKey());
-                child.setAttribute("targetInArchive", entry.getValue());
-                doc.getDocumentElement().appendChild(child);
+                addElement(doc.getDocumentElement(), child, entry.getValue(), entry.getKey());
             }
         }
         
         if (!files.isEmpty()) {
             for(Map.Entry<String, String> entry : files.entrySet()){
                 Element child = doc.createElement("file");
-                child.setAttribute("sourceOnDisk", entry.getKey());
-                child.setAttribute("targetInArchive", entry.getValue());
-                doc.getDocumentElement().appendChild(child);
+                addElement(doc.getDocumentElement(), child, entry.getValue(), entry.getKey());
             }
         }
         
         if (!archives.isEmpty()) {
             for(Map.Entry<String, String> entry : archives.entrySet()){
                 Element child = doc.createElement("archive");
-                child.setAttribute("targetInArchive", entry.getValue());
-                doc.getDocumentElement().appendChild(child);
-                Element grandChild = doc.createElement("dir");
-                child.setAttribute("sourceOnDisk", entry.getKey());
-                child.setAttribute("targetInArchive", "/");
-                doc.getDocumentElement().appendChild(grandChild);
+                addElement(doc.getDocumentElement(), child, entry.getValue());
+                addElement(child, doc.createElement("dir"), "/", entry.getKey());
             }
         }
         
         writeXMLDocument(xmlFile);
     }
     
+    private void addElement(Element parent, Element child, String targetAttr, String srcAttr) {
+        child.setAttribute("sourceOnDisk", srcAttr);
+        addElement(parent, child, targetAttr);
+    }
+    
+    private void addElement(Element parent, Element child, String targetAttr) {
+        child.setAttribute("targetInArchive", targetAttr);
+        parent.appendChild(child);
+    }
 }

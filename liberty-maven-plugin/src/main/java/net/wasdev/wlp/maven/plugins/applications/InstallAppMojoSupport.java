@@ -58,10 +58,10 @@ public class InstallAppMojoSupport extends BasicSupport {
     protected boolean stripVersion;
     
     /**
-     * Loose configuration. 
+     * Loose application. 
      */
-    @Parameter(property = "looseConfig", defaultValue = "false")
-    protected boolean looseConfig = false;
+    @Parameter(property = "looseApplication", defaultValue = "false")
+    protected boolean looseApplication;
     
     protected void installApp(Artifact artifact) throws Exception {
         if (artifact.getFile() == null) {
@@ -83,7 +83,7 @@ public class InstallAppMojoSupport extends BasicSupport {
         copyFile.execute();
     }
     
-    // install project artifact using looseconfig file 
+    // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
         //Artifact artifact = project.getArtifact();
         File destDir = new File(serverDirectory, appsDirectory);
@@ -114,7 +114,7 @@ public class InstallAppMojoSupport extends BasicSupport {
             List<String> eclipseModules = getEclipseDependentMods();
 
             // referencing dependent library jar file from mvn repository or set
-            // loose config reference to dependent eclipse project output classpath
+            // loose application configuration reference to dependent eclipse project output classpath
             if (eclipseModules.isEmpty()) {
                 addLibraryFromM2(libraries, config);
             } else {
@@ -133,9 +133,12 @@ public class InstallAppMojoSupport extends BasicSupport {
         config.toXmlFile(looseConfigFile);
     }
     
-    // get loose configuration file name for project artifact
+    // get loose application configuration file name for project artifact
     private String getLooseConfigFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
+        if (project.getPackaging().equals("liberty-assembly")) {
+            name = project.getBuild().getFinalName() + ".war";
+        }
         if (stripVersion) {
             return stripVersionFromName(name, project.getVersion()) + ".xml";
         } else {
@@ -160,6 +163,9 @@ public class InstallAppMojoSupport extends BasicSupport {
     }
     
     private MavenProject getSiblingModule(Artifact artifact) {
+        if (project.getParent() == null) {
+            return null;
+        }
         @SuppressWarnings("unchecked")
         List<MavenProject> modules = (List<MavenProject>)project.getParent().getModules();
         for (MavenProject module : modules) {

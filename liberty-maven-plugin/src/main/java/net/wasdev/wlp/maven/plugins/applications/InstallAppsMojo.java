@@ -16,6 +16,7 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -73,7 +74,10 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         @SuppressWarnings("unchecked")
         Set<Artifact> artifacts = (Set<Artifact>) project.getDependencyArtifacts();
         for (Artifact dep : artifacts) {
-            // TODO: skip if not an application type supported by Liberty
+            // skip if not an application type supported by Liberty
+            if (!isSupportedType(dep.getType())) {
+                continue;
+            }
             // skip assemblyArtifact if specified as a dependency
             if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
                 continue;
@@ -86,7 +90,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     
     private void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
-            if (looseConfig) {
+            if (looseApplication) {
                 switch(project.getPackaging()) {
                     case "war":
                         installLooseConfigApp();
@@ -96,12 +100,13 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                         if (dir.exists()) {
                             installLooseConfigApp();
                         } else {
-                            log.debug("liberty-assembly project does not have soruce code for web project.");
+                            log.debug("liberty-assembly project does not have source code for web project.");
                         }
                         break;
                     default:
                         //TODO: revise and move message to MvnMessages.properties
-                        log.info("Can not generate loose configuration for Project artifact type. Project aritifact will be installed as is.");
+                        log.info(MessageFormat.format("Loose application configuration is not supported for packaging type {0}. The project artifact will be installed as is.", 
+                                project.getPackaging()));
                         installApp(project.getArtifact());
                         break;
                 }
