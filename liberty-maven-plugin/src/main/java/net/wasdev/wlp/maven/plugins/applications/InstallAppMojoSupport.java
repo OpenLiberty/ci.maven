@@ -85,7 +85,6 @@ public class InstallAppMojoSupport extends BasicSupport {
     
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
-        //Artifact artifact = project.getArtifact();
         File destDir = new File(serverDirectory, appsDirectory);
         File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
         LooseConfigData config = new LooseConfigData();
@@ -94,16 +93,15 @@ public class InstallAppMojoSupport extends BasicSupport {
         
         File dir = new File(project.getBasedir() + "/src/main/webapp");
         if (dir.exists()) {
-            config.addDir(project.getBasedir() + "/src/main/webapp", "/");
+            config.addDir(dir.getCanonicalPath(), "/");
         }
         
         dir = new File(project.getBuild().getOutputDirectory());
         if (dir.exists()) {
-            config.addDir(project.getBuild().getOutputDirectory(), "/WEB-INF/classes");
+            config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
         } else {
-            // TODO: need to revise the message
-            throw new MojoExecutionException(
-                    "Project has not be compiled yet. Please run mvn install or mvn compile to build the project first.");
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
+                    project.getId()));
         }
         
         // retrieves dependent library jar files
@@ -116,15 +114,20 @@ public class InstallAppMojoSupport extends BasicSupport {
             // referencing dependent library jar file from mvn repository or set
             // loose application configuration reference to dependent eclipse project output classpath
             if (eclipseModules.isEmpty()) {
-                addLibraryFromM2(libraries, config);
+                addLibraries(libraries, config);
             } else {
                 for (Artifact library : libraries) {
-                    if (library.getFile() != null && eclipseModules.contains(library.getFile().getName())) {
-                        MavenProject module = getSiblingModule(library);
-                        config.addArchive(module.getBuild().getOutputDirectory(),
-                                "/WEB-INF/lib/" + module.getBuild().getFinalName() + "." + module.getPackaging());
-                    } else {
+                    if (library.getFile() == null || !eclipseModules.contains(getFileName(library.getFile()))) {
                         addLibraryFromM2(library, config);
+                    } else {
+                        File classDir = new File(project.getBasedir() + "/../" + library.getArtifactId() + "/target/classes");
+                        log.debug("sibling module target class directory pathname: " + classDir.getCanonicalPath());
+                        
+                        if (classDir.exists()) {
+                            config.addArchive(classDir.getCanonicalPath(), "/WEB-INF/lib/" + getFileName(library.getFile()));
+                        } else {
+                            addLibraryFromM2(library, config);
+                        }
                     }
                 }
             }
@@ -146,30 +149,46 @@ public class InstallAppMojoSupport extends BasicSupport {
         }
     }
     
-    private void addLibraryFromM2(List<Artifact> libraries, LooseConfigData config) throws Exception {
+    // add dependent library loose config element from sibling project or from m2 repository
+    private void addLibraries(List<Artifact> libraries, LooseConfigData config) throws Exception {
         for (Artifact library : libraries) {
-            addLibraryFromM2(library, config);
+            if (library.getFile() != null) {
+                File f = new File(library.getFile().getParentFile(), "classes");
+                if (f.exists()) {
+                    config.addArchive(f.getCanonicalPath(),
+                            "/WEB-INF/lib/" + getFileName(library.getFile()));
+                } else {
+                    addLibraryFromM2(library, config);
+                }
+            } else {
+                addLibraryFromM2(library, config);
+            }
         }
-    }    
+    } 
+    
+    private String getFileName(File f) throws IOException {
+        String name = f.getCanonicalPath().substring(f.getCanonicalPath().lastIndexOf(File.separator) + 1);
+        return name;
+    }
     
     private void addLibraryFromM2(Artifact library, LooseConfigData config) throws Exception {
         // use dependency from local m2 repository
         if (library.getFile() != null) {
             config.addFile(library.getFile().getCanonicalPath(), "/WEB-INF/lib/" + library.getFile().getName());
         } else {
-            // TODO: revise the message.
-            throw new MojoExecutionException("Dependency can not be found in Maven repositoy, " + library.getId());
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.app.dependency.not.found"),
+                    library.getId()));
         }
     }
     
-    private MavenProject getSiblingModule(Artifact artifact) {
+    private String getSiblingModule(Artifact artifact) {
         if (project.getParent() == null) {
             return null;
         }
         @SuppressWarnings("unchecked")
-        List<MavenProject> modules = (List<MavenProject>)project.getParent().getModules();
-        for (MavenProject module : modules) {
-            if (module.getId().equals(artifact.getId())) {
+        List<String> modules = (List<String>)project.getParent().getModules();
+        for (String module : modules) {
+            if (module.equals(artifact.getArtifactId())) {
                 return module;
             }
         }
@@ -189,7 +208,7 @@ public class InstallAppMojoSupport extends BasicSupport {
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
             Document doc = builder.parse(f);
             XPath xPath = XPathFactory.newInstance().newXPath();
-            String expression = "/wb-module/dependent-module";
+            String expression = "/project-modules/wb-module/dependent-module";
             NodeList nodes = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
             
             for (int i = 0; i < nodes.getLength(); i++) {
