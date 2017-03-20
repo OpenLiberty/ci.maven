@@ -15,6 +15,8 @@
  */
 package net.wasdev.wlp.maven.plugins.applications;
 
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
