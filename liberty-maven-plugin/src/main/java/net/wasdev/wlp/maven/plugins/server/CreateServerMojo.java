@@ -52,10 +52,10 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     private boolean stripVersion = false;
     
     /**
-     * Loose configuration. 
+     * Loose application. 
      */
-    @Parameter(property = "looseConfig", defaultValue = "false", readonly = true)
-    private boolean looseConfig = false;
+    @Parameter(property = "looseApplication", defaultValue = "false", readonly = true)
+    private boolean looseApplication;
     
     private final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";
     
@@ -132,7 +132,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         setAppsDirectory(null);
        
         configDocument.createElement("appsDirectory", appsDirectory);
-        configDocument.createElement("looseConfig", looseConfig);
+        configDocument.createElement("looseConfig", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
         configDocument.createElement("applicationFilename", getApplicationFilename());
@@ -167,14 +167,23 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         case "eba":
         case "esa":
             name += "." + project.getPackaging();
+            if (looseApplication) {
+                name += ".xml";
+            }
             break;
         case "liberty-assembly":
             // assuming liberty-assembly project will also have a war file output.
-            name += ".war";
+            File dir = new File(project.getBasedir() + "/src/main/webapp");
+            if (dir.exists()) {
+                name += ".war";
+                if (looseApplication) {
+                    name += ".xml";
+                }
+            }
             break;
         default:
-            log.debug("The project artifact can't be installed to Liberty server because " + 
-                    project.getPackaging() + " is not one of the supported types");
+            log.debug("The project artifact cannot be installed to a Liberty server because " +
+                    project.getPackaging() + " is not a supported packaging type.");
             name = null;
             break;
         }

@@ -438,4 +438,13 @@ public class BasicSupport extends AbstractLibertySupport {
         installTask.execute();
     }
     
+    // Strip version string from name
+    protected String stripVersionFromName(String name, String version) {
+        int versionBeginIndex = name.lastIndexOf("-" + version);
+        if ( versionBeginIndex != -1) {
+            return name.substring(0, versionBeginIndex) + name.substring(versionBeginIndex + version.length() + 1);
+        } else {
+            return name;
+        }
+    }
 }
