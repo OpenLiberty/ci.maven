@@ -91,6 +91,13 @@
         </configuration>
         <executions>
             <execution>
+                <id>export-plugin-config</id>
+                <phase>compile</phase>
+                <goals>
+                    <goal>export-plugin-config</goal>
+                </goals>
+            </execution>
+            <execution>
                 <id>create-liberty-server</id>
                 <phase>package</phase>
                 <goals>

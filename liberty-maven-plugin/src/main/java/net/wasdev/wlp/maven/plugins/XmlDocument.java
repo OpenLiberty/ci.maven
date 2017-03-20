@@ -56,9 +56,10 @@ public abstract class XmlDocument {
         doc = builder.parse(xmlFile);
     }
         
-    public void writeXMLDocument(String fileName) throws IOException, TransformerException {
+    public File writeXMLDocument(String fileName) throws IOException, TransformerException {
         File f = new File(fileName);
         writeXMLDocument(f);
+        return f;
     }
     
     public void writeXMLDocument(File f) throws IOException, TransformerException {
