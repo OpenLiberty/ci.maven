@@ -19,10 +19,10 @@
         <module>basic-it</module>
         <module>install-features-it</module>
         <module>install-apps-project-it</module>
-        <module>install-default-appsdirectory-it</module>
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
         <module>loose-config-it</module>
+        <module>default-appsdirectory-it</module>        
     </modules>
 
 </project>
