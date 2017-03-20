@@ -46,12 +46,6 @@ public class CreateServerMojo extends StartDebugMojoSupport {
     private String installAppPackages = "dependencies";
     
     /**
-     * Application directory.
-     */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
-    private String appsDirectory = "dropins";
-    
-    /**
      * Strip version.
      */
     @Parameter(property = "stripVersion", defaultValue = "false", readonly = true)
@@ -135,6 +129,8 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
         }
         
+        setAppsDirectory(null);
+       
         configDocument.createElement("appsDirectory", appsDirectory);
         configDocument.createElement("looseConfig", looseConfig);
         configDocument.createElement("stripVersion", stripVersion);
@@ -149,21 +145,6 @@ public class CreateServerMojo extends StartDebugMojoSupport {
         
         // write XML document to file
         configDocument.writeXMLDocument(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
-    }
-    
-    /* 
-     * Get the file from configDrectory if it exists;
-     * otherwise return def only if it exists, or null if not
-     */
-    private File getFileFromConfigDirectory(String file, File def) {
-        File f = new File(configDirectory, file);
-        if (configDirectory != null && f.exists()) { 
-            return f;
-        }
-        if (def != null && def.exists()) {
-            return def;
-        } 
-        return null;
     }
     
     /*

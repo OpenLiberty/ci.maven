@@ -31,12 +31,6 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 public class InstallAppMojoSupport extends BasicSupport {
 
     /**
-     * Application directory. 
-     */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins")
-    protected String appsDirectory = null;
-    
-    /**
      * Strip version. 
      */
     @Parameter(property = "stripVersion", defaultValue = "false")
@@ -47,6 +41,8 @@ public class InstallAppMojoSupport extends BasicSupport {
         if (artifact.getFile() == null) {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
+        
+        setAppsDirectory(artifact); 
         
         File destDir = new File(serverDirectory, appsDirectory);
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
