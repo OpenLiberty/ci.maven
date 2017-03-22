@@ -14,7 +14,7 @@ import net.wasdev.wlp.maven.test.support.HttpUtils;
  * 
  */
 
-public class PluginEBATest {
+public class PluginEBATestIT {
 
     private String baseURL = "http://localhost:9080/";
 

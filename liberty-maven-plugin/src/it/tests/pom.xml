@@ -20,6 +20,7 @@
         <module>install-features-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>
+        <module>test-assembly-with-code-it</module>
     </modules>
 
 </project>
