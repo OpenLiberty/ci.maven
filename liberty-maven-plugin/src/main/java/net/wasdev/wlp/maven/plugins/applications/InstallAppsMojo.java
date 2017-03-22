@@ -104,8 +104,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                         }
                         break;
                     default:
-                        //TODO: revise and move message to MvnMessages.properties
-                        log.info(MessageFormat.format("Loose application configuration is not supported for packaging type {0}. The project artifact will be installed as is.", 
+                        log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
                                 project.getPackaging()));
                         installApp(project.getArtifact());
                         break;
@@ -114,8 +113,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 installApp(project.getArtifact());
             }
         } else {
-            // TODO: revise and put the message in MvnMessgaes.properties.
-            throw new MojoExecutionException("Application type is not supported," + project.getPackaging());
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.application.not.supported"),
+                    project.getId()));
         }
     }
 
