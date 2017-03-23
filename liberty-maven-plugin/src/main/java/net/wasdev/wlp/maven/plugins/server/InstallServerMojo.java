@@ -15,20 +15,18 @@
  */
 package net.wasdev.wlp.maven.plugins.server;
 
-import net.wasdev.wlp.maven.plugins.BasicSupport;
 import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Install a liberty server
  */
 @Mojo(name = "install-server")  
-public class InstallServerMojo extends BasicSupport {
-
+public class InstallServerMojo extends PluginConfigSupport {
+    
     protected void doExecute() throws Exception {
         if (skip) {
             return;
         }
         installServerAssembly();
     }
-
 }
