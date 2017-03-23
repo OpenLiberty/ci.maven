@@ -113,7 +113,25 @@ Additional parameters shared by all server-based goals. [See common server param
 
 ### liberty-assembly
 
-The `liberty-assembly` Maven packaging type is used to create a packaged Liberty profile server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server.
+The `liberty-assembly` Maven packaging type is used to create a packaged Liberty profile server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server. Any application or test code included in the project is automatically compiled and tests run at appropriate unit or integration test phase. Application code is installed as a loose application WAR file if `installAppPackages` is set to `all` or `project` and `looseApplication` is set to `true`. 
+
+The `liberty-assembly` default lifecycle includes:
+
+| Phase | Goal |
+| ----- | ---- | 
+| pre-clean | liberty:stop-server |
+| process-resources | maven-resources-plugin:resources |
+| compile | maven-compiler-plugin:compile |
+| process-test-resources | maven-resources-plugin:testResources |
+| test-compile | maven-compiler-plugin:testCompile |
+| test | maven-surefire-plugin:test | 
+| prepare-package | liberty:create-server, liberty:install-feature, liberty:install-apps |
+| package | liberty:package-server | 
+| pre-integration-test | liberty:start-server |
+| integration-test | maven-failsafe-plugin:integration-test |
+| post-integration-test | liberty:stop-server |
+| install | maven-install-plugin:install |
+| deploy | maven-deploy-plugin:deploy |
 
 Example:
 ```xml
@@ -149,6 +167,8 @@ Example:
                         <acceptLicense>true</acceptLicense>
                         <feature>mongodb-2.0</feature>
                     </features>
+                    <looseApplication>true</looseApplication>
+                    <installAppPackages>all</installAppPackages>
                 </configuration>
             </plugin>
         </plugins>
