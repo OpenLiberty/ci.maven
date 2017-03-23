@@ -65,7 +65,7 @@ public class InstallAppMojoSupport extends BasicSupport {
         setAppsDirectory();
         
         if (!appsDirectory.equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
-        	addAppConfiguration(artifact.getArtifactId());
+            addAppConfiguration(artifact.getArtifactId());
         }
         
         File destDir = new File(serverDirectory, appsDirectory);
