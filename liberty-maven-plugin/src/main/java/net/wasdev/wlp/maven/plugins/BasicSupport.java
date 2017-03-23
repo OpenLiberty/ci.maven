@@ -279,33 +279,29 @@ public class BasicSupport extends AbstractLibertySupport {
         return dir.getCanonicalFile();
     }
 
-    protected void setAppsDirectory(Artifact artifact) throws Exception{
+    protected void setAppsDirectory() throws Exception { 
 
         boolean bAppConfigured = isApplicationConfigured();
         
+        // if appsDirectory is not set
         if (appsDirectory == null || appsDirectory.isEmpty()) {
             appsDirectory = bAppConfigured ? "apps" : "dropins";
             log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
         }
-        else if (appsDirectory.equalsIgnoreCase("dropins")) {
-            if (bAppConfigured) {
-                throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
-            }
+        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
+        	throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
         }
-        // appsDirectory is not null nor 'dropins' 
-        //     i.e. 'apps' or other values
-        else {
-            if (!bAppConfigured && artifact != null) {        
-            	// Produce a warning message that the application is not configured in the source server.xml or included config.
-                log.warn(messages.getString("info.install.app.not.configured"));
-               
-            	// Add webApplication configuration into the target server.xml. 
-            	File serverXML = new File(serverDirectory, "server.xml");
-        		ServerXmlDocument.addAppElment(serverXML, artifact.getArtifactId());
+    }
+    
+    protected void addAppConfiguration(String artifactId) throws Exception {
+    	// Add a warning message that the application is not configured
+    	log.warn(messages.getString("info.install.app.not.configured"));
+         
+     	// Add webApplication configuration into the target server.xml. 
+     	File serverXML = new File(serverDirectory, "server.xml");
+ 		ServerXmlDocument.addAppElment(serverXML, artifactId);
 
-        		log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifact.getArtifactId()));
-            }
-        }
+ 		log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
     }
     
     protected boolean isApplicationConfigured() throws Exception {

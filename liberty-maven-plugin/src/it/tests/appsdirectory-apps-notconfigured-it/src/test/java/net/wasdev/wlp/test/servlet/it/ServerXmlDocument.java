@@ -1,19 +1,19 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (c) Copyright IBM Corporation 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package net.wasdev.wlp.maven.plugins;
+ *******************************************************************************/
+package net.wasdev.wlp.test.servlet.it;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -53,35 +53,5 @@ public class ServerXmlDocument {
     		}
 	    }
 	    return bFoundTag;
-    }
-    
-    public static void addAppElment(File serverXML, String artifactId) throws Exception {
-    	
-    	DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance(); 
-    	DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(serverXML); 
-        
-        Element root = doc.getDocumentElement(); 
-        Element child = doc.createElement("webApplication"); 
-
-        // e.g.
-        // <webApplication contextRoot="helloworld" location="helloworld.war" />
-        // <application context-root="helloworld" type="war" id="helloworld"
-        //	    location="helloworld.war" name="helloworld"/>
-
-        child.setAttribute("id", artifactId);
-        child.setAttribute("name", artifactId);
-        child.setAttribute("location", artifactId + ".war");
- 
-        root.appendChild(child); 
-
-        TransformerFactory tf = TransformerFactory.newInstance();
-        //tf.setAttribute("indent-number", new Integer(4));
-        Transformer transformer = tf.newTransformer(); 
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes"); 
-        StreamResult result = new StreamResult(new FileWriter(serverXML)); 
-        DOMSource source = new DOMSource(doc); 
-        transformer.transform(source, result); 
-    }
-    
+    }    
 }

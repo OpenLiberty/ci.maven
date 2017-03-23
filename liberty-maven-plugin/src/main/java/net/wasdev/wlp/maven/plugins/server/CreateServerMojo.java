@@ -129,7 +129,7 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
         }
         
-        setAppsDirectory(null);
+        setAppsDirectory();
        
         configDocument.createElement("appsDirectory", appsDirectory);
         configDocument.createElement("looseConfig", looseApplication);
