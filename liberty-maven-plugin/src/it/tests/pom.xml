@@ -22,6 +22,7 @@
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
         <module>loose-config-it</module>
+        <module>test-assembly-with-code-it</module>
     </modules>
 
 </project>
