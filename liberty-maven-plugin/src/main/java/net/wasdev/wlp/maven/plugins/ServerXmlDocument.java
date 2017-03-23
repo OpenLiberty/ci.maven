@@ -37,37 +37,31 @@ public class ServerXmlDocument {
     
     public static boolean isFoundTagNames(String fileName, String[] tagNames) throws Exception {
 
-	    boolean bFoundTag = false; 
-	    
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-    	Document doc = builder.parse(fileName);
-    	
-    	for (int i = 0; i < tagNames.length; ++i) {
-    		String tag = tagNames[i];
-    		
-    		NodeList appList = doc.getElementsByTagName(tag);
-    		if (appList.getLength() > 0) {
-    			bFoundTag = true;
-    			break;
-    		}
-	    }
-	    return bFoundTag;
+        boolean bFoundTag = false; 
+        
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(fileName);
+        
+        for (int i = 0; i < tagNames.length; ++i) {
+            String tag = tagNames[i];
+            NodeList appList = doc.getElementsByTagName(tag);
+            if (appList.getLength() > 0) {
+                bFoundTag = true;
+                break;
+            }
+        }
+        return bFoundTag;
     }
     
     public static void addAppElment(File serverXML, String artifactId) throws Exception {
-    	
-    	DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance(); 
-    	DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+    
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance(); 
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.parse(serverXML); 
         
         Element root = doc.getDocumentElement(); 
         Element child = doc.createElement("webApplication"); 
-
-        // e.g.
-        // <webApplication contextRoot="helloworld" location="helloworld.war" />
-        // <application context-root="helloworld" type="war" id="helloworld"
-        //	    location="helloworld.war" name="helloworld"/>
 
         child.setAttribute("id", artifactId);
         child.setAttribute("name", artifactId);
@@ -76,12 +70,10 @@ public class ServerXmlDocument {
         root.appendChild(child); 
 
         TransformerFactory tf = TransformerFactory.newInstance();
-        //tf.setAttribute("indent-number", new Integer(4));
         Transformer transformer = tf.newTransformer(); 
         transformer.setOutputProperty(OutputKeys.INDENT, "yes"); 
         StreamResult result = new StreamResult(new FileWriter(serverXML)); 
         DOMSource source = new DOMSource(doc); 
         transformer.transform(source, result); 
-    }
-    
+    }    
 }

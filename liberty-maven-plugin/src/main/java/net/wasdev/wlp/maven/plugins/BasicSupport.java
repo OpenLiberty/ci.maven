@@ -283,37 +283,32 @@ public class BasicSupport extends AbstractLibertySupport {
 
         boolean bAppConfigured = isApplicationConfigured();
         
-        // if appsDirectory is not set
+        // if appsDirectory is not set 
         if (appsDirectory == null || appsDirectory.isEmpty()) {
             appsDirectory = bAppConfigured ? "apps" : "dropins";
             log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
         }
         else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
-        	throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
+            throw new MojoExecutionException(
+            		MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
         }
     }
     
     protected void addAppConfiguration(String artifactId) throws Exception {
-    	// Add a warning message that the application is not configured
-    	log.warn(messages.getString("info.install.app.not.configured"));
+   
+        log.warn(messages.getString("info.install.app.not.configured"));
          
-     	// Add webApplication configuration into the target server.xml. 
-     	File serverXML = new File(serverDirectory, "server.xml");
- 		ServerXmlDocument.addAppElment(serverXML, artifactId);
+        // Add webApplication configuration into the target server.xml. 
+        File serverXML = new File(serverDirectory, "server.xml");
+        ServerXmlDocument.addAppElment(serverXML, artifactId);
 
- 		log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
+        log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
     }
     
     protected boolean isApplicationConfigured() throws Exception {
-    	boolean bAppConfigured = false;
-
-    	File serverXML = new File(serverDirectory, "server.xml");
-	   
-        bAppConfigured = ServerXmlDocument.isFoundTagNames(
-				    		serverXML.getCanonicalPath(), 	
-				    		new String[] {"application", "webApplication"});
-
-        return bAppConfigured;
+        File serverXML = new File(serverDirectory, "server.xml");
+        return ServerXmlDocument.isFoundTagNames(serverXML.getCanonicalPath(), 	
+                                                 new String[] {"application", "webApplication"});
     }
     
     /* 

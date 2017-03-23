@@ -72,10 +72,8 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <configFile>src/main/liberty/config/server.xml</configFile>
-                    <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>
-                    <stripVersion>true</stripVersion>
                     <packageFile>${package.file}</packageFile>
                     <include>${packaging.type}</include>
                 </configuration>
@@ -86,6 +84,9 @@
                         <goals>
                             <goal>create-server</goal>
                         </goals>
+                        <configuration>
+                            <appsDirectory>apps</appsDirectory>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>install-artifact</id>
@@ -94,6 +95,7 @@
                             <goal>install-apps</goal>
                         </goals>
                         <configuration>
+                            <appsDirectory>apps</appsDirectory>
                             <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>

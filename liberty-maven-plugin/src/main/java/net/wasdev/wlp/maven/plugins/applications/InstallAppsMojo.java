@@ -20,10 +20,10 @@ import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
@@ -123,7 +123,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 && dep.getArtifactId().equals(assemblyArtifact.getArtifactId())
                 && dep.getType().equals(assemblyArtifact.getType());
     }
-    
     
     private boolean isSupportedType(String type) {
         switch (type) {

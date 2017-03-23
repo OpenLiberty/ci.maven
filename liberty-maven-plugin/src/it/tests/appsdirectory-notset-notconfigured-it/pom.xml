@@ -74,7 +74,6 @@
                     <configFile>src/main/liberty/config/server.xml</configFile>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>
-                    <stripVersion>true</stripVersion>
                     <packageFile>${package.file}</packageFile>
                     <include>${packaging.type}</include>
                 </configuration>
@@ -96,7 +95,7 @@
                             <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
-<!--                     <execution>
+                    <execution>
                         <id>start-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
@@ -132,7 +131,7 @@
                             <cleanApps>true</cleanApps>
                         </configuration>
                     </execution>
- -->                </executions>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

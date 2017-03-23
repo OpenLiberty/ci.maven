@@ -85,13 +85,13 @@ public class InstallAppMojoSupport extends BasicSupport {
     
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
-    	
-    	setAppsDirectory(); 
-    	
-    	if (!appsDirectory.equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
-        	addAppConfiguration(project.getBuild().getFinalName());
+    
+        setAppsDirectory(); 
+    
+        if (!appsDirectory.equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
+            addAppConfiguration(project.getBuild().getFinalName());
         }
-    	
+    
         File destDir = new File(serverDirectory, appsDirectory);
         File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
         LooseConfigData config = new LooseConfigData();
@@ -155,7 +155,7 @@ public class InstallAppMojoSupport extends BasicSupport {
             return name + ".xml";
         }
     }
-
+    
     // add dependent library loose config element from sibling project or from m2 repository
     private void addLibraries(List<Artifact> libraries, LooseConfigData config) throws Exception {
         for (Artifact library : libraries) {
