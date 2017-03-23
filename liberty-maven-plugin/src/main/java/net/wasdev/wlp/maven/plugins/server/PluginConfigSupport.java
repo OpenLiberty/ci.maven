@@ -105,6 +105,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         configDocument.createElement("appsDirectory", appsDirectory);
         configDocument.createElement("looseApplication", looseApplication);
+        // TDOD: remove looseConfig when WDT starts to use looseApplication
+        configDocument.createElement("looseConfig", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
         configDocument.createElement("applicationFilename", getApplicationFilename());
