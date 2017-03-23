@@ -24,19 +24,19 @@
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:stop-server
                             </pre-clean>
                             <process-resources>
-                                org.apache.maven.plugins:maven-resources-plugin:resources
+                                org.apache.maven.plugins:maven-resources-plugin:3.0.2:resources
                             </process-resources>
                             <compile>
-                                org.apache.maven.plugins:maven-compiler-plugin:compile
+                                org.apache.maven.plugins:maven-compiler-plugin:3.6.1:compile
                             </compile>
                             <process-test-resources>
-                                org.apache.maven.plugins:maven-resources-plugin:testResources
+                                org.apache.maven.plugins:maven-resources-plugin:3.0.2:testResources
                             </process-test-resources>
                             <test-compile>
-                                org.apache.maven.plugins:maven-compiler-plugin:testCompile
+                                org.apache.maven.plugins:maven-compiler-plugin:3.6.1:testCompile
                             </test-compile>
                             <test>
-                                org.apache.maven.plugins:maven-surefire-plugin:test
+                                org.apache.maven.plugins:maven-surefire-plugin:2.19.1:test
                             </test>
                             <prepare-package>
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server,
@@ -50,16 +50,16 @@
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:start-server
                             </pre-integration-test>
                             <integration-test>
-                                org.apache.maven.plugins:maven-failsafe-plugin:integration-test
+                                org.apache.maven.plugins:maven-failsafe-plugin:2.19.1:integration-test
                             </integration-test>
                             <post-integration-test>
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:stop-server
                             </post-integration-test>
                             <install>
-                                org.apache.maven.plugins:maven-install-plugin:install
+                                org.apache.maven.plugins:maven-install-plugin:2.5.2:install
                             </install>
                             <deploy>
-                                org.apache.maven.plugins:maven-deploy-plugin:deploy
+                                org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy
                             </deploy>
                         </phases>
                     </lifecycle>

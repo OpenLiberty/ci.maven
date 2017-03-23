@@ -17,9 +17,9 @@ public class TestServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        out.println("<html><head><title>Sample Wab Application Bundle</title></head></html>");
+        out.println("<html><head><title>Sample Project Web App</title></head></html>");
         out.println("<body><h1>");
-        out.println("Web Application Bundle");
+        out.println("War module from project.");
         out.println("</h1></body></html>");
     }
     
