@@ -41,7 +41,7 @@ public class EndpointIT {
 
             assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
 
-            String response = method.getResponseBodyAsString();
+            String response = method.getResponseBodyAsString(1000);
 
             assertTrue("Unexpected response body", response.contains("Hello! How are you today?"));
         } finally {
