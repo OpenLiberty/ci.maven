@@ -11,7 +11,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | appsDirectory | The directory where the application files should be copied. The default value is `dropins`.  | No |
 | stripVersion | Strip artifact version when copying the application to Liberty runtime's application directory. The default value is `false`. | No |
 | installAppPackages | The Maven packages to copy to Liberty runtime's application directory. One of `dependencies`, `project` or `all`. The default is `dependencies`. | No |
-| looseApplication | Generate a loose application configuration file representing the Maven project package and copy it to the Liberty server's `apps` or `dropins` directory. The default value is `false`.  This parameter is ignored if installAppPackages is set to `dependencies` or if the project packaging type is neither `war` nor `liberty-assembly`.  | No |
+| looseApplication | Generate a loose application configuration file representing the Maven project package and copy it to the Liberty server's `apps` or `dropins` directory. The default value is `false`. This parameter is ignored if `installAppPackages` is set to `dependencies` or if the project packaging type is neither `war` nor `liberty-assembly`. When using the packaging type `liberty-assembly`, using a combination of `installAppPackages` set to `all` or `project` and `looseApplication` set to `true` results in the installation of application code provided in the project without the need of adding additional goals to your POM file. | No |
 
 Example:
 Copy the Maven project dependencies.
