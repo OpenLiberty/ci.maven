@@ -39,6 +39,7 @@
                                 org.apache.maven.plugins:maven-surefire-plugin:2.19.1:test
                             </test>
                             <prepare-package>
+                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-server,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-feature,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps
