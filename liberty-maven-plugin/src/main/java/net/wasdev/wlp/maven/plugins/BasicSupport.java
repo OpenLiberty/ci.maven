@@ -107,24 +107,6 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     protected File serverDirectory;
 
-    /**
-     * Location of customized configuration directory
-     */
-    @Parameter(property = "configDirectory")
-    protected File configDirectory;    
-    
-    /**
-     * Location of customized configuration file server.xml
-     */
-    @Parameter(property = "configFile", defaultValue = "${basedir}/src/test/resources/server.xml")
-    protected File configFile;    
-    
-    /**
-     * Application directory.
-     */
-    @Parameter(property = "appsDirectory", readonly = true)
-    protected String appsDirectory = null;
-
     protected static enum InstallType {
         FROM_FILE, ALREADY_EXISTS, FROM_ARCHIVE
     }
@@ -279,52 +261,6 @@ public class BasicSupport extends AbstractLibertySupport {
         return dir.getCanonicalFile();
     }
 
-    protected void setAppsDirectory() throws Exception { 
-
-        boolean bAppConfigured = isApplicationConfigured();
-        
-        // if appsDirectory is not set 
-        if (appsDirectory == null || appsDirectory.isEmpty()) {
-            appsDirectory = bAppConfigured ? "apps" : "dropins";
-            log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
-        }
-        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
-            throw new MojoExecutionException(
-            		MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
-        }
-    }
-    
-    protected void addAppConfiguration(String artifactId) throws Exception {
-   
-        log.warn(messages.getString("info.install.app.not.configured"));
-         
-        // Add webApplication configuration into the target server.xml. 
-        File serverXML = new File(serverDirectory, "server.xml");
-        ServerXmlDocument.addAppElment(serverXML, artifactId);
-
-        log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
-    }
-    
-    protected boolean isApplicationConfigured() throws Exception {
-        File serverXML = new File(serverDirectory, "server.xml");
-        return ServerXmlDocument.isFoundTagNames(serverXML.getCanonicalPath(), 	
-                                                 new String[] {"application", "webApplication"});
-    }
-    
-    /* 
-     * Get the file from configDrectory if it exists;
-     * otherwise return def only if it exists, or null if not
-     */
-    protected File getFileFromConfigDirectory(String file, File def) {
-        File f = new File(configDirectory, file);
-        if (configDirectory != null && f.exists()) { 
-            return f;
-        }
-        if (def != null && def.exists()) {
-            return def;
-        } 
-        return null;
-    }
     /**
      * Performs assembly installation unless the install type is pre-existing.
      * 

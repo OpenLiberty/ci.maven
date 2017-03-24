@@ -39,11 +39,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import net.wasdev.wlp.maven.plugins.BasicSupport;
+import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
  * Install artifact into Liberty server support.
  */
-public class InstallAppMojoSupport extends BasicSupport {
+public class InstallAppMojoSupport extends PluginConfigSupport {
 
     /**
      * Strip version. 
@@ -64,11 +65,11 @@ public class InstallAppMojoSupport extends BasicSupport {
         
         setAppsDirectory();
         
-        if (!appsDirectory.equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
+        if (!getAppsDirectory().equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
             addAppConfiguration(artifact.getArtifactId());
         }
         
-        File destDir = new File(serverDirectory, appsDirectory);
+        File destDir = new File(serverDirectory, getAppsDirectory());
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         
         Copy copyFile = (Copy) ant.createTask("copy");
@@ -88,11 +89,11 @@ public class InstallAppMojoSupport extends BasicSupport {
     
         setAppsDirectory(); 
     
-        if (!appsDirectory.equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
+        if (!getAppsDirectory().equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
             addAppConfiguration(project.getBuild().getFinalName());
         }
     
-        File destDir = new File(serverDirectory, appsDirectory);
+        File destDir = new File(serverDirectory, getAppsDirectory());
         File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
         LooseConfigData config = new LooseConfigData();
         
@@ -237,5 +238,20 @@ public class InstallAppMojoSupport extends BasicSupport {
             }
         }
         return libraries;
+    }
+    
+    private void setAppsDirectory() throws Exception { 
+
+        boolean bAppConfigured = isApplicationConfigured();
+        
+        // if appsDirectory is not set 
+        if (appsDirectory == null || appsDirectory.isEmpty()) {
+            appsDirectory = bAppConfigured ? "apps" : "dropins";
+            log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
+        }
+        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
+            throw new MojoExecutionException(
+            		MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
+        }
     }
 }

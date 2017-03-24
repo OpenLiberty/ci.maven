@@ -16,9 +16,11 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 
 import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
@@ -41,8 +43,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Application directory.
      */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
-    private String appsDirectory = "dropins";
+    @Parameter(property = "appsDirectory", readonly = false)
+    protected String appsDirectory = null;
     
     /**
      * Strip version.
@@ -103,7 +105,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
         }
         
-        configDocument.createElement("appsDirectory", appsDirectory);
+        configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         // TDOD: remove looseConfig when WDT starts to use looseApplication
         configDocument.createElement("looseConfig", looseApplication);
@@ -191,4 +193,44 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             return name;
         }
     }
+    
+    protected void addAppConfiguration(String artifactId) throws Exception {
+   
+        log.warn(messages.getString("info.install.app.not.configured"));
+         
+        // Add webApplication configuration into the target server.xml. 
+        File serverXML = new File(serverDirectory, "server.xml");
+        ServerXmlDocument.addAppElment(serverXML, artifactId);
+
+        log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
+    }
+    
+    protected boolean isApplicationConfigured() throws Exception {
+        File serverXML = new File(serverDirectory, "server.xml");
+        return ServerXmlDocument.isFoundTagNames(serverXML.getCanonicalPath(), 	
+                                                 new String[] {"application", "webApplication"});
+    }
+    
+    protected String getAppsDirectory() {
+    	if (appsDirectory == null)
+    		return "dropins";
+    	
+    	return appsDirectory;
+    }
+    
+//    /* 
+//     * Get the file from configDrectory if it exists;
+//     * otherwise return def only if it exists, or null if not
+//     */
+//    protected File getFileFromConfigDirectory(String file, File def) {
+//        File f = new File(configDirectory, file);
+//        if (configDirectory != null && f.exists()) { 
+//            return f;
+//        }
+//        if (def != null && def.exists()) {
+//            return def;
+//        } 
+//        return null;
+//    }
+
 }

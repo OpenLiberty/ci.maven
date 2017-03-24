@@ -22,6 +22,7 @@
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
         <module>loose-config-it</module>
+        <module>test-assembly-with-code-it</module>
         <module>appsdirectory-apps-configured-it</module>     
         <module>appsdirectory-apps-notconfigured-it</module>     
         <module>appsdirectory-dropins-notconfigured-it</module>     
