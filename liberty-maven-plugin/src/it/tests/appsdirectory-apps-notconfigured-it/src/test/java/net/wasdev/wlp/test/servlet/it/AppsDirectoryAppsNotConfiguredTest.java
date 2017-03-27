@@ -46,12 +46,12 @@ public class AppsDirectoryAppsNotConfiguredTest {
     @Test
     public void testApplicationConfigured() throws Exception {
 
-    	File f = new File("liberty/usr/servers/test/server.xml");
+        File f = new File("liberty/usr/servers/test/server.xml");
 
-    	boolean bAppConfigured = ServerXmlDocument.isFoundTagNames(
-				    		f.getCanonicalPath(), 	
-				    		new String[] {"application", "webApplication"});
+        boolean bAppConfigured = ServerXmlDocument.isFoundTagNames(
+                                            f.getCanonicalPath(), 	
+                                            new String[] {"application", "webApplication"});
 
-    	Assert.assertTrue("Application is not configured in the server.xml", bAppConfigured);
+        Assert.assertTrue("Application is not configured in the server.xml", bAppConfigured);
     }
 }

@@ -37,21 +37,19 @@ public class ServerXmlDocument {
     
     public static boolean isFoundTagNames(String fileName, String[] tagNames) throws Exception {
 
-	    boolean bFoundTag = false; 
-	    
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-    	Document doc = builder.parse(fileName);
-    	
-    	for (int i = 0; i < tagNames.length; ++i) {
-    		String tag = tagNames[i];
-    		
-    		NodeList appList = doc.getElementsByTagName(tag);
-    		if (appList.getLength() > 0) {
-    			bFoundTag = true;
-    			break;
-    		}
-	    }
-	    return bFoundTag;
+        boolean bFoundTag = false; 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(fileName);
+        
+        for (int i = 0; i < tagNames.length; ++i) {
+            String tag = tagNames[i];
+            NodeList appList = doc.getElementsByTagName(tag);
+            if (appList.getLength() > 0) {
+                bFoundTag = true;
+                break;
+            }
+        }
+        return bFoundTag;
     }    
 }
