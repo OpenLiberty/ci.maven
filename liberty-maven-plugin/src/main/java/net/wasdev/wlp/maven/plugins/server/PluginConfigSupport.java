@@ -43,7 +43,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Application directory.
      */
-    @Parameter(property = "appsDirectory", readonly = false)
+    @Parameter(property = "appsDirectory")
     protected String appsDirectory = null;
     
     /**
@@ -196,7 +196,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected void addAppConfiguration(String artifactId) throws Exception {
    
-        log.warn(messages.getString("info.install.app.not.configured"));
+        log.warn(messages.getString("warning.install.app.not.configured"));
          
         // Add webApplication configuration into the target server.xml. 
         File serverXML = new File(serverDirectory, "server.xml");
