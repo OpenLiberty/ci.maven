@@ -201,7 +201,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // Add webApplication configuration into the target server.xml. 
         File serverXML = new File(serverDirectory, "server.xml");
         ServerXmlDocument.addAppElment(serverXML, artifactId);
-
+        
         log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
     }
     
@@ -212,25 +212,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
     
     protected String getAppsDirectory() {
-    	if (appsDirectory == null)
-    		return "dropins";
-    	
-    	return appsDirectory;
+        if (appsDirectory == null)
+            return "dropins";
+    
+        return appsDirectory;
     }
     
-//    /* 
-//     * Get the file from configDrectory if it exists;
-//     * otherwise return def only if it exists, or null if not
-//     */
-//    protected File getFileFromConfigDirectory(String file, File def) {
-//        File f = new File(configDirectory, file);
-//        if (configDirectory != null && f.exists()) { 
-//            return f;
-//        }
-//        if (def != null && def.exists()) {
-//            return def;
-//        } 
-//        return null;
-//    }
-
 }

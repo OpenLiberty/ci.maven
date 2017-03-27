@@ -65,7 +65,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         setAppsDirectory();
         
-        if (!getAppsDirectory().equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
+        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured()) {
             addAppConfiguration(artifact.getArtifactId());
         }
         
@@ -89,7 +89,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
         setAppsDirectory(); 
     
-        if (!getAppsDirectory().equalsIgnoreCase("dropins") && !isApplicationConfigured()) {
+        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured()) {
             addAppConfiguration(project.getBuild().getFinalName());
         }
     
@@ -251,7 +251,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
         else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
             throw new MojoExecutionException(
-            		MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
+                MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
         }
     }
 }
