@@ -202,26 +202,4 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
         return libraries;
     }
- /*   
-    private File getWarSourceDirectory1() {
-        // default location : ${basedir}/src/main/webapp
-        File dir = new File(project.getBasedir() + "/src/main/webapp");
-
-        @SuppressWarnings("unchecked")
-        List<Plugin> plugins = getProject().getBuildPlugins();
-        for (Plugin plugin : plugins) {
-            if ("org.apache.maven.plugins:maven-war-plugin".equals(plugin.getKey())) {
-                Object config = plugin.getConfiguration();
-                if (config instanceof Xpp3Dom) {
-                    Xpp3Dom dom = (Xpp3Dom) config;
-                    Xpp3Dom val = dom.getChild("warSourceDirectory");
-                    if (val != null) {
-                        return new File(val.getValue());
-                    }
-                }
-            }
-        }
-        return dir;
-    }
-*/
 }
