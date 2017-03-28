@@ -30,10 +30,12 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -91,7 +93,7 @@ public class InstallAppMojoSupport extends BasicSupport {
         
         log.info(MessageFormat.format(messages.getString("info.install.app"), getLooseConfigFileName(project)));
         
-        File dir = new File(project.getBasedir() + "/src/main/webapp");
+        File dir = getWarSourceDirectory();
         if (dir.exists()) {
             config.addDir(dir.getCanonicalPath(), "/");
         }
@@ -180,20 +182,6 @@ public class InstallAppMojoSupport extends BasicSupport {
                     library.getId()));
         }
     }
-    
-    private String getSiblingModule(Artifact artifact) {
-        if (project.getParent() == null) {
-            return null;
-        }
-        @SuppressWarnings("unchecked")
-        List<String> modules = (List<String>)project.getParent().getModules();
-        for (String module : modules) {
-            if (module.equals(artifact.getArtifactId())) {
-                return module;
-            }
-        }
-        return null;
-    }
       
     private List<String> getEclipseDependentMods() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         List<String> modules = new ArrayList<String>();
@@ -230,5 +218,26 @@ public class InstallAppMojoSupport extends BasicSupport {
             }
         }
         return libraries;
+    }
+    
+    private File getWarSourceDirectory() {
+        // default location : ${basedir}/src/main/webapp
+        File dir = new File(project.getBasedir() + "/src/main/webapp");
+
+        @SuppressWarnings("unchecked")
+        List<Plugin> plugins = getProject().getBuildPlugins();
+        for (Plugin plugin : plugins) {
+            if ("org.apache.maven.plugins:maven-war-plugin".equals(plugin.getKey())) {
+                Object config = plugin.getConfiguration();
+                if (config instanceof Xpp3Dom) {
+                    Xpp3Dom dom = (Xpp3Dom) config;
+                    Xpp3Dom val = dom.getChild("warSourceDirectory");
+                    if (val != null) {
+                        return new File(val.getValue());
+                    }
+                }
+            }
+        }
+        return dir;
     }
 }
