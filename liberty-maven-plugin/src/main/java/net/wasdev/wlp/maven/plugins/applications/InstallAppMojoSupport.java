@@ -41,29 +41,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import net.wasdev.wlp.maven.plugins.BasicSupport;
+import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
  * Install artifact into Liberty server support.
  */
-public class InstallAppMojoSupport extends BasicSupport {
-
-    /**
-     * Application directory. 
-     */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins")
-    protected String appsDirectory = null;
-    
-    /**
-     * Strip version. 
-     */
-    @Parameter(property = "stripVersion", defaultValue = "false")
-    protected boolean stripVersion;
-    
-    /**
-     * Loose application. 
-     */
-    @Parameter(property = "looseApplication", defaultValue = "false")
-    protected boolean looseApplication;
+public class InstallAppMojoSupport extends PluginConfigSupport {
     
     protected void installApp(Artifact artifact) throws Exception {
         if (artifact.getFile() == null) {
@@ -219,8 +202,8 @@ public class InstallAppMojoSupport extends BasicSupport {
         }
         return libraries;
     }
-    
-    private File getWarSourceDirectory() {
+ /*   
+    private File getWarSourceDirectory1() {
         // default location : ${basedir}/src/main/webapp
         File dir = new File(project.getBasedir() + "/src/main/webapp");
 
@@ -240,4 +223,5 @@ public class InstallAppMojoSupport extends BasicSupport {
         }
         return dir;
     }
+*/
 }

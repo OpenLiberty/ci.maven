@@ -23,6 +23,7 @@ import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
@@ -33,28 +34,28 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 public class PluginConfigSupport extends StartDebugMojoSupport {
     
     /**
-     * Packages to install. One of "all", "dependencies" or "project".
+     * Application directory. 
      */
-    @Parameter(property = "installAppPackages", defaultValue = "dependencies", readonly = true)
-    private String installAppPackages = "dependencies";
+    @Parameter(property = "appsDirectory", defaultValue = "dropins")
+    protected String appsDirectory;
     
     /**
-     * Application directory.
+     * Strip version. 
      */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins", readonly = true)
-    private String appsDirectory = "dropins";
-    
-    /**
-     * Strip version.
-     */
-    @Parameter(property = "stripVersion", defaultValue = "false", readonly = true)
-    private boolean stripVersion = false;
+    @Parameter(property = "stripVersion", defaultValue = "false")
+    protected boolean stripVersion;
     
     /**
      * Loose application. 
      */
-    @Parameter(property = "looseApplication", defaultValue = "false", readonly = true)
-    private boolean looseApplication;
+    @Parameter(property = "looseApplication", defaultValue = "false")
+    protected boolean looseApplication;
+    
+    /**
+     * Packages to install. One of "all", "dependencies" or "project".
+     */
+    @Parameter(property = "installAppPackages", defaultValue = "dependencies")
+    protected String installAppPackages;
     
     @Component
     private BuildContext buildContext;
@@ -164,7 +165,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             break;
         case "liberty-assembly":
             // assuming liberty-assembly project will also have a war file output.
-            File dir = new File(project.getBasedir() + "/src/main/webapp");
+            File dir = getWarSourceDirectory();
             if (dir.exists()) {
                 name += ".war";
                 if (looseApplication) {
@@ -190,5 +191,25 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
             return name;
         }
+    }
+    
+    protected File getWarSourceDirectory() {
+        String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
+        if (dir != null) {
+            return new File(dir);
+        } else {
+            return new File(project.getBasedir() + "/src/main/webapp");
+        }
+    }
+
+    private String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
+        Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom val = dom.getChild(key);
+            if (val != null) {
+                return val.getValue();
+            }
+        }
+        return null;
     }
 }
