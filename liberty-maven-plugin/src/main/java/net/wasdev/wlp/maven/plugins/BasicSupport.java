@@ -152,7 +152,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 // Quick sanity check
                 File file = new File(installDirectory, "lib/ws-launch.jar");
                 if (!file.exists()) {
-                    throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.validate"), ""));
+                    throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.dir.validate"), ""));
                 }
 
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", installDirectory));
