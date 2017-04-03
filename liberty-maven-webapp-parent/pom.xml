@@ -17,32 +17,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
-    <parent>
-        <groupId>net.wasdev.wlp.maven</groupId>
-        <artifactId>liberty-maven</artifactId>
-        <version>2.0-SNAPSHOT</version>
-    </parent>
-    
     <groupId>net.wasdev.wlp.maven.parent</groupId>
     <artifactId>liberty-maven-webapp-parent</artifactId>
     <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+	
+	<name>Liberty Maven Plugin Parent</name>
+	<description>Liberty Maven Plugin Parent</description>
+	<url>https://github.com/WASdev/ci.maven</url>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://raw.github.com/WASdev/ci.maven/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
     
-    <name>Liberty Maven Plugin Parent</name>
-    <description>Liberty Maven Plugin Parent</description>
-    <url>https://github.com/WASdev/ci.maven</url>
+    <scm>
+		<connection>scm:git:git@github.com:WASdev/ci.maven.git</connection>
+		<developerConnection>scm:git:git@github.com:WASdev/ci.maven.git</developerConnection>
+		<url>git@github.com:WASdev/ci.maven.git</url>
+		<tag>HEAD</tag>
+	</scm>
+	
+	<developers>
+        <developer>
+            <id>patricktiu</id>
+            <name>Patrick Tiu</name>
+            <email>tiu@com.ibm.ca</email>
+        </developer>
+    </developers>
+	
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
-                    <configuration>
-                        <packageFile>${project.build.directory}</packageFile>
-                        <include>usr</include>
-                        <configFile>src/main/liberty/config/server.xml</configFile>
-                        <installAppPackages>project</installAppPackages>
-                    </configuration>
                     <executions>
                         <execution>
                             <id>stop-server-before-clean</id>
