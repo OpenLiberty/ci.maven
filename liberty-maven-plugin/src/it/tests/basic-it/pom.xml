@@ -155,12 +155,11 @@
                     <execution>
                         <id>package-server</id>
                         <!-- phase must be after integration tests since they create the "test" server -->
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>package-server</goal>
                         </goals>
                         <configuration>
-                            <packageFile>${project.build.directory}</packageFile>
                             <include>minify</include>
                             <os>Windows7,Windows8</os>
                         </configuration>

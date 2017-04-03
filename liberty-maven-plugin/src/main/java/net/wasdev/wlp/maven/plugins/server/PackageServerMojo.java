@@ -36,6 +36,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "packageFile")
     private File packageFile = null;
+    
+    @Parameter(property = "project.build.directory")
+    private String projectBuildDir;
 
     /**
      * Package type. One of "all", "usr", or "minify".
@@ -82,7 +85,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
                 packageFile = new File(packageFile, serverName + ".zip");
             }
         } else {
-            packageFile = new File(serverDirectory, serverName + ".zip");
+            packageFile = new File(projectBuildDir, serverName + ".zip");
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
