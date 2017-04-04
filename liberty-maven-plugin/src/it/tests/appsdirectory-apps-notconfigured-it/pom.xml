@@ -1,117 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>tests</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>net.wasdev.wlp.maven.it</groupId>
+    <artifactId>tests</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>appsdirectory-apps-notconfigured-it</artifactId>
-    <packaging>war</packaging>
+  <artifactId>appsdirectory-apps-notconfigured-it</artifactId>
+  <packaging>war</packaging>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <package.file>${project.build.directory}/${project.artifactId}.jar</package.file>
-        <packaging.type>minify,runnable</packaging.type>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.wasdev.wlp.maven.it</groupId>
-            <artifactId>loose-config-fragment-it</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
-    <build>
+  <dependencies>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.4</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.9</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <packagingExcludes>pom.xml</packagingExcludes>
-                </configuration>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
             </plugin>
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
-                <artifactId>liberty-maven-plugin</artifactId>
-                <version>@pom.version@</version>
-                <configuration>
-                    <stripVersion>true</stripVersion>
-                    <assemblyArtifact>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>assembly-server</artifactId>
-                        <version>${project.version}</version>
-                        <type>zip</type>
-                    </assemblyArtifact>
-                    <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
-                    <installAppPackages>project</installAppPackages>
-                    <looseApplication>true</looseApplication>
-                    <packageFile>${package.file}</packageFile>
-                    <include>${packaging.type}</include>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>create-liberty-server</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>create-server</goal>
-                        </goals>
-                        <configuration>
-                            <appsDirectory>apps</appsDirectory>
-                        </configuration>                        
-                    </execution>
-                    <execution>
-                        <id>install-artifact</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>install-apps</goal>
-                        </goals>
-                        <configuration>
-                            <appsDirectory>apps</appsDirectory>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>clean-server</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>clean-server</goal>
-                        </goals>
-                        <configuration>
-                            <cleanDropins>true</cleanDropins>
-                            <cleanApps>true</cleanApps>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.3</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+         <artifactId>maven-war-plugin</artifactId>
+         <configuration>
+           <failOnMissingWebXml>false</failOnMissingWebXml>
+         </configuration>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+              <source>1.6</source>
+              <target>1.6</target>
+          </configuration>
+      </plugin>
+      <plugin>
+        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <version>@pom.version@</version>
+        <extensions>true</extensions>
+        <configuration>
+          <stripVersion>true</stripVersion>
+          <assemblyArtifact>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>assembly-server</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+          </assemblyArtifact>
+          <serverName>test</serverName>
+          <installAppPackages>project</installAppPackages>
+        </configuration>
+        <executions>
+            <execution>
+                <id>install-liberty</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>install-server</goal>
+                </goals>
+                <configuration>
+                    <appsDirectory>apps</appsDirectory>
+                </configuration>
+            </execution>
+            <execution>
+                <id>create-liberty-server</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>create-server</goal>
+                </goals>
+            </execution>
+            <execution>
+                <id>install-artifact</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>install-apps</goal>
+                </goals>
+                <configuration>
+                    <appsDirectory>apps</appsDirectory>
+                    <stripVersion>true</stripVersion>
+                </configuration>
+            </execution>
+            <execution>
+                <id>clean-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                    <goal>clean-server</goal>
+                </goals>
+                <configuration>
+                    <cleanDropins>true</cleanDropins>
+                    <cleanApps>true</cleanApps>
+                </configuration>
+            </execution>
+         </executions>
+       </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -148,6 +167,6 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
+    </plugins>
+  </build>
 </project>

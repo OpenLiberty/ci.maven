@@ -30,17 +30,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import net.wasdev.wlp.maven.plugins.BasicSupport;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
@@ -53,10 +49,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
         
-        setAppsDirectory();
-        
-        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured()) {
-            addAppConfiguration(artifact.getArtifactId());
+        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured(true)) {
+            String fileName = getApplicationFilename();
+            if (fileName != null && fileName.endsWith(".war")) {
+                addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
+            }
         }
         
         File destDir = new File(serverDirectory, getAppsDirectory());
@@ -77,10 +74,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
     
-        setAppsDirectory(); 
-    
-        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured()) {
-            addAppConfiguration(project.getBuild().getFinalName());
+        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured(true)) {
+            String fileName = getApplicationFilename();
+            if (fileName != null && fileName.endsWith(".war")) {
+                addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
+            }
         }
     
         File destDir = new File(serverDirectory, getAppsDirectory());
@@ -214,20 +212,5 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             }
         }
         return libraries;
-    }
-    
-    private void setAppsDirectory() throws Exception { 
-
-        boolean bAppConfigured = isApplicationConfigured();
-        
-        // if appsDirectory is not set 
-        if (appsDirectory == null || appsDirectory.isEmpty()) {
-            appsDirectory = bAppConfigured ? "apps" : "dropins";
-            log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
-        }
-        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
-            throw new MojoExecutionException(
-                MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
-        }
     }
 }

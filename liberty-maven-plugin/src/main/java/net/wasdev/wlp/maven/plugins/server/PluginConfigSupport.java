@@ -19,14 +19,15 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
 
-import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
-import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
-
 import org.apache.maven.model.Profile;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -38,7 +39,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Application directory. 
      */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins")
+    @Parameter(property = "appsDirectory")
     protected String appsDirectory;
     
     /**
@@ -195,27 +196,54 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    protected void addAppConfiguration(String artifactId) throws Exception {
+    protected void addAppConfiguration(String appFileName, String extension) throws Exception {
    
-        log.warn(messages.getString("warning.install.app.not.configured"));
-         
         // Add webApplication configuration into the target server.xml. 
-        File serverXML = new File(serverDirectory, "server.xml");
-        ServerXmlDocument.addAppElment(serverXML, artifactId);
+        File serverXml = new File(serverDirectory, "server.xml");
         
-        log.info(MessageFormat.format(messages.getString("info.install.app.add.configuration"), artifactId));
+        if (serverXml.exists()) {
+            ServerXmlDocument.addAppElment(serverXml, appFileName, extension);
+            log.warn(MessageFormat.format(messages.getString("warning.install.app.add.configuration"), appFileName));
+        }
     }
     
-    protected boolean isApplicationConfigured() throws Exception {
-        File serverXML = new File(serverDirectory, "server.xml");
-        return ServerXmlDocument.isFoundTagNames(serverXML.getCanonicalPath(), 	
-                                                 new String[] {"application", "webApplication"});
+    protected boolean isApplicationConfigured(boolean bTarget) throws Exception {
+    
+        boolean bConfigured = false; 
+        
+        // get server.xml from target or source 
+        File serverXML = bTarget ? new File(serverDirectory, "server.xml") : getFileFromConfigDirectory("server.xml", configFile);
+        
+        if (serverXML != null && serverXML.exists()) {
+            bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath());
+        }
+        return bConfigured;
     }
     
-    protected String getAppsDirectory() {
-        if (appsDirectory == null)
-            return "dropins";
+    protected String getAppsDirectory() throws Exception {    
     
+        boolean bAppConfigured = false;
+        
+        if (serverDirectory.exists()) {
+            bAppConfigured = isApplicationConfigured(true);
+        }
+        else {
+            File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
+
+            if (srcServerXML != null && srcServerXML.exists()) {
+                bAppConfigured = isApplicationConfigured(false);
+            }
+        }
+        
+        // if appsDirectory is not set 
+        if (appsDirectory == null || appsDirectory.isEmpty()) {
+            appsDirectory = bAppConfigured ? "apps" : "dropins";
+            log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
+        }
+        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
+            throw new MojoExecutionException(
+                MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
+        }
         return appsDirectory;
     }
     

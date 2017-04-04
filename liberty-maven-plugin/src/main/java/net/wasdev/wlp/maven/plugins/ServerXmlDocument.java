@@ -16,7 +16,11 @@
 package net.wasdev.wlp.maven.plugins;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,6 +32,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class ServerXmlDocument {
@@ -35,26 +40,101 @@ public class ServerXmlDocument {
     private ServerXmlDocument() {    
     }
     
-    public static boolean isFoundTagNames(String fileName, String[] tagNames) throws Exception {
+    public static boolean isFoundTagName(String fileName, String tag) throws Exception {
 
-        boolean bFoundTag = false; 
-        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(fileName);
         
-        for (int i = 0; i < tagNames.length; ++i) {
-            String tag = tagNames[i];
-            NodeList appList = doc.getElementsByTagName(tag);
-            if (appList.getLength() > 0) {
-                bFoundTag = true;
-                break;
-            }
-        }
-        return bFoundTag;
+        NodeList appList = doc.getElementsByTagName(tag);
+        
+        return appList != null && appList.getLength() > 0;
     }
     
-    public static void addAppElment(File serverXML, String artifactId) throws Exception {
+    public static boolean isFoundWebApplication(String filePath) throws Exception {
+        
+        if (isFoundTagName(filePath, "webApplication"))
+            return true;
+         
+        boolean bFound = false;
+        
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(filePath);
+        NodeList appList = doc.getElementsByTagName("application");
+
+        // search include elements
+        if (!isFoundWebAppElement(appList)) {
+            NodeList incList = doc.getElementsByTagName("include");
+            
+            if (incList == null)
+                return false;
+             
+            for (int i = 0; i < incList.getLength(); i++) {
+                Node locNode = incList.item(i).getAttributes().getNamedItem("location");
+                Document incDoc = null;
+                
+                if (locNode != null && locNode.getNodeValue() != null && locNode.getNodeValue().endsWith(".xml")) {
+                    if (locNode.getNodeValue().startsWith("http")) {
+                        URL url = new URL(locNode.getNodeValue());
+                        URLConnection connection = url.openConnection();
+                        incDoc = builder.parse(connection.getInputStream());
+                    }
+                    else {
+                        File file = new File(filePath, locNode.getNodeValue());
+                        if (file.exists()) {
+                            InputStream inputStream = new FileInputStream(file.getCanonicalPath());
+                            incDoc = builder.parse(inputStream);	
+                        }
+                    }
+
+                    if (incDoc != null) {
+                        NodeList webappNodeList = incDoc.getElementsByTagName("webApplication");
+                        if (webappNodeList != null && webappNodeList.getLength() > 0) {
+                            return true;
+                        }
+                        else {
+                            NodeList apps = doc.getElementsByTagName("application");
+                            if (isFoundWebAppElement(apps))
+                                return true;
+                        }
+                    }
+                }
+            }
+        }
+        return bFound;
+    }
+   
+    public static boolean isFoundWebAppElement(NodeList nodeList) {
+         
+        boolean bFound = false; 
+         
+        for(int i = 0; i < nodeList.getLength(); i++) {
+            Node typeNode = nodeList.item(i).getAttributes().getNamedItem("type");
+            
+            if (typeNode != null) {
+                String typeValue = typeNode.getNodeValue();
+                
+                if (typeValue != null && typeValue.equals("war")) {
+                    return true;
+                }
+                else {
+                    Node locNode = nodeList.item(i).getAttributes().getNamedItem("location");
+                    
+                    if (locNode != null) {
+                        String locValue = locNode.getNodeValue();
+                        
+                        if (locValue != null && locValue.endsWith(".war")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return bFound;
+    }
+
+    public static void addAppElment(File serverXML, String name, String extension) throws Exception {
     
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance(); 
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -63,9 +143,9 @@ public class ServerXmlDocument {
         Element root = doc.getDocumentElement(); 
         Element child = doc.createElement("webApplication"); 
 
-        child.setAttribute("id", artifactId);
-        child.setAttribute("name", artifactId);
-        child.setAttribute("location", artifactId + ".war");
+        child.setAttribute("id", name);
+        child.setAttribute("name", name);
+        child.setAttribute("location", name + "." + extension);
  
         root.appendChild(child); 
 

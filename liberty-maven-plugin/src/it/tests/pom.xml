@@ -26,6 +26,8 @@
         <module>appsdirectory-apps-configured-it</module>     
         <module>appsdirectory-apps-notconfigured-it</module>     
         <module>appsdirectory-dropins-notconfigured-it</module>     
-    </modules>
+        <module>appsdirectory-notset-configured-it</module>     
+        <module>appsdirectory-notset-notconfigured-it</module>
+        </modules>
 
 </project>
