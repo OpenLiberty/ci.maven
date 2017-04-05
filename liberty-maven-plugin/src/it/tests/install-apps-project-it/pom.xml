@@ -91,13 +91,6 @@
         </configuration>
         <executions>
             <execution>
-                <id>install-liberty</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>install-server</goal>
-                </goals>
-            </execution>
-            <execution>
                 <id>create-liberty-server</id>
                 <phase>package</phase>
                 <goals>
