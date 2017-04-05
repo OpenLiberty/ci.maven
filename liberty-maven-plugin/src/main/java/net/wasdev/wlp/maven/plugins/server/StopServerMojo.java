@@ -42,10 +42,18 @@ public class StopServerMojo extends StartDebugMojoSupport {
         log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
         
         if (serverDirectory.exists()) {
-            ServerTask serverTask = initializeJava();
-            serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
-            serverTask.setOperation("stop");
-            serverTask.execute();
+            try {
+                ServerTask serverTask = initializeJava();
+                serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
+                serverTask.setOperation("stop");
+                serverTask.execute();
+            } catch (Exception e) {
+                // Most often when server stop fails, it is because the server does
+                // not fully exist in the file structure and is not running anyway.
+                // Continue with a warning rather than ending with hard failure especially
+                // as we have bound stop-server to a clean.
+                log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
+            }
         }
         else {
             log.info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
