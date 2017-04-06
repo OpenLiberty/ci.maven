@@ -51,7 +51,7 @@ public class ServerXmlDocument {
         return appList != null && appList.getLength() > 0;
     }
     
-    public static boolean isFoundWebApplication(String filePath) throws Exception {
+    public static boolean isFoundWebApplication(String filePath, boolean bTarget) throws Exception {
         
         if (isFoundTagName(filePath, "webApplication"))
             return true;
@@ -63,41 +63,42 @@ public class ServerXmlDocument {
         Document doc = builder.parse(filePath);
         NodeList appList = doc.getElementsByTagName("application");
 
-        // search include elements
-        if (!isFoundWebAppElement(appList)) {
+        if (isFoundWebAppElement(appList))
+            return true;
+
+        // check include elements against target server. 
+        if (bTarget) {
             NodeList incList = doc.getElementsByTagName("include");
-            
+        
             if (incList == null)
                 return false;
-             
+         
             for (int i = 0; i < incList.getLength(); i++) {
                 Node locNode = incList.item(i).getAttributes().getNamedItem("location");
                 Document incDoc = null;
-                
                 if (locNode != null && locNode.getNodeValue() != null && locNode.getNodeValue().endsWith(".xml")) {
                     if (locNode.getNodeValue().startsWith("http")) {
                         URL url = new URL(locNode.getNodeValue());
                         URLConnection connection = url.openConnection();
                         incDoc = builder.parse(connection.getInputStream());
                     }
-                    else {
-                        File file = new File(filePath, locNode.getNodeValue());
-                        if (file.exists()) {
-                            InputStream inputStream = new FileInputStream(file.getCanonicalPath());
-                            incDoc = builder.parse(inputStream);	
-                        }
+                }
+                else {
+                    File dir = new File(filePath);                  	
+                    File file = new File(dir.getParent(), locNode.getNodeValue());
+                    if (file.exists()) {
+                        InputStream inputStream = new FileInputStream(file.getCanonicalPath());
+                        incDoc = builder.parse(inputStream);	
                     }
-
-                    if (incDoc != null) {
-                        NodeList webappNodeList = incDoc.getElementsByTagName("webApplication");
-                        if (webappNodeList != null && webappNodeList.getLength() > 0) {
+                }
+                if (incDoc != null) {
+                    NodeList webappNodeList = incDoc.getElementsByTagName("webApplication");
+                    if (webappNodeList != null && webappNodeList.getLength() > 0) 
+                        return true;
+                    else {
+                        NodeList apps = incDoc.getElementsByTagName("application");
+                        if (isFoundWebAppElement(apps))
                             return true;
-                        }
-                        else {
-                            NodeList apps = doc.getElementsByTagName("application");
-                            if (isFoundWebAppElement(apps))
-                                return true;
-                        }
                     }
                 }
             }
@@ -111,23 +112,22 @@ public class ServerXmlDocument {
          
         for(int i = 0; i < nodeList.getLength(); i++) {
             Node typeNode = nodeList.item(i).getAttributes().getNamedItem("type");
-            
             if (typeNode != null) {
                 String typeValue = typeNode.getNodeValue();
                 
                 if (typeValue != null && typeValue.equals("war")) {
-                    return true;
+                    bFound = true;
+                    break;
                 }
-                else {
-                    Node locNode = nodeList.item(i).getAttributes().getNamedItem("location");
-                    
-                    if (locNode != null) {
-                        String locValue = locNode.getNodeValue();
-                        
-                        if (locValue != null && locValue.endsWith(".war")) {
-                            return true;
-                        }
-                    }
+            }
+    
+            Node locNode = nodeList.item(i).getAttributes().getNamedItem("location");
+            if (locNode != null) {
+                String locValue = locNode.getNodeValue();
+                
+                if (locValue != null && locValue.endsWith(".war")) {
+                    bFound = true;
+                    break;
                 }
             }
         }

@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
  * 
  */
 
-public class PluginConfigXmlTest {
+public class DefaultAppDirectoryTest {
 
     public final String CONFIG_XML = "liberty-plugin-config.xml";
 
@@ -71,13 +71,19 @@ public class PluginConfigXmlTest {
         
         expression = "/liberty-plugin-config/applicationFilename/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-dropins-notconfigured-it.war", value);
+        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-include-configured-it.war", value);
 
     }
     
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/dropins/appsdirectory-dropins-notconfigured-it.war");
+        File f = new File("liberty/usr/servers/test/apps/appsdirectory-include-configured-it.war");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+    }
+    
+    @Test
+    public void testConfigDirectoryFileExist() throws Exception {
+        File f = new File("liberty/usr/servers/test/testDir", "server.xml");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
 }

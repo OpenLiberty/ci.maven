@@ -23,7 +23,7 @@ import net.wasdev.wlp.maven.test.support.ServerXmlDocument;
  * 
  */
 
-public class PluginConfigXmlTest {
+public class DefaultAppDirectoryTest {
 
     public final String CONFIG_XML = "liberty-plugin-config.xml";
 

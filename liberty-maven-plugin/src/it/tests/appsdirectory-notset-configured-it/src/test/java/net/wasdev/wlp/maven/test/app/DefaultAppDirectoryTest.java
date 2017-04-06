@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
  * 
  */
 
-public class PluginConfigXmlTest {
+public class DefaultAppDirectoryTest {
 
     public final String CONFIG_XML = "liberty-plugin-config.xml";
 

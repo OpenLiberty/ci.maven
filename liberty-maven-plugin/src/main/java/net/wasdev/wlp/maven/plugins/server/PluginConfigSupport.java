@@ -114,7 +114,6 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
         configDocument.createElement("applicationFilename", getApplicationFilename());
-        
         configDocument.createElement("assemblyArtifact", assemblyArtifact);   
         configDocument.createElement("assemblyArchive", assemblyArchive);
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
@@ -203,7 +202,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXml.exists()) {
             ServerXmlDocument.addAppElment(serverXml, appFileName, extension);
-            log.warn(MessageFormat.format(messages.getString("warning.install.app.add.configuration"), appFileName));
+            log.warn(messages.getString("warning.install.app.add.configuration"));
         }
     }
     
@@ -215,7 +214,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         File serverXML = bTarget ? new File(serverDirectory, "server.xml") : getFileFromConfigDirectory("server.xml", configFile);
         
         if (serverXML != null && serverXML.exists()) {
-            bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath());
+            bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), bTarget);
         }
         return bConfigured;
     }
@@ -224,26 +223,20 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
         boolean bAppConfigured = false;
         
-        if (serverDirectory.exists()) {
+        if (serverDirectory.exists()) 
             bAppConfigured = isApplicationConfigured(true);
-        }
         else {
             File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
-
-            if (srcServerXML != null && srcServerXML.exists()) {
+            
+            if (srcServerXML != null && srcServerXML.exists()) 
                 bAppConfigured = isApplicationConfigured(false);
-            }
         }
         
         // if appsDirectory is not set 
-        if (appsDirectory == null || appsDirectory.isEmpty()) {
+        if (appsDirectory == null || appsDirectory.isEmpty())
             appsDirectory = bAppConfigured ? "apps" : "dropins";
-            log.info(MessageFormat.format(messages.getString("info.install.app.directory"), appsDirectory));
-        }
-        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured) {
-            throw new MojoExecutionException(
-                MessageFormat.format(messages.getString("error.install.app.dropins.directory"), appsDirectory));
-        }
+        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured)
+            throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
         return appsDirectory;
     }
     

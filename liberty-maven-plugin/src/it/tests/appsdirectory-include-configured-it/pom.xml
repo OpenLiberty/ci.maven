@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>appsdirectory-notset-configured-it</artifactId>
+  <artifactId>appsdirectory-include-configured-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -88,6 +88,7 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <installAppPackages>project</installAppPackages>
+          <configDirectory>src/test/resources/testConfig</configDirectory>
         </configuration>
         <executions>
             <execution>
@@ -125,7 +126,7 @@
                     <cleanApps>true</cleanApps>
                 </configuration>
             </execution>
-         </executions>
+       </executions>
        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
