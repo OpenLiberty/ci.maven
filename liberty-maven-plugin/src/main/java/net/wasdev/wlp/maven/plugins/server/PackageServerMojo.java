@@ -37,8 +37,17 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     @Parameter(property = "packageFile")
     private File packageFile = null;
     
+    /**
+     * Locate build directory
+     */
     @Parameter(property = "project.build.directory")
     private String projectBuildDir;
+    
+    /**
+     * Locate name of bundled project
+     */
+    @Parameter(property = "project.build.finalName")
+    private String projectBuildName;
 
     /**
      * Package type. One of "all", "usr", or "minify".
@@ -80,12 +89,13 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
+        String fileType = minificationType(include);
         if (packageFile != null) {
             if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, serverName + ".zip");
+                packageFile = new File(packageFile, serverName + fileType);
             }
         } else {
-            packageFile = new File(projectBuildDir, serverName + ".zip");
+            packageFile = new File(projectBuildDir, projectBuildName + fileType);
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
@@ -99,5 +109,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             }
             project.getArtifact().setFile(packageFile);
         }
+    }
+    
+    private String minificationType(String include) {
+    	if(include != null && include.contains("runnable")) {
+    		return ".jar";
+    	}
+    	return ".zip";
     }
 }

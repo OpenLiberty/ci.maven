@@ -23,6 +23,8 @@
         <module>loose-config-fragment-it</module>
         <module>loose-config-it</module>
         <module>test-assembly-with-code-it</module>
+        <module>config-packagefile-runnable-it</module>
+        <module>config-packagefile-all-it</module>
     </modules>
 
 </project>
