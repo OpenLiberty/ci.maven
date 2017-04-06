@@ -21,7 +21,6 @@ Examples:
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
-        ...
         <execution>
             <id>package-server</id>
             <phase>package</phase>
