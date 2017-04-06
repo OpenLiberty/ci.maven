@@ -101,5 +101,4 @@ public class HttpUtils {
         con.setRequestMethod("GET");
         return con;
     }
-
 }
