@@ -96,9 +96,6 @@
                 <goals>
                     <goal>install-server</goal>
                 </goals>
-                <configuration>
-                    <appsDirectory>apps</appsDirectory>
-                </configuration>
             </execution>
             <execution>
                 <id>create-liberty-server</id>
@@ -106,6 +103,9 @@
                 <goals>
                     <goal>create-server</goal>
                 </goals>
+                <configuration>
+                    <appsDirectory>apps</appsDirectory>
+                </configuration>
             </execution>
             <execution>
                 <id>install-artifact</id>

@@ -32,50 +32,6 @@ public class DefaultAppDirectoryTest {
     }
     
     @Test
-    public void testXmlElements() throws Exception {
-        File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
-        
-        // get input XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/serverDirectory";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <serverDirectory/> element ==>", 1, nodes.getLength());
-        
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/configFile";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <configFile/> element ==>", 1, nodes.getLength());
-
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/serverName/text()";
-        String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <serverName/> ==>", "test", value);
-
-        expression = "/liberty-plugin-config/appsDirectory/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <appsDirectory/> ==>", "dropins", value);
-        
-        expression = "/liberty-plugin-config/installAppPackages/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <installAppPackages/> ==>", "project", value);
-        
-        expression = "/liberty-plugin-config/applicationFilename/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-include-configured-it.war", value);
-
-    }
-    
-    @Test
     public void testApplicationFileExist() throws Exception {
         File f = new File("liberty/usr/servers/test/apps/appsdirectory-include-configured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());

@@ -82,14 +82,14 @@ public class ServerXmlDocument {
                         URLConnection connection = url.openConnection();
                         incDoc = builder.parse(connection.getInputStream());
                     }
-                }
-                else {
-                    File dir = new File(filePath);                  	
-                    File file = new File(dir.getParent(), locNode.getNodeValue());
-                    if (file.exists()) {
-                        InputStream inputStream = new FileInputStream(file.getCanonicalPath());
-                        incDoc = builder.parse(inputStream);	
-                    }
+	                else {
+	                    File dir = new File(filePath);                  	
+	                    File file = new File(dir.getParent(), locNode.getNodeValue());
+	                    if (file.exists()) {
+	                        InputStream inputStream = new FileInputStream(file.getCanonicalPath());
+	                        incDoc = builder.parse(inputStream);	
+	                    }
+	                }
                 }
                 if (incDoc != null) {
                     NodeList webappNodeList = incDoc.getElementsByTagName("webApplication");

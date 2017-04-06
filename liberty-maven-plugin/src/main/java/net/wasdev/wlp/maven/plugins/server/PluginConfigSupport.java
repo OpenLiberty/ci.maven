@@ -16,7 +16,6 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.maven.model.Profile;
