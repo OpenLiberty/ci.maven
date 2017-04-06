@@ -27,7 +27,7 @@ import net.wasdev.wlp.ant.ServerTask;
  * Create a liberty server
   */
 @Mojo(name = "create-server") 
-public class CreateServerMojo extends StartDebugMojoSupport {
+public class CreateServerMojo extends PluginConfigSupport {
 
     /**
      * Name of the template to use when creating a server.
