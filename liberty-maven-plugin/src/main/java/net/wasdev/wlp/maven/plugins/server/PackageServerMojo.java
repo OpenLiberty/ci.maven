@@ -40,8 +40,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Locate build directory
      */
-    @Parameter(property = "project.build.directory")
-    private String projectBuildDir;
+    //private String projectBuildDir = project.getBuild().getDirectory();
     
     /**
      * Locate name of bundled project
@@ -89,10 +88,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
-        String fileType = minificationType(include);
+        String fileType = getPackageFileType(include);
+        String projectBuildDir = project.getBuild().getDirectory();
+        String projectBuildName = project.getBuild().getFinalName();
         if (packageFile != null) {
             if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, serverName + fileType);
+                packageFile = new File(packageFile, projectBuildName + fileType);
             }
         } else {
             packageFile = new File(projectBuildDir, projectBuildName + fileType);
@@ -111,7 +112,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
     }
     
-    private String minificationType(String include) {
+    private String getPackageFileType(String include) {
     	if(include != null && include.contains("runnable")) {
     		return ".jar";
     	}
