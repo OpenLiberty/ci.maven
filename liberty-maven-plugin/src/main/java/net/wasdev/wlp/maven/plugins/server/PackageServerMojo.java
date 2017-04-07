@@ -36,17 +36,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "packageFile")
     private File packageFile = null;
-    
-    /**
-     * Locate build directory
-     */
-    //private String projectBuildDir = project.getBuild().getDirectory();
-    
-    /**
-     * Locate name of bundled project
-     */
-    @Parameter(property = "project.build.finalName")
-    private String projectBuildName;
 
     /**
      * Package type. One of "all", "usr", or "minify".
