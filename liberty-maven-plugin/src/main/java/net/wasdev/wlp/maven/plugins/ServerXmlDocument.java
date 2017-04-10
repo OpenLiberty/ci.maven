@@ -16,11 +16,14 @@
 package net.wasdev.wlp.maven.plugins;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -68,6 +71,10 @@ public class ServerXmlDocument {
 
         // check include elements against target server. 
         if (bTarget) {
+            // check if fragments in 'configDropins' folders contain webApplication configuration. 
+            if (isFoundInConfigDropinsDir(filePath))
+                return true;
+            
             NodeList incList = doc.getElementsByTagName("include");
         
             if (incList == null)
@@ -76,20 +83,35 @@ public class ServerXmlDocument {
             for (int i = 0; i < incList.getLength(); i++) {
                 Node locNode = incList.item(i).getAttributes().getNamedItem("location");
                 Document incDoc = null;
-                if (locNode != null && locNode.getNodeValue() != null && locNode.getNodeValue().endsWith(".xml")) {
-                    if (locNode.getNodeValue().startsWith("http")) {
-                        URL url = new URL(locNode.getNodeValue());
-                        URLConnection connection = url.openConnection();
-                        incDoc = builder.parse(connection.getInputStream());
+                if (locNode != null) {
+                    String locValue = locNode.getNodeValue();
+                    if (locValue != null && locValue.endsWith(".xml")) {
+                        if (locValue.startsWith("http")) {
+                            if (isValidURL(locValue)) {
+                                URL url = new URL(locValue);
+                                URLConnection connection = url.openConnection();
+                                incDoc = builder.parse(connection.getInputStream());
+                            }
+                        }
+                        else if (locValue.startsWith("file:")) {
+                            if (isValidURL(locValue)) {
+                                File locFile = new File(locValue);
+                                if (locFile.exists()) {
+                                    InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
+                                    incDoc = builder.parse(inputStream);    
+                                }
+                            }
+                        }
+                        // relative file path
+                        else if (!locValue.startsWith("ftp:")){
+                            File serverFile = new File(filePath);                      
+                            File locFile = new File(serverFile.getParent(), locValue);
+                            if (locFile.exists()) {
+                                InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
+                                incDoc = builder.parse(inputStream);    
+                            }
+                        }
                     }
-	                else {
-	                    File dir = new File(filePath);                  	
-	                    File file = new File(dir.getParent(), locNode.getNodeValue());
-	                    if (file.exists()) {
-	                        InputStream inputStream = new FileInputStream(file.getCanonicalPath());
-	                        incDoc = builder.parse(inputStream);	
-	                    }
-	                }
                 }
                 if (incDoc != null) {
                     NodeList webappNodeList = incDoc.getElementsByTagName("webApplication");
@@ -105,6 +127,76 @@ public class ServerXmlDocument {
         }
         return bFound;
     }
+    
+    private static boolean isFoundInConfigDropinsDir(String serverFilePath) {
+        boolean bFound = false; 
+        
+        File serverFile = new File (serverFilePath);
+        File configDropins = new File(serverFile.getParent(), "configDropins");
+        
+        if (configDropins.exists()) {
+            File overrides = new File(configDropins, "overrides");
+            // <server_name>/configDropins/overrides
+            if (overrides.exists() && isFoundConfigInFragmentDir(overrides)) {
+                return true;
+            }
+            
+            // <server_name>/configDropins/defaults
+            File defaults = new File(configDropins, "defaults");
+            if (defaults.exists() && isFoundConfigInFragmentDir(defaults)) {
+                return true;
+            }
+        }
+        return bFound;
+    }
+    
+    private static boolean isFoundConfigInFragmentDir(File dir) {
+        // FileFilter to get ".xml" files
+        FileFilter filter = new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+               return file.isFile() && file.getName().endsWith(".xml");
+            }
+        };
+        // Get matching files.
+        File[] xmlFiles = dir.listFiles(filter);
+        for (int i = 0; i < xmlFiles.length; i++) {
+            if (isFoundConfigInFragmentFile(xmlFiles[i].getPath())) {
+               return true;
+            }
+        }
+        return false;
+    }
+    
+    private static boolean isFoundConfigInFragmentFile(String filePath) {
+        try {
+            if (isFoundTagName(filePath, "webApplication")) 
+                return true;
+        
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(filePath);
+            NodeList appList = doc.getElementsByTagName("application");
+        
+            if (isFoundWebAppElement(appList))
+                return true;
+
+        } catch (Exception e) {
+            return false;
+        }   
+        return false; 
+    }
+    
+    private static boolean isValidURL(String url) {
+        try {
+            URL testURL = new URL(url);
+            testURL.toURI();
+            return true;
+        } 
+        catch (Exception exception) {
+            return false;
+        }
+    }
    
     public static boolean isFoundWebAppElement(NodeList nodeList) {
          
@@ -115,8 +207,8 @@ public class ServerXmlDocument {
             if (typeNode != null) {
                 String typeValue = typeNode.getNodeValue();
                 
-                if (typeValue != null && typeValue.equals("war")) {
-                    bFound = true;
+                if (typeValue != null) {
+                    bFound = typeValue.equals("war");
                     break;
                 }
             }
@@ -125,9 +217,21 @@ public class ServerXmlDocument {
             if (locNode != null) {
                 String locValue = locNode.getNodeValue();
                 
-                if (locValue != null && locValue.endsWith(".war")) {
-                    bFound = true;
-                    break;
+                if (locValue != null && !locValue.isEmpty()) {
+                    if (locValue.endsWith(".war")) {
+                        bFound = true;
+                        break;
+                    }
+                    else {
+                        Pattern substitue = Pattern.compile("[${}]");
+                        Matcher matcher = substitue.matcher(locValue);
+                        // TODO : resolution of the variable in the 'location' element should be handled 
+                        //        with a separate issue. Unable to check - skip it for now.
+                        //        e.g. location="${wlp.install.dir}/../../${appLocation}"
+                        if (matcher.find()) {
+                            continue;
+                        }
+                    }
                 }
             }
         }

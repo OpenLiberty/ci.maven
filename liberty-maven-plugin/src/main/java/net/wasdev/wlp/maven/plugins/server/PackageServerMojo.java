@@ -77,12 +77,15 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
+        String fileType = getPackageFileType(include);
+        String projectBuildDir = project.getBuild().getDirectory();
+        String projectBuildName = project.getBuild().getFinalName();
         if (packageFile != null) {
             if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, serverName + ".zip");
+                packageFile = new File(packageFile, projectBuildName + fileType);
             }
         } else {
-            packageFile = new File(serverDirectory, serverName + ".zip");
+            packageFile = new File(projectBuildDir, projectBuildName + fileType);
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
@@ -96,5 +99,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             }
             project.getArtifact().setFile(packageFile);
         }
+    }
+    
+    private String getPackageFileType(String include) {
+    	if(include != null && include.contains("runnable")) {
+    		return ".jar";
+    	}
+    	return ".zip";
     }
 }

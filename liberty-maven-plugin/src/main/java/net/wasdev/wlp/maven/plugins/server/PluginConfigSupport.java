@@ -18,8 +18,8 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Profile;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -184,6 +184,28 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return name;
     }
     
+    protected String getDependencyFilename(Artifact artifact) {
+        // dependency artifact has not be created yet when create-server goal is called in pre-package phase
+        String name = artifact.getArtifactId();
+        
+        // liberty only supports these application types: ear, war, eba, esa
+        switch (artifact.getType()) {
+        case "ear":
+        case "war":
+        case "eba":
+        case "esa":
+            name += "." + artifact.getType();
+            break;
+        default:
+            log.debug("The dependency artifact cannot be installed to a Liberty server because " +
+                    artifact.getType() + " is not a supported packaging type.");
+            name = null;
+            break;
+        }
+        
+        return name;
+    }
+    
     // Strip version string from name
     protected String stripVersionFromName(String name, String version) {
         int versionBeginIndex = name.lastIndexOf("-" + version);
@@ -194,48 +216,62 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    protected void addAppConfiguration(String appFileName, String extension) throws Exception {
-   
-        // Add webApplication configuration into the target server.xml. 
-        File serverXml = new File(serverDirectory, "server.xml");
+    protected boolean isAppConfigInSourceServerXml() {
         
-        if (serverXml.exists()) {
-            ServerXmlDocument.addAppElment(serverXml, appFileName, extension);
-            log.warn(messages.getString("warning.install.app.add.configuration"));
-        }
-    }
-    
-    protected boolean isApplicationConfigured(boolean bTarget) throws Exception {
-    
         boolean bConfigured = false; 
         
-        // get server.xml from target or source 
-        File serverXML = bTarget ? new File(serverDirectory, "server.xml") : getFileFromConfigDirectory("server.xml", configFile);
+        // get server.xml source 
+        File serverXML = getFileFromConfigDirectory("server.xml", configFile);
         
         if (serverXML != null && serverXML.exists()) {
-            bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), bTarget);
+            try {
+                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), false);
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+            }
         }
         return bConfigured;
     }
     
-    protected String getAppsDirectory() throws Exception {    
+    protected boolean isAppConfigInTargetServerXml() {
+        
+        boolean bConfigured = false; 
+        
+        // get server.xml from target or source 
+        File serverXML = new File(serverDirectory, "server.xml");
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), true);
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+            }
+        }
+        return bConfigured;
+    }
     
+    protected String getAppsDirectory() {    
+    
+        if (appsDirectory != null && !appsDirectory.isEmpty())
+            return appsDirectory;
+        
         boolean bAppConfigured = false;
         
         if (serverDirectory.exists()) 
-            bAppConfigured = isApplicationConfigured(true);
+            bAppConfigured = isAppConfigInTargetServerXml();
         else {
             File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
             
             if (srcServerXML != null && srcServerXML.exists()) 
-                bAppConfigured = isApplicationConfigured(false);
+                bAppConfigured = isAppConfigInSourceServerXml();
         }
         
         // if appsDirectory is not set 
         if (appsDirectory == null || appsDirectory.isEmpty())
             appsDirectory = bAppConfigured ? "apps" : "dropins";
-        else if (appsDirectory.equalsIgnoreCase("dropins") && bAppConfigured)
-            throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
+
         return appsDirectory;
     }
     

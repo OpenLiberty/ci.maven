@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
@@ -49,14 +50,17 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
         
-        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured(true)) {
+        String appsDir = getAppsDirectory();
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfigInTargetServerXml()) {
             String fileName = getApplicationFilename();
             if (fileName != null && fileName.endsWith(".war")) {
                 addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
             }
         }
+        else if (appsDir.equalsIgnoreCase("dropins") && isAppConfigInTargetServerXml())
+          throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
         
-        File destDir = new File(serverDirectory, getAppsDirectory());
+        File destDir = new File(serverDirectory, appsDir);
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         
         Copy copyFile = (Copy) ant.createTask("copy");
@@ -71,17 +75,53 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         copyFile.execute();
     }
     
+    // install dependency artifact
+    protected void installAppDependency(Artifact artifact) throws Exception {
+        
+        if (artifact.getFile() == null) {
+            throw new MojoExecutionException(messages.getString("error.install.dependency.app.missing"));
+        }
+        
+        String appsDir = getAppsDirectory();
+        
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfigInTargetServerXml()) {
+            String fileName = getDependencyFilename(artifact);
+            if (fileName != null && fileName.endsWith(".war")) {
+                addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
+            }
+        }
+        else if (appsDir.equalsIgnoreCase("dropins") && isAppConfigInTargetServerXml())
+          throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
+        
+        File destDir = new File(serverDirectory, appsDir);
+        log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
+        
+        Copy copyFile = (Copy) ant.createTask("copy");
+        copyFile.setFile(artifact.getFile());
+        if (stripVersion) {
+            String file = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
+            file = file.substring(file.lastIndexOf(File.separator) + 1);
+            copyFile.setTofile(new File(destDir, file));
+        } else {
+            copyFile.setTodir(destDir);
+        }
+        copyFile.execute();
+    }    
+    
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
     
-        if (getAppsDirectory().equalsIgnoreCase("apps") && !isApplicationConfigured(true)) {
+        String appsDir = getAppsDirectory();
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfigInTargetServerXml()) {
             String fileName = getApplicationFilename();
             if (fileName != null && fileName.endsWith(".war")) {
                 addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
             }
         }
+        else if (appsDir.equalsIgnoreCase("dropins") && isAppConfigInTargetServerXml())
+            throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     
-        File destDir = new File(serverDirectory, getAppsDirectory());
+        File destDir = new File(serverDirectory, appsDir);
         File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
         LooseConfigData config = new LooseConfigData();
         
@@ -212,5 +252,15 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             }
         }
         return libraries;
+    }
+    
+    private void addAppConfiguration(String appFileName, String extension) throws Exception {
+        // Add webApplication configuration into the target server.xml. 
+        File serverXml = new File(serverDirectory, "server.xml");
+        
+        if (serverXml.exists()) {
+            ServerXmlDocument.addAppElment(serverXml, appFileName, extension);
+            log.warn(messages.getString("warning.install.app.add.configuration"));
+        }
     }
 }
