@@ -76,7 +76,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 continue;
             }
             if (dep.getScope().equals("compile")) {
-                installApp(dep);
+                installAppDependency(dep);
             }
         }
     }

@@ -18,13 +18,15 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.util.List;
 
-import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
-
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -36,7 +38,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Application directory. 
      */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins")
+    @Parameter(property = "appsDirectory")
     protected String appsDirectory;
     
     /**
@@ -104,14 +106,13 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
         }
         
-        configDocument.createElement("appsDirectory", appsDirectory);
+        configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         // TDOD: remove looseConfig when WDT starts to use looseApplication
         configDocument.createElement("looseConfig", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
         configDocument.createElement("applicationFilename", getApplicationFilename());
-        
         configDocument.createElement("assemblyArtifact", assemblyArtifact);   
         configDocument.createElement("assemblyArchive", assemblyArchive);
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
@@ -183,6 +184,28 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return name;
     }
     
+    protected String getDependencyFilename(Artifact artifact) {
+        // dependency artifact has not be created yet when create-server goal is called in pre-package phase
+        String name = artifact.getArtifactId();
+        
+        // liberty only supports these application types: ear, war, eba, esa
+        switch (artifact.getType()) {
+        case "ear":
+        case "war":
+        case "eba":
+        case "esa":
+            name += "." + artifact.getType();
+            break;
+        default:
+            log.debug("The dependency artifact cannot be installed to a Liberty server because " +
+                    artifact.getType() + " is not a supported packaging type.");
+            name = null;
+            break;
+        }
+        
+        return name;
+    }
+    
     // Strip version string from name
     protected String stripVersionFromName(String name, String version) {
         int versionBeginIndex = name.lastIndexOf("-" + version);
@@ -191,6 +214,65 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
             return name;
         }
+    }
+    
+    protected boolean isAppConfigInSourceServerXml() {
+        
+        boolean bConfigured = false; 
+        
+        // get server.xml source 
+        File serverXML = getFileFromConfigDirectory("server.xml", configFile);
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), false);
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+            }
+        }
+        return bConfigured;
+    }
+    
+    protected boolean isAppConfigInTargetServerXml() {
+        
+        boolean bConfigured = false; 
+        
+        // get server.xml from target or source 
+        File serverXML = new File(serverDirectory, "server.xml");
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), true);
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+            }
+        }
+        return bConfigured;
+    }
+    
+    protected String getAppsDirectory() {    
+    
+        if (appsDirectory != null && !appsDirectory.isEmpty())
+            return appsDirectory;
+        
+        boolean bAppConfigured = false;
+        
+        if (serverDirectory.exists()) 
+            bAppConfigured = isAppConfigInTargetServerXml();
+        else {
+            File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
+            
+            if (srcServerXML != null && srcServerXML.exists()) 
+                bAppConfigured = isAppConfigInSourceServerXml();
+        }
+        
+        // if appsDirectory is not set 
+        if (appsDirectory == null || appsDirectory.isEmpty())
+            appsDirectory = bAppConfigured ? "apps" : "dropins";
+
+        return appsDirectory;
     }
     
     protected File getWarSourceDirectory() {
