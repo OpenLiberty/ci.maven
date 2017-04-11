@@ -25,6 +25,12 @@
         <module>test-assembly-with-code-it</module>
         <module>config-packagefile-runnable-it</module>
         <module>config-packagefile-all-it</module>
+        <module>appsdirectory-apps-configured-it</module>     
+        <module>appsdirectory-apps-notconfigured-it</module>     
+        <module>appsdirectory-dropins-notconfigured-it</module>     
+        <module>appsdirectory-notset-configured-it</module>     
+        <module>appsdirectory-notset-notconfigured-it</module>
+        <module>appsdirectory-include-configured-it</module>
+        <module>appsdirectory-configdropins-it</module>
     </modules>
-
 </project>

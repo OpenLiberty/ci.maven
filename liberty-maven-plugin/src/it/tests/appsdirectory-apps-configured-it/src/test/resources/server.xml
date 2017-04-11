@@ -1,0 +1,7 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+        
+    <webApplication id="appsdirectory-apps-configured-it" location="appsdirectory-apps-configured-it.war" name="appsdirectory-apps-configured-it"/>
+</server>
