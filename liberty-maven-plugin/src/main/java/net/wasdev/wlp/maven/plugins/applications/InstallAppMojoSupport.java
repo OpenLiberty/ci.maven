@@ -37,13 +37,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
+import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
  * Install artifact into Liberty server support.
  */
 public class InstallAppMojoSupport extends PluginConfigSupport {
+    
+    protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
     
     protected void installApp(Artifact artifact) throws Exception {
         if (artifact.getFile() == null) {
@@ -212,31 +214,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         return libraries;
     }
     
-    private void addAppConfiguration(String appFileName, String extension) throws Exception {
-        // Add webApplication configuration into the target server.xml. 
-        File serverXml = new File(serverDirectory, "server.xml");
-        
-        if (serverXml.exists()) {
-            ServerXmlDocument.addAppElment(serverXml, appFileName, extension);
-            log.warn(messages.getString("warning.install.app.add.configuration"));
-        }
-    }
-    
     private void validateAppConfig(String fileName) throws Exception {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfigInSourceServerXml()) {
-            if (fileName != null) {
-                if (fileName.endsWith(".war")) {
-                    addAppConfiguration(fileName.substring(0, fileName.length() - 4), "war");
-                }
-                else {
-                    // TODO deal with other supported extensions in the future
-                    log.debug("Injection of App configuration cannot be done as file type is not supported :  " + fileName);
-                }
-            }
-            else {
-                log.debug("Injection of App configuration cannot be done as file name is null.");
-            }
+            // add application configuration
+            applicationXml.createWebApplicationElement(fileName);
         }
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfigInSourceServerXml())
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
