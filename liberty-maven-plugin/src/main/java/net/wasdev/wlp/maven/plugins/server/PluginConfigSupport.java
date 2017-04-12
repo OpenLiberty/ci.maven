@@ -18,13 +18,14 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.util.List;
 
-import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
-
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -36,7 +37,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Application directory. 
      */
-    @Parameter(property = "appsDirectory", defaultValue = "dropins")
+    @Parameter(property = "appsDirectory")
     protected String appsDirectory;
     
     /**
@@ -104,14 +105,13 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
         }
         
-        configDocument.createElement("appsDirectory", appsDirectory);
+        configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         // TDOD: remove looseConfig when WDT starts to use looseApplication
         configDocument.createElement("looseConfig", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", installAppPackages);
         configDocument.createElement("applicationFilename", getApplicationFilename());
-        
         configDocument.createElement("assemblyArtifact", assemblyArtifact);   
         configDocument.createElement("assemblyArchive", assemblyArchive);
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
@@ -191,6 +191,43 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
             return name;
         }
+    }
+    
+    protected boolean isAppConfigInSourceServerXml() {
+        
+        boolean bConfigured = false; 
+        
+        // get server.xml source 
+        File serverXML = getFileFromConfigDirectory("server.xml", configFile);
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), configDirectory);
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+            }
+        }
+        return bConfigured;
+    }
+    
+    protected String getAppsDirectory() {    
+    
+        if (appsDirectory != null && !appsDirectory.isEmpty())
+            return appsDirectory;
+        
+        File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
+        if (srcServerXML != null && srcServerXML.exists()) {
+            if (isAppConfigInSourceServerXml()) {
+                appsDirectory = "apps";
+            } else {
+                appsDirectory = "dropins";
+            }
+        } else {
+            appsDirectory = "dropins";
+        }
+
+        return appsDirectory;
     }
     
     protected File getWarSourceDirectory() {

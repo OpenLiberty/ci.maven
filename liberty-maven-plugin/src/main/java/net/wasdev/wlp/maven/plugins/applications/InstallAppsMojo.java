@@ -61,6 +61,11 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         if (installProject) {
             installProject();
         }
+        
+        // create application configuration in configDropins if it is not configurated
+        if (applicationXml.hasChildElements()) {
+            applicationXml.writeApplicationXmlDocument(serverDirectory);
+        }
     }
     
     private void installDependencies() throws Exception {

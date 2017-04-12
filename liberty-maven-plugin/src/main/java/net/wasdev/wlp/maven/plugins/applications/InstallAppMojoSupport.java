@@ -30,17 +30,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import net.wasdev.wlp.maven.plugins.BasicSupport;
+import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
 /**
@@ -48,29 +45,43 @@ import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
  */
 public class InstallAppMojoSupport extends PluginConfigSupport {
     
+    protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
+    
     protected void installApp(Artifact artifact) throws Exception {
         if (artifact.getFile() == null) {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
         
-        File destDir = new File(serverDirectory, appsDirectory);
+        File destDir = new File(serverDirectory, getAppsDirectory());
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
         
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
+        String file = artifact.getFile().getCanonicalPath();
         if (stripVersion) {
-            String file = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
+            file = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
             file = file.substring(file.lastIndexOf(File.separator) + 1);
             copyFile.setTofile(new File(destDir, file));
         } else {
             copyFile.setTodir(destDir);
         }
+        
+        // validate application configuration if appsDirectory="dropins" or inject webApplication
+        // to target server.xml if not found for appsDirectory="apps"
+        validateAppConfig(file);
+        
         copyFile.execute();
     }
     
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
-        File destDir = new File(serverDirectory, appsDirectory);
+
+        // validate application configuration if appsDirectory="dropins" or inject webApplication
+        // to target server.xml if not found for appsDirectory="apps"
+        validateAppConfig(getLooseConfigFileName(project).substring(0, getLooseConfigFileName(project).length() - 4));
+        
+        File destDir = new File(serverDirectory, getAppsDirectory());
+        
         File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
         LooseConfigData config = new LooseConfigData();
         
@@ -201,5 +212,15 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             }
         }
         return libraries;
+    }
+    
+    private void validateAppConfig(String fileName) throws Exception {
+        String appsDir = getAppsDirectory();
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfigInSourceServerXml()) {
+            // add application configuration
+            applicationXml.createWebApplicationElement(fileName);
+        }
+        else if (appsDir.equalsIgnoreCase("dropins") && isAppConfigInSourceServerXml())
+            throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     }
 }
