@@ -16,12 +16,15 @@
 package net.wasdev.wlp.maven.plugins;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import net.wasdev.wlp.ant.install.InstallLibertyTask;
 
@@ -32,8 +35,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
 import org.apache.tools.ant.taskdefs.Chmod;
 import org.apache.tools.ant.taskdefs.Expand;
+import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.Commandline.Argument;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
 
 /**
  * Basic Liberty Mojo Support
@@ -134,6 +140,13 @@ public class BasicSupport extends AbstractLibertySupport {
     @Parameter
     protected Install install;
 
+    /**
+     * Maven coordinates of a liberty license artifact. This is best listed as a dependency, in which case the version can
+     * be omitted.
+     */
+    @Parameter
+    protected ArtifactItem licenseArtifact;
+    
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -269,10 +282,13 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void installServerAssembly() throws Exception {
         if (installType == InstallType.ALREADY_EXISTS) {
             log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-        } else if (installType == InstallType.FROM_ARCHIVE) {
-            installFromArchive();
         } else {
-            installFromFile();
+            if (installType == InstallType.FROM_ARCHIVE) {
+                installFromArchive();
+            } else {
+                installFromFile();
+            }
+            installLicense();
         }
     }
     
@@ -373,5 +389,57 @@ public class BasicSupport extends AbstractLibertySupport {
         } else {
             return name;
         }
+    }
+    
+    protected void installLicense() throws MojoExecutionException, IOException {
+        if (licenseArtifact != null) {
+            Artifact license = getArtifact(licenseArtifact);
+            if (!hasSameLicense(license)) {
+                log.info(MessageFormat.format(messages.getString("info.install.license"), licenseArtifact.getArtifactId()));
+                Java installLicenseTask = (Java) ant.createTask("java");
+                installLicenseTask.setJar(license.getFile());
+                Argument args = installLicenseTask.createArg();
+                args.setLine("--acceptLicense " + assemblyInstallDirectory.getCanonicalPath());
+                installLicenseTask.setTimeout(30000L);
+                installLicenseTask.setFork(true);
+                int rc = installLicenseTask.executeJava();
+                if (rc != 0) {
+                    throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.license"), rc));
+                }
+            }
+        }
+    }
+    
+    private boolean hasSameLicense(Artifact license) throws MojoExecutionException, IOException {
+        boolean sameLicense = false;
+        if (license != null) {
+            InputStream licenseInfo = getZipEntry(license.getFile(), "wlp/lafiles/LI_en");
+            if (licenseInfo == null) {
+                // TODO: The license file may be corrupted
+                log.warn("The license file may be corrupted");
+                return sameLicense;
+            } 
+            
+            File lic = new File(assemblyInstallDirectory, "wlp/lafiles/LI_en");
+            if (!lic.exists()) {
+                return sameLicense;
+            }
+            
+            FileInputStream installedLicenseInfo = new FileInputStream(lic);
+            sameLicense = IOUtil.contentEquals(licenseInfo, installedLicenseInfo);
+            licenseInfo.close();
+            installedLicenseInfo.close();
+        }
+        return sameLicense;
+    }
+    
+    private InputStream getZipEntry(File zip, String entry) throws IOException {
+        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zip));
+        for (ZipEntry e; (e = zipInputStream.getNextEntry()) != null;) {
+            if (e.getName().equals(entry)) {
+                return zipInputStream;
+            }
+        }
+        return null;
     }
 }
