@@ -61,4 +61,7 @@
         <module>liberty-archetype-webapp</module>
     </modules>
 
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
 </project>
