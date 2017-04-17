@@ -129,7 +129,7 @@
                 <id>stop-liberty-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>test-stop-server</goal>
+                    <goal>stop-server</goal>
                 </goals>
             </execution>
             <execution>
