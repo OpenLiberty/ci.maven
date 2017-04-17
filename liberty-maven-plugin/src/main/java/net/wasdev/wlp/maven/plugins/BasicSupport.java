@@ -415,20 +415,17 @@ public class BasicSupport extends AbstractLibertySupport {
         if (license != null) {
             InputStream licenseInfo = getZipEntry(license.getFile(), "wlp/lafiles/LI_en");
             if (licenseInfo == null) {
-                // TODO: The license file may be corrupted
-                log.warn("The license file may be corrupted");
+                log.warn(MessageFormat.format(messages.getString("warn.install.license"), license.getArtifactId()));
                 return sameLicense;
             } 
             
             File lic = new File(assemblyInstallDirectory, "wlp/lafiles/LI_en");
-            if (!lic.exists()) {
-                return sameLicense;
+            if (!lic.exists()) {  
+                FileInputStream installedLicenseInfo = new FileInputStream(lic);
+                sameLicense = IOUtil.contentEquals(licenseInfo, installedLicenseInfo);
+                licenseInfo.close();
+                installedLicenseInfo.close();
             }
-            
-            FileInputStream installedLicenseInfo = new FileInputStream(lic);
-            sameLicense = IOUtil.contentEquals(licenseInfo, installedLicenseInfo);
-            licenseInfo.close();
-            installedLicenseInfo.close();
         }
         return sameLicense;
     }

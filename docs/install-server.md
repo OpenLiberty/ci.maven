@@ -32,8 +32,8 @@ Examples:
     </plugin>
   ```
   
- 2. Install from a Maven artifact using `assemblyArtifact` parameter, and upgrade to production supported Core edition using `licenseArtifact` parameter.
- See [Using Maven artifact](installation-configuration.md#using-maven-artifact)  for more information.
+ 2. Install from a Maven artifact using `assemblyArtifact` parameter, and upgrade to production supported Core edition using the `licenseArtifact` parameter.
+ See [Using Maven artifact](installation-configuration.md#using-maven-artifact) for more information.
  
   ```xml
     <plugin>
@@ -51,13 +51,13 @@ Examples:
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile7</artifactId>
-                        <version>17.0.0.2</version>
+                        <version>17.0.0.1</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <licenseArtifact>
                         <groupId>com.ibm.websphere.appserver.license</groupId>
                         <artifactId>wlp-core-license</artifactId>
-                        <version>17.0.0.2</version>
+                        <version>17.0.0.1</version>
                     </licenseArtifact>
                 </configuration>
             </execution>
@@ -101,13 +101,13 @@ Examples:
             <assemblyArtifact>
                 <groupId>com.ibm.websphere.appserver.runtime</groupId>
                 <artifactId>wlp-webProfile7</artifactId>
-                <version>17.0.0.2</version>
+                <version>17.0.0.1</version>
                 <type>zip</type>
             </assemblyArtifact>
             <licenseArtifact>
                 <groupId>com.ibm.websphere.appserver.license</groupId>
                  <artifactId>wlp-core-license</artifactId>
-                <version>17.0.0.2</version>
+                <version>17.0.0.1</version>
             </licenseArtifact>
         </configuration>
         <executions>
