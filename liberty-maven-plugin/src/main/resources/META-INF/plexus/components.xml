@@ -51,7 +51,7 @@
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:start-server
                             </pre-integration-test>
                             <integration-test>
-                                org.apache.maven.plugins:maven-failsafe-plugin:2.19.1:integration-test
+                                org.apache.maven.plugins:maven-failsafe-plugin:2.20:integration-test
                             </integration-test>
                             <post-integration-test>
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:stop-server
