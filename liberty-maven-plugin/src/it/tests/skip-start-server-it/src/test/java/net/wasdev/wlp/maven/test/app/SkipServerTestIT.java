@@ -11,14 +11,13 @@ import org.junit.Test;
  * 
  */
 
-public class skipServerTest {
+public class SkipServerTestIT {
 
     private String host = "localhost";
     private Integer port = 9080;
 
     @Test
     public void testWAR() throws Exception {
-        //boolean listening = serverListening(host, port);
         assertFalse(serverListening(host, port));
     }
     

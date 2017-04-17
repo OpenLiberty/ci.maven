@@ -19,11 +19,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * Start a liberty server if tests are not skipped
+ * Quickly bypass stopping server if server isn't started
  */
-@Mojo(name = "test-start-server") 
+@Mojo(name = "test-stop-server") 
 
-public class TestStartServerMojo extends StartServerMojo {
+public class TestStopServerMojo extends StopServerMojo {
     
     @Parameter(property = "skipTestServer", defaultValue = "false")
     private boolean skipTestServer;
