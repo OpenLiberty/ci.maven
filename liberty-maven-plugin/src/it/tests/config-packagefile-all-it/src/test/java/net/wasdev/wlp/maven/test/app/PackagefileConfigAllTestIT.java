@@ -15,19 +15,19 @@ import org.junit.Test;
  *
  */
 
-public class PackagefileConfigTestIT {
+public class PackagefileConfigAllTestIT {
 
-    private String projectBuildName = "config-packagefile-runnable-it-1.0-SNAPSHOT";
-
+    private String projectBuildName = "config-packagefile-all-it-1.0-SNAPSHOT";
+    
     @Test
-    public void testPackageFileJarExists() {
+    public void testPackageFileJarNotExists() {
         Path path = Paths.get(System.getProperty("user.dir") + "/target/" + projectBuildName + ".jar");
-        assertTrue(Files.exists(path));
+        assertFalse(Files.exists(path));
     }
     
     @Test
-    public void testPackageFileZipNotExists() {
+    public void testPackageFileZipExists() {
         Path path = Paths.get(System.getProperty("user.dir") + "/target/" + projectBuildName + ".zip");
-        assertFalse(Files.exists(path));
+        assertTrue(Files.exists(path));
     }
 }
