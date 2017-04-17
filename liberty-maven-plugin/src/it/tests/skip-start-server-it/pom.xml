@@ -22,7 +22,7 @@
         </dependency>
     </dependencies>
 
-        <build>
+    <build>
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
