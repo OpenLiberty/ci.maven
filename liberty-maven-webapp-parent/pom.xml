@@ -99,24 +99,18 @@
                             </goals>
                         </execution>
                         <execution>
-                            <id>start-server</id>
+                            <id>test-start-server</id>
                             <phase>pre-integration-test</phase>
                             <goals>
-                                <goal>start-server</goal>
+                                <goal>test-start-server</goal>
                             </goals>
-                            <configuration>
-                                <skip>${skipTests}</skip>
-                            </configuration>
                         </execution>
                         <execution>
-                            <id>stop-server</id>
+                            <id>test-stop-server</id>
                             <phase>post-integration-test</phase>
                             <goals>
-                                <goal>stop-server</goal>
+                                <goal>test-stop-server</goal>
                             </goals>
-                            <configuration>
-                                <skip>${skipTests}</skip>
-                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
