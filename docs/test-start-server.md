@@ -1,6 +1,6 @@
 #### test-start-server
 ---
-Start a Liberty Profile server in background. The server instance will be automatically created if it does not exist. test-start-server honors the skipTests, skipITs, and maven-test-skip properties. It also allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument.
+Start a Liberty server in background. The server instance will be automatically created if it does not exist. ```test-start-server``` honors the ```skipTests```, ```skipITs```, and ```maven-test-skip``` properties. It also allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument.
 
 ###### Additional Parameters
 

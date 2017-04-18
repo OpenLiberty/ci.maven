@@ -88,8 +88,10 @@ The `liberty-maven-plugin` provides the following goals.
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plug-in goals and usually does not need to be executed explicitly. |
 | [create-server](docs/create-server.md#create-server) | Create a Liberty server. |
 | [start-server](docs/start-server.md#start-server) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
+| [test-start-server](docs/test-start-server.md/#test-start-server) | Allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument. |
 | [run-server](docs/run-server.md#run-server) | Start a Liberty server in foreground. The server instance will be automatically created if it does not exist. |
 | [stop-server](docs/stop-server.md#stop-server) | Stop a Liberty server. The server instance must exist and must be running. |
+| [test-stop-server](docs/test-stop-server.md#stop-server) | Allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument. |
 | [package-server](docs/package-server.md#package-server) | Package a Liberty server. |
 | [clean-server](docs/clean-server.md#clean-server) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
 | [dump-server](docs/dump-server.md#dump-server) | Dump diagnostic information from the server into an archive. |
