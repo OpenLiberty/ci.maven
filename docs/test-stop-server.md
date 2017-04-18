@@ -1,6 +1,6 @@
-#### test-start-server
+#### test-stop-server
 ---
-Provides a bypass for checking for a server to stop if the server start step has been skipped.
+Stop a Liberty server. test-stop-server honors the skipTests, skipITs, and maven-test-skip properties. It also allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument.
 
 ###### Additional Parameters
 
