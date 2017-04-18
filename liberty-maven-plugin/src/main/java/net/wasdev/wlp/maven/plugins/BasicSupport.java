@@ -420,7 +420,7 @@ public class BasicSupport extends AbstractLibertySupport {
             } 
             
             File lic = new File(assemblyInstallDirectory, "wlp/lafiles/LI_en");
-            if (!lic.exists()) {  
+            if (lic.exists()) {  
                 FileInputStream installedLicenseInfo = new FileInputStream(lic);
                 sameLicense = IOUtil.contentEquals(licenseInfo, installedLicenseInfo);
                 licenseInfo.close();
