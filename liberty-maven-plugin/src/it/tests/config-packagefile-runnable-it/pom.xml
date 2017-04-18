@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>config-packagefile-it</artifactId>
+    <artifactId>config-packagefile-runnable-it</artifactId>
     <packaging>liberty-assembly</packaging>
 
     <dependencies>

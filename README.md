@@ -130,6 +130,7 @@ The `liberty-assembly` default lifecycle includes:
 | pre-integration-test | liberty:start-server |
 | integration-test | maven-failsafe-plugin:integration-test |
 | post-integration-test | liberty:stop-server |
+| verify | maven-failsafe-plugin:verify |
 | install | maven-install-plugin:install |
 | deploy | maven-deploy-plugin:deploy |
 
