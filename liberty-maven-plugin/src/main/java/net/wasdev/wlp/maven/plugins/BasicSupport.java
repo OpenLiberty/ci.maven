@@ -395,7 +395,8 @@ public class BasicSupport extends AbstractLibertySupport {
         if (licenseArtifact != null) {
             Artifact license = getArtifact(licenseArtifact);
             if (!hasSameLicense(license)) {
-                log.info(MessageFormat.format(messages.getString("info.install.license"), licenseArtifact.getArtifactId()));
+                log.info(MessageFormat.format(messages.getString("info.install.license"), 
+                        licenseArtifact.getGroupId() + ":" + licenseArtifact.getArtifactId() + ":" + licenseArtifact.getVersion()));
                 Java installLicenseTask = (Java) ant.createTask("java");
                 installLicenseTask.setJar(license.getFile());
                 Argument args = installLicenseTask.createArg();
@@ -404,7 +405,8 @@ public class BasicSupport extends AbstractLibertySupport {
                 installLicenseTask.setFork(true);
                 int rc = installLicenseTask.executeJava();
                 if (rc != 0) {
-                    throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.license"), rc));
+                    throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.license"), 
+                            licenseArtifact.getGroupId() + ":" + licenseArtifact.getArtifactId() + ":" + licenseArtifact.getVersion(), rc));
                 }
             }
         }
@@ -415,7 +417,7 @@ public class BasicSupport extends AbstractLibertySupport {
         if (license != null) {
             InputStream licenseInfo = getZipEntry(license.getFile(), "wlp/lafiles/LI_en");
             if (licenseInfo == null) {
-                log.warn(MessageFormat.format(messages.getString("warn.install.license"), license.getArtifactId()));
+                log.warn(MessageFormat.format(messages.getString("warn.install.license"), license.getId()));
                 return sameLicense;
             } 
             
