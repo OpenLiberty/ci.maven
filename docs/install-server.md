@@ -1,8 +1,12 @@
 #### install-server
 ---
-Installs Liberty profile runtime.
+Installs Liberty runtime and optionally upgrades the runtime installation to a supported production edition.
 
-This goal only supports the [common parameters](common-parameters.md#common-parameters).
+To upgrade the runtime installation, the Liberty license jar file which is available to download from IBM Fix Central or the Passport
+Advantage website, must be installed to Maven local repository or an internal custom repository using the
+maven-install-plugin version 2.5 and up. See [Installing an artifact with a custom POM](http://maven.apache.org/plugins/maven-install-plugin/examples/custom-pom-installation.html)
+
+This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by create-server, dump-server, java-dump-server, package-server, run-server, start-server and stop-server goals.
 
 Examples:
  1. Install from a packaged server using `assemblyArchive` parameter.
@@ -28,7 +32,8 @@ Examples:
     </plugin>
   ```
   
- 2. Install from a Maven artifact using `assemblyArtifact` parameter. See [Using Maven artifact](installation-configuration.md#using-maven-artifact)  for more information. 
+ 2. Install from a Maven artifact using `assemblyArtifact` parameter, and upgrade to production supported Core edition using the `licenseArtifact` parameter.
+ See [Using Maven artifact](installation-configuration.md#using-maven-artifact) for more information.
  
   ```xml
     <plugin>
@@ -46,9 +51,14 @@ Examples:
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile7</artifactId>
-                        <version>8.5.5.7</version>
+                        <version>17.0.0.1</version>
                         <type>zip</type>
                     </assemblyArtifact>
+                    <licenseArtifact>
+                        <groupId>com.ibm.websphere.appserver.license</groupId>
+                        <artifactId>wlp-core-license</artifactId>
+                        <version>17.0.0.1</version>
+                    </licenseArtifact>
                 </configuration>
             </execution>
             ...
@@ -80,17 +90,25 @@ Examples:
         </executions>
     </plugin>
   ```
-This goal is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`, `start-server` and `stop-server` goals. Then, it is possible to install the Liberty profile runtime as follows: 
+4. This goal is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`,
+`start-server` and `stop-server` goals.
 
   ```xml
     <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
-            <install>
-                <runtimeUrl><url to .jar or .zip file></runtimeUrl>
-                <licenseCode><license code></licenseCode>
-            </install>
+            <assemblyArtifact>
+                <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                <artifactId>wlp-webProfile7</artifactId>
+                <version>17.0.0.1</version>
+                <type>zip</type>
+            </assemblyArtifact>
+            <licenseArtifact>
+                <groupId>com.ibm.websphere.appserver.license</groupId>
+                 <artifactId>wlp-core-license</artifactId>
+                <version>17.0.0.1</version>
+            </licenseArtifact>
         </configuration>
         <executions>
             ...
@@ -108,3 +126,10 @@ This goal is implicitly invoked by `create-server`, `dump-server`, `java-dump-se
         </executions>
     </plugin>
   ```
+
+5. Install the Websphere Application Server Liberty Core production license jar file.
+
+  ``` bash
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=wlp-core-license.jar
+  ```
+

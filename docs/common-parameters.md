@@ -8,6 +8,7 @@ Parameters shared by all goals.
 | assemblyArchive | Location of the Liberty profile server compressed archive. The archive will be unpacked into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArtifact`, and `install` parameters are not set. |
 | assemblyArtifact | Maven artifact name of the Liberty profile server assembly. The assembly will be installed into a directory as specified by the `assemblyInstallDirectory` parameter. | Yes, only when `installDirectory`, `assemblyArchive`, and `install` parameters are not set. |
 | install | Install Liberty runtime from the [Liberty repository](docs/installation-configuration.md#using-a-repository). | Yes, only when `installDirectory`, `assemblyArchive`, and `assemblyArtifact` parameters are not set. |
+| licenseArtifact | Maven artifact name of the Liberty license jar. It will be used to upgrade the installation at the location specified by the `assemblyInstallDirectory` parameter. | No |
 | serverName | Name of the Liberty profile server instance. The default value is `defaultServer`. | No |
 | userDirectory | Alternative user directory location that contains server definitions and shared resources (`WLP_USER_DIR`). | No |
 | outputDirectory | Alternative location for server generated output such as logs, the _workarea_ directory, and other generated files (`WLP_OUTPUT_DIR`). | No |
