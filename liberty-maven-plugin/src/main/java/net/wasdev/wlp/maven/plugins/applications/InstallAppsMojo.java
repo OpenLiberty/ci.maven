@@ -25,6 +25,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
+import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
+
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
@@ -62,9 +64,13 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             installProject();
         }
         
-        // create application configuration in configDropins if it is not configurated
+        // create application configuration in configDropins if it is not configured
         if (applicationXml.hasChildElements()) {
             applicationXml.writeApplicationXmlDocument(serverDirectory);
+        } else {
+            if (applicationXml.getApplicationXmlFile(serverDirectory).exists()) {
+                applicationXml.getApplicationXmlFile(serverDirectory).delete();
+            }
         }
     }
     
