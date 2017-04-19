@@ -111,7 +111,7 @@
                <id>start-liberty-server</id>
                <phase>pre-integration-test</phase>
                <goals>
-                   <goal>start-server</goal>
+                   <goal>test-start-server</goal>
                </goals>
                <configuration>
                    <background>true</background>
@@ -129,7 +129,7 @@
                 <id>stop-liberty-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>stop-server</goal>
+                    <goal>test-stop-server</goal>
                 </goals>
             </execution>
             <execution>
