@@ -32,6 +32,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,38 +45,84 @@ public class ServerXmlDocument {
     
     private ServerXmlDocument() {    
     }
-    
-    public static boolean isFoundTagName(String fileName, String tag) throws Exception {
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(fileName);
-        
-        NodeList appList = doc.getElementsByTagName(tag);
-        
-        return appList != null && appList.getLength() > 0;
+    /**
+     * @param filePath
+     * @param fileName application file name
+     * @return true if the application with the file name is configured.
+     * @throws Exception
+     */
+    private static boolean isFoundWebAppWithFileName(String filePath, String fileName) throws Exception {
+        return isFoundAppConfigByTagAndFileName(filePath, "webApplication", fileName);
     }
     
-    public static boolean isFoundWebApplication(String filePath, File configDirectory) throws Exception {
+    /**
+     * @param filePath 
+     * @param tag specify element tag to parse
+     * @param fileName application file name
+     * @return true if the application with the file name within the specified element tag is configured. 
+     * @throws Exception
+     */
+    private static boolean isFoundAppConfigByTagAndFileName(String filePath, String tag, String fileName) throws Exception {
+
+        NodeList appList = getNodeList(filePath, "/server/" + tag);
         
-        if (isFoundTagName(filePath, "webApplication"))
+        if (appList == null || appList.getLength() == 0) {
+            return false; 
+        }
+        else {
+          if (fileName == null) {
             return true;
-         
+          }
+        } 
+        
+        for (int i = 0; i < appList.getLength(); i++) {
+            Node locNode = appList.item(i).getAttributes().getNamedItem("location");
+            
+            if (locNode != null) {
+                String locValue = locNode.getNodeValue();
+                if (locValue.equals(fileName)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false; 
+    }
+    
+    public static boolean isFoundAppConfig(String filePath, File configDirectory, String fileName) throws Exception {
+        
         boolean bFound = false;
         
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(filePath);
-        NodeList appList = doc.getElementsByTagName("application");
-
-        if (isFoundWebAppElement(appList))
+        if (isFoundWebAppWithFileName(filePath, fileName)) {
             return true;
-
-        // check if fragments in 'configDropins' folders contain webApplication configuration. 
-        if (isFoundInConfigDropinsDir(filePath, configDirectory))
+        }
+        
+        File in = new File(filePath);
+        FileInputStream input = new FileInputStream(in);
+        
+        // get input XML Document 
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory.setIgnoringComments(true);
+        docBuilderFactory.setCoalescing(true);
+        docBuilderFactory.setIgnoringElementContentWhitespace(true);
+        docBuilderFactory.setValidating(false);
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(input);
+        
+        // parse input XML Document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        NodeList appList = (NodeList) xPath.compile("/server/application").evaluate(doc, XPathConstants.NODESET);
+        
+        if (isFoundAppConfigFromAppListByFileName(appList, fileName)) {
+            return true;
+        }
+        
+        // check if fragments in 'configDropins' folder contains webApplication configuration. 
+        if (isFoundAppConfigFromDropinsDir(filePath, configDirectory, fileName))
             return true;
         
-        NodeList incList = doc.getElementsByTagName("include");
+        NodeList incList = (NodeList) xPath.compile("/server/include").evaluate(doc, XPathConstants.NODESET);
     
         if (incList == null)
             return false;
@@ -88,7 +137,7 @@ public class ServerXmlDocument {
                         if (isValidURL(locValue)) {
                             URL url = new URL(locValue);
                             URLConnection connection = url.openConnection();
-                            incDoc = builder.parse(connection.getInputStream());
+                            incDoc = docBuilder.parse(connection.getInputStream());
                         }
                     }
                     else if (locValue.startsWith("file:")) {
@@ -96,7 +145,7 @@ public class ServerXmlDocument {
                             File locFile = new File(locValue);
                             if (locFile.exists()) {
                                 InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-                                incDoc = builder.parse(inputStream);    
+                                incDoc = docBuilder.parse(inputStream);    
                             }
                         }
                     }
@@ -110,13 +159,13 @@ public class ServerXmlDocument {
       
                         if (locFile != null && locFile.exists()) {
                             InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-                            incDoc = builder.parse(inputStream);    
+                            incDoc = docBuilder.parse(inputStream);    
                         }
                         else {
                             if (configDirectory != null && configDirectory.exists()) {
                                 locFile = new File(configDirectory, locValue);
                                 InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-                                incDoc = builder.parse(inputStream);    
+                                incDoc = docBuilder.parse(inputStream);    
                             }
                         }
                     }
@@ -128,7 +177,7 @@ public class ServerXmlDocument {
                     return true;
                 else {
                     NodeList apps = incDoc.getElementsByTagName("application");
-                    if (isFoundWebAppElement(apps))
+                    if (isFoundAppConfigFromAppList(apps))
                         return true;
                 }
             }
@@ -136,7 +185,7 @@ public class ServerXmlDocument {
         return bFound;
     }
     
-    private static boolean isFoundInConfigDropinsDir(String serverFilePath, File configDirectory) {
+    private static boolean isFoundAppConfigFromDropinsDir(String serverFilePath, File configDirectory, String fileName) {
         boolean bFound = false; 
         
         File serverFile = new File (serverFilePath);
@@ -152,20 +201,20 @@ public class ServerXmlDocument {
         if (configDropins.exists()) {
             File overrides = new File(configDropins, "overrides");
             // <server_name>/configDropins/overrides
-            if (overrides.exists() && isFoundConfigInFragmentDir(overrides)) {
+            if (overrides.exists() && isFoundAppConfigFromFragmentDir(overrides, fileName)) {
                 return true;
             }
             
             // <server_name>/configDropins/defaults
             File defaults = new File(configDropins, "defaults");
-            if (defaults.exists() && isFoundConfigInFragmentDir(defaults)) {
+            if (defaults.exists() && isFoundAppConfigFromFragmentDir(defaults, fileName)) {
                 return true;
             }
         }
         return bFound;
     }
     
-    private static boolean isFoundConfigInFragmentDir(File dir) {
+    private static boolean isFoundAppConfigFromFragmentDir(File dir, String fileName) {
         // FileFilter to get ".xml" files
         FileFilter filter = new FileFilter() {
             @Override
@@ -176,30 +225,47 @@ public class ServerXmlDocument {
         // Get matching files.
         File[] xmlFiles = dir.listFiles(filter);
         for (int i = 0; i < xmlFiles.length; i++) {
-            if (isFoundConfigInFragmentFile(xmlFiles[i].getPath())) {
+            if (isFoundAppConfigInFragmentFile(xmlFiles[i].getPath(), fileName)) {
                return true;
             }
         }
         return false;
     }
     
-    private static boolean isFoundConfigInFragmentFile(String filePath) {
+    private static boolean isFoundAppConfigInFragmentFile(String filePath, String fileName) {
         try {
-            if (isFoundTagName(filePath, "webApplication")) 
+            if (isFoundWebAppWithFileName(filePath, fileName)) {
                 return true;
+            }
         
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(filePath);
-            NodeList appList = doc.getElementsByTagName("application");
+            NodeList appList = getNodeList(filePath, "/server/application");
         
-            if (isFoundWebAppElement(appList))
+            if (isFoundAppConfigFromAppListByFileName(appList, fileName)) {
                 return true;
+            }
 
         } catch (Exception e) {
             return false;
         }   
         return false; 
+    }
+    
+    private static NodeList getNodeList(String filePath, String expression) throws Exception {
+        File in = new File(filePath);
+        FileInputStream input = new FileInputStream(in);
+        
+        // get input XML Document 
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory.setIgnoringComments(true);
+        docBuilderFactory.setCoalescing(true);
+        docBuilderFactory.setIgnoringElementContentWhitespace(true);
+        docBuilderFactory.setValidating(false);
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(input);
+        
+        // parse input XML Document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        return (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
     }
     
     private static boolean isValidURL(String url) {
@@ -213,18 +279,30 @@ public class ServerXmlDocument {
         }
     }
    
-    public static boolean isFoundWebAppElement(NodeList nodeList) {
-         
+    private static boolean isFoundAppConfigFromAppList(NodeList nodeList) {
+        return isFoundAppConfigFromAppListByFileName(nodeList, null);
+    }
+    
+    /**
+     * @param nodeList application node list to parse.
+     * @param fileName  application file name to search, 'null' otherwise. 
+     * @return true if the application with the file name is configured.
+     */
+    private static boolean isFoundAppConfigFromAppListByFileName(NodeList nodeList, String fileName) {
+        
         boolean bFound = false; 
          
         for(int i = 0; i < nodeList.getLength(); i++) {
-            Node typeNode = nodeList.item(i).getAttributes().getNamedItem("type");
-            if (typeNode != null) {
-                String typeValue = typeNode.getNodeValue();
+            if (fileName ==  null) {
+                Node typeNode = nodeList.item(i).getAttributes().getNamedItem("type");
                 
-                if (typeValue != null) {
-                    bFound = typeValue.equals("war");
-                    break;
+                if (typeNode != null) {
+                    String typeValue = typeNode.getNodeValue();
+                    
+                    if (typeValue != null) {
+                        bFound = typeValue.equals("war");
+                        break;
+                    }
                 }
             }
     
@@ -234,8 +312,16 @@ public class ServerXmlDocument {
                 
                 if (locValue != null && !locValue.isEmpty()) {
                     if (locValue.endsWith(".war")) {
-                        bFound = true;
-                        break;
+                        if (fileName != null) {
+                            bFound = locValue.equals(fileName);
+                            if (bFound) {
+                                break;
+                            }
+                        }
+                        else {
+                            bFound = true; 
+                            break;
+                        }
                     }
                     else {
                         Pattern substitue = Pattern.compile("[${}]");
@@ -252,7 +338,7 @@ public class ServerXmlDocument {
         }
         return bFound;
     }
-
+    
     public static void addAppElment(File serverXML, String name, String extension) throws Exception {
     
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance(); 

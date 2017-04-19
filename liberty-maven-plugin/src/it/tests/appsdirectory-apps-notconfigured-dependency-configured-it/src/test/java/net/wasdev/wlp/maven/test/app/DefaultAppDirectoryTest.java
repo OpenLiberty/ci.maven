@@ -12,10 +12,11 @@ import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * 
@@ -70,18 +71,20 @@ public class DefaultAppDirectoryTest {
         
         expression = "/liberty-plugin-config/installAppPackages/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <installAppPackages/> ==>", "project", value);
+        Assert.assertEquals("Value of <installAppPackages/> ==>", "all", value);
         
         expression = "/liberty-plugin-config/applicationFilename/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-apps-notconfigured-it.war", value);
-
+        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-apps-notconfigured-dependency-configured-it.war", value);
     }
     
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/apps/appsdirectory-apps-notconfigured-it.war");
+        File f = new File("liberty/usr/servers/test/apps/appsdirectory-apps-notconfigured-dependency-configured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+        
+        File f1 = new File("liberty/usr/servers/test/apps/test-war.war");
+        Assert.assertTrue(f1.getCanonicalFile() + " doesn't exist", f1.exists());
     }
     
     @Test
@@ -113,6 +116,6 @@ public class DefaultAppDirectoryTest {
         Node node = nodes.item(0);
         Element element = (Element)node;      
         Assert.assertEquals("Value of the 1st <webApplication/> ==>", 
-                "appsdirectory-apps-notconfigured-it.war", element.getAttribute("location"));
-    }
+                "appsdirectory-apps-notconfigured-dependency-configured-it.war", element.getAttribute("location"));
+     }
 }

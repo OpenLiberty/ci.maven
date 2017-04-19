@@ -191,7 +191,22 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    protected boolean isAppConfigInSourceServerXml() {
+    /**
+     * @return true if application is configured in the source server.xml
+     */
+    protected boolean isFoundAppConfigInSourceServerXml() {
+        return isAppConfiguredInSourceServerXml(null);
+    }
+    
+    /**
+     * @param fileName application file name
+     * @return true if the application with the file name is configured in the source server.xml
+     */
+    protected boolean isFoundAppNameConfigInSourceServerXml(String fileName) {
+        return isAppConfiguredInSourceServerXml(fileName);
+    }
+    
+    private boolean isAppConfiguredInSourceServerXml(String fileName) {
         
         boolean bConfigured = false; 
         
@@ -200,10 +215,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), configDirectory);
+                bConfigured = ServerXmlDocument.isFoundAppConfig(serverXML.getCanonicalPath(), configDirectory, fileName);
             } 
             catch (Exception e) {
-                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+                log.debug("Exception is thrown by ServerXmlDocument.isAppConfiguredInSourceServerXml : " + e);
             }
         }
         return bConfigured;
@@ -216,7 +231,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
         if (srcServerXML != null && srcServerXML.exists()) {
-            if (isAppConfigInSourceServerXml()) {
+            if (isFoundAppConfigInSourceServerXml()) {
                 appsDirectory = "apps";
             } else {
                 appsDirectory = "dropins";
