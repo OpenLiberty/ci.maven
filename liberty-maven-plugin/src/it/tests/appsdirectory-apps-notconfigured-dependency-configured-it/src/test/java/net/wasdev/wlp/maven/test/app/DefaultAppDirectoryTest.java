@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 public class DefaultAppDirectoryTest {
 
     public final String CONFIG_XML = "liberty-plugin-config.xml";
-    public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/application_1491924271.xml";
+    public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml";
 
     @Test
     public void testConfigPropFileExist() throws Exception {
