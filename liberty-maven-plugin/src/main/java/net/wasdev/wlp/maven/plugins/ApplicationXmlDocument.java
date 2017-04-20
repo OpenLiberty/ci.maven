@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 
 public class ApplicationXmlDocument extends XmlDocument {
     
-    public static final String APP_XML_FILENAME = "application_1491924271.xml";
+    public static final String APP_XML_FILENAME = "install_apps_configuration_1491924271.xml";
     
     public ApplicationXmlDocument() {
         try {
@@ -58,12 +58,12 @@ public class ApplicationXmlDocument extends XmlDocument {
         }
         writeXMLDocument(applicationXml);
     }
-        
+    
     public File getApplicationXmlFile(File serverDirectory) {
         File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME); 
         return f;
-     }
-    
+    }
+        
     public boolean hasChildElements() {
         if (doc.getDocumentElement().getChildNodes().getLength() > 0) {
             return true;
