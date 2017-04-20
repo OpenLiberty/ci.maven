@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 
 public class ApplicationXmlDocument extends XmlDocument {
     
-    public static final String APP_XML_FILENAME = "application_1491924271.xml";
+    public static final String APP_XML_FILENAME = "install_apps_configuration_1491924271.xml";
     
     public ApplicationXmlDocument() {
         try {
@@ -52,12 +52,16 @@ public class ApplicationXmlDocument extends XmlDocument {
     }
     
     public void writeApplicationXmlDocument(File serverDirectory) throws IOException, TransformerException {
-        File configDropins = new File(serverDirectory, "configDropins/defaults");
-        configDropins.mkdirs();
-        File applicationXml = new File(configDropins, APP_XML_FILENAME);
-        if (hasChildElements()) {
-            writeXMLDocument(applicationXml);
+        File applicationXml = getApplicationXmlFile(serverDirectory);
+        if (!applicationXml.getParentFile().exists()) {
+            applicationXml.getParentFile().mkdirs();
         }
+        writeXMLDocument(applicationXml);
+    }
+    
+    public File getApplicationXmlFile(File serverDirectory) {
+        File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME); 
+        return f;
     }
     
     public boolean hasChildElements() {
