@@ -85,7 +85,7 @@ public class DefaultAppDirectoryTest {
     
     @Test
     public void testApplicationConfiguredInConfigDropins() throws Exception {
-        File f = new File("liberty/usr/servers/test/configDropins/defaults/application_1491924271.xml");
+        File f = new File("liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml");
         boolean bAppConfigured = ServerXmlDocument.isFoundWebApplication(f.getCanonicalPath());
         Assert.assertTrue("Application is not configured in the server.xml", bAppConfigured);
     }
