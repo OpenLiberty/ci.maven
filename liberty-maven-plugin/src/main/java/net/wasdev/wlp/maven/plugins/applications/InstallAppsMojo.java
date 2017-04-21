@@ -39,6 +39,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         }
         checkServerHomeExists();
         checkServerDirectoryExists();
+        copyConfigFiles();
         
         boolean installDependencies = false;
         boolean installProject = false;

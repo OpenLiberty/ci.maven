@@ -39,15 +39,17 @@ public class ApplicationXmlDocument extends XmlDocument {
         File app = new File(appFileName);
         
         if ("war".equalsIgnoreCase(appFileName.substring(appFileName.lastIndexOf(".")+1))) {
-            createElement("webApplication", "location", app.getName());
+            createElement("webApplication", app);
         } else {
-            createElement("application", "location", app.getName());
+            createElement("application", app);
         }
     }    
-    
-    public void createElement(String element, String attrKey, String attrValue) {
+ 
+    public void createElement(String element, File appFile) {
         Element child = doc.createElement(element);
-        child.setAttribute(attrKey, attrValue);
+        child.setAttribute("id", stripFileExtension(appFile.getName()));
+        child.setAttribute("location", appFile.getName());
+        child.setAttribute("name", stripFileExtension(appFile.getName()));
         doc.getDocumentElement().appendChild(child);
     }
     
@@ -70,5 +72,9 @@ public class ApplicationXmlDocument extends XmlDocument {
         } else {
             return false;
         }
+    }
+    
+    private String stripFileExtension(String filename) {
+        return filename.substring(0, filename.lastIndexOf("."));
     }
 }
