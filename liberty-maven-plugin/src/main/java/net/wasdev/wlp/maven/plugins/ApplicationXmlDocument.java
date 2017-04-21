@@ -61,7 +61,7 @@ public class ApplicationXmlDocument extends XmlDocument {
         writeXMLDocument(applicationXml);
     }
     
-    public File getApplicationXmlFile(File serverDirectory) {
+    public static File getApplicationXmlFile(File serverDirectory) {
         File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME); 
         return f;
     }
