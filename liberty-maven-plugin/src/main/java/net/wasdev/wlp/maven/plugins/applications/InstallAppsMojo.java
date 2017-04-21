@@ -40,6 +40,10 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         checkServerHomeExists();
         checkServerDirectoryExists();
         
+        // update target server configuration
+        copyConfigFiles();
+        exportParametersToXml();
+        
         boolean installDependencies = false;
         boolean installProject = false;
         
@@ -68,8 +72,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         if (applicationXml.hasChildElements()) {
             applicationXml.writeApplicationXmlDocument(serverDirectory);
         } else {
-            if (applicationXml.getApplicationXmlFile(serverDirectory).exists()) {
-                applicationXml.getApplicationXmlFile(serverDirectory).delete();
+            if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
+                ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
             }
         }
     }

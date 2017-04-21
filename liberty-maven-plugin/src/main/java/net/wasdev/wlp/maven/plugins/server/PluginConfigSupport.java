@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
+import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
 import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
 
@@ -115,6 +116,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
         configDocument.createElement("refresh", refresh);
         configDocument.createElement("install", install);
+        
+        configDocument.createElement("installAppsConfigDropins", ApplicationXmlDocument.getApplicationXmlFile(serverDirectory));
         
         // write XML document to file
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
