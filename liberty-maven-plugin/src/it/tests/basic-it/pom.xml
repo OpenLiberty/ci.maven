@@ -174,7 +174,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <!--Testing if passing an empty value fails-->
+                    <!--Testing to ensure passing an empty/null value does not fail-->
                     <bootstrapProperties>
                         <emptyVal></emptyVal>
                     </bootstrapProperties>
