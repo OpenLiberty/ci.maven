@@ -25,7 +25,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
-import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerConfigDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -191,22 +191,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    /**
-     * @return true if application is configured in the source server.xml
-     */
-    protected boolean isFoundAppConfigInSourceServerXml() {
-        return isAppConfiguredInSourceServerXml(null);
-    }
-    
-    /**
-     * @param fileName application file name
-     * @return true if the application with the file name is configured in the source server.xml
-     */
-    protected boolean isFoundAppNameConfigInSourceServerXml(String fileName) {
-        return isAppConfiguredInSourceServerXml(fileName);
-    }
-    
-    private boolean isAppConfiguredInSourceServerXml(String fileName) {
+    protected boolean isAppConfiguredInSourceServerXml(String fileName) {
         
         boolean bConfigured = false; 
         
@@ -215,10 +200,37 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                bConfigured = ServerXmlDocument.isFoundAppConfig(serverXML.getCanonicalPath(), configDirectory, fileName);
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                
+                if (scd != null && scd.getLocations().contains(fileName)) {
+                    log.debug("Application configuration is found in server.xml : " + fileName);
+                    bConfigured = true;
+                }
             } 
             catch (Exception e) {
-                log.debug("Exception is thrown by ServerXmlDocument.isAppConfiguredInSourceServerXml : " + e);
+                log.debug("Exception is thrown by ServerConfigDocument.isAppConfiguredInSourceServerXml : " + e);
+            }
+        }
+        return bConfigured;
+    }
+    
+    protected boolean isAnyAppConfiguredInSourceServerXml() {
+        
+        boolean bConfigured = false; 
+        
+        File serverXML = getFileFromConfigDirectory("server.xml", configFile);
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                
+                if (scd != null && scd.getLocations().size() > 0) {
+                    log.debug("Application configuration is found in server.xml.");
+                    bConfigured = true;
+                }
+            } 
+            catch (Exception e) {
+                log.debug("Exception is thrown by ServerConfigDocument.isAnyAppConfiguredInSourceServerXml : " + e);
             }
         }
         return bConfigured;
@@ -229,17 +241,16 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (appsDirectory != null && !appsDirectory.isEmpty())
             return appsDirectory;
         
+        // default appsDirectory
+        appsDirectory = "dropins";
+        
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
         if (srcServerXML != null && srcServerXML.exists()) {
-            if (isFoundAppConfigInSourceServerXml()) {
+            if (isAnyAppConfiguredInSourceServerXml()) {
+                // overwrite default appsDirectory if application configuration is found. 
                 appsDirectory = "apps";
-            } else {
-                appsDirectory = "dropins";
             }
-        } else {
-            appsDirectory = "dropins";
         }
-
         return appsDirectory;
     }
     

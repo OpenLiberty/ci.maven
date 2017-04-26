@@ -57,18 +57,18 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
-        String file = artifact.getFile().getCanonicalPath();
+        String fileName = artifact.getFile().getCanonicalPath();
         if (stripVersion) {
-            file = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
-            file = file.substring(file.lastIndexOf(File.separator) + 1);
-            copyFile.setTofile(new File(destDir, file));
+            fileName = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
+            fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+            copyFile.setTofile(new File(destDir, fileName));
         } else {
             copyFile.setTodir(destDir);
         }
         
         // validate application configuration if appsDirectory="dropins" or inject webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(file);
+        validateAppConfig(fileName);
         
         copyFile.execute();
     }
@@ -216,11 +216,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     private void validateAppConfig(String fileName) throws Exception {
         String appsDir = getAppsDirectory();
-        if (appsDir.equalsIgnoreCase("apps") && !isFoundAppNameConfigInSourceServerXml(fileName)) {
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
             applicationXml.createWebApplicationElement(fileName);
         }
-        else if (appsDir.equalsIgnoreCase("dropins") && isFoundAppConfigInSourceServerXml())
+        else if (appsDir.equalsIgnoreCase("dropins") && isAnyAppConfiguredInSourceServerXml())
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     }
 }
