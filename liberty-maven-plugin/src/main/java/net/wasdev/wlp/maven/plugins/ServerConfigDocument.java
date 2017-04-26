@@ -204,22 +204,29 @@ public class ServerConfigDocument {
        else if (loc.startsWith("ftp:")) {
            // TODO handle ftp protocol
        }
-       // relative file path
        else {
-           // check configDirectory first if exists
-           if (configDirectory != null && configDirectory.exists()) {
-               locFile = new File(configDirectory, loc);
-               if (locFile.exists()) {
+           locFile = new File(loc);
+           
+           // check if absolute file
+           if (locFile.isAbsolute()) {
+               InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
+               doc = getDocumentBuilder().parse(inputStream);    
+           }
+           else {
+               // check configDirectory first if exists
+               if (configDirectory != null && configDirectory.exists()) {
+                   locFile = new File(configDirectory, loc);
+               }               
+               
+               if (locFile == null || !locFile.exists()) {
+                   locFile = new File(getServerFile().getParentFile(), loc);
+               }
+               
+               if (locFile != null && locFile.exists()) {
                    InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
                    doc = getDocumentBuilder().parse(inputStream);    
                }
            }
-           
-           if (locFile == null || !locFile.exists()) {
-               locFile = new File(getServerFile().getParentFile(), loc);
-               InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-               doc = getDocumentBuilder().parse(inputStream);    
-           }                   
         }
         return doc;
     }
