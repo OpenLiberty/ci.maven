@@ -31,12 +31,12 @@ There are new capabilities available in the `liberty-maven-plugin` that you migh
 
 ### Copy a configuration directory
 There is a new [common server parameter](common-server-parameters.md) that allows you to copy a directory of server 
-configuration files. If you are using filed included in your `server.xml` file, then with one configuration element, 
+configuration files. If you are using files included in your `server.xml` file, then with one configuration element, 
 you can copy all your configuration related files if they are in one folder. It supports nested directories.
 
 ### New start and stop goals for testing
 There are two new goals to assist with integration test. The [`test-start-server`](test-start-server.md) and
-[`test-stop-server`](test-stop-server.md) goals honor elements, such as `skipTests` and `skipITs`, used to skip the testing phases.
+[`test-stop-server`](test-stop-server.md) goals honor elements, such as `skipTests`, `skipITs`, and `maven-test-skip`, used to skip the testing phases.
 
 ### Update Liberty license
 You can update the Liberty runtime license to a production license using the [`install-server` goal](install-server.md).
