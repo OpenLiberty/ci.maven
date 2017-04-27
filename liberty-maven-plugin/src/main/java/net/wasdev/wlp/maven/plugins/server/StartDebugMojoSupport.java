@@ -212,7 +212,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 writer.print(entry.getKey());
                 writer.print("=");
-                writer.println(entry.getValue().replace("\\", "/"));
+                writer.println((entry.getValue() != null) ? entry.getValue().replace("\\", "/") : "");
             }
         } finally {
             if (writer != null) {

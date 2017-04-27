@@ -48,7 +48,14 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
     
     protected void installApp(Artifact artifact) throws Exception {
-        if (artifact.getFile() == null) {
+        
+        if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
+            String warName = getWarFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            artifact.setFile(f);
+        }
+
+        if(!artifact.getFile().exists()) {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
         
@@ -75,17 +82,17 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
-
+        String looseConfigFileName = getLooseConfigFileName(project);
         // validate application configuration if appsDirectory="dropins" or inject webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(getLooseConfigFileName(project).substring(0, getLooseConfigFileName(project).length() - 4));
+        validateAppConfig(looseConfigFileName.substring(0, looseConfigFileName.length() - 4));
         
         File destDir = new File(serverDirectory, getAppsDirectory());
         
-        File looseConfigFile = new File(destDir, getLooseConfigFileName(project));
+        File looseConfigFile = new File(destDir, looseConfigFileName);
         LooseConfigData config = new LooseConfigData();
         
-        log.info(MessageFormat.format(messages.getString("info.install.app"), getLooseConfigFileName(project)));
+        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
         
         File dir = getWarSourceDirectory();
         if (dir.exists()) {
@@ -134,15 +141,19 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // get loose application configuration file name for project artifact
     private String getLooseConfigFileName(MavenProject project) {
+        return getWarFileName(project) + ".xml";
+    }
+    
+    // get loose application configuration file name for project artifact
+    private String getWarFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
         if (project.getPackaging().equals("liberty-assembly")) {
             name = project.getBuild().getFinalName() + ".war";
         }
         if (stripVersion) {
-            return stripVersionFromName(name, project.getVersion()) + ".xml";
-        } else {
-            return name + ".xml";
-        }
+            name = stripVersionFromName(name, project.getVersion());
+        } 
+        return name;
     }
     
     // add dependent library loose config element from sibling project or from m2 repository
