@@ -30,6 +30,7 @@
         <module>appsdirectory-dropins-notconfigured-it</module>     
         <module>appsdirectory-notset-configured-it</module>     
         <module>appsdirectory-notset-notconfigured-it</module>
+        <module>appsdirectory-set-appz-notconfigured-it</module>
         <module>appsdirectory-include-configured-it</module>
         <module>appsdirectory-configdropins-it</module>
         <module>skip-start-server-it</module>

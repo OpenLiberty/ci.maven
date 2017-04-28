@@ -214,7 +214,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected String getAppsDirectory() {    
     
-        if (appsDirectory != null && !appsDirectory.isEmpty())
+        if (appsDirectory != null && (appsDirectory.equals("apps") || appsDirectory.equals("dropins")))
             return appsDirectory;
         
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
