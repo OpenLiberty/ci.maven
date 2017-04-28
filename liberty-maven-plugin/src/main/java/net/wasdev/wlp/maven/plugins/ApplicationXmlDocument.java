@@ -65,7 +65,7 @@ public class ApplicationXmlDocument extends XmlDocument {
         File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME); 
         return f;
     }
-    
+        
     public boolean hasChildElements() {
         if (doc.getDocumentElement().getChildNodes().getLength() > 0) {
             return true;
