@@ -16,6 +16,7 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.maven.model.Profile;
@@ -211,7 +212,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
                 }
             } 
             catch (Exception e) {
-                log.debug("Exception is thrown by ServerConfigDocument.isAppConfiguredInSourceServerXml : " + e);
+                log.warn(e.getLocalizedMessage());
+                log.debug(e);
             }
         }
         return bConfigured;
@@ -233,27 +235,32 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
                 }
             } 
             catch (Exception e) {
-                log.debug("Exception is thrown by ServerConfigDocument.isAnyAppConfiguredInSourceServerXml : " + e);
+                log.warn(e.getLocalizedMessage());
+                log.debug(e);
             }
         }
         return bConfigured;
     }
     
-    protected String getAppsDirectory() {    
-    
-        if (appsDirectory != null && !appsDirectory.isEmpty())
-            return appsDirectory;
+    protected String getAppsDirectory() {
+        if (appsDirectory != null && !appsDirectory.isEmpty()) {
+            if (appsDirectory.equals("dropins") || appsDirectory.equals("apps")) {
+                return appsDirectory;
+            } else {
+                log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
+            }
+        }
         
         // default appsDirectory
         appsDirectory = "dropins";
-        
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
         if (srcServerXML != null && srcServerXML.exists()) {
             if (isAnyAppConfiguredInSourceServerXml()) {
-                // overwrite default appsDirectory if application configuration is found. 
+                // overwrite default appsDirectory if application configuration is found.
                 appsDirectory = "apps";
             }
         }
+        log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;
     }
     
