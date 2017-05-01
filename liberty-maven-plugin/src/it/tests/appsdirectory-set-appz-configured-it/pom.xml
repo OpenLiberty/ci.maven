@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>appsdirectory-set-appz-notconfigured-it</artifactId>
-  <packaging>war</packaging>
+  <artifactId>appsdirectory-set-appz-configured-it</artifactId>
+  <packaging>liberty-assembly</packaging>
 
   <dependencies>
     <dependency>
@@ -53,15 +53,13 @@
           <appsDirectory>appz</appsDirectory>
           <stripVersion>true</stripVersion>
           <skipTestServer>true</skipTestServer>
+          <looseApplication>true</looseApplication>
         </configuration>
         </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
             <version>2.3</version>
-            <configuration>
-                <failOnMissingWebXml>false</failOnMissingWebXml>
-            </configuration>
          </plugin>
         </plugins>
   </build>

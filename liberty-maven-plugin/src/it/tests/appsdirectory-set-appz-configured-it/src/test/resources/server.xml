@@ -1,6 +1,6 @@
 <server description="default server">
     <featureManager>
         <feature>jsp-2.3</feature>
-        <webApplication id="${artifactId}" location="${artifactId}.war" name="${artifactId}"/>
     </featureManager>
+    <webApplication id="${artifactId}" location="${artifactId}.war" name="${artifactId}"/>
 </server>

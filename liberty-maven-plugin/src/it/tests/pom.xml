@@ -26,7 +26,9 @@
         <module>config-packagefile-runnable-it</module>
         <module>config-packagefile-all-it</module>
         <module>appsdirectory-apps-configured-it</module>     
-        <module>appsdirectory-apps-notconfigured-it</module>     
+        <module>appsdirectory-apps-notconfigured-it</module>    
+        <module>appsdirectory-apps-dependency-notconfigured-it</module>
+        <module>appsdirectory-apps-notconfigured-dependency-configured-it</module>
         <module>appsdirectory-dropins-notconfigured-it</module>     
         <module>appsdirectory-notset-configured-it</module>     
         <module>appsdirectory-notset-notconfigured-it</module>
