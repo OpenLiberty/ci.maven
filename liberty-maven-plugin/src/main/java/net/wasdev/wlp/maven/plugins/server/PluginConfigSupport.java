@@ -242,7 +242,6 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return bConfigured;
     }
     
-
     protected String getAppsDirectory() {
         if (appsDirectory != null && !appsDirectory.isEmpty()) {
             if (appsDirectory.equals("dropins") || appsDirectory.equals("apps")) {
