@@ -42,9 +42,9 @@
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-server,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-feature,
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps
                             </prepare-package>
                             <package>
+                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps,
                                 net.wasdev.wlp.maven.plugins:liberty-maven-plugin:package-server
                             </package>
                             <pre-integration-test>

@@ -6,7 +6,7 @@ To upgrade the runtime installation, the Liberty license jar file which is avail
 Advantage website, must be installed to Maven local repository or an internal custom repository using the
 maven-install-plugin version 2.5 and up. See [Installing an artifact with a custom POM](http://maven.apache.org/plugins/maven-install-plugin/examples/custom-pom-installation.html)
 
-This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by create-server, dump-server, java-dump-server, package-server, run-server, start-server and stop-server goals.
+This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by create-server, dump-server, java-dump-server, package-server, run-server, start-server, test-start-server and debug-server goals.
 
 Examples:
  1. Install from a packaged server using `assemblyArchive` parameter.
@@ -91,7 +91,7 @@ Examples:
     </plugin>
   ```
 4. This goal is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`,
-`start-server` and `stop-server` goals.
+`start-server`, `test-start-server` and `debug-server` goals.
 
   ```xml
     <plugin>
@@ -111,17 +111,16 @@ Examples:
             </licenseArtifact>
         </configuration>
         <executions>
-            ...
             <execution>
-            <id>start-server</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-                <goal>start-server</goal>
-            </goals>
-            <configuration>
-                <serverName>test</serverName>
-            </configuration>
-        </execution>
+                <id>start-server</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                    <goal>start-server</goal>
+                </goals>
+                <configuration>
+                    <serverName>test</serverName>
+                </configuration>
+            </execution>
             ...
         </executions>
     </plugin>
