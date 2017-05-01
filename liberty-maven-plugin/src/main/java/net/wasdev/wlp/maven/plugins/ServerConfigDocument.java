@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,9 +42,9 @@ public class ServerConfigDocument {
     private static File configDirectory;
     private static File serverFile;
     
-    private static List<String> locations;
+    private static Set<String> locations;
     
-    public List<String> getLocations() {
+    public Set<String> getLocations() {
         return locations;
     }
     
@@ -82,14 +82,14 @@ public class ServerConfigDocument {
             serverFile = serverXML;
             configDirectory = configDir;
             
-            locations = new ArrayList<String>();
+            locations = new HashSet<String>();
             
-            Document doc = getDocumentBuilder().parse(new FileInputStream(serverFile));
+            Document doc = parseDocument(new FileInputStream(serverFile));
             
             parseApplication(doc, "/server/application");
             parseApplication(doc, "/server/webApplication");
             parseInclude(doc, "/server/include");
-            parseDropinsDir();
+            parseConfigDropinsDir();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,7 +132,7 @@ public class ServerConfigDocument {
         }
     }
     
-    private static void parseDropinsDir() throws Exception {
+    private static void parseConfigDropinsDir() throws Exception {
         File configDropins = null;
         
         // if configDirectory exists and contains configDropins directory, 
@@ -173,7 +173,7 @@ public class ServerConfigDocument {
     
     private static void parseDropinsFiles(File file) throws Exception {
         // get input XML Document 
-        Document doc = getDocumentBuilder().parse(new FileInputStream(file));
+        Document doc = parseDocument(new FileInputStream(file));
         
         parseApplication(doc, "/server/application");
         parseApplication(doc, "/server/webApplication");
@@ -189,7 +189,7 @@ public class ServerConfigDocument {
             if (isValidURL(loc)) {
                 URL url = new URL(loc);
                 URLConnection connection = url.openConnection();
-                doc = getDocumentBuilder().parse(connection.getInputStream());
+                doc = parseDocument(connection.getInputStream());
             }
         }
         else if (loc.startsWith("file:")) {
@@ -197,7 +197,7 @@ public class ServerConfigDocument {
                locFile = new File(loc);
                if (locFile.exists()) {
                    InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-                   doc = getDocumentBuilder().parse(inputStream);    
+                   doc = parseDocument(inputStream);    
                }
            }
        }
@@ -210,7 +210,7 @@ public class ServerConfigDocument {
            // check if absolute file
            if (locFile.isAbsolute()) {
                InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-               doc = getDocumentBuilder().parse(inputStream);    
+               doc = parseDocument(inputStream);    
            }
            else {
                // check configDirectory first if exists
@@ -224,9 +224,23 @@ public class ServerConfigDocument {
                
                if (locFile != null && locFile.exists()) {
                    InputStream inputStream = new FileInputStream(locFile.getCanonicalPath());
-                   doc = getDocumentBuilder().parse(inputStream);    
+                   doc = parseDocument(inputStream);    
                }
            }
+        }
+        return doc;
+    }
+    
+    private static Document parseDocument(InputStream ins) throws Exception {
+        Document doc = null;
+        try {
+            doc = getDocumentBuilder().parse(ins);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (ins != null) {
+                ins.close();
+            }
         }
         return doc;
     }
