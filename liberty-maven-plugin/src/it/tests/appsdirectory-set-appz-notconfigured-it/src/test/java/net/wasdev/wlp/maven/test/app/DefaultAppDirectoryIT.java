@@ -15,7 +15,7 @@ public class DefaultAppDirectoryIT {
     
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("target/liberty/usr/servers/test/dropins/appsdirectory-set-appz-configured-it.war");
+        File f = new File("target/liberty/usr/servers/test/dropins/appsdirectory-set-appz-notconfigured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
 }
