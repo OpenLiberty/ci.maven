@@ -229,7 +229,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
-            applicationXml.createWebApplicationElement(fileName);
+            applicationXml.createApplicationElement(fileName);
         }
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
