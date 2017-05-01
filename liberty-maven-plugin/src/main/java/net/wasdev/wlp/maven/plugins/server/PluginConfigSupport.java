@@ -16,6 +16,7 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.maven.model.Profile;
@@ -26,7 +27,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
-import net.wasdev.wlp.maven.plugins.ServerXmlDocument;
+import net.wasdev.wlp.maven.plugins.ServerConfigDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -194,7 +195,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    protected boolean isAppConfigInSourceServerXml() {
+    protected boolean isAppConfiguredInSourceServerXml(String fileName) {
         
         boolean bConfigured = false; 
         
@@ -203,31 +204,63 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                bConfigured = ServerXmlDocument.isFoundWebApplication(serverXML.getCanonicalPath(), configDirectory);
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                
+                if (scd != null && scd.getLocations().contains(fileName)) {
+                    log.debug("Application configuration is found in server.xml : " + fileName);
+                    bConfigured = true;
+                }
             } 
             catch (Exception e) {
-                log.debug("Exception is thrown by ServerXmlDocument.isFoundWebApplication : " + e);
+                log.warn(e.getLocalizedMessage());
+                log.debug(e);
             }
         }
         return bConfigured;
     }
     
-    protected String getAppsDirectory() {    
-    
-        if (appsDirectory != null && !appsDirectory.isEmpty())
-            return appsDirectory;
+    protected boolean isAnyAppConfiguredInSourceServerXml() {
         
+        boolean bConfigured = false; 
+        
+        File serverXML = getFileFromConfigDirectory("server.xml", configFile);
+        
+        if (serverXML != null && serverXML.exists()) {
+            try {
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                
+                if (scd != null && scd.getLocations().size() > 0) {
+                    log.debug("Application configuration is found in server.xml.");
+                    bConfigured = true;
+                }
+            } 
+            catch (Exception e) {
+                log.warn(e.getLocalizedMessage());
+                log.debug(e);
+            }
+        }
+        return bConfigured;
+    }
+    
+    protected String getAppsDirectory() {
+        if (appsDirectory != null && !appsDirectory.isEmpty()) {
+            if (appsDirectory.equals("dropins") || appsDirectory.equals("apps")) {
+                return appsDirectory;
+            } else {
+                log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
+            }
+        }
+        
+        // default appsDirectory
+        appsDirectory = "dropins";
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
         if (srcServerXML != null && srcServerXML.exists()) {
-            if (isAppConfigInSourceServerXml()) {
+            if (isAnyAppConfiguredInSourceServerXml()) {
+                // overwrite default appsDirectory if application configuration is found.
                 appsDirectory = "apps";
-            } else {
-                appsDirectory = "dropins";
             }
-        } else {
-            appsDirectory = "dropins";
         }
-
+        log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;
     }
     

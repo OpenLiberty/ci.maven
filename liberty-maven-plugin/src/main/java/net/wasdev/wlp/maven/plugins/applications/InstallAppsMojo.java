@@ -70,6 +70,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         
         // create application configuration in configDropins if it is not configured
         if (applicationXml.hasChildElements()) {
+            log.warn(messages.getString("warn.install.app.add.configuration"));
             applicationXml.writeApplicationXmlDocument(serverDirectory);
         } else {
             if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
