@@ -102,7 +102,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         dir = new File(project.getBuild().getOutputDirectory());
         if (dir.exists()) {
             config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
-        } else {
+        } else if (containsJavaSource(project)) {
+            // if webapp contains java source, it has to be compiled first. 
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
                     project.getId()));
         }
@@ -137,6 +138,15 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
         
         config.toXmlFile(looseConfigFile);
+    }
+    
+    private boolean containsJavaSource(MavenProject proj) {       
+        File javaSourceDir = new File(proj.getBasedir(), "src/main/java");
+        if (javaSourceDir.exists() && javaSourceDir.isDirectory() && javaSourceDir.listFiles().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     // get loose application configuration file name for project artifact
