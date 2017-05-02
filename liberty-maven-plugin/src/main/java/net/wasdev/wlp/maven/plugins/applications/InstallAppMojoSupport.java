@@ -140,13 +140,28 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         config.toXmlFile(looseConfigFile);
     }
     
-    private boolean containsJavaSource(MavenProject proj) {       
-        File javaSourceDir = new File(proj.getBasedir(), "src/main/java");
-        if (javaSourceDir.exists() && javaSourceDir.isDirectory() && javaSourceDir.listFiles().length > 0) {
-            return true;
-        } else {
-            return false;
+    private boolean containsJavaSource(MavenProject proj) {
+        List<String> srcDirs = proj.getCompileSourceRoots();
+        for (String dir : srcDirs) {         
+            File javaSourceDir = new File(dir);
+            if (javaSourceDir.exists() && javaSourceDir.isDirectory() && containsJavaSource(javaSourceDir)) {
+                return true;
+            } 
         }
+        return false;
+    }
+    
+    private boolean containsJavaSource(File dir) {
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (file.isFile() && file.getName().lastIndexOf(".") != -1 
+                    && file.getName().substring(file.getName().lastIndexOf(".")).equalsIgnoreCase(".java")) {
+                return true;
+            } else if (file.isDirectory()) {
+                return containsJavaSource(file);
+            }
+        }
+        return false;
     }
     
     // get loose application configuration file name for project artifact
