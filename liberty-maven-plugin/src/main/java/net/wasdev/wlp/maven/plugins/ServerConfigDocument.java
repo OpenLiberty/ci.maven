@@ -88,6 +88,7 @@ public class ServerConfigDocument {
             
             parseApplication(doc, "/server/application");
             parseApplication(doc, "/server/webApplication");
+            parseApplication(doc, "/server/enterpriseApplication");
             parseInclude(doc, "/server/include");
             parseConfigDropinsDir();
 
@@ -125,6 +126,7 @@ public class ServerConfigDocument {
                 if (docIncl != null) {
                     parseApplication(docIncl, "/server/application");
                     parseApplication(docIncl, "/server/webApplication");
+                    parseApplication(docIncl, "/server/enterpriseApplication");
                     // handle nested include elements
                     parseInclude(docIncl, "/server/include");
                 }
@@ -177,6 +179,7 @@ public class ServerConfigDocument {
         
         parseApplication(doc, "/server/application");
         parseApplication(doc, "/server/webApplication");
+        parseApplication(doc, "/server/enterpriseApplication");
         parseInclude(doc, "/server/include");
     }
     

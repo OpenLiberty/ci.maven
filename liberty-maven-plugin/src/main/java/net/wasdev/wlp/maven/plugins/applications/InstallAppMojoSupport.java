@@ -102,7 +102,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         dir = new File(project.getBuild().getOutputDirectory());
         if (dir.exists()) {
             config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
-        } else {
+        } else if (containsJavaSource(project)) {
+            // if webapp contains java source, it has to be compiled first. 
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
                     project.getId()));
         }
@@ -137,6 +138,30 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
         
         config.toXmlFile(looseConfigFile);
+    }
+    
+    private boolean containsJavaSource(MavenProject proj) {
+        @SuppressWarnings("unchecked")
+        List<String> srcDirs = proj.getCompileSourceRoots();
+        for (String dir : srcDirs) {         
+            File javaSourceDir = new File(dir);
+            if (javaSourceDir.exists() && javaSourceDir.isDirectory() && containsJavaSource(javaSourceDir)) {
+                return true;
+            } 
+        }
+        return false;
+    }
+    
+    private boolean containsJavaSource(File dir) {
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (file.isFile() && file.getName().lastIndexOf(".") != -1  && file.getName().toLowerCase().endsWith(".java")) {
+                return true;
+            } else if (file.isDirectory()) {
+                return containsJavaSource(file);
+            }
+        }
+        return false;
     }
     
     // get loose application configuration file name for project artifact
@@ -229,7 +254,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
-            applicationXml.createWebApplicationElement(fileName);
+            applicationXml.createApplicationElement(fileName);
         }
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));

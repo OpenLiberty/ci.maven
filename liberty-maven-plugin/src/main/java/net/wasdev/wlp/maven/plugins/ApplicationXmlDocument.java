@@ -35,11 +35,13 @@ public class ApplicationXmlDocument extends XmlDocument {
         }
     }
     
-    public void createWebApplicationElement(String appFileName) {
+    public void createApplicationElement(String appFileName) {
         File app = new File(appFileName);
         
         if ("war".equalsIgnoreCase(appFileName.substring(appFileName.lastIndexOf(".")+1))) {
             createElement("webApplication", app);
+        } else if ("ear".equalsIgnoreCase(appFileName.substring(appFileName.lastIndexOf(".")+1))) {
+            createElement("enterpriseApplication", app);
         } else {
             createElement("application", app);
         }
