@@ -155,7 +155,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     private boolean containsJavaSource(File dir) {
         File[] files = dir.listFiles();
         for (File file : files) {
-            if (file.isFile() && file.getName().lastIndexOf(".") != -1  && file.getName().toLowerCase().endsWith(".java")) {
+            if (file.isFile() && file.getName().toLowerCase().endsWith(".java")) {
                 return true;
             } else if (file.isDirectory()) {
                 return containsJavaSource(file);
