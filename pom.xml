@@ -24,15 +24,15 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://raw.github.com/WASdev/ci.maven/master/LICENSE</url>
+            <url>https://raw.github.com/WASdev/jjvilleg/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:WASdev/ci.maven.git</connection>
-        <developerConnection>scm:git:git@github.com:WASdev/ci.maven.git</developerConnection>
-        <url>git@github.com:WASdev/ci.maven.git</url>
+        <connection>scm:git:git@github.com:jjvilleg/ci.maven.git</connection>
+        <developerConnection>scm:git:git@github.com:jjvilleg/ci.maven.git</developerConnection>
+        <url>git@github.com:jjvilleg/ci.maven.git</url>
       <tag>HEAD</tag>
   </scm>
 
