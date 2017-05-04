@@ -22,6 +22,11 @@ Use Maven 3.x to build the Liberty plug-ins and archetypes.
 * `mvn install -Ponline-its -DwlpVersion=<liberty_version> -DwlpLicense=<liberty_license_code>` : builds the plug-in and archetypes and runs the integration tests by downloading a new server.
   * Liberty versions and their respective link to the license code can be found in the [index.yml](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/index.yml) file. You can obtain the license code by reading the current license and looking for the D/N: <license code> line.
 
+## Information for release 2.0
+
+A number of new features and changes were made in release 2.0 of the Liberty Maven plug-in and are described 
+[here](docs/version_2.0_differences.md).
+
 ## Plug-ins
 
 ### liberty-maven-plugin
@@ -127,11 +132,11 @@ The `liberty-assembly` default lifecycle includes:
 | process-test-resources | maven-resources-plugin:testResources |
 | test-compile | maven-compiler-plugin:testCompile |
 | test | maven-surefire-plugin:test | 
-| prepare-package | liberty:create-server, liberty:install-feature, liberty:install-apps |
-| package | liberty:package-server | 
-| pre-integration-test | liberty:start-server |
+| prepare-package | liberty:create-server, liberty:install-feature |
+| package | liberty:install-apps, liberty:package-server | 
+| pre-integration-test | liberty:test-start-server |
 | integration-test | maven-failsafe-plugin:integration-test |
-| post-integration-test | liberty:stop-server |
+| post-integration-test | liberty:test-stop-server |
 | verify | maven-failsafe-plugin:verify |
 | install | maven-install-plugin:install |
 | deploy | maven-deploy-plugin:deploy |

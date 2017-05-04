@@ -145,6 +145,11 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
      * return the filename of the project artifact to be installed by install-apps goal
      */
     protected String getApplicationFilename() {
+        // A project doesn't build a web application artifact but getting the application artifacts from dependencies. e.g. liberty-assembly type project.
+        if (installAppPackages.equalsIgnoreCase("dependencies")) {
+            return null;
+        }
+        
         // project artifact has not be created yet when create-server goal is called in pre-package phase
         String name = project.getBuild().getFinalName();
         if (stripVersion) {
