@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016.
+ * (C) Copyright IBM Corporation 2016, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,37 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import net.wasdev.wlp.ant.CleanTask;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Clean the logs, workarea, dropins and apps directories.
- * 
- * @goal clean-server
- * 
  */
+@Mojo(name = "clean-server")
 public class CleanServerMojo extends StartDebugMojoSupport {
     
     /**
      * Clean the logs directory.
-     * @parameter expression="${cleanLogs}" default-value="true"
      */
+    @Parameter(property = "cleanLogs", defaultValue = "true")
     private boolean logs = true;
     
     /**
      * Clean the workarea directory.
-     * @parameter expression="${cleanWorkarea}" default-value="true"
      */
+    @Parameter(property = "cleanWorkarea", defaultValue = "true")
     private boolean workarea = true;
     
     /**
      * Clean the dropins directory.
-     * @parameter expression="${cleanDropins}" default-value="false"
      */
+    @Parameter(property = "cleanDropins", defaultValue = "false")
     private boolean dropins = false;
     
     /**
      * Clean the apps directory.
-     * @parameter expression="${cleanApps}" default-value="false"
      */
+    @Parameter(property = "cleanApps", defaultValue = "false")
     private boolean apps = false;
     
     protected void doExecute() throws Exception {
@@ -65,5 +65,4 @@ public class CleanServerMojo extends StartDebugMojoSupport {
         cleanTask.setApps(apps);
         cleanTask.execute();
     }
-
 }

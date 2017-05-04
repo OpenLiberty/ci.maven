@@ -22,7 +22,7 @@ public class PluginEBATest {
     public void testWAB() throws Exception {
         URL url = null;
         try {
-            url = new URL(baseURL + "test-war/index.jsp");
+            url = new URL(baseURL + "test-wab/index.jsp");
             String textToFind = "Liberty";
             Assert.assertTrue(textToFind, HttpUtils.findStringInUrl(url, textToFind));
         } catch (MalformedURLException e) {

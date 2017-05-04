@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,22 @@ package net.wasdev.wlp.maven.plugins.server;
 
 import java.text.MessageFormat;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Create a liberty server
- * 
- * @goal create-server
- * 
- * 
- */
-public class CreateServerMojo extends StartDebugMojoSupport {
+  */
+@Mojo(name = "create-server") 
+public class CreateServerMojo extends PluginConfigSupport {
 
     /**
      * Name of the template to use when creating a server.
-     * 
-     * @parameter expression="${template}"
      */
+    @Parameter(property = "template")
     private String template;
     
     @Override
@@ -65,12 +63,11 @@ public class CreateServerMojo extends StartDebugMojoSupport {
             serverTask.setOperation("create");
             serverTask.setTemplate(template);
             serverTask.execute();
-            // copy files _after_ we create the server
-            copyConfigFiles(true);
             log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
-        } else {
-            // server exists - copy files over
-            copyConfigFiles();
         }
+        
+        // copy files _after_ we create the server
+        copyConfigFiles();
+
     }
 }

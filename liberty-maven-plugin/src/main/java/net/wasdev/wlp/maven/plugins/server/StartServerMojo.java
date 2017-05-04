@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,40 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Start a liberty server
- * 
- * @goal start-server
  */
+@Mojo(name = "start-server") 
+
 public class StartServerMojo extends StartDebugMojoSupport {
 
     /**
      * Time in seconds to wait while verifying that the server has started.
-     * 
-     * @parameter expression="${verifyTimeout}" default-value="30"
      */
+    @Parameter(property = "verifyTimeout", defaultValue = "30")
     private int verifyTimeout = 30;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
-     * 
-     * @parameter expression="${serverStartTimeout}" default-value="30"
      */
+    @Parameter(property = "serverStartTimeout", defaultValue = "30")
     private int serverStartTimeout = 30;
 
     /**
      * comma separated list of app names to wait for
-     * 
-     * @parameter expression="${applications}"
      */
+    @Parameter(property = "applications")
     private String applications;
 
     /**
      * Clean all cached information on server start up.
-     * 
-     * @parameter expression="${clean}" default-value="false"
      */
+    @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
 
     @Override

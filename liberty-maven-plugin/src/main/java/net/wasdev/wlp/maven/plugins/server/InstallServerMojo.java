@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,18 @@
  */
 package net.wasdev.wlp.maven.plugins.server;
 
-import net.wasdev.wlp.maven.plugins.BasicSupport;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Install a liberty server
- * 
- * @goal install-server
  */
-public class InstallServerMojo extends BasicSupport {
-
+@Mojo(name = "install-server")  
+public class InstallServerMojo extends PluginConfigSupport {
+    
     protected void doExecute() throws Exception {
         if (skip) {
             return;
         }
         installServerAssembly();
     }
-
 }
