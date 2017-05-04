@@ -87,6 +87,7 @@ public class PluginConfigXmlTest {
     @Test
     public void testConfigDropinsXMLFileNotExist() throws Exception {
         File f = new File(CONFIG_DROPINS_XML);
+        // if the variables are resolved, install_apps_configuration_*.xml won't be generated.
         Assert.assertTrue(f.getCanonicalFile() + " does exist", !f.exists());
     }
 }
