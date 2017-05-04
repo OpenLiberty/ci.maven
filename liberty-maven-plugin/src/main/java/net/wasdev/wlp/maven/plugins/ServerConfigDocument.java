@@ -22,7 +22,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,9 +46,14 @@ public class ServerConfigDocument {
     private static File serverFile;
     
     private static Set<String> locations;
+    private static Properties props;
     
     public Set<String> getLocations() {
         return locations;
+    }
+    
+    public static Properties getProperties() {
+        return props;
     }
     
     private static File getServerFile() {
@@ -53,6 +61,7 @@ public class ServerConfigDocument {
     }
     
     public ServerConfigDocument(File serverXML, File configDir) {
+        initializeProperties(serverXML, configDir);
         initializeAppsLocation(serverXML, configDir);
     }
     
@@ -89,11 +98,67 @@ public class ServerConfigDocument {
             parseApplication(doc, "/server/application");
             parseApplication(doc, "/server/webApplication");
             parseApplication(doc, "/server/enterpriseApplication");
-            parseInclude(doc, "/server/include");
+            parseInclude(doc);
             parseConfigDropinsDir();
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    private static void initializeProperties(File serverXML, File configDir) {
+        
+        // Server variable precedence in ascending order if defined in multiple locations.
+        //
+        // 1. variables from '${server.config.dir}/server.env'
+        // 2. variables from '${server.config.dir}/bootstrap.properties' 
+        // 3. variables defined in <include/> files
+        // 4. variables from configDropins/defaults/<file_name>
+        // 5. variables defined in server.xml
+        //    e.g. <variable name="myVarName" value="myVarValue" />
+        // 6. variables from configDropins/overrides/<file_name>
+        
+        InputStream fis = null;
+        
+        try {
+            serverFile = serverXML;
+            configDirectory = configDir;
+            
+            Document doc = parseDocument(new FileInputStream(serverFile));
+
+            props = new Properties();
+            
+            Properties propServerEnv = new Properties();
+            
+            // get variables from server.env 
+            File serverEnvFile = new File(serverFile.getParentFile(), "server.env");
+            if (serverEnvFile.exists()) {
+                propServerEnv.load(new FileInputStream(serverEnvFile));
+                props.putAll(propServerEnv);
+            }
+            
+            Properties propBootStrap = new Properties();
+            
+            File bootstrapFile = new File(serverFile.getParentFile(), "bootstrap.properties");
+            if (bootstrapFile.exists()) {
+                propBootStrap.load(new FileInputStream(bootstrapFile));
+                props.putAll(propBootStrap);
+            }
+            
+            parseIncludeVariables(doc);
+            parseVariables(doc);
+            parseConfigDropinsDirVariables();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     
@@ -106,16 +171,19 @@ public class ServerConfigDocument {
             String nodeValue = nodeList.item(i).getAttributes().getNamedItem("location").getNodeValue();
             
             // add unique values only
-            if (!nodeValue.isEmpty() && !locations.contains(nodeValue)) {
-                locations.add(nodeValue);
+            if (!nodeValue.isEmpty()) {
+                String resolved = getResolvedVariable(nodeValue);
+                if (!locations.contains(resolved)) {
+                    locations.add(resolved);
+                }
             }
         }
     }
-   
-    private static void parseInclude(Document doc, String expression) throws Exception {
+    
+    private static void parseInclude(Document doc) throws Exception {
         // parse include document in source server xml
         XPath xPath = XPathFactory.newInstance().newXPath();
-        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile("/server/include").evaluate(doc, XPathConstants.NODESET);
        
         for (int i = 0; i < nodeList.getLength(); i++) {
             String nodeValue = nodeList.item(i).getAttributes().getNamedItem("location").getNodeValue();
@@ -128,7 +196,7 @@ public class ServerConfigDocument {
                     parseApplication(docIncl, "/server/webApplication");
                     parseApplication(docIncl, "/server/enterpriseApplication");
                     // handle nested include elements
-                    parseInclude(docIncl, "/server/include");
+                    parseInclude(docIncl);
                 }
             }
         }
@@ -180,7 +248,7 @@ public class ServerConfigDocument {
         parseApplication(doc, "/server/application");
         parseApplication(doc, "/server/webApplication");
         parseApplication(doc, "/server/enterpriseApplication");
-        parseInclude(doc, "/server/include");
+        parseInclude(doc);
     }
     
     private static Document getIncludeDoc(String loc) throws Exception {
@@ -258,5 +326,105 @@ public class ServerConfigDocument {
             return false;
         }
     }
+    
+    private static String getResolvedVariable(String nodeValue) {
+        final String VARIABLE_NAME_PATTERN = "\\$\\{(.*?)\\}";
+
+        String resolved = nodeValue;
+        Pattern varNamePattern = Pattern.compile(VARIABLE_NAME_PATTERN);
+        Matcher varNameMatcher = varNamePattern.matcher(nodeValue);
+        
+        while (varNameMatcher.find()) {
+            String variable = getProperties().getProperty(varNameMatcher.group(1));
+            
+            if (variable != null && !variable.isEmpty()) {
+                resolved = resolved.replaceAll("\\$\\{" +  varNameMatcher.group(1) + "\\}", variable);
+            }
+        }
+        return resolved;
+    }
+    
+    private static void parseVariables(Document doc) throws Exception {
+        // parse input document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        NodeList nodeList = (NodeList) xPath.compile("/server/variable").evaluate(doc, XPathConstants.NODESET);
+        
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            String varName = nodeList.item(i).getAttributes().getNamedItem("name").getNodeValue();
+            String varValue = nodeList.item(i).getAttributes().getNamedItem("value").getNodeValue();
+            
+            // add unique values only
+            if (!varName.isEmpty() && !varValue.isEmpty()) {
+                props.put(varName, varValue);
+            }
+        }
+    }
+    
+    private static void parseIncludeVariables(Document doc) throws Exception {
+        // parse include document in source server xml
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        NodeList nodeList = (NodeList) xPath.compile("/server/include").evaluate(doc, XPathConstants.NODESET);
+       
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            String nodeValue = nodeList.item(i).getAttributes().getNamedItem("location").getNodeValue();
+            
+            if (!nodeValue.isEmpty()) {
+                Document docIncl = getIncludeDoc(nodeValue);
+                
+                if (docIncl != null) {
+                    parseVariables(docIncl);
+                    // handle nested include elements
+                    parseIncludeVariables(docIncl);
+                }
+            }
+        }
+    }
+    
+    private static void parseConfigDropinsDirVariables() throws Exception {
+        File configDropins = null;
+        
+        // if configDirectory exists and contains configDropins directory, 
+        // its configDropins has higher precedence.
+        if (configDirectory != null && configDirectory.exists()) {
+            configDropins = new File(configDirectory, "configDropins");
+        }
+        
+        if (configDropins == null || !configDropins.exists()) {
+            configDropins = new File(getServerFile().getParent(), "configDropins");
+        }
+        
+        if (configDropins != null && configDropins.exists()) {
+            File overrides = new File(configDropins, "overrides");
+            
+            if (overrides.exists()) {
+                File[] cfgFiles = overrides.listFiles();
+                
+                for (int i = 0; i < cfgFiles.length; i++) {
+                    if (cfgFiles[i].isFile()) {
+                        parseDropinsFilesVariables(cfgFiles[i]);
+                    }
+                }
+            }
+            
+            File defaults = new File(configDropins, "defaults");
+            if (defaults.exists()) {
+                File[] cfgFiles = defaults.listFiles();
+                
+                for (int i = 0; i < cfgFiles.length; i++) {
+                    if (cfgFiles[i].isFile()) {
+                        parseDropinsFilesVariables(cfgFiles[i]);
+                    }
+                }
+            }
+        }
+    }
+    
+    private static void parseDropinsFilesVariables(File file) throws Exception {
+        // get input XML Document 
+        Document doc = parseDocument(new FileInputStream(file));
+        
+        parseVariables(doc);
+        parseIncludeVariables(doc);
+    }
 }
- 
+
