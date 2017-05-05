@@ -209,7 +209,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory, bootstrapPropertiesFile, serverEnv);
                 
                 if (scd != null && scd.getLocations().contains(fileName)) {
                     log.debug("Application configuration is found in server.xml : " + fileName);
@@ -232,7 +232,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory, bootstrapPropertiesFile, serverEnv);
                 
                 if (scd != null && scd.getLocations().size() > 0) {
                     log.debug("Application configuration is found in server.xml.");

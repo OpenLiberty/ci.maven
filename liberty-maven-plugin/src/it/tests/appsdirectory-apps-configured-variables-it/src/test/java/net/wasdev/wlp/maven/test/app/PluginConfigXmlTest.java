@@ -28,9 +28,28 @@ public class PluginConfigXmlTest {
     public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml";
 
     @Test
-    public void testConfigDropinsXMLFileNotExist() throws Exception {
-        File f = new File(CONFIG_DROPINS_XML);
-        // if the variables are resolved, install_apps_configuration_*.xml won't be generated.
-        Assert.assertTrue(f.getCanonicalFile() + " does exist", !f.exists());
-    }
+    public void testApplicationConfiguredInConfigDropins() throws Exception {
+        File in = new File(CONFIG_DROPINS_XML);
+        FileInputStream input = new FileInputStream(in);
+        
+        // get configDropins XML Document 
+        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+        inputBuilderFactory.setIgnoringComments(true);
+        inputBuilderFactory.setCoalescing(true);
+        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+        inputBuilderFactory.setValidating(false);
+        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+        Document inputDoc=inputBuilder.parse(input);
+        
+        // parse configDropins XML Document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/server/webApplication";
+        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        Assert.assertEquals("Number of <webApplication/> element ==>", 1, nodes.getLength());
+
+        Node node = nodes.item(0);
+        Element element = (Element)node;      
+        Assert.assertEquals("Value of the 1st <webApplication/> ==>", 
+                "test-war.war", element.getAttribute("location"));
+     }
 }

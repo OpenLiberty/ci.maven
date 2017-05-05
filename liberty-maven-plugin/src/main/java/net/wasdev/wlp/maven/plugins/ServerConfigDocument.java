@@ -60,9 +60,8 @@ public class ServerConfigDocument {
         return serverFile;
     }
     
-    public ServerConfigDocument(File serverXML, File configDir) {
-        initializeProperties(serverXML, configDir);
-        initializeAppsLocation(serverXML, configDir);
+    public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) {
+        initializeAppsLocation(serverXML, configDir, bootstrapFile, serverEnvFile);
     }
     
     private static DocumentBuilder getDocumentBuilder() throws Exception {
@@ -78,22 +77,50 @@ public class ServerConfigDocument {
         return docBuilder;
     }
     
-    public static ServerConfigDocument getInstance(File serverXML, File configDir) throws IOException {
+    public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) throws IOException {
         // Initialize if instance is not created yet, or source server xml file location has been changed.
         if (instance == null || !serverXML.getCanonicalPath().equals(getServerFile().getCanonicalPath())) {
-           instance = new ServerConfigDocument(serverXML, configDir);
+           instance = new ServerConfigDocument(serverXML, configDir, bootstrapFile, serverEnvFile);
         }
         return instance;
      }
      
-    private static void initializeAppsLocation(File serverXML, File configDir) {
+    private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) {
         try {
             serverFile = serverXML;
             configDirectory = configDir;
             
             locations = new HashSet<String>();
+            props = new Properties();
             
             Document doc = parseDocument(new FileInputStream(serverFile));
+            
+            // Server variable precedence in ascending order if defined in multiple locations.
+            //
+            // 1. variables from 'server.env'
+            // 2. variables from 'bootstrap.properties' 
+            // 3. variables defined in <include/> files
+            // 4. variables from configDropins/defaults/<file_name>
+            // 5. variables defined in server.xml
+            //    e.g. <variable name="myVarName" value="myVarValue" />
+            // 6. variables from configDropins/overrides/<file_name>
+            
+            // get variables from server.env 
+            if (serverEnvFile.exists()) {
+                Properties propServerEnv = new Properties();
+                propServerEnv.load(new FileInputStream(serverEnvFile));
+                props.putAll(propServerEnv);
+            }
+            
+            if (bootstrapFile.exists()) {
+                Properties propBootStrap = new Properties();
+                propBootStrap.load(new FileInputStream(bootstrapFile));
+                props.putAll(propBootStrap);
+            }
+            
+            parseIncludeVariables(doc);
+            parseVariables(doc);
+            parseConfigDropinsDirVariables();
             
             parseApplication(doc, "/server/application");
             parseApplication(doc, "/server/webApplication");
@@ -103,62 +130,6 @@ public class ServerConfigDocument {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-    
-    private static void initializeProperties(File serverXML, File configDir) {
-        
-        // Server variable precedence in ascending order if defined in multiple locations.
-        //
-        // 1. variables from '${server.config.dir}/server.env'
-        // 2. variables from '${server.config.dir}/bootstrap.properties' 
-        // 3. variables defined in <include/> files
-        // 4. variables from configDropins/defaults/<file_name>
-        // 5. variables defined in server.xml
-        //    e.g. <variable name="myVarName" value="myVarValue" />
-        // 6. variables from configDropins/overrides/<file_name>
-        
-        InputStream fis = null;
-        
-        try {
-            serverFile = serverXML;
-            configDirectory = configDir;
-            
-            Document doc = parseDocument(new FileInputStream(serverFile));
-
-            props = new Properties();
-            
-            Properties propServerEnv = new Properties();
-            
-            // get variables from server.env 
-            File serverEnvFile = new File(serverFile.getParentFile(), "server.env");
-            if (serverEnvFile.exists()) {
-                propServerEnv.load(new FileInputStream(serverEnvFile));
-                props.putAll(propServerEnv);
-            }
-            
-            Properties propBootStrap = new Properties();
-            
-            File bootstrapFile = new File(serverFile.getParentFile(), "bootstrap.properties");
-            if (bootstrapFile.exists()) {
-                propBootStrap.load(new FileInputStream(bootstrapFile));
-                props.putAll(propBootStrap);
-            }
-            
-            parseIncludeVariables(doc);
-            parseVariables(doc);
-            parseConfigDropinsDirVariables();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
     
