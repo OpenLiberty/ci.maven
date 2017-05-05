@@ -1,14 +1,9 @@
 package net.wasdev.wlp.maven.test.app;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Test;
-
-import net.wasdev.wlp.maven.test.support.HttpUtils;
 
 /**
  * 

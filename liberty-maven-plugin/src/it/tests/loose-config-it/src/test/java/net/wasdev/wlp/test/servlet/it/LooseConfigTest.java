@@ -17,7 +17,6 @@ package net.wasdev.wlp.test.servlet.it;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
