@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014.
+ * (C) Copyright IBM Corporation 2014, 2017.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,28 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Package a liberty server
- * 
- * @goal package-server
- * 
- * @phase package
  */
+@Mojo(name = "package-server", defaultPhase = LifecyclePhase.PACKAGE) 
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     /**
      * Locate where server is packaged.
-     * 
-     * @parameter expression="${packageFile}"
      */
+    @Parameter(property = "packageFile")
     private File packageFile = null;
 
     /**
      * Package type. One of "all", "usr", or "minify".
-     * 
-     * @parameter expression="${include}"
      */
+    @Parameter(property = "include")
     private String include;
 
     /**
@@ -55,14 +53,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      *     This option applies only to the package operation, and can be used only with the 
      *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
      *     repeat the minify operation on the archive.
-     * 
-     * @parameter expression="${os}"
      */
+    @Parameter(property = "os")
     private String os;
     
-    /**
-     * @parameter
-     */
+    @Parameter
     private boolean attach;
 
     @Override
@@ -82,12 +77,15 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
+        String fileType = getPackageFileType(include);
+        String projectBuildDir = project.getBuild().getDirectory();
+        String projectBuildName = project.getBuild().getFinalName();
         if (packageFile != null) {
             if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, serverName + ".zip");
+                packageFile = new File(packageFile, projectBuildName + fileType);
             }
         } else {
-            packageFile = new File(serverDirectory, serverName + ".zip");
+            packageFile = new File(projectBuildDir, projectBuildName + fileType);
         }
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
@@ -101,5 +99,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             }
             project.getArtifact().setFile(packageFile);
         }
+    }
+    
+    private String getPackageFileType(String include) {
+    	if(include != null && include.contains("runnable")) {
+    		return ".jar";
+    	}
+    	return ".zip";
     }
 }

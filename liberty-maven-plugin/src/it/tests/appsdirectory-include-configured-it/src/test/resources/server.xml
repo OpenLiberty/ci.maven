@@ -1,0 +1,6 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+    <include optional="true" location="./testDir/server.xml"/>
+</server>
