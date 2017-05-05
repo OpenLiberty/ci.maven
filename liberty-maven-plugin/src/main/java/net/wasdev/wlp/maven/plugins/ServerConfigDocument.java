@@ -119,8 +119,9 @@ public class ServerConfigDocument {
             }
             
             parseIncludeVariables(doc);
+            parseConfigDropinsDirVariables("defaults");
             parseVariables(doc);
-            parseConfigDropinsDirVariables();
+            parseConfigDropinsDirVariables("overrides");
             
             parseApplication(doc, "/server/application");
             parseApplication(doc, "/server/webApplication");
@@ -351,7 +352,7 @@ public class ServerConfigDocument {
         }
     }
     
-    private static void parseConfigDropinsDirVariables() throws Exception {
+    private static void parseConfigDropinsDirVariables(String inDir) throws Exception {
         File configDropins = null;
         
         // if configDirectory exists and contains configDropins directory, 
@@ -365,21 +366,10 @@ public class ServerConfigDocument {
         }
         
         if (configDropins != null && configDropins.exists()) {
-            File defaults = new File(configDropins, "defaults");
+            File dir = new File(configDropins, inDir);
             
-            if (defaults.exists()) {
-                File[] cfgFiles = defaults.listFiles();
-                
-                for (int i = 0; i < cfgFiles.length; i++) {
-                    if (cfgFiles[i].isFile()) {
-                        parseDropinsFilesVariables(cfgFiles[i]);
-                    }
-                }
-            }
-            
-            File overrides = new File(configDropins, "overrides");
-            if (overrides.exists()) {
-                File[] cfgFiles = overrides.listFiles();
+            if (dir.exists()) {
+                File[] cfgFiles = dir.listFiles();
                 
                 for (int i = 0; i < cfgFiles.length; i++) {
                     if (cfgFiles[i].isFile()) {
