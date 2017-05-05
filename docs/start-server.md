@@ -1,6 +1,6 @@
 #### start-server
 ---
-Start a Liberty Profile server in background. The server instance will be automatically created if it does not exist.
+Start a Liberty server in background. The server instance will be automatically created if it does not exist.
 
 ###### Additional Parameters
 
