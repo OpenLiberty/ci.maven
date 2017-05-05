@@ -16,7 +16,7 @@ Example:
     ...
     <groupId>myGroup</groupId>
     <artifactId>myServer</artifactId>
-    <!-- Create Liberty profile server assembly -->
+    <!-- Create Liberty server assembly -->
     <packaging>liberty-assembly</packaging>
     ...
     <build>

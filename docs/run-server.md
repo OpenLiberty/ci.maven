@@ -1,6 +1,6 @@
 #### run-server
 ---
-Start a Liberty Profile server in foreground. The server instance will be automatically created if it does not exist.
+Start a Liberty server in foreground. The server instance will be automatically created if it does not exist.
 **Note:** This goal is designed to be executed directly from the Maven command line.
 
 ###### Additional Parameters
