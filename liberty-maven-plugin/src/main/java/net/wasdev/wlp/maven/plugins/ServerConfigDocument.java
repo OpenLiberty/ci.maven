@@ -365,7 +365,7 @@ public class ServerConfigDocument {
         }
         
         if (configDropins != null && configDropins.exists()) {
-            File overrides = new File(configDropins, "overrides");
+            File overrides = new File(configDropins, "defaults");
             
             if (overrides.exists()) {
                 File[] cfgFiles = overrides.listFiles();
@@ -377,7 +377,7 @@ public class ServerConfigDocument {
                 }
             }
             
-            File defaults = new File(configDropins, "defaults");
+            File defaults = new File(configDropins, "overrides");
             if (defaults.exists()) {
                 File[] cfgFiles = defaults.listFiles();
                 
