@@ -85,7 +85,7 @@ In certain cases, the Liberty license code may need to be provided in order to i
     </plugin>
  ```
 
-* Install from a given location. The `runtimeUrl` sub-parameter specifies a location of the Liberty's runtime `.jar` or `.zip` file to install. The `licenseCode` is only needed when installing from `.jar` file.
+* Install from a given location. The `runtimeUrl` sub-parameter specifies a location of the Liberty runtime `.jar` or `.zip` file to install. The `licenseCode` is only needed when installing from `.jar` file.
  ```xml
     <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
@@ -106,7 +106,7 @@ The `install` parameter has the following sub-parameters:
 | licenseCode | Liberty license code. See [above](#using-a-repository). | Yes, if `type` is `webProfile6` or `runtimeUrl` specifies a `.jar` file. |
 | version | Exact or wildcard version of the Liberty server to install. Available versions are listed in the [index.yml](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/index.yml) file. Only used if `runtimeUrl` is not set. The default value is `8.5.+`. | No |
 | type | Liberty runtime type to download from the Liberty repository. Currently, the following types are supported: `kernel`, `webProfile6`, `webProfile7`, and `javaee7`. Only used if `runtimeUrl` is not set. Defaults to `webProfile6` if `licenseCode` is set and `webProfile7` otherwise. | No |
-| runtimeUrl | URL to the Liberty's runtime `.jar` or a `.zip` file. If not set, the Liberty repository will be used to find the Liberty runtime archive. | No |
+| runtimeUrl | URL to the Liberty runtime `.jar` or a `.zip` file. If not set, the Liberty repository will be used to find the Liberty runtime archive. | No |
 | cacheDirectory | The directory used for caching downloaded files such as the license or `.jar` files. The default value is `${settings.localRepository}/wlp-cache`. | No |
 | username | Username needed for basic authentication. | No |
 | password | Password needed for basic authentication. | No |
