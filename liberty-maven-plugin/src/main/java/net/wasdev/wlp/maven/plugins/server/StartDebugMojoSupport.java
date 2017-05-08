@@ -76,7 +76,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected ServerTask initializeJava() throws Exception {
         ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
         if (serverTask == null) {
-            throw new IllegalStateException("The Liberty ServerTask Ant object was not found. Verify that the required version of the wlp-anttasks.jar is available.");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "server"));
         }
         serverTask.setInstallDir(installDirectory);
         serverTask.setServerName(serverName);

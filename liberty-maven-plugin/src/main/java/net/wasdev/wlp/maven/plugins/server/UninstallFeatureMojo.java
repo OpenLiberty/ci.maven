@@ -19,6 +19,8 @@ import net.wasdev.wlp.ant.UninstallFeatureTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import net.wasdev.wlp.maven.plugins.server.types.Features;
 
+import java.text.MessageFormat;
+
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.maven.plugins.annotations.Mojo;
@@ -62,7 +64,7 @@ public class UninstallFeatureMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:uninstall-feature");
 
         if (uninstallFeatureTask == null) {
-            throw new IllegalStateException("Uninstall feature task not found.");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "uninstall-feature"));
         }
 
         uninstallFeatureTask.setInstallDir(installDirectory);

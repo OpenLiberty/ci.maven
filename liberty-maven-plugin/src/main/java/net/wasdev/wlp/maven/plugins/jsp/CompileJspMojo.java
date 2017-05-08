@@ -1,6 +1,7 @@
 package net.wasdev.wlp.maven.plugins.jsp;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,7 +43,7 @@ public class CompileJspMojo extends BasicSupport {
     protected void doExecute() throws Exception {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:net/wasdev/wlp/ant:compileJSPs");
         if (compile == null) {
-            throw new IllegalStateException("The Liberty compileJSPs Ant task not found. Verify that the required version of the wlp-anttasks.jar is available.");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
         }
 
         compile.setInstallDir(installDirectory);
