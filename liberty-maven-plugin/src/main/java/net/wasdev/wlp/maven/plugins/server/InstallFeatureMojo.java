@@ -54,7 +54,7 @@ public class InstallFeatureMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");
 
         if (installFeatureTask == null) {
-            throw new IllegalStateException("Install feature task not found.");
+            throw new IllegalStateException("The Liberty install-feature Ant task not found. Verify that the required version of the wlp-anttasks.jar is available.");
         }
 
         installFeatureTask.setInstallDir(installDirectory);

@@ -82,7 +82,7 @@ public class UndeployAppMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:undeploy");
         
         if (undeployTask == null) {
-            throw new IllegalStateException("Undeploy task not found");
+            throw new IllegalStateException("Liberty Ant undeploy task not found. Verify that the required version of the wlp-anttask.jar is available.");
         }
         
         if (appArchive != null || appArtifact != null) {
