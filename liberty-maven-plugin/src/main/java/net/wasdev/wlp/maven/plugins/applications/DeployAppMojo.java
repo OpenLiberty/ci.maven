@@ -86,7 +86,7 @@ public class DeployAppMojo extends BasicSupport {
         log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
         DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
         if (deployTask == null) {
-            throw new IllegalStateException("The Liberty deploy Ant task not found. Verify that the required version of the wlp-anttasks.jar is available.");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
         }
 
         deployTask.setInstallDir(installDirectory);
