@@ -44,7 +44,7 @@ public class UninstallFeatureMojo extends BasicSupport {
      */
     @Override
     protected void doExecute() throws Exception {
-        if (skip == true) {
+        if (skip) {
             return;
         }
         
@@ -62,7 +62,7 @@ public class UninstallFeatureMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:uninstall-feature");
 
         if (uninstallFeatureTask == null) {
-            throw new NullPointerException("Uninstall feature task not found.");
+            throw new IllegalStateException("Uninstall feature task not found.");
         }
 
         uninstallFeatureTask.setInstallDir(installDirectory);
