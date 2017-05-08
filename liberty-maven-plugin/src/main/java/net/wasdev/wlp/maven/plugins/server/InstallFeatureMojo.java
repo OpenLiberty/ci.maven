@@ -41,7 +41,7 @@ public class InstallFeatureMojo extends BasicSupport {
      */
     @Override
     protected void doExecute() throws Exception {
-        if (skip == true) {
+        if (skip) {
             return;
         }
         
@@ -54,7 +54,7 @@ public class InstallFeatureMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");
 
         if (installFeatureTask == null) {
-            throw new NullPointerException("Install feature task not found.");
+            throw new IllegalStateException("Install feature task not found.");
         }
 
         installFeatureTask.setInstallDir(installDirectory);

@@ -76,7 +76,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected ServerTask initializeJava() throws Exception {
         ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
         if (serverTask == null) {
-            throw new NullPointerException("server task not found");
+            throw new IllegalStateException("server task not found");
         }
         serverTask.setInstallDir(installDirectory);
         serverTask.setServerName(serverName);
