@@ -344,7 +344,7 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void installFromArchive() throws Exception {
         InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:net/wasdev/wlp/ant:install-liberty");
         if (installTask == null) {
-            throw new IllegalStateException("install-liberty task not found");
+            throw new IllegalStateException("The Liberty install-liberty Ant task not found. Verify that the required version of the wlp-anttasks.jar is available.");
         }
         installTask.setBaseDir(assemblyInstallDirectory.getAbsolutePath());
         installTask.setLicenseCode(install.getLicenseCode());

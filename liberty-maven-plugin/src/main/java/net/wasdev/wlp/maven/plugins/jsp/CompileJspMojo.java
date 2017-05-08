@@ -42,7 +42,7 @@ public class CompileJspMojo extends BasicSupport {
     protected void doExecute() throws Exception {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:net/wasdev/wlp/ant:compileJSPs");
         if (compile == null) {
-            throw new IllegalStateException("compileJSPs task not found");
+            throw new IllegalStateException("The Liberty compileJSPs Ant task not found. Verify that the required version of the wlp-anttasks.jar is available.");
         }
 
         compile.setInstallDir(installDirectory);
