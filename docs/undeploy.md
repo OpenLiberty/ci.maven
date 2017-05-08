@@ -1,6 +1,6 @@
 #### undeploy
 ---
-Undeploy an application to a Liberty Profile server. The server instance must exist and must be running. If appArtifact or appArchive are not defined, the goal will undeploy all applications from the server.
+Undeploy an application to a Liberty server. The server instance must exist and must be running. If appArtifact or appArchive are not defined, the goal will undeploy all applications from the server.
 
 ###### Additional Parameters
 

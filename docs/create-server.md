@@ -1,6 +1,6 @@
 #### create-server
 ---
-Create a Liberty Profile server.
+Create a Liberty server.
 
 ###### Additional Parameters
 

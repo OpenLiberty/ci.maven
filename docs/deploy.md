@@ -1,6 +1,6 @@
 #### deploy
 ---
-Deploy an application to a Liberty Profile server. The server instance must exist and must be running.
+Deploy an application to a Liberty server. The server instance must exist and must be running.
 
 ###### Additional Parameters
 

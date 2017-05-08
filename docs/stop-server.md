@@ -1,6 +1,6 @@
 #### stop-server
 ---
-Stop a Liberty Profile server. The server instance must exist and must be running.
+Stop a Liberty server. The server instance must exist and must be running.
 
 ###### Additional Parameters
 

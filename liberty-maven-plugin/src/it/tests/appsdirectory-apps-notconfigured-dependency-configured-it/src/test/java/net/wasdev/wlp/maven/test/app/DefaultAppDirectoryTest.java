@@ -2,7 +2,6 @@ package net.wasdev.wlp.maven.test.app;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
