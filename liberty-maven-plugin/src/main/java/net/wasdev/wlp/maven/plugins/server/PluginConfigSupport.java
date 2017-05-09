@@ -93,15 +93,15 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (getFileFromConfigDirectory("server.xml", configFile) != null) {
             configDocument.createElement("configFile", getFileFromConfigDirectory("server.xml", configFile));
         }
-        if (getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile) != null) {
-            configDocument.createElement("bootstrapPropertiesFile", getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile));
-        } else {
+        if (bootstrapProperties != null && getFileFromConfigDirectory("bootstrap.properties") == null) {
             configDocument.createElement("bootstrapProperties", bootstrapProperties);
-        }
-        if (getFileFromConfigDirectory("jvm.option", jvmOptionsFile) != null) {
-            configDocument.createElement("jvmOptionsFile", getFileFromConfigDirectory("jvm.option", jvmOptionsFile));
         } else {
+            configDocument.createElement("bootstrapPropertiesFile", getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile));
+        }
+        if (jvmOptions != null && getFileFromConfigDirectory("jvm.options") == null) {
             configDocument.createElement("jvmOptions", jvmOptions);
+        } else {
+            configDocument.createElement("jvmOptionsFile", getFileFromConfigDirectory("jvm.options", jvmOptionsFile));
         }
         if (getFileFromConfigDirectory("server.env", serverEnv) != null) {
             configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
@@ -139,6 +139,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             return def;
         } 
         return null;
+    }
+    
+    protected File getFileFromConfigDirectory(String file) {
+    	return getFileFromConfigDirectory(file, null);
     }
     
     /*
@@ -249,7 +253,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected String getAppsDirectory() {
         if (appsDirectory != null && !appsDirectory.isEmpty()) {
-            if (appsDirectory.equals("dropins") || appsDirectory.equals("apps")) {
+                if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
                 return appsDirectory;
             } else {
                 log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
@@ -259,11 +263,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // default appsDirectory
         appsDirectory = "dropins";
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
-        if (srcServerXML != null && srcServerXML.exists()) {
-            if (isAnyAppConfiguredInSourceServerXml()) {
-                // overwrite default appsDirectory if application configuration is found.
-                appsDirectory = "apps";
-            }
+        if (srcServerXML != null && srcServerXML.exists() && isAnyAppConfiguredInSourceServerXml()) {
+            // overwrite default appsDirectory if application configuration is found.
+            appsDirectory = "apps";
         }
         log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;
