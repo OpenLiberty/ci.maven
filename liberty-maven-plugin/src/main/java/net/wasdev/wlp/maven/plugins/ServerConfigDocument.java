@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -60,8 +61,8 @@ public class ServerConfigDocument {
         return serverFile;
     }
     
-    public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) {
-        initializeAppsLocation(serverXML, configDir, bootstrapFile, serverEnvFile);
+    public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) {
+        initializeAppsLocation(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
     }
     
     private static DocumentBuilder getDocumentBuilder() throws Exception {
@@ -77,15 +78,15 @@ public class ServerConfigDocument {
         return docBuilder;
     }
     
-    public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) throws IOException {
+    public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) throws IOException {
         // Initialize if instance is not created yet, or source server xml file location has been changed.
         if (instance == null || !serverXML.getCanonicalPath().equals(getServerFile().getCanonicalPath())) {
-           instance = new ServerConfigDocument(serverXML, configDir, bootstrapFile, serverEnvFile);
+           instance = new ServerConfigDocument(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
         }
         return instance;
      }
      
-    private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, File serverEnvFile) {
+    private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) {
         try {
             serverFile = serverXML;
             configDirectory = configDir;
@@ -112,7 +113,10 @@ public class ServerConfigDocument {
                 props.putAll(propServerEnv);
             }
             
-            if (bootstrapFile.exists()) {
+            if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
+                props.putAll(bootstrapProp);
+                
+            } else if (bootstrapFile.exists()) {
                 Properties propBootStrap = new Properties();
                 propBootStrap.load(new FileInputStream(bootstrapFile));
                 props.putAll(propBootStrap);

@@ -160,12 +160,8 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (bootStrapPropertiesPath == null || bootStrapPropertiesPath.isEmpty()) {
             File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
             if (bootstrapProperties != null) {
-                if (!bootstrapFile.exists()) {
-                    writeBootstrapProperties(bootstrapFile, bootstrapProperties);
-                    bootStrapPropertiesPath = "inlined configuration";
-                } else {
-                    bootStrapPropertiesPath = bootstrapFile.getCanonicalPath();
-                }
+                writeBootstrapProperties(bootstrapFile, bootstrapProperties);
+                bootStrapPropertiesPath = "inlined configuration";
             } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(bootstrapPropertiesFile);
