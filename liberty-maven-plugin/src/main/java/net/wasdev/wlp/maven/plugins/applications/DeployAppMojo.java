@@ -86,7 +86,7 @@ public class DeployAppMojo extends BasicSupport {
         log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
         DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
         if (deployTask == null) {
-            throw new NullPointerException("Deploy task not found");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
         }
 
         deployTask.setInstallDir(installDirectory);

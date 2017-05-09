@@ -266,6 +266,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (srcServerXML != null && srcServerXML.exists() && isAnyAppConfiguredInSourceServerXml()) {
             // overwrite default appsDirectory if application configuration is found.
             appsDirectory = "apps";
+
         }
         log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;

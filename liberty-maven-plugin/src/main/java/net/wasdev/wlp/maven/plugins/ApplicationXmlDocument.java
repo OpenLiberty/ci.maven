@@ -69,11 +69,7 @@ public class ApplicationXmlDocument extends XmlDocument {
     }
         
     public boolean hasChildElements() {
-        if (doc.getDocumentElement().getChildNodes().getLength() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return doc.getDocumentElement().getChildNodes().getLength() > 0;
     }
     
     private String stripFileExtension(String filename) {

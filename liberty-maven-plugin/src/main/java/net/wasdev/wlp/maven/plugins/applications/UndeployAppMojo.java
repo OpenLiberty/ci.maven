@@ -82,7 +82,7 @@ public class UndeployAppMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:undeploy");
         
         if (undeployTask == null) {
-            throw new NullPointerException("Undeploy task not found");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "undeploy"));
         }
         
         if (appArchive != null || appArtifact != null) {
