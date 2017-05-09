@@ -70,7 +70,6 @@
                     <artifactId>liberty-maven-plugin</artifactId>
                     <configuration>
                         <!-- set install-apps goal parameters -->
-                        <appsDirectory>apps</appsDirectory>
                         <looseApplication>true</looseApplication>
                         <installAppPackages>project</installAppPackages>
                     </configuration>
