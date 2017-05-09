@@ -253,7 +253,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected String getAppsDirectory() {
         if (appsDirectory != null && !appsDirectory.isEmpty()) {
-                if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
+            if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
                 return appsDirectory;
             } else {
                 log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
