@@ -16,7 +16,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <package.file>${project.build.directory}/${project.artifactId}.jar</package.file>
         <packaging.type>minify,runnable</packaging.type>
     </properties>
     
@@ -24,7 +23,6 @@
         <profile>
             <id>usr-package</id>
             <properties>
-                <package.file>${project.build.directory}/${project.artifactId}.zip</package.file>
                 <packaging.type>usr</packaging.type>
             </properties>        
         </profile>    
@@ -75,10 +73,6 @@
                     </assemblyArtifact>
                     <serverName>${project.artifactId}Server</serverName>
                     <configFile>src/main/liberty/config/server.xml</configFile>
-                    <appsDirectory>apps</appsDirectory>
-                    <installAppPackages>project</installAppPackages>
-                    <looseApplication>true</looseApplication>
-                    <packageFile>${package.file}</packageFile>
                     <include>${packaging.type}</include>
                 </configuration>
             </plugin>
