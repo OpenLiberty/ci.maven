@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import junit.framework.Assert;
+import static junit.framework.Assert.*;
 
 public class PluginConfigXmlIT {
     
@@ -31,7 +31,7 @@ public class PluginConfigXmlIT {
     @Test
     public void testConfigPropFileExist() throws Exception {
         File f = new File(CONFIG_XML);
-        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+        assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
     
     @Test
@@ -52,18 +52,18 @@ public class PluginConfigXmlIT {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/liberty-plugin-config/bootstrapPropertiesFile";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of bootstrapPropertiesFile element ==>", 1, nodes.getLength());
+        assertEquals("Number of bootstrapPropertiesFile element ==>", 1, nodes.getLength());
         
         expression = "/liberty-plugin-config/bootstrapProperties";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of bootstrapProperties element ==>", 0, nodes.getLength());
+        assertEquals("Number of bootstrapProperties element ==>", 0, nodes.getLength());
         
         expression = "/liberty-plugin-config/bootstrapPropertiesFile/text()";
         String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
         File f1 = new File(SOURCE_BOOTSTRAP_PROPERTIES);
         File f2 = new File(nodeValue);
-        Assert.assertEquals("bootstrapPropertiesFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
-        Assert.assertEquals("verify target server bootstrap.properties", FileUtils.fileRead(f2),
+        assertEquals("bootstrapPropertiesFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
+        assertEquals("verify target server bootstrap.properties", FileUtils.fileRead(f2),
                 FileUtils.fileRead(TARGET_BOOTSTRAP_PROPERTIES));
     }
     
@@ -85,18 +85,18 @@ public class PluginConfigXmlIT {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/liberty-plugin-config/jvmOptionsFile";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of jvmOptionsFile element ==>", 1, nodes.getLength());
+        assertEquals("Number of jvmOptionsFile element ==>", 1, nodes.getLength());
         
         expression = "/liberty-plugin-config/jvmOptions";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of jvmOptions element ==>", 0, nodes.getLength());
+        assertEquals("Number of jvmOptions element ==>", 0, nodes.getLength());
         
         expression = "/liberty-plugin-config/jvmOptionsFile/text()";
         String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
         File f1 = new File(SOURCE_JVM_OPTIONS);
         File f2 = new File(nodeValue);
-        Assert.assertEquals("jvmOptionsFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
-        Assert.assertEquals("verify target server jvm.options", FileUtils.fileRead(f2),
+        assertEquals("jvmOptionsFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
+        assertEquals("verify target server jvm.options", FileUtils.fileRead(f2),
                 FileUtils.fileRead(TARGET_JVM_OPTIONS));
     }
     
@@ -120,8 +120,8 @@ public class PluginConfigXmlIT {
         String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
         File f1 = new File(SOURCE_SERVER_ENV);
         File f2 = new File(nodeValue);
-        Assert.assertEquals("serverEnv value", f1.getAbsolutePath(), f2.getAbsolutePath());
-        Assert.assertEquals("verify target server server.env", FileUtils.fileRead(f2),
+        assertEquals("serverEnv value", f1.getAbsolutePath(), f2.getAbsolutePath());
+        assertEquals("verify target server server.env", FileUtils.fileRead(f2),
                 FileUtils.fileRead(TARGET_SERVER_ENV));
     }
 }
