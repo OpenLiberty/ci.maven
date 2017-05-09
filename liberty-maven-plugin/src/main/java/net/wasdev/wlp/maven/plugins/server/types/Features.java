@@ -114,7 +114,7 @@ public class Features {
      */
     public void addFeature(String feature) {
         if (feature == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Invalid null argument passed for addFeature");
         }
         feature = feature.trim();
         if (!feature.isEmpty()) { 
