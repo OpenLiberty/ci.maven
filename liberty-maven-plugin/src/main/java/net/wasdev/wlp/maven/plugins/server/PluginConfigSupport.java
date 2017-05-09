@@ -263,6 +263,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // default appsDirectory
         appsDirectory = "dropins";
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
+        
+        // overwrite default appsDirectory if application configuration is found.
         if (srcServerXML != null && 
             srcServerXML.exists() &&
             isAnyAppConfiguredInSourceServerXml()) {
