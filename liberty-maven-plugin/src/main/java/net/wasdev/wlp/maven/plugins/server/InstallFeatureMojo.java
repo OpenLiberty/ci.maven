@@ -18,6 +18,9 @@ package net.wasdev.wlp.maven.plugins.server;
 import net.wasdev.wlp.ant.InstallFeatureTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import net.wasdev.wlp.maven.plugins.server.types.Features;
+
+import java.text.MessageFormat;
+
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -41,7 +44,7 @@ public class InstallFeatureMojo extends BasicSupport {
      */
     @Override
     protected void doExecute() throws Exception {
-        if (skip == true) {
+        if (skip) {
             return;
         }
         
@@ -54,7 +57,7 @@ public class InstallFeatureMojo extends BasicSupport {
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");
 
         if (installFeatureTask == null) {
-            throw new NullPointerException("Install feature task not found.");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-feature"));
         }
 
         installFeatureTask.setInstallDir(installDirectory);

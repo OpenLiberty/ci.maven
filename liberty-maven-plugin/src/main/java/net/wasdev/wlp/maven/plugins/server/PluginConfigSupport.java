@@ -253,7 +253,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected String getAppsDirectory() {
         if (appsDirectory != null && !appsDirectory.isEmpty()) {
-                if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
+            if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
                 return appsDirectory;
             } else {
                 log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
@@ -263,9 +263,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // default appsDirectory
         appsDirectory = "dropins";
         File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
-        if (srcServerXML != null && srcServerXML.exists() && isAnyAppConfiguredInSourceServerXml()) {
-            // overwrite default appsDirectory if application configuration is found.
-            appsDirectory = "apps";
+        if (srcServerXML != null && 
+            srcServerXML.exists() &&
+            isAnyAppConfiguredInSourceServerXml()) {
+                appsDirectory = "apps";
         }
         log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;

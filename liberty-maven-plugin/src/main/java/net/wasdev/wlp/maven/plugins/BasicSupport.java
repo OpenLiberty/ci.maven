@@ -307,11 +307,9 @@ public class BasicSupport extends AbstractLibertySupport {
             log.debug(MessageFormat.format(messages.getString("debug.request.refresh"), ""));
         }
 
-        if (refresh) {
-            if (installDirectory.exists()) {
-                log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
-                FileUtils.forceDelete(installDirectory);
-            }
+        if (refresh && installDirectory.exists()) {
+            log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
+            FileUtils.forceDelete(installDirectory);
         }
 
         // Install the assembly
@@ -346,7 +344,7 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void installFromArchive() throws Exception {
         InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:net/wasdev/wlp/ant:install-liberty");
         if (installTask == null) {
-            throw new NullPointerException("install-liberty task not found");
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-liberty"));
         }
         installTask.setBaseDir(assemblyInstallDirectory.getAbsolutePath());
         installTask.setLicenseCode(install.getLicenseCode());
