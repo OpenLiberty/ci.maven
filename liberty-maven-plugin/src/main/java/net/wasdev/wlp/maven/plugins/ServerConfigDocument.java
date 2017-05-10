@@ -61,7 +61,8 @@ public class ServerConfigDocument {
         return serverFile;
     }
     
-    public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) {
+    public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, 
+    		Map<String, String> bootstrapProp, File serverEnvFile) {
         initializeAppsLocation(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
     }
     
@@ -78,7 +79,8 @@ public class ServerConfigDocument {
         return docBuilder;
     }
     
-    public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) throws IOException {
+    public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, 
+            Map<String, String> bootstrapProp, File serverEnvFile) throws IOException {
         // Initialize if instance is not created yet, or source server xml file location has been changed.
         if (instance == null || !serverXML.getCanonicalPath().equals(getServerFile().getCanonicalPath())) {
            instance = new ServerConfigDocument(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
@@ -86,7 +88,8 @@ public class ServerConfigDocument {
         return instance;
      }
      
-    private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, Map<String, String> bootstrapProp, File serverEnvFile) {
+    private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, 
+            Map<String, String> bootstrapProp, File serverEnvFile) {
         try {
             serverFile = serverXML;
             configDirectory = configDir;
@@ -106,43 +109,28 @@ public class ServerConfigDocument {
             //    e.g. <variable name="myVarName" value="myVarValue" />
             // 6. variables from configDropins/overrides/<file_name>
             
+            Properties fProps;
             // get variables from server.env 
             File cfgDirFile = getFileFromConfigDirectory("server.env");
-            Properties propServerEnv = new Properties();
-            FileInputStream fis = null;
-
-            if (cfgDirFile != null) {
-                fis = new FileInputStream(cfgDirFile);
-                propServerEnv.load(fis);
-                props.putAll(propServerEnv);
-            } else if (serverEnvFile.exists()) {
-                fis = new FileInputStream(serverEnvFile);
-                propServerEnv.load(fis);
-                props.putAll(propServerEnv);
-            }
             
-            if (fis != null) {
-                fis.close();
+            if (cfgDirFile != null) {
+                fProps = parseProperties(new FileInputStream(cfgDirFile));
+                props.putAll(fProps);
+            } else if (serverEnvFile.exists()) {
+                fProps = parseProperties(new FileInputStream(serverEnvFile));
+                props.putAll(fProps);
             }
             
             cfgDirFile = getFileFromConfigDirectory("bootstrap.properties");
-            Properties propBootStrap = new Properties();
-            fis = null;
             
             if (cfgDirFile != null) {
-                fis = new FileInputStream(cfgDirFile);
-                propBootStrap.load(fis);
-                props.putAll(propBootStrap);
+                fProps = parseProperties(new FileInputStream(cfgDirFile));
+                props.putAll(fProps);
             } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
                 props.putAll(bootstrapProp);
             } else if (bootstrapFile.exists()) {
-                fis = new FileInputStream(bootstrapFile);
-                propBootStrap.load(fis);
-                props.putAll(propBootStrap);
-            }
-            
-            if (fis != null) {
-                fis.close();
+                fProps = parseProperties(new FileInputStream(bootstrapFile));
+                props.putAll(fProps);
             }
             
             parseIncludeVariables(doc);
@@ -313,6 +301,21 @@ public class ServerConfigDocument {
             }
         }
         return doc;
+    }
+    
+    private static Properties parseProperties(InputStream ins) throws Exception {
+        Properties props = null;
+        try {
+            props = new Properties();
+            props.load(ins);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (ins != null) {
+                ins.close();
+            }
+        }
+        return props;
     }
     
     private static boolean isValidURL(String url) {
