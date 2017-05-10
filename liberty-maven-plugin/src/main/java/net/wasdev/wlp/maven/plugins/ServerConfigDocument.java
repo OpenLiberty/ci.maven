@@ -109,24 +109,40 @@ public class ServerConfigDocument {
             // get variables from server.env 
             File cfgDirFile = getFileFromConfigDirectory("server.env");
             Properties propServerEnv = new Properties();
+            FileInputStream fis = null;
+
             if (cfgDirFile != null) {
-                propServerEnv.load(new FileInputStream(cfgDirFile));
+                fis = new FileInputStream(cfgDirFile);
+                propServerEnv.load(fis);
                 props.putAll(propServerEnv);
             } else if (serverEnvFile.exists()) {
-                propServerEnv.load(new FileInputStream(serverEnvFile));
+                fis = new FileInputStream(serverEnvFile);
+                propServerEnv.load(fis);
                 props.putAll(propServerEnv);
+            }
+            
+            if (fis != null) {
+                fis.close();
             }
             
             cfgDirFile = getFileFromConfigDirectory("bootstrap.properties");
             Properties propBootStrap = new Properties();
+            fis = null;
+            
             if (cfgDirFile != null) {
-                propBootStrap.load(new FileInputStream(cfgDirFile));
+                fis = new FileInputStream(cfgDirFile);
+                propBootStrap.load(fis);
                 props.putAll(propBootStrap);
             } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
                 props.putAll(bootstrapProp);
             } else if (bootstrapFile.exists()) {
-                propBootStrap.load(new FileInputStream(bootstrapFile));
+                fis = new FileInputStream(bootstrapFile);
+                propBootStrap.load(fis);
                 props.putAll(propBootStrap);
+            }
+            
+            if (fis != null) {
+                fis.close();
             }
             
             parseIncludeVariables(doc);
