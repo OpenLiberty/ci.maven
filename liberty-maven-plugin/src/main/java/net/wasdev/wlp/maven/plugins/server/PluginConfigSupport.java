@@ -142,7 +142,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
     
     protected File getFileFromConfigDirectory(String file) {
-    	return getFileFromConfigDirectory(file, null);
+        return getFileFromConfigDirectory(file, null);
     }
     
     /*
@@ -213,7 +213,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory, bootstrapPropertiesFile, bootstrapProperties, serverEnv);
                 
                 if (scd != null && scd.getLocations().contains(fileName)) {
                     log.debug("Application configuration is found in server.xml : " + fileName);
@@ -236,8 +236,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         if (serverXML != null && serverXML.exists()) {
             try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory);
-                
+                ServerConfigDocument scd = ServerConfigDocument.getInstance(serverXML, configDirectory, bootstrapPropertiesFile, bootstrapProperties, serverEnv);
+               
                 if (scd != null && scd.getLocations().size() > 0) {
                     log.debug("Application configuration is found in server.xml.");
                     bConfigured = true;
@@ -266,7 +266,6 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (srcServerXML != null && srcServerXML.exists() && isAnyAppConfiguredInSourceServerXml()) {
             // overwrite default appsDirectory if application configuration is found.
             appsDirectory = "apps";
-
         }
         log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;
