@@ -39,5 +39,8 @@
         <module>appsdirectory-set-appz-configured-it</module>
         <module>appsdirectory-set-appz-notconfigured-it</module>
         <module>skip-start-server-it</module>
+        <module>test-server-param-default</module>
+        <module>test-server-param-pom-override</module>
+        <module>test-server-param-configdir-override</module>
     </modules>
 </project>
