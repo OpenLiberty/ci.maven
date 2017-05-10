@@ -107,17 +107,24 @@ public class ServerConfigDocument {
             // 6. variables from configDropins/overrides/<file_name>
             
             // get variables from server.env 
-            if (serverEnvFile.exists()) {
-                Properties propServerEnv = new Properties();
+            File cfgDirFile = getFileFromConfigDirectory("server.env");
+            Properties propServerEnv = new Properties();
+            if (cfgDirFile != null) {
+                propServerEnv.load(new FileInputStream(cfgDirFile));
+                props.putAll(propServerEnv);
+            } else if (serverEnvFile.exists()) {
                 propServerEnv.load(new FileInputStream(serverEnvFile));
                 props.putAll(propServerEnv);
             }
             
-            if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
+            cfgDirFile = getFileFromConfigDirectory("bootstrap.properties");
+            Properties propBootStrap = new Properties();
+            if (cfgDirFile != null) {
+                propBootStrap.load(new FileInputStream(cfgDirFile));
+                props.putAll(propBootStrap);
+            } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
                 props.putAll(bootstrapProp);
-                
             } else if (bootstrapFile.exists()) {
-                Properties propBootStrap = new Properties();
                 propBootStrap.load(new FileInputStream(bootstrapFile));
                 props.putAll(propBootStrap);
             }
@@ -390,6 +397,25 @@ public class ServerConfigDocument {
         
         parseVariables(doc);
         parseIncludeVariables(doc);
+    }
+    
+    /* 
+     * Get the file from configDrectory if it exists;
+     * otherwise return def only if it exists, or null if not
+     */
+    private static File getFileFromConfigDirectory(String file, File def) {
+        File f = new File(configDirectory, file);
+        if (configDirectory != null && f.exists()) { 
+            return f;
+        }
+        if (def != null && def.exists()) {
+            return def;
+        } 
+        return null;
+    }
+    
+    private static File getFileFromConfigDirectory(String file) {
+        return getFileFromConfigDirectory(file, null);
     }
 }
 
