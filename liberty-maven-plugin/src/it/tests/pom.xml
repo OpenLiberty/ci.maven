@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-	
+
     <modules>
         <module>test-assembly</module>
         <module>assembly-it</module>
@@ -25,18 +25,23 @@
         <module>test-assembly-with-code-it</module>
         <module>config-packagefile-runnable-it</module>
         <module>config-packagefile-all-it</module>
+        <module>appsdirectory-apps-configured-bootstraps-it</module>  
         <module>appsdirectory-apps-configured-it</module>     
-        <module>appsdirectory-apps-notconfigured-it</module>    
+        <module>appsdirectory-apps-configured-variables-it</module>         
         <module>appsdirectory-apps-dependency-notconfigured-it</module>
         <module>appsdirectory-apps-notconfigured-dependency-configured-it</module>
+        <module>appsdirectory-apps-notconfigured-it</module>    
+        <module>appsdirectory-configdropins-it</module>
         <module>appsdirectory-dropins-notconfigured-it</module>     
+        <module>appsdirectory-include-configured-it</module>
         <module>appsdirectory-notset-configured-it</module>     
         <module>appsdirectory-notset-notconfigured-it</module>
         <module>appsdirectory-set-appz-configured-it</module>
         <module>appsdirectory-set-appz-notconfigured-it</module>
-        <module>appsdirectory-include-configured-it</module>
-        <module>appsdirectory-configdropins-it</module>
         <module>skip-start-server-it</module>
+        <module>test-server-param-default</module>
+        <module>test-server-param-pom-override</module>
+        <module>test-server-param-configdir-override</module>
     </modules>
 	<profiles>
         <profile>
