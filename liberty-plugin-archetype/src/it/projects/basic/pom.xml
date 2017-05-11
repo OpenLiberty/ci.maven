@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+<!--These profiles are included to suppress warnings that they are missing whenever tests are ran -->
     <profiles>
         <profile>
             <id>online-its</id>
