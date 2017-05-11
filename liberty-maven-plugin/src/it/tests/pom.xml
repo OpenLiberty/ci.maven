@@ -43,7 +43,7 @@
         <module>test-server-param-pom-override</module>
         <module>test-server-param-configdir-override</module>
     </modules>
-	<profiles>
+    <profiles>
         <profile>
             <id>online-its</id>
         </profile>
