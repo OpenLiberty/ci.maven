@@ -45,4 +45,13 @@
         <module>test-server-param-pom-override</module>
         <module>test-server-param-configdir-override</module>
     </modules>
+<!--These profiles are included to suppress warnings that they are missing whenever tests are ran -->
+    <profiles>
+        <profile>
+            <id>online-its</id>
+        </profile>
+        <profile>
+            <id>offline-its</id>
+        </profile>
+    </profiles>
 </project>
