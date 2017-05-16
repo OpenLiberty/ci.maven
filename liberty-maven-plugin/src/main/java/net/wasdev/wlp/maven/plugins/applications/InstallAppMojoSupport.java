@@ -64,10 +64,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
-        String fileName = artifact.getFile().getCanonicalPath();
+        String fileName = artifact.getFile().getName();
         if (stripVersion) {
-            fileName = stripVersionFromName(artifact.getFile().getCanonicalPath(), artifact.getVersion());
-            fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+            fileName = stripVersionFromName(fileName, artifact.getVersion());
             copyFile.setTofile(new File(destDir, fileName));
         } else {
             copyFile.setTodir(destDir);
@@ -78,14 +77,18 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         validateAppConfig(fileName);
         
         copyFile.execute();
+        // delete looseApplication if one exists
+        deleteApp(destDir, fileName + ".xml");
     }
     
     // install project artifact using loose application configuration file 
     protected void installLooseConfigApp() throws Exception {
         String looseConfigFileName = getLooseConfigFileName(project);
+        String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
+        
         // validate application configuration if appsDirectory="dropins" or inject webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(looseConfigFileName.substring(0, looseConfigFileName.length() - 4));
+        validateAppConfig(application);
         
         File destDir = new File(serverDirectory, getAppsDirectory());
         
@@ -138,6 +141,15 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
         
         config.toXmlFile(looseConfigFile);
+        // delete non looseApplication if one exists
+        deleteApp(destDir, application);        
+    }
+    
+    private void deleteApp(File destDir, String app) {
+        if (app != null) {
+            File f = new File(destDir, app);
+            f.delete();
+        }
     }
     
     private boolean containsJavaSource(MavenProject proj) {
