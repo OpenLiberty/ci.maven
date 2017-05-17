@@ -76,11 +76,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // to target server.xml if not found for appsDirectory="apps"
         validateAppConfig(fileName);
         
+        deleteApplication(artifact.getFile());
         copyFile.execute();
-        
-        // delete looseApplication if one exists
-        File looseApplication = new File(destDir, fileName + ".xml");
-        looseApplication.delete();
     }
     
     // install project artifact using loose application configuration file 
@@ -142,11 +139,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             }
         }
         
+        deleteApplication(looseConfigFile);
         config.toXmlFile(looseConfigFile);
-        
-        // delete non looseApplication if one exists
-        File nonLooseApplication = new File(destDir, application);
-        nonLooseApplication.delete();       
     }
     
     private boolean containsJavaSource(MavenProject proj) {

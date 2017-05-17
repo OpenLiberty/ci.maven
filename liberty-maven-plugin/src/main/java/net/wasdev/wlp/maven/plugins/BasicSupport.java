@@ -410,6 +410,33 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
     
+    // delete application file from server apps or dropins directory, including loose application
+    protected void deleteApplication(File artifact) throws IOException {
+        deleteApplication(new File(serverDirectory, "apps"), artifact.getName());
+        if (artifact.getName().endsWith(".xml")) {
+            deleteApplication(new File(serverDirectory, "apps"), artifact.getName().substring(0, artifact.getName().length() - 4));
+        } else {
+            deleteApplication(new File(serverDirectory, "apps"), artifact.getName() + ".xml");
+        }
+        
+        deleteApplication(new File(serverDirectory, "dropins"), artifact.getName());
+        if (artifact.getName().endsWith(".xml")) {
+            deleteApplication(new File(serverDirectory, "dropins"), artifact.getName().substring(0, artifact.getName().length() - 4));
+        } else {
+            deleteApplication(new File(serverDirectory, "dropins"), artifact.getName() + ".xml");
+        }
+    }
+    
+    protected void deleteApplication(File parent, String filename) throws IOException {
+        File application = new File(parent, filename);
+        if (application.isDirectory()) {
+            // application can be expanded
+            FileUtils.deleteDirectory(application);
+        } else {
+            application.delete();
+        }
+    }
+    
     private boolean hasSameLicense(Artifact license) throws MojoExecutionException, IOException {
         boolean sameLicense = false;
         if (license != null) {
