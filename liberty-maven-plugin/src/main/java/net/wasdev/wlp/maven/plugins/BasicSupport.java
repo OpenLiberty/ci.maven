@@ -410,6 +410,25 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
     
+    protected void deleteApplication(File parent, File artifactFile) throws IOException {
+        deleteApplication(parent, artifactFile.getName());
+        if (artifactFile.getName().endsWith(".xml")) {
+            deleteApplication(parent, artifactFile.getName().substring(0, artifactFile.getName().length() - 4));
+        } else {
+            deleteApplication(parent, artifactFile.getName() + ".xml");
+        }
+    }
+    
+    protected void deleteApplication(File parent, String filename) throws IOException {
+        File application = new File(parent, filename);
+        if (application.isDirectory()) {
+            // application can be installed with expanded format
+            FileUtils.deleteDirectory(application);
+        } else {
+            application.delete();
+        }
+    }
+    
     private boolean hasSameLicense(Artifact license) throws MojoExecutionException, IOException {
         boolean sameLicense = false;
         if (license != null) {
