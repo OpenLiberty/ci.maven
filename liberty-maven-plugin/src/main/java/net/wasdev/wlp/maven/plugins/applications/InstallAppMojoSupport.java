@@ -74,7 +74,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         // validate application configuration if appsDirectory="dropins" or inject webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(fileName);
+        validateAppConfig(fileName, artifact.getArtifactId());
         
         deleteApplication(new File(serverDirectory, "apps"), artifact.getFile());
         deleteApplication(new File(serverDirectory, "dropins"), artifact.getFile());
@@ -90,7 +90,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         // validate application configuration if appsDirectory="dropins" or inject webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(application);
+        validateAppConfig(application, project.getArtifactId());
         
         File destDir = new File(serverDirectory, getAppsDirectory());
         
@@ -257,11 +257,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         return libraries;
     }
     
-    private void validateAppConfig(String fileName) throws Exception {
+    private void validateAppConfig(String fileName, String artifactId) throws Exception {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
-            applicationXml.createApplicationElement(fileName);
+            applicationXml.createApplicationElement(fileName, artifactId);
         }
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
