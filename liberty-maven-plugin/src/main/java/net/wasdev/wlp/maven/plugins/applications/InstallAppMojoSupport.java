@@ -76,7 +76,10 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // to target server.xml if not found for appsDirectory="apps"
         validateAppConfig(fileName);
         
-        deleteApplication(artifact.getFile());
+        deleteApplication(new File(serverDirectory, "apps"), artifact.getFile());
+        deleteApplication(new File(serverDirectory, "dropins"), artifact.getFile());
+        // application can be expanded if server.xml configure with <applicationManager autoExpand="true"/>
+        deleteApplication(new File(serverDirectory, "apps/expanded"), artifact.getFile());
         copyFile.execute();
     }
     
@@ -139,7 +142,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             }
         }
         
-        deleteApplication(looseConfigFile);
+        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
         config.toXmlFile(looseConfigFile);
     }
     
