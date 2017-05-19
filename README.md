@@ -216,3 +216,51 @@ Example:
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
         
+If you are using a snapshot version of `liberty-archetype-webapp`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
+
+``` xml
+<settings>
+    ...
+    <profiles>
+        <profile>
+            <id>archetype-snapshot-repo</id>
+            <properties>
+                <archetypeRepository>https://oss.sonatype.org/content/repositories/snapshots
+                </archetypeRepository>
+            </properties>
+            <repositories>
+                <repository>
+                    <id>sonatype-nexus-snapshots</id>
+                    <name>Sonatype Nexus Snapshots</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/
+                    </url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>sonatype-nexus-snapshots</id>
+                    <name>Sonatype Nexus Snapshots</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/
+                    </url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>archetype-snapshot-repo</activeProfile>
+    </activeProfiles>
+</settings>
+
+```
