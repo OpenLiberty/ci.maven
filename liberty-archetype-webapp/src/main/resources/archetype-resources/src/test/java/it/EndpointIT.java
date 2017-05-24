@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package ${groupId}.it;
+package ${package}.it;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
