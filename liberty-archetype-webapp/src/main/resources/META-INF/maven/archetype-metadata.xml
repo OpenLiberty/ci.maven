@@ -10,7 +10,7 @@
             <defaultValue>17.0.0.1</defaultValue>
         </requiredProperty>
         <requiredProperty key="wlpPluginVersion">
-            <defaultValue>2.0-SNAPSHOT</defaultValue>
+            <defaultValue>2.0</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <fileSets>
