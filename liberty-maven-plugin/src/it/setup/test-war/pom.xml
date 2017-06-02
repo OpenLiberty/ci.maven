@@ -93,7 +93,7 @@
                         <plugin>
                             <groupId>net.wasdev.wlp.maven.plugins</groupId>
                             <artifactId>liberty-maven-plugin</artifactId>
-                            <version>2.0-SNAPSHOT</version>
+                            <version>@pom.version@</version>
                         </plugin>
                     </plugins>
                 </pluginManagement>
@@ -120,7 +120,7 @@
                         <plugin>
                             <groupId>net.wasdev.wlp.maven.plugins</groupId>
                             <artifactId>liberty-maven-plugin</artifactId>
-                            <version>2.0-SNAPSHOT</version>
+                            <version>@pom.version@</version>
                             <configuration>
                                 <assemblyArtifact>
                                     <groupId>com.ibm.websphere.appserver.runtime</groupId>

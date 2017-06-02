@@ -46,7 +46,7 @@ To enable `liberty-maven-plugin` in your project add the following to your `pom.
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>2.0</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -166,7 +166,7 @@ Example:
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>2.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -195,8 +195,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=1.2 \
-        -DwlpPluginVersion=1.2 \
+        -DarchetypeVersion=2.0 \
+        -DwlpPluginVersion=2.0 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -210,8 +210,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.0-SNAPSHOT \
-        -DwlpPluginVersion=2.0-SNAPSHOT \
+        -DarchetypeVersion=2.0 \
+        -DwlpPluginVersion=2.0 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
