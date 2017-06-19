@@ -28,7 +28,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class StopServerMojo extends StartDebugMojoSupport {
 
     /**
-     * Timeout to verify stop successfully
+     * Timeout to verify stop successfully, this parameter is ignored
      */
     @Parameter(property = "serverStopTimeout", defaultValue = "30")
     protected long serverStopTimeout = 30;
@@ -44,7 +44,6 @@ public class StopServerMojo extends StartDebugMojoSupport {
         if (serverDirectory.exists()) {
             try {
                 ServerTask serverTask = initializeJava();
-                serverTask.setTimeout(Long.toString(serverStopTimeout * 1000));
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {
