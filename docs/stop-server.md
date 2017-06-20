@@ -8,7 +8,7 @@ This goal supports [common server parameters](common-server-parameters.md#common
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| serverStopTimeout | Deprecated. This parameter is ignored. Maximum time to wait (in seconds) to verify that the server has stopped. The default value is 30 seconds. | Ignored |
+| serverStopTimeout | Deprecated. This parameter is ignored. | No |
 
 Example:
 ```xml
