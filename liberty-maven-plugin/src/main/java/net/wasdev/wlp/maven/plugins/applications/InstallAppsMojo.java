@@ -47,7 +47,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         boolean installDependencies = false;
         boolean installProject = false;
         
-        switch (installAppPackages) {
+        switch (getInstallAppPackages()) {
             case "all":
                 installDependencies = true;
                 installProject = true;
