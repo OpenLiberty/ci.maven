@@ -58,7 +58,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
      * Packages to install. One of "all", "dependencies" or "project".
      */
     @Parameter(property = "installAppPackages", defaultValue = "dependencies")
-    protected String installAppPackages;
+    private String installAppPackages;
     
     @Component
     private BuildContext buildContext;
@@ -71,6 +71,13 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         super.installServerAssembly();
         this.buildContext.refresh(f);
         this.buildContext.refresh(installDirectory);
+    }
+    
+    protected String getInstallAppPackages() {
+        if ("ear".equals(project.getPackaging())) {
+            installAppPackages = "project";
+        }
+        return installAppPackages;
     }
     
     /*
@@ -110,7 +117,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
-        configDocument.createElement("installAppPackages", installAppPackages);
+        configDocument.createElement("installAppPackages", getInstallAppPackages());
         configDocument.createElement("applicationFilename", getApplicationFilename());
         configDocument.createElement("assemblyArtifact", assemblyArtifact);   
         configDocument.createElement("assemblyArchive", assemblyArchive);
@@ -150,7 +157,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
      */
     protected String getApplicationFilename() {
         // A project doesn't build a web application artifact but getting the application artifacts from dependencies. e.g. liberty-assembly type project.
-        if (installAppPackages.equalsIgnoreCase("dependencies")) {
+        if ("dependencies".equals(getInstallAppPackages())) {
             return null;
         }
         
