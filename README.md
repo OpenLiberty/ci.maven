@@ -203,7 +203,7 @@ Example:
 
 ### liberty-archetype-webapp
 
-`liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests is on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+`liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
 
 #### Usage
 
@@ -216,7 +216,23 @@ Example:
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
         
-If you are using a snapshot version of `liberty-archetype-webapp`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
+### liberty-archetype-ear
+
+`liberty-archetype-ear` is used to generate a multi-module project that includes a EJB module, a web application module and a EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+
+#### Usage
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeArtifactId=liberty-archetype-ear \
+        -DarchetypeVersion=2.1-SNAPSHOT \
+        -DwlpPluginVersion=2.1-SNAPSHOT \
+        -DgroupId=test \
+        -DartifactId=test \
+        -Dversion=1.0-SNAPSHOT
+
+
+If you are using a snapshot version of `liberty-archetype-webapp` or `liberty-archetype-ear`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
 
 ``` xml
 <settings>
