@@ -66,5 +66,6 @@
         <module>liberty-maven-plugin</module>
         <module>liberty-plugin-archetype</module>
         <module>liberty-archetype-webapp</module>
+        <module>liberty-archetype-ear</module>
     </modules>
 </project>
