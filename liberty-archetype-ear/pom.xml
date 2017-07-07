@@ -15,7 +15,7 @@
     <name>Archetype - liberty-archetype-ear</name>
     
     <description>
-        An archetype that generates a Java EE 7 multi-module project that includes a EJB module, a Web application module and a Ear module
+        An archetype that generates a Java EE 7 multi-module project that includes an EJB module, a web application module and an EAR module
     </description>
     
     <build>
