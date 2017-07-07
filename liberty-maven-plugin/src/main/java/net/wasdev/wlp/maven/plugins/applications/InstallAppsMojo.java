@@ -34,6 +34,7 @@ import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 public class InstallAppsMojo extends InstallAppMojoSupport {
     
     protected void doExecute() throws Exception {
+        System.out.println("DEBUG TIU: >>>>>> " + project.getParent().getProjectReferences().isEmpty());
         if (skip) {
             return;
         }
@@ -104,6 +105,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                     case "war":
                         installLooseConfigApp();
                         break;
+                    case "ear":
+                        installLooseConfigEnterpriseApp();
                     case "liberty-assembly":
                         File dir = getWarSourceDirectory();
                         if (dir.exists()) {

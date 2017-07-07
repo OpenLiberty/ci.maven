@@ -286,7 +286,43 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             return new File(project.getBasedir() + "/src/main/webapp");
         }
     }
-
+    
+    protected File getEarSourceDirectory() {
+        String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
+        if (dir != null) {
+            return new File(dir);
+        } else {
+            return new File(project.getBasedir() + "/src/main/application");
+        }
+    }
+    
+    protected File getEarApplicationXml() {
+        log.debug("PluginConfigSupport:getEarApplicationXml() -> applicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml"));
+        log.debug("PluginConfigSupport:getEarApplicationXml() -> generateApplicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml"));
+        String file = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
+        if (file != null && !file.isEmpty()) {
+            return new File(file);
+        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
+                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
+            return new File(project.getBuild().getDirectory() + "/application.xml");
+        } else {
+            return null;
+        }
+    }
+    
+    protected String getEarFileNameMapping() {
+        // valid values are: standard, no-version, no-version-for-ejb, full
+        String fileNameMapping = "standard";
+        if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping") != null) {
+            fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping");
+        }
+        return fileNameMapping;
+    }
+    
+    protected String getEarDefaultLibBundleDir() {
+        return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
+    }
+    
     private String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
         Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
         if (dom != null) {
