@@ -20,8 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
@@ -56,7 +56,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected File bootstrapPropertiesFile;
 
     @Parameter
-    protected Map<String, String> bootstrapProperties;
+    protected HashMap<String, String> bootstrapProperties;
     
     /**
      * Location of jvm.options file.
@@ -203,13 +203,13 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
     
-    private void writeBootstrapProperties(File file, Map<String, String> properties) throws IOException {
+    private void writeBootstrapProperties(File file, HashMap<String, String> properties) throws IOException {
         makeParentDirectory(file);
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(file, "UTF-8"); 
             writer.println(HEADER);
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
+            for (HashMap.Entry<String, String> entry : properties.entrySet()) {
                 writer.print(entry.getKey());
                 writer.print("=");
                 writer.println((entry.getValue() != null) ? entry.getValue().replace("\\", "/") : "");
