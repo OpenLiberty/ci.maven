@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -62,7 +62,7 @@ public class ServerConfigDocument {
     }
     
     public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, 
-            HashMap<String, String> bootstrapProp, File serverEnvFile) {
+            Map<String, String> bootstrapProp, File serverEnvFile) {
         initializeAppsLocation(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
     }
     
@@ -80,7 +80,7 @@ public class ServerConfigDocument {
     }
     
     public static ServerConfigDocument getInstance(File serverXML, File configDir, File bootstrapFile, 
-            HashMap<String, String> bootstrapProp, File serverEnvFile) throws IOException {
+            Map<String, String> bootstrapProp, File serverEnvFile) throws IOException {
         // Initialize if instance is not created yet, or source server xml file location has been changed.
         if (instance == null || !serverXML.getCanonicalPath().equals(getServerFile().getCanonicalPath())) {
            instance = new ServerConfigDocument(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
@@ -89,7 +89,7 @@ public class ServerConfigDocument {
      }
      
     private static void initializeAppsLocation(File serverXML, File configDir, File bootstrapFile, 
-            HashMap<String, String> bootstrapProp, File serverEnvFile) {
+            Map<String, String> bootstrapProp, File serverEnvFile) {
         try {
             serverFile = serverXML;
             configDirectory = configDir;
@@ -127,6 +127,7 @@ public class ServerConfigDocument {
                 fProps = parseProperties(new FileInputStream(cfgDirFile));
                 props.putAll(fProps);
             } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
+                while (bootstrapProp.values().remove(null));
                 props.putAll(bootstrapProp);
             } else if (bootstrapFile.exists()) {
                 fProps = parseProperties(new FileInputStream(bootstrapFile));

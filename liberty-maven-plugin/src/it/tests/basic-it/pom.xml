@@ -159,7 +159,8 @@
                     <serverName>test</serverName>
                     <!--Testing to ensure passing an empty/null value does not fail-->
                     <bootstrapProperties>
-                        <emptyVal></emptyVal>
+                        <emptyVal_1></emptyVal_1>
+                        <emptyVal_2></emptyVal_2>
                     </bootstrapProperties>
                 </configuration>
             </plugin>
