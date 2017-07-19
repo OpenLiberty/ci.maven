@@ -62,7 +62,7 @@ public class ServerConfigDocument {
     }
     
     public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, 
-            Map<String, String> bootstrapProp, File serverEnvFile) {
+        Map<String, String> bootstrapProp, File serverEnvFile) {
         initializeAppsLocation(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
     }
     
