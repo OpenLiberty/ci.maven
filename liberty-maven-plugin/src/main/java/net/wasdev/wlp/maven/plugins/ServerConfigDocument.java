@@ -62,7 +62,7 @@ public class ServerConfigDocument {
     }
     
     public ServerConfigDocument(File serverXML, File configDir, File bootstrapFile, 
-    		Map<String, String> bootstrapProp, File serverEnvFile) {
+        Map<String, String> bootstrapProp, File serverEnvFile) {
         initializeAppsLocation(serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile);
     }
     
@@ -127,6 +127,7 @@ public class ServerConfigDocument {
                 fProps = parseProperties(new FileInputStream(cfgDirFile));
                 props.putAll(fProps);
             } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
+                while (bootstrapProp.values().remove(null));
                 props.putAll(bootstrapProp);
             } else if (bootstrapFile.exists()) {
                 fProps = parseProperties(new FileInputStream(bootstrapFile));
