@@ -31,10 +31,12 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -55,8 +57,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             File f = new File(project.getBuild().getDirectory() + "/" + warName);
             artifact.setFile(f);
         }
-
-        if(!artifact.getFile().exists()) {
+        
+        if (!artifact.getFile().exists()) {
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
         
@@ -84,23 +86,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         copyFile.execute();
     }
     
-    // install project artifact using loose application configuration file 
-    protected void installLooseConfigApp() throws Exception {
-        String looseConfigFileName = getLooseConfigFileName(project);
-        String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
-        
-        // validate application configuration if appsDirectory="dropins" or inject webApplication
-        // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(application, project.getArtifactId());
-        
-        File destDir = new File(serverDirectory, getAppsDirectory());
-        
-        File looseConfigFile = new File(destDir, looseConfigFileName);
-        LooseConfigData config = new LooseConfigData();
-        
-        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-        
-        File dir = getWarSourceDirectory();
+    // install war project artifact using loose application configuration file
+    protected void installLooseConfigWar(LooseConfigData config) throws Exception {
+        File dir = getWarSourceDirectory(project);
         if (dir.exists()) {
             config.addDir(dir.getCanonicalPath(), "/");
         }
@@ -109,7 +97,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         if (dir.exists()) {
             config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
         } else if (containsJavaSource(project)) {
-            // if webapp contains java source, it has to be compiled first. 
+            // if webapp contains java source, it has to be compiled first.
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
                     project.getId()));
         }
@@ -142,85 +130,85 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 }
             }
         }
-        
-        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-        config.toXmlFile(looseConfigFile);
     }
     
-    // install project artifact using loose application configuration file 
-    // TODO:
-    // - getEarUtilModule()
-    // - getEarEjbModule()
-    // - getEarWarModule()
-    // - getRAModule()
-    // - getAppClinetModule()
-    
-    protected void installLooseConfigEnterpriseApp() throws Exception {
-        String looseConfigFileName = getLooseConfigFileName(project);
-        String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
-        
-        // validate application configuration if appsDirectory="dropins" or inject webApplication
-        // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(application, project.getArtifactId());
-        
-        File destDir = new File(serverDirectory, getAppsDirectory());
-        
-        File looseConfigFile = new File(destDir, looseConfigFileName);
-        LooseConfigData config = new LooseConfigData();
-        
-        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-        
-        
-        //TODO: BEGIN...
-        File dir = getEarSourceDirectory();
-        if (dir.exists()) {
-            config.addDir(dir.getCanonicalPath(), "/");
-        }
-        
-        File file = getEarApplicationXml();
-        if (file != null && file.exists()) {
-            config.addFile(file.getCanonicalPath(), "/META-INF/application.xml");
-        } 
-        
+    // install ear project artifact using loose application configuration file
+    protected void installLooseConfigEar(LooseConfigData config) throws Exception {
         LooseEarApplication looseEar = new LooseEarApplication(project, config, log);
+        config.addDir(getEarSourceDirectory().getCanonicalPath(), "/");
+        config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
         
-        // get jar library modules
+        // jar libraries
         List<Artifact> jarModules = getDependentModules("jar");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of Jar modules: " + jarModules.size());
+        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of Jar modules: "
+                + jarModules.size());
         
         for (Artifact jarModule : jarModules) {
-            looseEar.addEjbModule(jarModule);
+            MavenProject proj = getMavenProject(jarModule.getGroupId(), jarModule.getArtifactId(),
+                    jarModule.getVersion());
+            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
+                looseEar.addJarModule(proj);
+            } else {
+                // use the artifact from local m2 repo
+                looseEar.addModuleFromM2(jarModule, resolveArtifact(jarModule).getFile().getAbsolutePath());
+            }
         }
         
-        // get ejb modules
+        // EJB modules
         List<Artifact> ejbModules = getDependentModules("ejb");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of EJB modules: " + ejbModules.size());
-
+        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of EJB modules: "
+                + ejbModules.size());
+        
         for (Artifact ejbModule : ejbModules) {
-            looseEar.addEjbModule(ejbModule);
+            MavenProject proj = getMavenProject(ejbModule.getGroupId(), ejbModule.getArtifactId(),
+                    ejbModule.getVersion());
+            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
+                looseEar.addEjbModule(proj);
+            } else {
+                // use the artifact from local m2 repo
+                looseEar.addModuleFromM2(ejbModule, resolveArtifact(ejbModule).getFile().getAbsolutePath());
+            }
         }
         
-        // get web modules
-        List<Artifact> webModules = getDependentModules("war");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: " + webModules.size());
+        // Web Application modules
+        List<Artifact> warModules = getDependentModules("war");
+        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: "
+                + warModules.size());
         
-        for (Artifact webModule : webModules) {
-            looseEar.addWebModule(webModule);
+        for (Artifact warModule : warModules) {
+            MavenProject proj = getMavenProject(warModule.getGroupId(), warModule.getArtifactId(),
+                    warModule.getVersion());
+            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
+                Element warArchive = looseEar.addWarModule(proj, getWarSourceDirectory(proj).getCanonicalPath());
+                
+                // war file has external library dependency (including web-fragment jar)
+                List<Dependency> deps = getDependentLibrary(proj);
+                for (Dependency dep : deps) {
+                    MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
+                            dep.getVersion());
+                    if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+                        Element e = config.addArchive(warArchive,
+                                "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
+                        config.addDir(e, dependProject.getBasedir().getCanonicalPath() + "/target/classes", "/");
+                        config.addDir(e, dependProject.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
+                    } else {
+                        config.addFile(warArchive,
+                                resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
+                                "/WEB-INF/lib/" + dependProject.getBuild().getFinalName());
+                    }
+                }
+            } else {
+                // use the artifact from local .m2 repo
+                looseEar.addModuleFromM2(warModule, resolveArtifact(warModule).getFile().getAbsolutePath());
+            }
         }
         
         // TODO: Application Client module
         
         // TODO: Resource Adapter module
         
-        
-        //TODO: END
-        
-        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-        config.toXmlFile(looseConfigFile);
     }
-    
+        
     private boolean containsJavaSource(MavenProject proj) {
         @SuppressWarnings("unchecked")
         List<String> srcDirs = proj.getCompileSourceRoots();
@@ -246,7 +234,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     // get loose application configuration file name for project artifact
-    private String getLooseConfigFileName(MavenProject project) {
+    protected String getLooseConfigFileName(MavenProject project) {
         return getWarFileName(project) + ".xml";
     }
     
@@ -335,7 +323,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         List<Artifact> libraries = new ArrayList<Artifact>(); 
         
         @SuppressWarnings("unchecked")
-        //TODO: R/T ERROR
         Set<Artifact> artifacts = (Set<Artifact>) project.getDependencyArtifacts();
         for (Artifact artifact : artifacts) {
             log.debug(type + " : " + artifact.getId());
@@ -346,7 +333,20 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         return libraries;
     }
     
-    private void validateAppConfig(String fileName, String artifactId) throws Exception {
+    private List<Dependency> getDependentLibrary(MavenProject proj) {
+        List<Dependency> dependencies = new ArrayList<Dependency>(); 
+        
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = proj.getDependencies();
+        for (Dependency dep : deps) {
+            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
+                dependencies.add(dep);
+            }
+        }
+        return dependencies;
+    }
+    
+    protected void validateAppConfig(String fileName, String artifactId) throws Exception {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration

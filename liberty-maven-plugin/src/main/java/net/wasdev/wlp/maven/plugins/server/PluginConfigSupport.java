@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
@@ -183,7 +184,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             break;
         case "liberty-assembly":
             // assuming liberty-assembly project will also have a war file output.
-            File dir = getWarSourceDirectory();
+            File dir = getWarSourceDirectory(project);
             if (dir.exists()) {
                 name += ".war";
                 if (looseApplication) {
@@ -278,12 +279,12 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return appsDirectory;
     }
     
-    protected File getWarSourceDirectory() {
+    protected File getWarSourceDirectory(MavenProject proj) {
         String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (dir != null) {
             return new File(dir);
         } else {
-            return new File(project.getBasedir() + "/src/main/webapp");
+            return new File(proj.getBasedir() + "/src/main/webapp");
         }
     }
     

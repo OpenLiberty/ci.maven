@@ -1,6 +1,5 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
@@ -13,66 +12,50 @@ public class LooseEarApplication {
     private MavenProject project;
     private LooseConfigData config;
     private Log log;
-
+    
     public LooseEarApplication(MavenProject project, LooseConfigData config, Log log) {
         this.project = project;
         this.config = config;
         this.log = log;
     }
     
-    public void addJarModule(Artifact jarModule) throws IOException {
-        String jarArchiveName = "/" + getModuleName(jarModule);
-
+    public Element addJarModule(MavenProject proj) throws IOException {
+        String jarArchiveName = "/" + getModuleName(proj);
         if (getEarDefaultLibBundleDir() != null) {
             jarArchiveName = "/" + getEarDefaultLibBundleDir() + jarArchiveName;
         }
-        
-        File jarModuleProjectDir = new File(project.getBasedir(), "../" + jarModule.getArtifactId());
-        if (jarModuleProjectDir.exists()){
-            Element ejbArchive = config.addArchive(jarArchiveName);
-            config.addDir(ejbArchive, jarModuleProjectDir.getCanonicalPath() + "/target/classes", "/");
-            config.addDir(ejbArchive, jarModuleProjectDir.getCanonicalPath() + "src/main/resources", "/");
-        } else {
-            log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> No project source for Jar module, " + jarModule.getArtifactId());
-            config.addFile(jarModule.getFile().getCanonicalPath(), jarArchiveName);
-        }
+        Element jarArchive = config.addArchive(jarArchiveName);
+        config.addDir(jarArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/");
+        config.addDir(jarArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
+        return jarArchive;
     }
     
-    public void addEjbModule(Artifact ejbModule) throws IOException {
-        String ejbArchiveName = "/" + getModuleName(ejbModule);
-        
-        File ejbModuleProjectDir = new File(project.getBasedir(), "../" + ejbModule.getArtifactId());
-        if (ejbModuleProjectDir.exists()){
-            Element ejbArchive = config.addArchive(ejbArchiveName);
-            config.addDir(ejbArchive, ejbModuleProjectDir.getCanonicalPath() + "/target/classes", "/");
-            config.addDir(ejbArchive, ejbModuleProjectDir.getCanonicalPath() + "src/main/resources", "/");
-        } else {
-            log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> No project source for EJB module, " + ejbModule.getArtifactId());
-            config.addFile(ejbModule.getFile().getCanonicalPath(), ejbArchiveName);
-        }
+    public Element addEjbModule(MavenProject proj) throws IOException {
+        String ejbArchiveName = "/" + getModuleName(proj);
+        Element ejbArchive = config.addArchive(ejbArchiveName);
+        config.addDir(ejbArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/");
+        config.addDir(ejbArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
+        return ejbArchive;
     }
     
-    public void addWebModule(Artifact webModule) throws IOException {
-        String warArchiveName = "/" + getModuleName(webModule);
-        /*
-        String warArchiveName = "/" + webModule.getArtifactId() + "-" + webModule.getVersion() + ".war";
-        if (getEarFileNameMapping().equals("no-version")) {
-            warArchiveName = "/" + webModule.getArtifactId() + ".war";
-        } else if (getEarFileNameMapping().equals("full")){
-            warArchiveName = "/" + webModule.getGroupId() + "-" +  webModule.getArtifactId() + "-" + webModule.getVersion() + ".war";
+    public Element addWarModule(MavenProject proj, String warSourceDir) throws IOException {
+        String warArchiveName = "/" + getModuleName(proj);
+        Element warArchive = config.addArchive(warArchiveName);
+        config.addDir(warSourceDir, "/");
+        config.addDir(warArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/WEB-INF/classes");
+        config.addDir(warArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/WEB-INF/classes");
+        
+        return warArchive;
+    }
+    
+    public void addModuleFromM2(Artifact artifact, String artifactFile) {
+        String artifactName = "/" + getModuleName(artifact);
+        
+        if (getEarDefaultLibBundleDir() != null && (artifact.getType() == null || "jar".equals(artifact.getType()))) {
+            artifactName = "/" + getEarDefaultLibBundleDir() + artifactName;
         }
-        */
-        File webModuleProjectDir = new File(project.getBasedir(), "../" + webModule.getArtifactId());
-        if (webModuleProjectDir.exists()){
-            Element warArchive = config.addArchive(warArchiveName);
-            config.addDir(warArchive, webModuleProjectDir.getCanonicalPath() + "/src/main/webapp", "/");
-            config.addDir(warArchive, webModuleProjectDir.getCanonicalPath() + "/target/classes", "/WEB-INF/classes");
-            config.addDir(warArchive, webModuleProjectDir.getCanonicalPath() + "src/main/resources", "/WEB-INF/classes");
-            //TDOD: emmbedded util jar in /WEB-INF/lib 
-        } else {
-            log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> No project source for WAR module, " + webModule.getArtifactId());
-            config.addFile(webModule.getFile().getCanonicalPath(), warArchiveName);
-        }
+        
+        config.addFile(artifactFile, artifactName);
     }
     
     public String getModuleName(Artifact artifact) {
@@ -95,7 +78,8 @@ public class LooseEarApplication {
                 }
                 break;
             case "full":
-                moduleName = artifact.getGroupId() + "-" +  artifact.getArtifactId() + "-" + artifact.getVersion() + "." +fileExtension;
+                moduleName = artifact.getGroupId() + "-" + artifact.getArtifactId() + "-" + artifact.getVersion() + "."
+                        + fileExtension;
                 break;
             default:
                 // standard
@@ -104,9 +88,40 @@ public class LooseEarApplication {
         return moduleName;
     }
     
+    public String getModuleName(MavenProject proj) {
+        String moduleName;
+        
+        String fileExtension = proj.getPackaging();
+        if ("ejb".equals(fileExtension)) {
+            fileExtension = "jar";
+        }
+        
+        switch (getEarFileNameMapping()) {
+            case "no-version":
+                moduleName = proj.getArtifactId() + "." + fileExtension;
+                break;
+            case "no-version-for-ejb":
+                if ("ejb".equals(proj.getPackaging())) {
+                    moduleName = proj.getArtifactId() + "." + fileExtension;
+                } else {
+                    moduleName = proj.getArtifactId() + "-" + proj.getVersion() + "." + fileExtension;
+                }
+                break;
+            case "full":
+                moduleName = proj.getGroupId() + "-" + proj.getArtifactId() + "-" + proj.getVersion() + "."
+                        + fileExtension;
+                break;
+            default:
+                // standard
+                moduleName = proj.getArtifactId() + "-" + proj.getVersion() + "." + fileExtension;
+        }
+        return moduleName;
+    }
+    
     public String getEarFileNameMapping() {
         // valid values are: standard, no-version, no-version-for-ejb, full
-        String fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping");
+        String fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin",
+                "fileNameMapping");
         if (fileNameMapping == null || fileNameMapping.isEmpty()) {
             fileNameMapping = "standard";
         }
@@ -128,4 +143,3 @@ public class LooseEarApplication {
         return null;
     }
 }
-

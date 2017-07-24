@@ -34,7 +34,6 @@ import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 public class InstallAppsMojo extends InstallAppMojoSupport {
     
     protected void doExecute() throws Exception {
-        System.out.println("DEBUG TIU: >>>>>> " + project.getParent().getProjectReferences().isEmpty());
         if (skip) {
             return;
         }
@@ -101,16 +100,28 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     private void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
-                switch(project.getPackaging()) {
+                String looseConfigFileName = getLooseConfigFileName(project);
+                String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
+                File destDir = new File(serverDirectory, getAppsDirectory());
+                File looseConfigFile = new File(destDir, looseConfigFileName);
+                LooseConfigData config = new LooseConfigData();
+                switch (project.getPackaging()) {
                     case "war":
-                        installLooseConfigApp();
+                        validateAppConfig(application, project.getArtifactId());
+                        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                        installLooseConfigWar(config);
                         break;
                     case "ear":
-                        installLooseConfigEnterpriseApp();
+                        validateAppConfig(application, project.getArtifactId());
+                        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                        installLooseConfigEar(config);
+                        break;
                     case "liberty-assembly":
-                        File dir = getWarSourceDirectory();
+                        File dir = getWarSourceDirectory(project);
                         if (dir.exists()) {
-                            installLooseConfigApp();
+                            validateAppConfig(application, project.getArtifactId());
+                            log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                            installLooseConfigWar(config);
                         } else {
                             log.debug("liberty-assembly project does not have source code for web project.");
                         }
@@ -119,14 +130,17 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                         log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
                                 project.getPackaging()));
                         installApp(project.getArtifact());
-                        break;
+                        return;
                 }
+                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                config.toXmlFile(looseConfigFile);
             } else {
                 installApp(project.getArtifact());
             }
         } else {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.application.not.supported"),
-                    project.getId()));
+            throw new MojoExecutionException(
+                    MessageFormat.format(messages.getString("error.application.not.supported"), project.getId()));
         }
     }
 

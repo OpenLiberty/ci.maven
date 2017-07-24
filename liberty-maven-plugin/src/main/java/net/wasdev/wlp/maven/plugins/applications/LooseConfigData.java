@@ -41,14 +41,24 @@ public class LooseConfigData extends XmlDocument {
     
     public void addFile(String src, String target) {
         if (new File(src).exists()) {
+            addFile(doc.getDocumentElement(), src, target);
+        }
+    }
+    
+    public void addFile(Element parent, String src, String target) {
+        if (new File(src).exists()) {
             Element child = doc.createElement("file");
-            addElement(doc.getDocumentElement(), child, target, src);
+            addElement(parent, child, target, src);
         }
     }
     
     public Element addArchive(String target) {
+        return addArchive(doc.getDocumentElement(), target);
+    }
+    
+    public Element addArchive(Element parent, String target) {
         Element child = doc.createElement("archive");
-        addElement(doc.getDocumentElement(), child, target);
+        addElement(parent, child, target);
         return child;
     }
     
