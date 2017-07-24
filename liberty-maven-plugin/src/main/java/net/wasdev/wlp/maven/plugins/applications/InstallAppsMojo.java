@@ -110,11 +110,17 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                         validateAppConfig(application, project.getArtifactId());
                         log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                         installLooseConfigWar(config);
+                        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                        config.toXmlFile(looseConfigFile);
                         break;
                     case "ear":
                         validateAppConfig(application, project.getArtifactId());
                         log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                         installLooseConfigEar(config);
+                        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                        config.toXmlFile(looseConfigFile);
                         break;
                     case "liberty-assembly":
                         File dir = getWarSourceDirectory(project);
@@ -122,6 +128,9 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                             validateAppConfig(application, project.getArtifactId());
                             log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                             installLooseConfigWar(config);
+                            deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                            deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                            config.toXmlFile(looseConfigFile);
                         } else {
                             log.debug("liberty-assembly project does not have source code for web project.");
                         }
@@ -130,11 +139,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                         log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
                                 project.getPackaging()));
                         installApp(project.getArtifact());
-                        return;
+                        break;
                 }
-                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                config.toXmlFile(looseConfigFile);
             } else {
                 installApp(project.getArtifact());
             }

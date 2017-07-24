@@ -3,7 +3,6 @@ package net.wasdev.wlp.maven.plugins.applications;
 import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
@@ -11,12 +10,10 @@ import org.w3c.dom.Element;
 public class LooseEarApplication {
     private MavenProject project;
     private LooseConfigData config;
-    private Log log;
     
-    public LooseEarApplication(MavenProject project, LooseConfigData config, Log log) {
+    public LooseEarApplication(MavenProject project, LooseConfigData config) {
         this.project = project;
         this.config = config;
-        this.log = log;
     }
     
     public Element addJarModule(MavenProject proj) throws IOException {
@@ -84,6 +81,7 @@ public class LooseEarApplication {
             default:
                 // standard
                 moduleName = artifact.getArtifactId() + "-" + artifact.getVersion() + "." + fileExtension;
+                break;
         }
         return moduleName;
     }
@@ -114,6 +112,7 @@ public class LooseEarApplication {
             default:
                 // standard
                 moduleName = proj.getArtifactId() + "-" + proj.getVersion() + "." + fileExtension;
+                break;
         }
         return moduleName;
     }

@@ -134,7 +134,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // install ear project artifact using loose application configuration file
     protected void installLooseConfigEar(LooseConfigData config) throws Exception {
-        LooseEarApplication looseEar = new LooseEarApplication(project, config, log);
+        LooseEarApplication looseEar = new LooseEarApplication(project, config);
         config.addDir(getEarSourceDirectory().getCanonicalPath(), "/");
         config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
         
