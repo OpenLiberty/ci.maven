@@ -18,6 +18,10 @@ public class LooseEarApplication {
         this.config = config;
     }
     
+    public LooseConfigData getConfig() {
+        return config;
+    }
+    
     public Element addJarModule(MavenProject proj) throws IOException {
         String jarArchiveName = "/"
                 + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());

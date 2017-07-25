@@ -145,7 +145,27 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         List<Artifact> jarModules = getDependentModules("jar");
         log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of Jar modules: "
                 + jarModules.size());
+        addEarJarModules(jarModules, looseEar);
         
+        // EJB modules
+        List<Artifact> ejbModules = getDependentModules("ejb");
+        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of EJB modules: "
+                + ejbModules.size());
+        addEarJarModules(ejbModules, looseEar);
+        
+        // Web Application modules
+        List<Artifact> warModules = getDependentModules("war");
+        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: "
+                + warModules.size());
+        addEarWarModules(ejbModules, looseEar);
+        
+        // TODO: Application Client module
+        
+        // TODO: Resource Adapter module
+        
+    }
+    
+    private void addEarJarModules(List<Artifact> jarModules, LooseEarApplication looseEar) throws Exception {
         for (Artifact jarModule : jarModules) {
             MavenProject proj = getMavenProject(jarModule.getGroupId(), jarModule.getArtifactId(),
                     jarModule.getVersion());
@@ -156,28 +176,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 looseEar.addModuleFromM2(jarModule, resolveArtifact(jarModule).getFile().getAbsolutePath());
             }
         }
-        
-        // EJB modules
-        List<Artifact> ejbModules = getDependentModules("ejb");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of EJB modules: "
-                + ejbModules.size());
-        
-        for (Artifact ejbModule : ejbModules) {
-            MavenProject proj = getMavenProject(ejbModule.getGroupId(), ejbModule.getArtifactId(),
-                    ejbModule.getVersion());
-            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
-                looseEar.addJarModule(proj);
-            } else {
-                // use the artifact from local m2 repo
-                looseEar.addModuleFromM2(ejbModule, resolveArtifact(ejbModule).getFile().getAbsolutePath());
-            }
-        }
-        
-        // Web Application modules
-        List<Artifact> warModules = getDependentModules("war");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: "
-                + warModules.size());
-        
+    }
+    
+    private void addEarWarModules(List<Artifact> warModules, LooseEarApplication looseEar) throws Exception {
         for (Artifact warModule : warModules) {
             MavenProject proj = getMavenProject(warModule.getGroupId(), warModule.getArtifactId(),
                     warModule.getVersion());
@@ -190,16 +191,16 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                     MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
                             dep.getVersion());
                     if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
-                        Element e = config.addArchive(warArchive,
+                        Element e = looseEar.getConfig().addArchive(warArchive,
                                 "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
-                        config.addDir(e, dependProject.getBuild().getOutputDirectory(), "/");
+                        looseEar.getConfig().addDir(e, dependProject.getBuild().getOutputDirectory(), "/");
                         @SuppressWarnings("unchecked")
                         List<Resource> resources = dependProject.getResources();
                         for (Resource res : resources) {
-                            config.addDir(e, res.getDirectory(), "/");
+                            looseEar.getConfig().addDir(e, res.getDirectory(), "/");
                         }
                     } else {
-                        config.addFile(warArchive,
+                        looseEar.getConfig().addFile(warArchive,
                                 resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
                                 "/WEB-INF/lib/" + dependProject.getBuild().getFinalName());
                     }
@@ -209,13 +210,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 looseEar.addModuleFromM2(warModule, resolveArtifact(warModule).getFile().getAbsolutePath());
             }
         }
-        
-        // TODO: Application Client module
-        
-        // TODO: Resource Adapter module
-        
     }
-        
+    
     private boolean containsJavaSource(MavenProject proj) {
         @SuppressWarnings("unchecked")
         List<String> srcDirs = proj.getCompileSourceRoots();

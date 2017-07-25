@@ -173,30 +173,30 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         // liberty only supports these application types: ear, war, eba, esa
         switch (project.getPackaging()) {
-        case "ear":
-        case "war":
-        case "eba":
-        case "esa":
-            name += "." + project.getPackaging();
-            if (looseApplication) {
-                name += ".xml";
-            }
-            break;
-        case "liberty-assembly":
-            // assuming liberty-assembly project will also have a war file output.
-            File dir = getWarSourceDirectory(project);
-            if (dir.exists()) {
-                name += ".war";
+            case "ear":
+            case "war":
+            case "eba":
+            case "esa":
+                name += "." + project.getPackaging();
                 if (looseApplication) {
                     name += ".xml";
                 }
-            }
-            break;
-        default:
-            log.debug("The project artifact cannot be installed to a Liberty server because " +
-                    project.getPackaging() + " is not a supported packaging type.");
-            name = null;
-            break;
+                break;
+            case "liberty-assembly":
+                // assuming liberty-assembly project will also have a war file output.
+                File dir = getWarSourceDirectory(project);
+                if (dir.exists()) {
+                    name += ".war";
+                    if (looseApplication) {
+                        name += ".xml";
+                    }
+                }
+                break;
+            default:
+                log.debug("The project artifact cannot be installed to a Liberty server because "
+                        + project.getPackaging() + " is not a supported packaging type.");
+                name = null;
+                break;
         }
         
         return name;
