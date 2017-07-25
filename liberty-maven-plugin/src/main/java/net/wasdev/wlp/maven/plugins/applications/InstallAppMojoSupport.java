@@ -32,6 +32,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -136,7 +137,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     protected void installLooseConfigEar(LooseConfigData config) throws Exception {
         LooseEarApplication looseEar = new LooseEarApplication(project, config);
         config.addDir(getEarSourceDirectory().getCanonicalPath(), "/");
-        config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
+        if (getEarApplicationXml() != null) {
+            config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
+        }
         
         // jar libraries
         List<Artifact> jarModules = getDependentModules("jar");
@@ -163,7 +166,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             MavenProject proj = getMavenProject(ejbModule.getGroupId(), ejbModule.getArtifactId(),
                     ejbModule.getVersion());
             if (proj.getBasedir() != null && proj.getBasedir().exists()) {
-                looseEar.addEjbModule(proj);
+                looseEar.addJarModule(proj);
             } else {
                 // use the artifact from local m2 repo
                 looseEar.addModuleFromM2(ejbModule, resolveArtifact(ejbModule).getFile().getAbsolutePath());
@@ -189,8 +192,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                     if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
                         Element e = config.addArchive(warArchive,
                                 "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
-                        config.addDir(e, dependProject.getBasedir().getCanonicalPath() + "/target/classes", "/");
-                        config.addDir(e, dependProject.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
+                        config.addDir(e, dependProject.getBuild().getOutputDirectory(), "/");
+                        @SuppressWarnings("unchecked")
+                        List<Resource> resources = dependProject.getResources();
+                        for (Resource res : resources) {
+                            config.addDir(e, res.getDirectory(), "/");
+                        }
                     } else {
                         config.addFile(warArchive,
                                 resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),

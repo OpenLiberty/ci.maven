@@ -1,8 +1,10 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
@@ -17,36 +19,38 @@ public class LooseEarApplication {
     }
     
     public Element addJarModule(MavenProject proj) throws IOException {
-        String jarArchiveName = "/" + getModuleName(proj);
-        if (getEarDefaultLibBundleDir() != null) {
+        String jarArchiveName = "/"
+                + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+        if (getEarDefaultLibBundleDir() != null && !"ejb".equals(proj.getPackaging())) {
             jarArchiveName = "/" + getEarDefaultLibBundleDir() + jarArchiveName;
         }
         Element jarArchive = config.addArchive(jarArchiveName);
-        config.addDir(jarArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/");
-        config.addDir(jarArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
+        config.addDir(jarArchive, proj.getBuild().getOutputDirectory(), "/");
+        @SuppressWarnings("unchecked")
+        List<Resource> resources = proj.getResources();
+        for (Resource res : resources) {
+            config.addDir(jarArchive, res.getDirectory(), "/");
+        }
         return jarArchive;
     }
     
-    public Element addEjbModule(MavenProject proj) throws IOException {
-        String ejbArchiveName = "/" + getModuleName(proj);
-        Element ejbArchive = config.addArchive(ejbArchiveName);
-        config.addDir(ejbArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/");
-        config.addDir(ejbArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/");
-        return ejbArchive;
-    }
-    
     public Element addWarModule(MavenProject proj, String warSourceDir) throws IOException {
-        String warArchiveName = "/" + getModuleName(proj);
+        String warArchiveName = "/"
+                + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
         Element warArchive = config.addArchive(warArchiveName);
         config.addDir(warSourceDir, "/");
-        config.addDir(warArchive, proj.getBasedir().getCanonicalPath() + "/target/classes", "/WEB-INF/classes");
-        config.addDir(warArchive, proj.getBasedir().getCanonicalPath() + "/src/main/resources", "/WEB-INF/classes");
-        
+        config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
+        @SuppressWarnings("unchecked")
+        List<Resource> resources = proj.getResources();
+        for (Resource res : resources) {
+            config.addDir(warArchive, res.getDirectory(), "/WEB-INF/classes");
+        }
         return warArchive;
     }
     
     public void addModuleFromM2(Artifact artifact, String artifactFile) {
-        String artifactName = "/" + getModuleName(artifact);
+        String artifactName = "/" + getModuleName(artifact.getGroupId(), artifact.getArtifactId(),
+                artifact.getVersion(), artifact.getType());
         
         if (getEarDefaultLibBundleDir() != null && (artifact.getType() == null || "jar".equals(artifact.getType()))) {
             artifactName = "/" + getEarDefaultLibBundleDir() + artifactName;
@@ -55,63 +59,32 @@ public class LooseEarApplication {
         config.addFile(artifactFile, artifactName);
     }
     
-    public String getModuleName(Artifact artifact) {
+    public String getModuleName(String groupId, String artifactId, String version, String packaging) {
         String moduleName;
         
-        String fileExtension = artifact.getType();
+        String fileExtension = packaging;
         if ("ejb".equals(fileExtension)) {
             fileExtension = "jar";
         }
         
         switch (getEarFileNameMapping()) {
             case "no-version":
-                moduleName = artifact.getArtifactId() + "." + fileExtension;
+                moduleName = artifactId + "." + fileExtension;
                 break;
             case "no-version-for-ejb":
-                if ("ejb".equals(artifact.getType())) {
-                    moduleName = artifact.getArtifactId() + "." + fileExtension;
+                if ("ejb".equals(packaging)) {
+                    moduleName = artifactId + "." + fileExtension;
                 } else {
-                    moduleName = artifact.getArtifactId() + "-" + artifact.getVersion() + "." + fileExtension;
+                    moduleName = artifactId + "-" + version + "." + fileExtension;
                 }
                 break;
             case "full":
-                moduleName = artifact.getGroupId() + "-" + artifact.getArtifactId() + "-" + artifact.getVersion() + "."
+                moduleName = groupId + "-" + artifactId + "-" + version + "."
                         + fileExtension;
                 break;
             default:
                 // standard
-                moduleName = artifact.getArtifactId() + "-" + artifact.getVersion() + "." + fileExtension;
-                break;
-        }
-        return moduleName;
-    }
-    
-    public String getModuleName(MavenProject proj) {
-        String moduleName;
-        
-        String fileExtension = proj.getPackaging();
-        if ("ejb".equals(fileExtension)) {
-            fileExtension = "jar";
-        }
-        
-        switch (getEarFileNameMapping()) {
-            case "no-version":
-                moduleName = proj.getArtifactId() + "." + fileExtension;
-                break;
-            case "no-version-for-ejb":
-                if ("ejb".equals(proj.getPackaging())) {
-                    moduleName = proj.getArtifactId() + "." + fileExtension;
-                } else {
-                    moduleName = proj.getArtifactId() + "-" + proj.getVersion() + "." + fileExtension;
-                }
-                break;
-            case "full":
-                moduleName = proj.getGroupId() + "-" + proj.getArtifactId() + "-" + proj.getVersion() + "."
-                        + fileExtension;
-                break;
-            default:
-                // standard
-                moduleName = proj.getArtifactId() + "-" + proj.getVersion() + "." + fileExtension;
+                moduleName = artifactId + "-" + version + "." + fileExtension;
                 break;
         }
         return moduleName;
