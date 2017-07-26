@@ -157,7 +157,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         List<Artifact> warModules = getDependentModules("war");
         log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: "
                 + warModules.size());
-        addEarWarModules(ejbModules, looseEar);
+        addEarWarModules(warModules, looseEar);
         
         // TODO: Application Client module
         
