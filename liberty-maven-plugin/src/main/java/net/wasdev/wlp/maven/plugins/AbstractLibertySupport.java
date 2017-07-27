@@ -15,10 +15,16 @@
  */
 package net.wasdev.wlp.maven.plugins;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.ProjectBuildingResult;
+import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,26 +46,42 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     protected ArtifactRepository artifactRepository = null;
     
     /**
-    * The build settings.
-    */
+     * The build settings.
+     */
     @Parameter(defaultValue = "${settings}", required = true, readonly = true)
     protected Settings settings;
-
-    @Component(role = AntHelper.class)  
+    
+    @Component(role = AntHelper.class)
     protected AntHelper ant;
-
+    
+    @Component
+    protected RepositorySystem repositorySystem;
+    
+    @Component
+    protected ProjectBuilder mavenProjectBuilder;
+    
+    @Parameter(defaultValue = "${session}", readonly = true)
+    protected MavenSession session;
+    
     protected MavenProject getProject() {
         return project;
     }
-
+    
     protected ArtifactRepository getArtifactRepository() {
         return artifactRepository;
     }
-
+    
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
         // Initialize ant helper instance
         ant.setProject(getProject());
     }
-
+    
+    protected MavenProject getMavenProject(String groupId, String artifactId, String version)
+            throws ProjectBuildingException {
+        Artifact pomArtifact = repositorySystem.createProjectArtifact(groupId, artifactId, version);
+        ProjectBuildingResult build = mavenProjectBuilder.build(pomArtifact, session.getProjectBuildingRequest());
+        return build.getProject();
+    }
+    
 }

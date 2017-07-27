@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
@@ -172,30 +173,30 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         
         // liberty only supports these application types: ear, war, eba, esa
         switch (project.getPackaging()) {
-        case "ear":
-        case "war":
-        case "eba":
-        case "esa":
-            name += "." + project.getPackaging();
-            if (looseApplication) {
-                name += ".xml";
-            }
-            break;
-        case "liberty-assembly":
-            // assuming liberty-assembly project will also have a war file output.
-            File dir = getWarSourceDirectory();
-            if (dir.exists()) {
-                name += ".war";
+            case "ear":
+            case "war":
+            case "eba":
+            case "esa":
+                name += "." + project.getPackaging();
                 if (looseApplication) {
                     name += ".xml";
                 }
-            }
-            break;
-        default:
-            log.debug("The project artifact cannot be installed to a Liberty server because " +
-                    project.getPackaging() + " is not a supported packaging type.");
-            name = null;
-            break;
+                break;
+            case "liberty-assembly":
+                // assuming liberty-assembly project will also have a war file output.
+                File dir = getWarSourceDirectory(project);
+                if (dir.exists()) {
+                    name += ".war";
+                    if (looseApplication) {
+                        name += ".xml";
+                    }
+                }
+                break;
+            default:
+                log.debug("The project artifact cannot be installed to a Liberty server because "
+                        + project.getPackaging() + " is not a supported packaging type.");
+                name = null;
+                break;
         }
         
         return name;
@@ -278,15 +279,51 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return appsDirectory;
     }
     
-    protected File getWarSourceDirectory() {
+    protected File getWarSourceDirectory(MavenProject proj) {
         String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (dir != null) {
             return new File(dir);
         } else {
-            return new File(project.getBasedir() + "/src/main/webapp");
+            return new File(proj.getBasedir() + "/src/main/webapp");
         }
     }
-
+    
+    protected File getEarSourceDirectory() {
+        String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
+        if (dir != null) {
+            return new File(dir);
+        } else {
+            return new File(project.getBasedir() + "/src/main/application");
+        }
+    }
+    
+    protected File getEarApplicationXml() {
+        log.debug("PluginConfigSupport:getEarApplicationXml() -> applicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml"));
+        log.debug("PluginConfigSupport:getEarApplicationXml() -> generateApplicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml"));
+        String file = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
+        if (file != null && !file.isEmpty()) {
+            return new File(file);
+        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
+                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
+            return new File(project.getBuild().getDirectory() + "/application.xml");
+        } else {
+            return null;
+        }
+    }
+    
+    protected String getEarFileNameMapping() {
+        // valid values are: standard, no-version, no-version-for-ejb, full
+        String fileNameMapping = "standard";
+        if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping") != null) {
+            fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping");
+        }
+        return fileNameMapping;
+    }
+    
+    protected String getEarDefaultLibBundleDir() {
+        return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
+    }
+    
     private String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
         Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
         if (dom != null) {

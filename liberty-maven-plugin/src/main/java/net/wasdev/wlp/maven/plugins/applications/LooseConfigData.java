@@ -16,64 +16,58 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Element;
-
 import net.wasdev.wlp.maven.plugins.XmlDocument;
 
 public class LooseConfigData extends XmlDocument {
     
-    private Map<String, String> dirs;
-    
-    private Map<String, String> files;
-    
-    private Map<String, String> archives;
-    
-    public LooseConfigData() {
-        dirs = new HashMap<String, String>();
-        files = new HashMap<String, String>();
-        archives = new HashMap<String, String>();
+    public LooseConfigData() throws ParserConfigurationException {
+        createDocument("archive");
     }
     
     public void addDir(String src, String target) {
-        dirs.put(src, target);
+        if (new File(src).exists()) {
+            addDir(doc.getDocumentElement(), src, target);
+        }
+    }
+    
+    public void addDir(Element parent, String src, String target) {
+        if (new File(src).exists()) {
+            Element child = doc.createElement("dir");
+            addElement(parent, child, target, src);
+        }
     }
     
     public void addFile(String src, String target) {
-        files.put(src, target);
+        if (new File(src).exists()) {
+            addFile(doc.getDocumentElement(), src, target);
+        }
+    }
+    
+    public void addFile(Element parent, String src, String target) {
+        if (new File(src).exists()) {
+            Element child = doc.createElement("file");
+            addElement(parent, child, target, src);
+        }
+    }
+    
+    public Element addArchive(String target) {
+        return addArchive(doc.getDocumentElement(), target);
+    }
+    
+    public Element addArchive(Element parent, String target) {
+        Element child = doc.createElement("archive");
+        addElement(parent, child, target);
+        return child;
     }
     
     public void addArchive(String src, String target) {
-        archives.put(src, target);
+        Element child = addArchive(target);
+        addElement(child, doc.createElement("dir"), "/", src);
     }
     
-    public void toXmlFile(File xmlFile) throws Exception {
-        createDocument("archive");
-        
-        if (!dirs.isEmpty()) {
-            for(Map.Entry<String, String> entry : dirs.entrySet()){
-                Element child = doc.createElement("dir");
-                addElement(doc.getDocumentElement(), child, entry.getValue(), entry.getKey());
-            }
-        }
-        
-        if (!files.isEmpty()) {
-            for(Map.Entry<String, String> entry : files.entrySet()){
-                Element child = doc.createElement("file");
-                addElement(doc.getDocumentElement(), child, entry.getValue(), entry.getKey());
-            }
-        }
-        
-        if (!archives.isEmpty()) {
-            for(Map.Entry<String, String> entry : archives.entrySet()){
-                Element child = doc.createElement("archive");
-                addElement(doc.getDocumentElement(), child, entry.getValue());
-                addElement(child, doc.createElement("dir"), "/", entry.getKey());
-            }
-        }
-        
+    public void toXmlFile(File xmlFile) throws Exception {        
         writeXMLDocument(xmlFile);
     }
     
