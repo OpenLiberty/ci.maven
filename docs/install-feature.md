@@ -1,6 +1,6 @@
 #### install-feature
 ---
-Install one or more features packaged as a Subsystem Archive (ESA) to the Liberty runtime.
+Install one or more features packaged as Subsystem Archive (ESA) files to the Liberty runtime.
 
 To install the missing features declared in the `server.xml` file, set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
 
