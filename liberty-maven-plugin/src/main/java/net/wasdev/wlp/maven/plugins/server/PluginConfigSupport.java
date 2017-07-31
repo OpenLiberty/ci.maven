@@ -127,6 +127,11 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("install", install);
         
         configDocument.createElement("installAppsConfigDropins", ApplicationXmlDocument.getApplicationXmlFile(serverDirectory));
+        configDocument.createElement("projectType", project.getPackaging());
+        if (project.getParent() != null && !project.getParent().getModules().isEmpty()) {
+            configDocument.createElement("aggregatorParentId", project.getParent().getArtifactId());
+            configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
+        }
         
         // write XML document to file
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);

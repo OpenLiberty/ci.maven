@@ -43,6 +43,19 @@ public class PluginConfigXmlIT {
         String expression = "/liberty-plugin-config/installAppPackages/text()";
         String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
         assertEquals("Value of <installAppPackages/> ==>", "project", value);
+        
+        expression = "/liberty-plugin-config/projectType/text()";
+        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+        assertEquals("Value of <projectType/> ==>", "ear", value);
+        
+        expression = "/liberty-plugin-config/aggregatorParentId/text()";
+        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+        assertEquals("Value of <aggregatorParentId/> ==>", "ear-project-it", value);
+        
+        expression = "/liberty-plugin-config/aggregatorParentBasedir/text()";
+        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+        File parentProj = new File("../..");
+        assertEquals("Value of <aggregatorParentBasedir/> ==>", parentProj.getCanonicalPath(), value);
     }
     
     @Test
