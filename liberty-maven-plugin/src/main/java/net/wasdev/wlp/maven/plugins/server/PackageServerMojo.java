@@ -60,9 +60,15 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     @Parameter
     private boolean attach;
 
+    /**
+     * Skips this goal
+     */
+    @Parameter(property = "skipLibertyPackage", defaultValue = "false")
+    protected boolean skipLibertyPackage = false;
+    
     @Override
     protected void doExecute() throws Exception {
-        if (skip) {
+        if (skip || skipLibertyPackage) {
             return;
         }
         if (isInstall) {
