@@ -1,17 +1,17 @@
 #### install-feature
 ---
-Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime.
+Install one or more features packaged as Subsystem Archive (ESA) files to the Liberty runtime.
 
-To install the missing features declared in the `server.xml` file, don't specify any `feature` names in the `features` configuration (You still need to specify the `acceptLicense` parameter).
+To install the missing features declared in the `server.xml` file, set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
 
 ###### Additional Parameters
 
-The following are the parameters supported by this goal in addition to the [common parameters](common-parameters.md#common-parameters).
+The following parameters are supported by this goal in addition to the [common parameters](common-parameters.md#common-parameters). Place them within the `features` configuration element.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| feature | Specify the location of the Subsystem archive to be used. This can be an esa file, an IBM-Shortname or a Subsystem-SymbolicName of the Subsystem archive. The value can be a file name or a URL to the esa file. | No |
-| acceptLicense | Automatically indicate acceptance of license terms and conditions. | No |
+| feature | Specify the location of the Subsystem archive to install. This can be an ESA file, an IBM-Shortname, or a Subsystem-SymbolicName of the Subsystem archive. The value can be a file name or a URL to the esa file. Multiple `feature` elements can be added to the `features` configuration. | No |
+| acceptLicense | Automatically indicate acceptance of license terms and conditions. The default is `false`, so you must add this parameter to get features installed. | Yes |
 | to | Specify where to install the feature. The feature can be installed to any configured product extension location, or as a user feature (usr, extension). If this option is not specified the feature will be installed as a user feature. | No |
 | from | Specifies a single directory-based repository as the source of the assets. | No |
 
@@ -26,7 +26,7 @@ Examples:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>pre-integration-test</phase>
+            <phase>prepare-package</phase>
             <goals>
                 <goal>install-feature</goal>
             </goals>
@@ -47,7 +47,7 @@ Examples:
 </plugin>
  ```
 
-2. Check the server.xml file and install the missing features.
+2. Check the server.xml file and install any required features that are missing from the runtime.
  ```xml
 <plugin>
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
@@ -56,7 +56,7 @@ Examples:
         ...
         <execution>
             <id>install-feature</id>
-            <phase>pre-integration-test</phase>
+            <phase>prepare-package</phase>
             <goals>
                 <goal>install-feature</goal>
             </goals>
