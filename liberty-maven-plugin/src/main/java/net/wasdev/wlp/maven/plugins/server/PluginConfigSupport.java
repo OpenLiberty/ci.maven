@@ -132,6 +132,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("aggregatorParentId", project.getParent().getArtifactId());
             configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
         }
+        // include warSourceDirectory for liberty-assembly project with source
+        configDocument.createElement("warSourceDirectory", getLibertyAssemblyWarSourceDirectory(project));
         
         // write XML document to file
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
@@ -282,6 +284,15 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
         log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         return appsDirectory;
+    }
+    
+    protected File getLibertyAssemblyWarSourceDirectory(MavenProject proj) {
+        if ("liberty-assembly".equals(project.getPackaging()) &&
+            (looseApplication && (getInstallAppPackages().equals("all") || getInstallAppPackages().equals("project")))
+                   || project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null) != null ) {
+            return getWarSourceDirectory(project);
+        }
+        return null;
     }
     
     protected File getWarSourceDirectory(MavenProject proj) {
