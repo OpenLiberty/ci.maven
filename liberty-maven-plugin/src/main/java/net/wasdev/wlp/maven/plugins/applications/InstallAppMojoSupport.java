@@ -16,10 +16,13 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -131,6 +134,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 }
             }
         }
+        
+        // add Manifest file
+        config.addFile(getManifestFile(project, "org.apache.maven.plugins", "maven-war-plugin"), "/META-INF/MANIFEST.MF");
     }
     
     // install ear project artifact using loose application configuration file
@@ -163,6 +169,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         // TODO: Resource Adapter module
         
+        // add Manifest file
+        looseEar.addManifestFile(project, "maven-ear-plugin");
     }
     
     private void addEarJarModules(List<Artifact> jarModules, LooseEarApplication looseEar) throws Exception {
@@ -199,10 +207,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                         for (Resource res : resources) {
                             looseEar.getConfig().addDir(e, res.getDirectory(), "/");
                         }
+                        // add Manifest file
+                        looseEar.addManifestFile(e, dependProject, "maven-jar-plugin");
                     } else {
                         looseEar.getConfig().addFile(warArchive,
                                 resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                                "/WEB-INF/lib/" + dependProject.getBuild().getFinalName());
+                                "/WEB-INF/lib/" + resolveArtifact(dependProject.getArtifact()).getFile().getName());
                     }
                 }
             } else {
@@ -359,4 +369,28 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     }
     
+    private File defaultMF = null;
+    
+    protected File getDefaultManifest() throws Exception {
+        if (defaultMF == null) {
+            defaultMF = new File(
+                    project.getBuild().getDirectory() + "/liberty-maven/resources/META-INF/MANIFEST.MF");
+            defaultMF.getParentFile().mkdirs();
+            FileOutputStream fos = new FileOutputStream(defaultMF);
+            
+            Manifest manifest = new Manifest();
+            manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+            manifest.write(fos);
+            fos.close();
+        }
+        return defaultMF;
+    }
+   
+    protected String getManifestFile(MavenProject proj, String pluginGroupId, String pluginArtifactId) throws Exception {
+        if (getArchiveManifestFileConfig(proj, pluginGroupId, pluginArtifactId) != null) {
+            return getArchiveManifestFileConfig(proj, pluginGroupId, pluginArtifactId);
+        } else {
+            return getDefaultManifest().getCanonicalPath();
+        }
+    }
 }

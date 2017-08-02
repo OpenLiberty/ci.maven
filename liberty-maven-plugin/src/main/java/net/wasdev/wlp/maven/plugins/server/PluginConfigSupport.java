@@ -340,6 +340,20 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
     }
     
+    protected String getArchiveManifestFileConfig(MavenProject proj, String pluginGroupId, String pluginArtifactId) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom archive = dom.getChild("archive");
+            if (archive != null) {
+                Xpp3Dom val = archive.getChild("manifestFile");
+                if (val != null) {
+                    return proj.getBasedir().getAbsolutePath() + "/" + val.getValue();
+                }
+            }
+        }
+        return null;
+    }
+    
     private String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
         Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
         if (dom != null) {
