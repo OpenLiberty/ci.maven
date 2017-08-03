@@ -2,16 +2,16 @@ package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
 public class LooseApplication {
+    private File defaultMF = null;
+    
     protected MavenProject project;
     protected LooseConfigData config;
     
@@ -34,14 +34,6 @@ public class LooseApplication {
     
     public void addOutputDir(Element parent, MavenProject proj, String target) {
         config.addDir(parent, proj.getBuild().getOutputDirectory(), target);
-    }
-    
-    public void addResourceDir(Element parent, MavenProject proj, String target) {
-        @SuppressWarnings("unchecked")
-        List<Resource> resources = proj.getResources();
-        for (Resource res : resources) {
-            config.addDir(parent, res.getDirectory(), target);
-        }
     }
     
     public void addManifestFile(Element parent, MavenProject proj, String pluginId) throws Exception {
@@ -76,8 +68,6 @@ public class LooseApplication {
         }
         return getDefaultManifest().getCanonicalPath();
     }
-    
-    private File defaultMF = null;
     
     public File getDefaultManifest() throws Exception {
         if (defaultMF == null) {

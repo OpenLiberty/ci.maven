@@ -76,17 +76,16 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // install war project artifact using loose application configuration file
     protected void installLooseConfigWar(LooseConfigData config) throws Exception {
-        LooseWarApplication looseWar = new LooseWarApplication(project, config);
-        config.addDir(getWarSourceDirectory(project).getCanonicalPath(), "/");
-        
+        // return error if webapp contains java source but it is not compiled yet.
         File dir = new File(project.getBuild().getOutputDirectory());
-        if (dir.exists()) {
-            config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
-        } else if (containsJavaSource(project)) {
-            // if webapp contains java source, it has to be compiled first.
+        if (!dir.exists() && containsJavaSource(project)) {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
                     project.getId()));
         }
+        
+        LooseWarApplication looseWar = new LooseWarApplication(project, config);
+        looseWar.addSourceDir(project);
+        looseWar.addOutputDir(looseWar.getDocumentRoot(), project, "/WEB-INF/classes");
         
         // retrieves dependent library jar files
         addWarEmbeddedLib(looseWar.getDocumentRoot(), project, looseWar);
@@ -94,14 +93,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // add Manifest file
         looseWar.addManifestFile(project, "maven-war-plugin");
     }
-
+    
     // install ear project artifact using loose application configuration file
     protected void installLooseConfigEar(LooseConfigData config) throws Exception {
         LooseEarApplication looseEar = new LooseEarApplication(project, config);
-        config.addDir(getEarSourceDirectory().getCanonicalPath(), "/");
-        if (getEarApplicationXml() != null) {
-            config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
-        }
+        looseEar.addSourceDir();
+        looseEar.addApplicationXmlFile();
         
         // jar libraries
         List<Artifact> jarModules = getDependentModules("jar");
@@ -164,7 +161,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
                 Element archive = looseApp.addArchive(parent, "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, dependProject, "/");
-                looseApp.addResourceDir(archive, dependProject, "/");
                 looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
             } else {
                 looseApp.getConfig().addFile(parent,

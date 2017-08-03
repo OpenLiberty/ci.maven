@@ -1,5 +1,7 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
+import java.io.File;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.w3c.dom.Element;
@@ -10,6 +12,28 @@ public class LooseEarApplication extends LooseApplication {
         super(project, config);
     }
     
+    public void addSourceDir() throws Exception {
+        File sourceDir = new File(project.getBasedir(), "src/main/application");
+        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "esarSourceDirectory");
+        if (path != null) {
+            sourceDir = new File(project.getBasedir(), path);
+        } 
+        config.addDir(sourceDir.getCanonicalPath(), "/");
+    }
+    
+    public void addApplicationXmlFile() throws Exception {
+        File applicationXmlFile = null;
+        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
+        if (path != null && !path.isEmpty()) {
+            applicationXmlFile = new File(project.getBasedir(), path);
+            config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
+        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
+                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
+            applicationXmlFile = new File(project.getBuild().getDirectory() + "/application.xml");
+            config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
+        }
+    }
+    
     public Element addJarModule(MavenProject proj) throws Exception {
         String jarArchiveName = "/"
                 + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
@@ -18,7 +42,6 @@ public class LooseEarApplication extends LooseApplication {
         }
         Element jarArchive = config.addArchive(jarArchiveName);
         config.addDir(jarArchive, proj.getBuild().getOutputDirectory(), "/");
-        addResourceDir(jarArchive, proj, "/");
         // add manifest.mf
         if ("ejb".equals(proj.getPackaging())) {
             addManifestFile(jarArchive, proj, "maven-ejb-plugin");
@@ -34,7 +57,6 @@ public class LooseEarApplication extends LooseApplication {
         Element warArchive = config.addArchive(warArchiveName);
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
-        addResourceDir(warArchive, proj, "/WEB-INF/classes");
         // add Manifest file
         addManifestFile(warArchive, proj, "maven-war-plugin");
         return warArchive;
