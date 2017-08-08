@@ -57,10 +57,4 @@ public class PluginConfigXmlIT {
         File parentProj = new File("../..");
         assertEquals("Value of <aggregatorParentBasedir/> ==>", parentProj.getCanonicalPath(), value);
     }
-    
-    @Test
-    public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/wlp/usr/servers/test/apps/SampleEAR.ear");
-        assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
-    }
 }

@@ -16,30 +16,17 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
@@ -89,57 +76,29 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // install war project artifact using loose application configuration file
     protected void installLooseConfigWar(LooseConfigData config) throws Exception {
-        File dir = getWarSourceDirectory(project);
-        if (dir.exists()) {
-            config.addDir(dir.getCanonicalPath(), "/");
-        }
-        
-        dir = new File(project.getBuild().getOutputDirectory());
-        if (dir.exists()) {
-            config.addDir(dir.getCanonicalPath(), "/WEB-INF/classes");
-        } else if (containsJavaSource(project)) {
-            // if webapp contains java source, it has to be compiled first.
+        // return error if webapp contains java source but it is not compiled yet.
+        File dir = new File(project.getBuild().getOutputDirectory());
+        if (!dir.exists() && containsJavaSource(project)) {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.project.not.compile"),
                     project.getId()));
         }
         
+        LooseWarApplication looseWar = new LooseWarApplication(project, config);
+        looseWar.addSourceDir(project);
+        looseWar.addOutputDir(looseWar.getDocumentRoot(), project, "/WEB-INF/classes");
+        
         // retrieves dependent library jar files
-        List<Artifact> libraries = getDependentLibraries();
-        if (!libraries.isEmpty()) {
-            // get a list of dependent-modules from eclipse project deployment
-            // assembly if running in eclipse
-            List<String> eclipseModules = getEclipseDependentMods();
-
-            // referencing dependent library jar file from mvn repository or set
-            // loose application configuration reference to dependent eclipse project output classpath
-            if (eclipseModules.isEmpty()) {
-                addLibraries(libraries, config);
-            } else {
-                for (Artifact library : libraries) {
-                    if (library.getFile() == null || !eclipseModules.contains(getFileName(library.getFile()))) {
-                        addLibraryFromM2(library, config);
-                    } else {
-                        File classDir = new File(project.getBasedir() + "/../" + library.getArtifactId() + "/target/classes");
-                        log.debug("sibling module target class directory pathname: " + classDir.getCanonicalPath());
-                        
-                        if (classDir.exists()) {
-                            config.addArchive(classDir.getCanonicalPath(), "/WEB-INF/lib/" + getFileName(library.getFile()));
-                        } else {
-                            addLibraryFromM2(library, config);
-                        }
-                    }
-                }
-            }
-        }
+        addWarEmbeddedLib(looseWar.getDocumentRoot(), project, looseWar);
+        
+        // add Manifest file
+        looseWar.addManifestFile(project, "maven-war-plugin");
     }
     
     // install ear project artifact using loose application configuration file
     protected void installLooseConfigEar(LooseConfigData config) throws Exception {
         LooseEarApplication looseEar = new LooseEarApplication(project, config);
-        config.addDir(getEarSourceDirectory().getCanonicalPath(), "/");
-        if (getEarApplicationXml() != null) {
-            config.addFile(getEarApplicationXml().getCanonicalPath(), "/META-INF/application.xml");
-        }
+        looseEar.addSourceDir();
+        looseEar.addApplicationXmlFile();
         
         // jar libraries
         List<Artifact> jarModules = getDependentModules("jar");
@@ -163,6 +122,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         // TODO: Resource Adapter module
         
+        // add Manifest file
+        looseEar.addManifestFile(project, "maven-ear-plugin");
     }
     
     private void addEarJarModules(List<Artifact> jarModules, LooseEarApplication looseEar) throws Exception {
@@ -184,30 +145,27 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                     warModule.getVersion());
             if (proj.getBasedir() != null && proj.getBasedir().exists()) {
                 Element warArchive = looseEar.addWarModule(proj, getWarSourceDirectory(proj).getCanonicalPath());
-                
-                // war file has external library dependency (including web-fragment jar)
-                List<Dependency> deps = getDependentLibrary(proj);
-                for (Dependency dep : deps) {
-                    MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
-                            dep.getVersion());
-                    if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
-                        Element e = looseEar.getConfig().addArchive(warArchive,
-                                "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
-                        looseEar.getConfig().addDir(e, dependProject.getBuild().getOutputDirectory(), "/");
-                        @SuppressWarnings("unchecked")
-                        List<Resource> resources = dependProject.getResources();
-                        for (Resource res : resources) {
-                            looseEar.getConfig().addDir(e, res.getDirectory(), "/");
-                        }
-                    } else {
-                        looseEar.getConfig().addFile(warArchive,
-                                resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                                "/WEB-INF/lib/" + dependProject.getBuild().getFinalName());
-                    }
-                }
+                addWarEmbeddedLib(warArchive, proj, looseEar);
             } else {
                 // use the artifact from local .m2 repo
                 looseEar.addModuleFromM2(warModule, resolveArtifact(warModule).getFile().getAbsolutePath());
+            }
+        }
+    }
+    
+    private void addWarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
+        List<Dependency> deps = getDependentLibraries(proj);
+        for (Dependency dep : deps) {
+            MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
+                    dep.getVersion());
+            if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+                Element archive = looseApp.addArchive(parent, "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
+                looseApp.addOutputDir(archive, dependProject, "/");
+                looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
+            } else {
+                looseApp.getConfig().addFile(parent,
+                        resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
+                        "/WEB-INF/lib/" + resolveArtifact(dependProject.getArtifact()).getFile().getName());
             }
         }
     }
@@ -253,75 +211,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         return name;
     }
     
-    // add dependent library loose config element from sibling project or from m2 repository
-    private void addLibraries(List<Artifact> libraries, LooseConfigData config) throws Exception {
-        for (Artifact library : libraries) {
-            if (library.getFile() != null) {
-                File f = new File(library.getFile().getParentFile(), "classes");
-                if (f.exists()) {
-                    config.addArchive(f.getCanonicalPath(),
-                            "/WEB-INF/lib/" + getFileName(library.getFile()));
-                } else {
-                    addLibraryFromM2(library, config);
-                }
-            } else {
-                addLibraryFromM2(library, config);
-            }
-        }
-    } 
-    
-    private String getFileName(File f) throws IOException {
-        String name = f.getCanonicalPath().substring(f.getCanonicalPath().lastIndexOf(File.separator) + 1);
-        return name;
-    }
-    
-    private void addLibraryFromM2(Artifact library, LooseConfigData config) throws Exception {
-        // use dependency from local m2 repository
-        if (library.getFile() != null) {
-            config.addFile(library.getFile().getCanonicalPath(), "/WEB-INF/lib/" + library.getFile().getName());
-        } else {
-            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.app.dependency.not.found"),
-                    library.getId()));
-        }
-    }
-      
-    private List<String> getEclipseDependentMods() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        List<String> modules = new ArrayList<String>();
-        
-        File f = new File(project.getBasedir(), ".settings/org.eclipse.wst.common.component");
-        if (f.exists()) {
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            builderFactory.setIgnoringComments(true);
-            builderFactory.setCoalescing(true);
-            builderFactory.setIgnoringElementContentWhitespace(true);
-            builderFactory.setValidating(false);
-            DocumentBuilder builder = builderFactory.newDocumentBuilder();
-            Document doc = builder.parse(f);
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            String expression = "/project-modules/wb-module/dependent-module";
-            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
-            
-            for (int i = 0; i < nodes.getLength(); i++) {
-                modules.add(nodes.item(i).getAttributes().getNamedItem("archiveName").getNodeValue());
-            }
-        } 
-        
-        return modules;
-    }
-    
-    private List<Artifact> getDependentLibraries() {
-        List<Artifact> libraries = new ArrayList<Artifact>(); 
-        
-        @SuppressWarnings("unchecked")
-        List<Artifact> artifacts = (List<Artifact>) project.getCompileArtifacts();
-        for (Artifact artifact : artifacts) {
-            if (artifact.getScope().equals("compile") && !artifact.isOptional()) {
-                libraries.add(artifact);
-            }
-        }
-        return libraries;
-    }
-    
     private List<Artifact> getDependentModules(String type) {
         List<Artifact> libraries = new ArrayList<Artifact>(); 
         
@@ -336,7 +225,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         return libraries;
     }
     
-    private List<Dependency> getDependentLibrary(MavenProject proj) {
+    private List<Dependency> getDependentLibraries(MavenProject proj) {
         List<Dependency> dependencies = new ArrayList<Dependency>(); 
         
         @SuppressWarnings("unchecked")
@@ -358,5 +247,4 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     }
-    
 }

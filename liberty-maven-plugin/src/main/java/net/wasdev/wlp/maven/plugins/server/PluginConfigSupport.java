@@ -298,32 +298,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected File getWarSourceDirectory(MavenProject proj) {
         String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (dir != null) {
-            return new File(dir);
+            return new File(proj.getBasedir(), dir);
         } else {
-            return new File(proj.getBasedir() + "/src/main/webapp");
-        }
-    }
-    
-    protected File getEarSourceDirectory() {
-        String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
-        if (dir != null) {
-            return new File(dir);
-        } else {
-            return new File(project.getBasedir() + "/src/main/application");
-        }
-    }
-    
-    protected File getEarApplicationXml() {
-        log.debug("PluginConfigSupport:getEarApplicationXml() -> applicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml"));
-        log.debug("PluginConfigSupport:getEarApplicationXml() -> generateApplicationXml=" + getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml"));
-        String file = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
-        if (file != null && !file.isEmpty()) {
-            return new File(file);
-        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
-                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
-            return new File(project.getBuild().getDirectory() + "/application.xml");
-        } else {
-            return null;
+            return new File(proj.getBasedir(), "src/main/webapp");
         }
     }
     

@@ -1,28 +1,40 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
-import java.io.IOException;
-import java.util.List;
+import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
-public class LooseEarApplication {
-    private MavenProject project;
-    private LooseConfigData config;
+public class LooseEarApplication extends LooseApplication {
     
     public LooseEarApplication(MavenProject project, LooseConfigData config) {
-        this.project = project;
-        this.config = config;
+        super(project, config);
     }
     
-    public LooseConfigData getConfig() {
-        return config;
+    public void addSourceDir() throws Exception {
+        File sourceDir = new File(project.getBasedir(), "src/main/application");
+        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "esarSourceDirectory");
+        if (path != null) {
+            sourceDir = new File(project.getBasedir(), path);
+        } 
+        config.addDir(sourceDir.getCanonicalPath(), "/");
     }
     
-    public Element addJarModule(MavenProject proj) throws IOException {
+    public void addApplicationXmlFile() throws Exception {
+        File applicationXmlFile = null;
+        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
+        if (path != null && !path.isEmpty()) {
+            applicationXmlFile = new File(project.getBasedir(), path);
+            config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
+        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
+                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
+            applicationXmlFile = new File(project.getBuild().getDirectory() + "/application.xml");
+            config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
+        }
+    }
+    
+    public Element addJarModule(MavenProject proj) throws Exception {
         String jarArchiveName = "/"
                 + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
         if (getEarDefaultLibBundleDir() != null && !"ejb".equals(proj.getPackaging())) {
@@ -30,25 +42,23 @@ public class LooseEarApplication {
         }
         Element jarArchive = config.addArchive(jarArchiveName);
         config.addDir(jarArchive, proj.getBuild().getOutputDirectory(), "/");
-        @SuppressWarnings("unchecked")
-        List<Resource> resources = proj.getResources();
-        for (Resource res : resources) {
-            config.addDir(jarArchive, res.getDirectory(), "/");
+        // add manifest.mf
+        if ("ejb".equals(proj.getPackaging())) {
+            addManifestFile(jarArchive, proj, "maven-ejb-plugin");
+        } else {
+            addManifestFile(jarArchive, proj, "maven-jar-plugin");
         }
         return jarArchive;
     }
     
-    public Element addWarModule(MavenProject proj, String warSourceDir) throws IOException {
+    public Element addWarModule(MavenProject proj, String warSourceDir) throws Exception {
         String warArchiveName = "/"
                 + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
         Element warArchive = config.addArchive(warArchiveName);
-        config.addDir(warSourceDir, "/");
+        config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
-        @SuppressWarnings("unchecked")
-        List<Resource> resources = proj.getResources();
-        for (Resource res : resources) {
-            config.addDir(warArchive, res.getDirectory(), "/WEB-INF/classes");
-        }
+        // add Manifest file
+        addManifestFile(warArchive, proj, "maven-war-plugin");
         return warArchive;
     }
     
@@ -106,16 +116,5 @@ public class LooseEarApplication {
     
     public String getEarDefaultLibBundleDir() {
         return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
-    }
-    
-    public String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
-        Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
-        if (dom != null) {
-            Xpp3Dom val = dom.getChild(key);
-            if (val != null) {
-                return val.getValue();
-            }
-        }
-        return null;
     }
 }

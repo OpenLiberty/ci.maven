@@ -71,6 +71,10 @@ public class LooseConfigData extends XmlDocument {
         writeXMLDocument(xmlFile);
     }
     
+    public Element getDocumentRoot() {
+        return doc.getDocumentElement();
+    }
+    
     private void addElement(Element parent, Element child, String targetAttr, String srcAttr) {
         child.setAttribute("sourceOnDisk", srcAttr);
         addElement(parent, child, targetAttr);
