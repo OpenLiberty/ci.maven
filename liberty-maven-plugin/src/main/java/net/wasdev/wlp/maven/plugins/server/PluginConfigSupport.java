@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -132,6 +133,17 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("aggregatorParentId", project.getParent().getArtifactId());
             configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
         }
+        
+        // output project compile dependencies
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = project.getDependencies();
+        for (Dependency dep : deps) {
+            if ("compile".equals(dep.getScope())) {
+                configDocument.createElement("projectCompileDependency",
+                        dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion());
+            }
+        }
+        
         // include warSourceDirectory for liberty-assembly project with source
         configDocument.createElement("warSourceDirectory", getLibertyAssemblyWarSourceDirectory(project));
         
