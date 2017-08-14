@@ -19,7 +19,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -99,7 +98,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                     if (looseApplication && dependProj.getBasedir() != null && dependProj.getBasedir().exists()) {
                         installLooseApplication(dependProj);
                     } else {
-                        installApplication(resolveArtifact(dependProj.getArtifact()));
+                        installApp(resolveArtifact(dependProj.getArtifact()));
                     }
                 } else {
                     log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
@@ -114,16 +113,12 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             if (looseApplication) {
                 installLooseApplication(project);
             } else {
-                installApplication(project.getArtifact());
+                installApp(project.getArtifact());
             }
         } else {
             throw new MojoExecutionException(
                     MessageFormat.format(messages.getString("error.application.not.supported"), project.getId()));
         }
-    }
-    
-    protected void installApplication(Artifact artifact) throws Exception {
-        installApp(artifact);
     }
 
     private void installLooseApplication(MavenProject proj) throws Exception {
