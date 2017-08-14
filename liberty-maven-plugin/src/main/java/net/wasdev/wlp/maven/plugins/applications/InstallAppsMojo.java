@@ -17,11 +17,13 @@ package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
@@ -81,8 +83,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     
     private void installDependencies() throws Exception {
         @SuppressWarnings("unchecked")
-        Set<Artifact> artifacts = (Set<Artifact>) project.getDependencyArtifacts();
-        for (Artifact dep : artifacts) {
+        List<Dependency> deps = project.getDependencies();
+        for (Dependency dep : deps) {
             // skip if not an application type supported by Liberty
             if (!isSupportedType(dep.getType())) {
                 continue;
@@ -92,65 +94,83 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 continue;
             }
             if (dep.getScope().equals("compile")) {
-                installApp(dep);
+                MavenProject dependProj = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+                if (isSupportedType(dependProj.getPackaging())) {
+                    if (looseApplication && dependProj.getBasedir() != null && dependProj.getBasedir().exists()) {
+                        installLooseApplication(dependProj);
+                    } else {
+                        installApplication(resolveArtifact(dependProj.getArtifact()));
+                    }
+                } else {
+                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                            project.getId()));
+                }
             }
         }
     }
     
-    private void installProject() throws Exception {
+    protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
-                String looseConfigFileName = getLooseConfigFileName(project);
-                String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
-                File destDir = new File(serverDirectory, getAppsDirectory());
-                File looseConfigFile = new File(destDir, looseConfigFileName);
-                LooseConfigData config = new LooseConfigData();
-                switch (project.getPackaging()) {
-                    case "war":
-                        validateAppConfig(application, project.getArtifactId());
-                        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                        installLooseConfigWar(config);
-                        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                        config.toXmlFile(looseConfigFile);
-                        break;
-                    case "ear":
-                        validateAppConfig(application, project.getArtifactId());
-                        log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                        installLooseConfigEar(config);
-                        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                        config.toXmlFile(looseConfigFile);
-                        break;
-                    case "liberty-assembly":
-                        File dir = getWarSourceDirectory(project);
-                        if (dir.exists()) {
-                            validateAppConfig(application, project.getArtifactId());
-                            log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                            installLooseConfigWar(config);
-                            deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                            deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                            config.toXmlFile(looseConfigFile);
-                        } else {
-                            log.debug("liberty-assembly project does not have source code for web project.");
-                        }
-                        break;
-                    default:
-                        log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
-                                project.getPackaging()));
-                        installApp(project.getArtifact());
-                        break;
-                }
+                installLooseApplication(project);
             } else {
-                installApp(project.getArtifact());
+                installApplication(project.getArtifact());
             }
         } else {
             throw new MojoExecutionException(
                     MessageFormat.format(messages.getString("error.application.not.supported"), project.getId()));
         }
     }
+    
+    protected void installApplication(Artifact artifact) throws Exception {
+        installApp(artifact);
+    }
 
-    private boolean matches(Artifact dep, ArtifactItem assemblyArtifact) {
+    private void installLooseApplication(MavenProject proj) throws Exception {
+        String looseConfigFileName = getLooseConfigFileName(proj);
+        String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
+        File destDir = new File(serverDirectory, getAppsDirectory());
+        File looseConfigFile = new File(destDir, looseConfigFileName);
+        LooseConfigData config = new LooseConfigData();
+        switch (proj.getPackaging()) {
+            case "war":
+                validateAppConfig(application, proj.getArtifactId());
+                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                installLooseConfigWar(proj, config);
+                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                config.toXmlFile(looseConfigFile);
+                break;
+            case "ear":
+                validateAppConfig(application, proj.getArtifactId());
+                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                installLooseConfigEar(proj, config);
+                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                config.toXmlFile(looseConfigFile);
+                break;
+            case "liberty-assembly":
+                File dir = getWarSourceDirectory(proj);
+                if (dir.exists()) {
+                    validateAppConfig(application, proj.getArtifactId());
+                    log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                    installLooseConfigWar(proj, config);
+                    deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+                    deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+                    config.toXmlFile(looseConfigFile);
+                } else {
+                    log.debug("liberty-assembly project does not have source code for web project.");
+                }
+                break;
+            default:
+                log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
+                        proj.getPackaging()));
+                installApp(proj.getArtifact());
+                break;
+        }
+    }
+    
+    private boolean matches(Dependency dep, ArtifactItem assemblyArtifact) {
         return dep.getGroupId().equals(assemblyArtifact.getGroupId())
                 && dep.getArtifactId().equals(assemblyArtifact.getArtifactId())
                 && dep.getType().equals(assemblyArtifact.getType());

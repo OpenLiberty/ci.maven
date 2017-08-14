@@ -16,6 +16,7 @@
         <module>SampleEJB</module>
         <module>SampleWAR</module>
         <module>SampleEAR</module>
+        <module>SampleWLP</module>
     </modules>
 
     <properties>
