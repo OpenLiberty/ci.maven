@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
 public class LooseEarApplication extends LooseApplication {
@@ -35,26 +36,23 @@ public class LooseEarApplication extends LooseApplication {
     }
     
     public Element addJarModule(MavenProject proj) throws Exception {
-        String jarArchiveName = "/"
-                + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
-        if (getEarDefaultLibBundleDir() != null && !"ejb".equals(proj.getPackaging())) {
-            jarArchiveName = "/" + getEarDefaultLibBundleDir() + jarArchiveName;
-        }
-        Element jarArchive = config.addArchive(jarArchiveName);
-        config.addDir(jarArchive, proj.getBuild().getOutputDirectory(), "/");
+        return addModule(proj, "maven-jar-plugin");
+    }
+    
+    public Element addEjbModule(MavenProject proj) throws Exception {
+        return addModule(proj, "maven-ejb-plugin");
+    }
+    
+    public Element addModule(MavenProject proj, String pluginId) throws Exception {
+        Element moduleArchive = config.addArchive(getModuleUri(proj));
+        config.addDir(moduleArchive, proj.getBuild().getOutputDirectory(), "/");
         // add manifest.mf
-        if ("ejb".equals(proj.getPackaging())) {
-            addManifestFile(jarArchive, proj, "maven-ejb-plugin");
-        } else {
-            addManifestFile(jarArchive, proj, "maven-jar-plugin");
-        }
-        return jarArchive;
+        addManifestFile(moduleArchive, proj, pluginId);
+        return moduleArchive;
     }
     
     public Element addWarModule(MavenProject proj, String warSourceDir) throws Exception {
-        String warArchiveName = "/"
-                + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
-        Element warArchive = config.addArchive(warArchiveName);
+        Element warArchive = config.addArchive(getModuleUri(proj));
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
         // add Manifest file
@@ -62,22 +60,65 @@ public class LooseEarApplication extends LooseApplication {
         return warArchive;
     }
     
-    public void addModuleFromM2(Artifact artifact, String artifactFile) {
-        String artifactName = "/" + getModuleName(artifact.getGroupId(), artifact.getArtifactId(),
-                artifact.getVersion(), artifact.getType());
-        
-        if (getEarDefaultLibBundleDir() != null && (artifact.getType() == null || "jar".equals(artifact.getType()))) {
-            artifactName = "/" + getEarDefaultLibBundleDir() + artifactName;
+    public String getModuleUri(MavenProject proj) throws Exception {
+        String defaultUri = "/" + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+        if ("jar".equals(proj.getPackaging()) && getEarDefaultLibBundleDir() != null) {
+            defaultUri = "/" + getEarDefaultLibBundleDir() + defaultUri;
         }
-        
-        config.addFile(artifactFile, artifactName);
+        Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-ear-plugin", null, null);
+        if (dom != null) {
+            Xpp3Dom val = dom.getChild("modules");
+            if (val != null) {
+                Xpp3Dom[] modules = val.getChildren();
+                if (modules != null) {
+                    for (int i = 0; i < modules.length; i++) {
+                        if (proj.getGroupId().equals(getConfigValue(modules[i].getChild("groupId"))) 
+                                && proj.getArtifactId().equals(getConfigValue(modules[i].getChild("artifactId")))) {
+                            String uri = getConfigValue(modules[i].getChild("uri"));
+                            if (uri != null) {
+                                return uri;
+                            } else {
+                                String bundleDir = getConfigValue(modules[i].getChild("bundleDir"));
+                                String bundleFileName = getConfigValue(modules[i].getChild("bundleFileName"));
+                                if (bundleDir == null) {
+                                    if ("jar".equals(proj.getPackaging()) && getEarDefaultLibBundleDir() != null) {
+                                        bundleDir = "/" + getEarDefaultLibBundleDir();
+                                    } else {
+                                        bundleDir = "/";
+                                    }
+                                } else {
+                                    bundleDir = "/" + bundleDir;
+                                }
+                                if (bundleFileName != null) {
+                                    return bundleDir + "/" + bundleFileName;
+                                } else {
+                                    return bundleDir + "/" + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return defaultUri;
+    }
+    public String getConfigValue(Xpp3Dom element) {
+        if (element != null) {
+            return element.getValue();
+        }
+        return null;
+    }
+    
+    public void addModuleFromM2(MavenProject dependencyProject, Artifact artifact) throws Exception {
+        String artifactName = getModuleUri(dependencyProject);
+        config.addFile(artifact.getFile().getAbsolutePath(), artifactName);
     }
     
     public String getModuleName(String groupId, String artifactId, String version, String packaging) {
         String moduleName;
         
         String fileExtension = packaging;
-        if ("ejb".equals(fileExtension)) {
+        if ("ejb".equals(fileExtension) || "app-client".equals(fileExtension)) {
             fileExtension = "jar";
         }
         

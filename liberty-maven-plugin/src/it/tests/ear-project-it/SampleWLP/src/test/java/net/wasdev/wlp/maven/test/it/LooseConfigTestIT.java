@@ -74,7 +74,7 @@ public class LooseConfigTestIT {
         assertEquals("Number of <archive/> element ==>", 2, nodes.getLength());
         assertEquals("archive targetInArchive attribute value", "/SampleEJB.jar", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("archive targetInArchive attribute value", "/SampleWAR.war", 
+        assertEquals("archive targetInArchive attribute value", "/modules/web.war", 
                 nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }
