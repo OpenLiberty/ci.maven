@@ -17,7 +17,6 @@ package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
@@ -40,7 +39,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     protected void installApp(Artifact artifact) throws Exception {
         
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getWarFileName(project);
+            String warName = getAppFileName(project);
             File f = new File(project.getBuild().getDirectory() + "/" + warName);
             artifact.setFile(f);
         }
@@ -99,74 +98,61 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();
         
-        // jar libraries
-        List<Dependency> jarModules = getDependentModules(proj, "jar");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of Jar modules: "
-                + jarModules.size());
-        addEarJarModules(jarModules, looseEar);
-        
-        // EJB modules
-        List<Dependency> ejbModules = getDependentModules(proj, "ejb");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of EJB modules: "
-                + ejbModules.size());
-        addEarJarModules(ejbModules, looseEar);
-        
-        // Web Application modules
-        List<Dependency> warModules = getDependentModules(proj, "war");
-        log.debug("InstallAppMojoSupport: installLooseConfigEnterpriseApp() -> Nubmber of War modules: "
-                + warModules.size());
-        addEarWarModules(warModules, looseEar);
-        
-        // TODO: Application Client module
-        
-        // TODO: Resource Adapter module
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = proj.getDependencies();
+        for (Dependency dep : deps) {
+            if ("compile".equals(dep.getScope())) {
+                MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
+                        dep.getVersion());
+                if (dependencyProject.getBasedir() == null || !dependencyProject.getBasedir().exists()) {
+                    looseEar.addModuleFromM2(dependencyProject, resolveArtifact(dependencyProject.getArtifact()));
+                } else {
+                    switch (dep.getType()) {
+                        case "jar":
+                            looseEar.addJarModule(dependencyProject);
+                            break;
+                        case "ejb":
+                            looseEar.addEjbModule(dependencyProject);
+                            break;
+                        case "war":
+                            Element warArchive = looseEar.addWarModule(dependencyProject,
+                                    getWarSourceDirectory(dependencyProject).getCanonicalPath());
+                            addWarEmbeddedLib(warArchive, dependencyProject, looseEar);
+                            break;
+                        case "app-client":
+                            // TODO: Client module
+                        case "rar":
+                            // TODO: Resource Adapter module
+                        default:
+                            // use the artifact from local .m2 repo
+                            looseEar.addModuleFromM2(dependencyProject,
+                                    resolveArtifact(dependencyProject.getArtifact()));
+                            break;
+                    }
+                }
+            }
+        }
         
         // add Manifest file
         looseEar.addManifestFile(proj, "maven-ear-plugin");
     }
-    
-    private void addEarJarModules(List<Dependency> jarModules, LooseEarApplication looseEar) throws Exception {
-        for (Dependency jarModule : jarModules) {
-            MavenProject proj = getMavenProject(jarModule.getGroupId(), jarModule.getArtifactId(),
-                    jarModule.getVersion());
-            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
-                looseEar.addJarModule(proj);
-            } else {
-                // use the artifact from local m2 repo
-                Artifact artifact = resolveArtifact(proj.getArtifact());
-                looseEar.addModuleFromM2(artifact, artifact.getFile().getAbsolutePath());
-            }
-        }
-    }
-    
-    private void addEarWarModules(List<Dependency> warModules, LooseEarApplication looseEar) throws Exception {
-        for (Dependency warModule : warModules) {
-            MavenProject proj = getMavenProject(warModule.getGroupId(), warModule.getArtifactId(),
-                    warModule.getVersion());
-            if (proj.getBasedir() != null && proj.getBasedir().exists()) {
-                Element warArchive = looseEar.addWarModule(proj, getWarSourceDirectory(proj).getCanonicalPath());
-                addWarEmbeddedLib(warArchive, proj, looseEar);
-            } else {
-                // use the artifact from local .m2 repo
-                Artifact artifact = resolveArtifact(proj.getArtifact());
-                looseEar.addModuleFromM2(artifact, artifact.getFile().getAbsolutePath());
-            }
-        }
-    }
-    
+        
     private void addWarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
-        List<Dependency> deps = getDependentLibraries(proj);
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = proj.getDependencies();
         for (Dependency dep : deps) {
-            MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
-                    dep.getVersion());
-            if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
-                Element archive = looseApp.addArchive(parent, "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
-                looseApp.addOutputDir(archive, dependProject, "/");
-                looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
-            } else {
-                looseApp.getConfig().addFile(parent,
-                        resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                        "/WEB-INF/lib/" + resolveArtifact(dependProject.getArtifact()).getFile().getName());
+            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
+                MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+                if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+                    Element archive = looseApp.addArchive(parent,
+                            "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
+                    looseApp.addOutputDir(archive, dependProject, "/");
+                    looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
+                } else {
+                    looseApp.getConfig().addFile(parent,
+                            resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
+                            "/WEB-INF/lib/" + resolveArtifact(dependProject.getArtifact()).getFile().getName());
+                }
             }
         }
     }
@@ -197,11 +183,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     // get loose application configuration file name for project artifact
     protected String getLooseConfigFileName(MavenProject project) {
-        return getWarFileName(project) + ".xml";
+        return getAppFileName(project) + ".xml";
     }
     
     // get loose application configuration file name for project artifact
-    private String getWarFileName(MavenProject project) {
+    private String getAppFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
         if (project.getPackaging().equals("liberty-assembly")) {
             name = project.getBuild().getFinalName() + ".war";
@@ -210,23 +196,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             name = stripVersionFromName(name, project.getVersion());
         } 
         return name;
-    }
-    
-    private List<Dependency> getDependentModules(MavenProject proj, String type) {
-        List<Dependency> dependencies = new ArrayList<Dependency>();
-        
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = proj.getDependencies();
-        for (Dependency dep : deps) {
-            if ("compile".equals(dep.getScope()) && type.equals(dep.getType())) {
-                dependencies.add(dep);
-            }
-        }
-        return dependencies;
-    }
-    
-    private List<Dependency> getDependentLibraries(MavenProject proj) {
-        return getDependentModules(proj, "jar");
     }
     
     protected void validateAppConfig(String fileName, String artifactId) throws Exception {

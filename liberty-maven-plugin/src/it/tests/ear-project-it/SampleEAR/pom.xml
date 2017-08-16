@@ -54,6 +54,13 @@
                         automatically have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <fileNameMapping>no-version</fileNameMapping>
+                    <modules>
+                        <webModule>
+                            <groupId>net.wasdev.wlp.maven.it</groupId>
+                            <artifactId>SampleWAR</artifactId>
+                            <uri>/modules/web.war</uri>
+                        </webModule>
+                    </modules>
                 </configuration>
             </plugin>
             <plugin>
