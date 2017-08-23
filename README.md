@@ -12,6 +12,7 @@ Collection of Maven plug-ins and archetypes for managing WebSphere Application S
 * [Archetypes](#archetypes)
  * [liberty-plugin-archetype](#liberty-plugin-archetype)
  * [liberty-archetype-webapp](#liberty-archetype-webapp)
+ * [liberty-archetype-ear](#liberty-archetype-ear)
 
 ## Build
 
