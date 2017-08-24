@@ -79,6 +79,9 @@
                             <goals>
                                 <goal>package-server</goal>
                             </goals>
+                            <configuration>
+                                <outputDirectory>target/wlp-package</outputDirectory>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>test-start-server</id>
