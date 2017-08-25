@@ -172,16 +172,20 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
     
     private boolean isSupportedType(String type) {
+        boolean supported = false;
         switch (type) {
-        case "ear":
-        case "war":
-        case "eba":
-        case "esa":
-        case "liberty-assembly":
-            return true;
-        default:
-            return false;
+            case "ear":
+            case "war":
+            case "rar":
+            case "eba":
+            case "esa":
+            case "liberty-assembly":
+                supported = true;
+                break;
+            default:
+                break;
         }
+        return supported;
     }
    
 }
