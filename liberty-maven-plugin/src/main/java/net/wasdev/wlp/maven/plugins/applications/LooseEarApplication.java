@@ -15,7 +15,7 @@ public class LooseEarApplication extends LooseApplication {
     
     public void addSourceDir() throws Exception {
         File sourceDir = new File(project.getBasedir(), "src/main/application");
-        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "esarSourceDirectory");
+        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
         if (path != null) {
             sourceDir = new File(project.getBasedir(), path);
         } 
