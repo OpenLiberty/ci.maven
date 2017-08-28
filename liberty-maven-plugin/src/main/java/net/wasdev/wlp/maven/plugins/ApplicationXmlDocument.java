@@ -38,12 +38,18 @@ public class ApplicationXmlDocument extends XmlDocument {
     public void createApplicationElement(String appFileName, String artifactId) {
         File app = new File(appFileName);
         
-        if ("war".equalsIgnoreCase(appFileName.substring(appFileName.lastIndexOf(".")+1))) {
-            createElement("webApplication", app, artifactId);
-        } else if ("ear".equalsIgnoreCase(appFileName.substring(appFileName.lastIndexOf(".")+1))) {
-            createElement("enterpriseApplication", app, artifactId);
-        } else {
-            createElement("application", app, artifactId);
+        switch (appFileName.substring(appFileName.lastIndexOf(".")+1)) {
+            case "war":
+                createElement("webApplication", app, artifactId);
+                break;
+            case "ear":
+                createElement("enterpriseApplication", app, artifactId);
+                break;
+            case "rar":
+                createElement("resourceAdapter", app, artifactId);
+                break;
+            default:
+                break;
         }
     }    
  

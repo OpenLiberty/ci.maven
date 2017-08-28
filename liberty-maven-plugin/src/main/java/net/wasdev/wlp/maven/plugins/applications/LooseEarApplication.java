@@ -15,7 +15,7 @@ public class LooseEarApplication extends LooseApplication {
     
     public void addSourceDir() throws Exception {
         File sourceDir = new File(project.getBasedir(), "src/main/application");
-        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "esarSourceDirectory");
+        String path = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
         if (path != null) {
             sourceDir = new File(project.getBasedir(), path);
         } 
@@ -24,12 +24,12 @@ public class LooseEarApplication extends LooseApplication {
     
     public void addApplicationXmlFile() throws Exception {
         File applicationXmlFile = null;
-        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
+        String path = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
         if (path != null && !path.isEmpty()) {
             applicationXmlFile = new File(project.getBasedir(), path);
             config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
-        } else if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
-                getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
+        } else if (getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null || 
+                getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
             applicationXmlFile = new File(project.getBuild().getDirectory() + "/application.xml");
             config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
         }
@@ -58,6 +58,31 @@ public class LooseEarApplication extends LooseApplication {
         // add Manifest file
         addManifestFile(warArchive, proj, "maven-war-plugin");
         return warArchive;
+    }
+    
+    public Element addRarModule(MavenProject proj) throws Exception {
+        Element rarArchive = config.addArchive(getModuleUri(proj));
+        config.addDir(rarArchive, getRarSourceDirectory(proj), "/");
+        
+        // get raXmlFile optional rar plugin parameter
+        String path = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-rar-plugin", "raXmlFile");
+        if (path != null && !path.isEmpty()) {
+            File raXmlFile = new File(proj.getBasedir(), path);
+            config.addFile(rarArchive, raXmlFile.getCanonicalPath(), "/META-INF/ra.xml");
+        }
+        
+        // add Manifest file
+        addManifestFile(rarArchive, proj, "maven-rar-plugin");
+        return rarArchive;
+    }
+    
+    public String getRarSourceDirectory(MavenProject proj) throws Exception {
+        String dir = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-rar-plugin", "rarSourceDirectory");
+        if (dir != null) {
+            return new File(proj.getBasedir(), dir).getCanonicalPath();
+        } else {
+            return new File(proj.getBasedir(), "src/main/rar").getCanonicalPath();
+        }
     }
     
     public String getModuleUri(MavenProject proj) throws Exception {
@@ -147,7 +172,7 @@ public class LooseEarApplication extends LooseApplication {
     
     public String getEarFileNameMapping() {
         // valid values are: standard, no-version, no-version-for-ejb, full
-        String fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin",
+        String fileNameMapping = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "fileNameMapping");
         if (fileNameMapping == null || fileNameMapping.isEmpty()) {
             fileNameMapping = "standard";
@@ -156,6 +181,6 @@ public class LooseEarApplication extends LooseApplication {
     }
     
     public String getEarDefaultLibBundleDir() {
-        return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
+        return getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
     }
 }

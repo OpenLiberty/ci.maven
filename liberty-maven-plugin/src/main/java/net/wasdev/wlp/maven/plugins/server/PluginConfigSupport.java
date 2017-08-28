@@ -308,7 +308,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
     
     protected File getWarSourceDirectory(MavenProject proj) {
-        String dir = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
+        String dir = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (dir != null) {
             return new File(proj.getBasedir(), dir);
         } else {
@@ -316,21 +316,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
     
-    protected String getEarFileNameMapping() {
-        // valid values are: standard, no-version, no-version-for-ejb, full
-        String fileNameMapping = "standard";
-        if (getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping") != null) {
-            fileNameMapping = getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "fileNameMapping");
-        }
-        return fileNameMapping;
-    }
-    
-    protected String getEarDefaultLibBundleDir() {
-        return getPluginConfiguration("org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
-    }
-    
-    private String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
-        Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+    private String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
         if (dom != null) {
             Xpp3Dom val = dom.getChild(key);
             if (val != null) {
