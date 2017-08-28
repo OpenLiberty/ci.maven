@@ -151,3 +151,4 @@ public class HelloWorldInteractionSpecImpl implements HelloWorldInteractionSpec 
 		getPropertyChange().removePropertyChangeListener(propertyName, listener);
 	}
 }
+

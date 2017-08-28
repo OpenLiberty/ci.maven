@@ -24,3 +24,4 @@ public interface HelloWorldInteractionSpec extends InteractionSpec {
 	public String getFunctionName();
 	public void setFunctionName(String functionName);
 }
+

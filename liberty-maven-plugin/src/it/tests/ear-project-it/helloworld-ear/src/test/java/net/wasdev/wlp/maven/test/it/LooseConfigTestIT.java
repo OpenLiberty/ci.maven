@@ -66,14 +66,8 @@ public class LooseConfigTestIT {
         
         expression = "/archive/archive";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <archive/> element ==>", 1, nodes.getLength());
+        assertEquals("Number of <archive/> elements ==>", 1, nodes.getLength());
         assertEquals("archive targetInArchive attribute value", "/helloworld-ra.rar", 
-                nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        
-        expression = "/archive/archive/archive";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <archive/> element ==>", 1, nodes.getLength());
-        assertEquals("archive targetInArchive attribute value", "/helloworld-impl-1.0-SNAPSHOT.jar", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }

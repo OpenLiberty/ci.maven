@@ -14,7 +14,7 @@
     
     <dependencies>
         <dependency>
-            <groupId>demo.wlp</groupId>
+            <groupId>net.wasdev.wlp.maven.it</groupId>
     	    <artifactId>helloworld-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
