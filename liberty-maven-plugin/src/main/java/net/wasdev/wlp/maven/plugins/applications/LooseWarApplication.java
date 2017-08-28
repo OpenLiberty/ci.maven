@@ -13,7 +13,7 @@ public class LooseWarApplication extends LooseApplication {
     
     public void addSourceDir(MavenProject proj) throws Exception {
         File sourceDir = new File(proj.getBasedir().getAbsolutePath(), "src/main/webapp");
-        String path = getPluginConfiguration("org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
+        String path = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (path != null) {
             sourceDir = new File(proj.getBasedir().getAbsolutePath(), path);
         } 

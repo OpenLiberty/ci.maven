@@ -119,10 +119,10 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                                     getWarSourceDirectory(dependencyProject).getCanonicalPath());
                             addWarEmbeddedLib(warArchive, dependencyProject, looseEar);
                             break;
-                        case "app-client":
-                            // TODO: Client module
                         case "rar":
-                            // TODO: Resource Adapter module
+                            Element rarArchive = looseEar.addRarModule(dependencyProject);
+                            addRarEmbeddedLib(rarArchive, dependencyProject, looseEar);
+                            break;
                         default:
                             // use the artifact from local .m2 repo
                             looseEar.addModuleFromM2(dependencyProject,
@@ -136,8 +136,16 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // add Manifest file
         looseEar.addManifestFile(proj, "maven-ear-plugin");
     }
-        
+    
     private void addWarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
+        addEmbeddedLib(parent, proj, looseApp, "/WEB-INF/lib/");
+    }
+    
+    private void addRarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
+        addEmbeddedLib(parent, proj, looseApp, "/");
+    }
+    
+    private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
         @SuppressWarnings("unchecked")
         List<Dependency> deps = proj.getDependencies();
         for (Dependency dep : deps) {
@@ -145,13 +153,13 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
                 if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
                     Element archive = looseApp.addArchive(parent,
-                            "/WEB-INF/lib/" + dependProject.getBuild().getFinalName() + ".jar");
+                            dir + dependProject.getBuild().getFinalName() + ".jar");
                     looseApp.addOutputDir(archive, dependProject, "/");
                     looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
                 } else {
                     looseApp.getConfig().addFile(parent,
                             resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                            "/WEB-INF/lib/" + resolveArtifact(dependProject.getArtifact()).getFile().getName());
+                            dir + resolveArtifact(dependProject.getArtifact()).getFile().getName());
                 }
             }
         }

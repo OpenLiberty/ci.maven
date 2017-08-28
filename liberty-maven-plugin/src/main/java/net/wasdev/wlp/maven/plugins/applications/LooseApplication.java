@@ -44,8 +44,8 @@ public class LooseApplication {
         config.addFile(getManifestFile(proj, "org.apache.maven.plugins", pluginId), "/META-INF/MANIFEST.MF"); 
     }
     
-    public String getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String key) {
-        Xpp3Dom dom = project.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+    public String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
         if (dom != null) {
             Xpp3Dom val = dom.getChild(key);
             if (val != null) {
