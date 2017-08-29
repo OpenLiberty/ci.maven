@@ -86,7 +86,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseWar.addOutputDir(looseWar.getDocumentRoot(), proj, "/WEB-INF/classes");
         
         // retrieves dependent library jar files
-        addWarEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar);
+        addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
         
         // add Manifest file
         looseWar.addManifestFile(proj, "maven-war-plugin");
@@ -106,6 +106,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                         dep.getVersion());
                 if (dependencyProject.getBasedir() == null || !dependencyProject.getBasedir().exists()) {
                     looseEar.addModuleFromM2(dependencyProject, resolveArtifact(dependencyProject.getArtifact()));
+                    if (looseEar.isEarSkinnyWars() && "war".equals(dep.getType())) {
+                        log.debug("Unable to resolve " + dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion() 
+                                    + " project location if you are building the ear module project alone and not the entire"
+                                    + " multi-module project including both the war and ear module."
+                                    + " skinnyWars package option will be ignored for this war package.");
+                    }
                 } else {
                     switch (dep.getType()) {
                         case "jar":
@@ -117,11 +123,16 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                         case "war":
                             Element warArchive = looseEar.addWarModule(dependencyProject,
                                     getWarSourceDirectory(dependencyProject).getCanonicalPath());
-                            addWarEmbeddedLib(warArchive, dependencyProject, looseEar);
+                            if (looseEar.isEarSkinnyWars()) {
+                                // add embedded lib only if they are not a compile dependency in the ear project.
+                                addSkinnyWarLib(warArchive, dependencyProject, looseEar);
+                            } else {
+                                addEmbeddedLib(warArchive, dependencyProject, looseEar, "/WEB-INF/lib/");
+                            }
                             break;
                         case "rar":
                             Element rarArchive = looseEar.addRarModule(dependencyProject);
-                            addRarEmbeddedLib(rarArchive, dependencyProject, looseEar);
+                            addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
                             break;
                         default:
                             // use the artifact from local .m2 repo
@@ -137,30 +148,39 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addManifestFile(proj, "maven-ear-plugin");
     }
     
-    private void addWarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
-        addEmbeddedLib(parent, proj, looseApp, "/WEB-INF/lib/");
-    }
-    
-    private void addRarEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp) throws Exception {
-        addEmbeddedLib(parent, proj, looseApp, "/");
-    }
-    
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
         @SuppressWarnings("unchecked")
         List<Dependency> deps = proj.getDependencies();
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
-                MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-                if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
-                    Element archive = looseApp.addArchive(parent,
-                            dir + dependProject.getBuild().getFinalName() + ".jar");
-                    looseApp.addOutputDir(archive, dependProject, "/");
-                    looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
-                } else {
-                    looseApp.getConfig().addFile(parent,
-                            resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                            dir + resolveArtifact(dependProject.getArtifact()).getFile().getName());
-                }
+                addlibrary(parent, proj, looseApp, dir, dep);
+            }
+        }
+    }
+    
+    private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = proj.getDependencies();
+        for (Dependency dep : deps) {
+            // skip the embedded library if it is included in the lib directory of the ear package
+            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) && !looseEar.isEarCompileDependency(dep)) {
+                addlibrary(parent, proj, looseEar, "/WEB-INF/lib/", dep);
+            }
+        }
+    }
+    
+    private void addlibrary(Element parent, MavenProject proj, LooseApplication looseApp, String dir, Dependency dep)
+            throws Exception {
+        {
+            MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
+            if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+                Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
+                looseApp.addOutputDir(archive, dependProject, "/");
+                looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
+            } else {
+                looseApp.getConfig().addFile(parent,
+                        resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
+                        dir + resolveArtifact(dependProject.getArtifact()).getFile().getName());
             }
         }
     }

@@ -1,8 +1,10 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
@@ -56,7 +58,8 @@ public class LooseEarApplication extends LooseApplication {
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
         // add Manifest file
-        addManifestFile(warArchive, proj, "maven-war-plugin");
+        // addManifestFile(warArchive, proj, "maven-war-plugin");
+        addWarManifestFile(warArchive, proj);
         return warArchive;
     }
     
@@ -182,5 +185,38 @@ public class LooseEarApplication extends LooseApplication {
     
     public String getEarDefaultLibBundleDir() {
         return getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "defaultLibBundleDir");
+    }
+    
+    public Boolean isEarSkinnyWars() {
+        String skinnyWars = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "skinnyWars");
+        if (skinnyWars != null && "true".equals(skinnyWars)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public void addWarManifestFile(Element parent, MavenProject proj) throws Exception {
+        // the ear plug-in modify the skinnyWar module manifest file in ${project.build.directory}/temp
+        File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(proj) + "/META-INF");
+        if (isEarSkinnyWars() && newMf.exists()) {
+                config.addDir(parent, newMf.getCanonicalPath(), "/META-INF");
+        } else {
+            config.addFile(parent, getManifestFile(proj, "org.apache.maven.plugins", "maven-war-plugin"), "/META-INF/MANIFEST.MF");
+        }
+    }
+
+    public boolean isEarCompileDependency(Dependency dependency) {
+        @SuppressWarnings("unchecked")
+        List<Dependency> deps = project.getDependencies();
+        for (Dependency dep : deps) {
+            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) 
+                    && dependency.getGroupId().equals(dep.getGroupId()) 
+                    && dependency.getArtifactId().equals(dep.getArtifactId())
+                    && dependency.getVersion().equals(dep.getVersion())) {
+               return true;
+            }
+        }
+        return false;
     }
 }
