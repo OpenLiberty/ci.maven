@@ -105,13 +105,13 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
                         dep.getVersion());
                 if (dependencyProject.getBasedir() == null || !dependencyProject.getBasedir().exists()) {
-                    looseEar.addModuleFromM2(dependencyProject, resolveArtifact(dependencyProject.getArtifact()));
                     if (looseEar.isEarSkinnyWars() && "war".equals(dep.getType())) {
-                        log.debug("Unable to resolve " + dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion() 
-                                    + " project location if you are building the ear module project alone and not the entire"
-                                    + " multi-module project including both the war and ear module."
-                                    + " skinnyWars package option will be ignored for this war package.");
+                        throw new MojoExecutionException(
+                                "Unable to create loose configuration for the EAR application with skinnyWars package from "
+                                        + dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion()
+                                        + ". Please set the looseApplication configuration parameter to false and try again.");
                     }
+                    looseEar.addModuleFromM2(dependencyProject, resolveArtifact(dependencyProject.getArtifact()));
                 } else {
                     switch (dep.getType()) {
                         case "jar":
@@ -153,7 +153,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         List<Dependency> deps = proj.getDependencies();
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
-                addlibrary(parent, proj, looseApp, dir, dep);
+                addlibrary(parent, looseApp, dir, dep);
             }
         }
     }
@@ -164,12 +164,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         for (Dependency dep : deps) {
             // skip the embedded library if it is included in the lib directory of the ear package
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) && !looseEar.isEarCompileDependency(dep)) {
-                addlibrary(parent, proj, looseEar, "/WEB-INF/lib/", dep);
+                addlibrary(parent, looseEar, "/WEB-INF/lib/", dep);
             }
         }
     }
     
-    private void addlibrary(Element parent, MavenProject proj, LooseApplication looseApp, String dir, Dependency dep)
+    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Dependency dep)
             throws Exception {
         {
             MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());

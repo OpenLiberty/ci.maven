@@ -58,7 +58,6 @@ public class LooseEarApplication extends LooseApplication {
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, proj.getBuild().getOutputDirectory(), "/WEB-INF/classes");
         // add Manifest file
-        // addManifestFile(warArchive, proj, "maven-war-plugin");
         addWarManifestFile(warArchive, proj);
         return warArchive;
     }
@@ -90,7 +89,9 @@ public class LooseEarApplication extends LooseApplication {
     
     public String getModuleUri(MavenProject proj) throws Exception {
         String defaultUri = "/" + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
-        if ("jar".equals(proj.getPackaging()) && getEarDefaultLibBundleDir() != null) {
+        // both "jar" and "bundle" packaging type project are "jar" type dependencies that will be packaged in the ear lib directory
+        if (("jar".equals(proj.getPackaging()) || "bundle".equals(proj.getPackaging()))
+                && getEarDefaultLibBundleDir() != null) {
             defaultUri = "/" + getEarDefaultLibBundleDir() + defaultUri;
         }
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-ear-plugin", null, null);
@@ -146,7 +147,8 @@ public class LooseEarApplication extends LooseApplication {
         String moduleName;
         
         String fileExtension = packaging;
-        if ("ejb".equals(fileExtension) || "app-client".equals(fileExtension)) {
+        if ("ejb".equals(fileExtension) || "app-client".equals(fileExtension)
+                || "bundle".equals(fileExtension)) {
             fileExtension = "jar";
         }
         
