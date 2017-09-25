@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -146,7 +147,19 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter
     protected ArtifactItem licenseArtifact;
-    
+
+    /**
+     * Location of customized configuration directory
+     */
+    @Parameter(property = "configDirectory")
+    protected File configDirectory;
+
+    /**
+     * Location of customized server environment file server.env
+     */
+    @Parameter(property = "serverEnv", defaultValue = "${basedir}/src/test/resources/server.env")
+    protected File serverEnv;
+
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -216,10 +229,11 @@ public class BasicSupport extends AbstractLibertySupport {
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
             
             // Set output directory
-            if (outputDirectory == null) {
-                outputDirectory = serversDirectory; 
-            }
-            
+            if (getWlpOutputDir() != null) {
+                outputDirectory = new File(getWlpOutputDir());
+            } else if (outputDirectory == null) {
+                outputDirectory = serversDirectory;
+			}
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -457,5 +471,27 @@ public class BasicSupport extends AbstractLibertySupport {
             }
         }
         return null;
+    }
+
+    // Read WLP_OUTPUT_DIR from server.env. Return null if server.env doesn't
+    // exist or variable is not in server.env
+    private String getWlpOutputDir() throws IOException {
+        Properties envvars = new Properties();
+        
+        File serverEnvFile = new File(installDirectory, "etc/server.env");
+        if (serverEnvFile.exists()) {
+            envvars.load(new FileInputStream(serverEnvFile));
+        }
+        
+        if (serverEnv.exists()) {
+            envvars.load(new FileInputStream(serverEnv));
+        }
+        
+        serverEnvFile = new File(configDirectory, "server.env");
+        if (configDirectory != null && serverEnvFile.exists()) {
+            envvars.load(new FileInputStream(serverEnvFile));
+        }
+        
+        return (String) envvars.get("WLP_OUTPUT_DIR");
     }
 }
