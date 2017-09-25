@@ -28,6 +28,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
  */
 @Mojo(name = "display-url")
 public class DisplayUrlMojo extends BasicSupport {
+    
     /**
      * Display a URI in the default browser
      */
@@ -36,8 +37,8 @@ public class DisplayUrlMojo extends BasicSupport {
  
     @Override
     protected void doExecute() throws Exception {
-    		if (applicationURL != null && Desktop.isDesktopSupported()) {
-    		   Desktop.getDesktop().browse(applicationURL);
-    		}
+        if (applicationURL != null && Desktop.isDesktopSupported()) {
+            Desktop.getDesktop().browse(applicationURL);
+        }
     }
 }

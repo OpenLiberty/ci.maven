@@ -1,10 +1,10 @@
-#### run-server
+#### display-url
 ---
 Display an application URL in the default browser.
 
 ###### Additional Parameters
 
-The following are the parameters supported by this goal. 
+The following parameters are supported by this goal. 
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
@@ -19,7 +19,7 @@ Examples:
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
-        <applicationURI>http://localhost:8080/sample</applicationURI>
+        <applicationURL>http://localhost:8080/sample</applicationURL>
     </configuration>
 </plugin>
 ```
@@ -39,7 +39,7 @@ $ mvn liberty:display-url
            <id>open-ui-in-browser</id>
             <phase>package</phase>
             <configuration>
-                <applicationURI>http://localhost:8080</applicationURI>
+                <applicationURL>http://localhost:8080</applicationURL>
             </configuration>
             <goals>
                 <goal>display-url</goal>
