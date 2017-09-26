@@ -483,13 +483,11 @@ public class BasicSupport extends AbstractLibertySupport {
             envvars.load(new FileInputStream(serverEnvFile));
         }
         
-        if (serverEnv.exists()) {
-            envvars.load(new FileInputStream(serverEnv));
-        }
-        
         serverEnvFile = new File(configDirectory, "server.env");
         if (configDirectory != null && serverEnvFile.exists()) {
             envvars.load(new FileInputStream(serverEnvFile));
+        } else if (serverEnv.exists()) {
+            envvars.load(new FileInputStream(serverEnv));
         }
         
         return (String) envvars.get("WLP_OUTPUT_DIR");

@@ -44,6 +44,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.5</version>
+                <!--  add WLP_OUTPUT_DIR envvar in server.env to change the server output directory.
+                      it will override the <outputDirectory/> value and it will be tested in 
+                      ServerOutputDirIT. The value must be an absolute pathi.
+                -->
                 <configuration>
                     <target>
                         <echo message="WLP_OUTPUT_DIR=${project.build.directory}/LibertyOutput" file="${project.basedir}/src/test/resources/server.env" />
