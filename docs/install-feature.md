@@ -4,6 +4,8 @@ Install one or more features packaged as Subsystem Archive (ESA) files to the Li
 
 To install the missing features declared in the `server.xml` file, set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
 
+This goal is not supported if the Liberty runtime is installed from from the Open Liberty runtime package, `io.openliberty:openliberty-runtime:17.0.0.3-RC`. You will get a Maven build error since the `bin/installUtiltiy` command is removed from the Open Liberty runtime package. The Open Liberty runtime is always bundled with all applicable features and there isn't any need to install any additional feature.
+
 ###### Additional Parameters
 
 The following parameters are supported by this goal in addition to the [common parameters](common-parameters.md#common-parameters). Place them within the `features` configuration element.
