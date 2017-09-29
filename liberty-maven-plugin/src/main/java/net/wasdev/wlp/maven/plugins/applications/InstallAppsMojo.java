@@ -155,7 +155,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                     deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
                     config.toXmlFile(looseConfigFile);
                 } else {
-                    log.debug("The liberty-assembly project does not contain the maven-war-plugin.");
+                    log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
                 break;
             default:
@@ -168,21 +168,21 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     
     @SuppressWarnings("unchecked")
     private boolean mavenWarPluginExists(MavenProject proj) {
-    	MavenProject currentProject = proj;
-    	while(currentProject != null) {
-			List<Object> plugins = new ArrayList<Object>(currentProject.getBuildPlugins());
-    		plugins.addAll(currentProject.getPluginManagement().getPlugins());
-    		for(Object o : plugins) {
-        		if(o instanceof Plugin) {
-        			Plugin plugin = (Plugin) o;
-        			if(plugin.getGroupId().equals("org.apache.maven.plugins") && plugin.getArtifactId().equals("maven-war-plugin")) {
-        				return true;
-        			}
-        		}
-        	}
-    		currentProject = currentProject.getParent();
-    	}
-    	return false;
+        MavenProject currentProject = proj;
+        while(currentProject != null) {
+            List<Object> plugins = new ArrayList<Object>(currentProject.getBuildPlugins());
+            plugins.addAll(currentProject.getPluginManagement().getPlugins());
+            for(Object o : plugins) {
+                if(o instanceof Plugin) {
+                    Plugin plugin = (Plugin) o;
+                    if(plugin.getGroupId().equals("org.apache.maven.plugins") && plugin.getArtifactId().equals("maven-war-plugin")) {
+                        return true;
+                    }
+                }
+            }
+            currentProject = currentProject.getParent();
+        }
+        return false;
     }
     
     private boolean matches(Dependency dep, ArtifactItem assemblyArtifact) {
