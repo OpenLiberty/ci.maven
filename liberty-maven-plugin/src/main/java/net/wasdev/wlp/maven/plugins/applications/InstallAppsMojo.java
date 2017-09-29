@@ -147,7 +147,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 config.toXmlFile(looseConfigFile);
                 break;
             case "liberty-assembly":
-                if (mavenWarPluginExists(proj)) {
+                if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config);
