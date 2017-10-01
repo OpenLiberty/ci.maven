@@ -17,9 +17,11 @@ package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
@@ -145,8 +147,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 config.toXmlFile(looseConfigFile);
                 break;
             case "liberty-assembly":
-                File dir = getWarSourceDirectory(proj);
-                if (dir.exists()) {
+                if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config);
@@ -154,7 +155,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                     deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
                     config.toXmlFile(looseConfigFile);
                 } else {
-                    log.debug("liberty-assembly project does not have source code for web project.");
+                    log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
                 break;
             default:
@@ -163,6 +164,25 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 installApp(proj.getArtifact());
                 break;
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private boolean mavenWarPluginExists(MavenProject proj) {
+        MavenProject currentProject = proj;
+        while(currentProject != null) {
+            List<Object> plugins = new ArrayList<Object>(currentProject.getBuildPlugins());
+            plugins.addAll(currentProject.getPluginManagement().getPlugins());
+            for(Object o : plugins) {
+                if(o instanceof Plugin) {
+                    Plugin plugin = (Plugin) o;
+                    if(plugin.getGroupId().equals("org.apache.maven.plugins") && plugin.getArtifactId().equals("maven-war-plugin")) {
+                        return true;
+                    }
+                }
+            }
+            currentProject = currentProject.getParent();
+        }
+        return false;
     }
     
     private boolean matches(Dependency dep, ArtifactItem assemblyArtifact) {
