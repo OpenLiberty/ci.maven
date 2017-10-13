@@ -11,7 +11,7 @@
             <defaultValue>17.0.0.2</defaultValue>
         </requiredProperty>
         <requiredProperty key="wlpPluginVersion">
-            <defaultValue>2.1-SNAPSHOT</defaultValue>
+            <defaultValue>2.1</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <modules>
