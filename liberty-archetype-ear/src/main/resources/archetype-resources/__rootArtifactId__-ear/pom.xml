@@ -58,7 +58,7 @@
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.1-SNAPSHOT</version>
+                <version>2.1</version>
                 <configuration>
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>

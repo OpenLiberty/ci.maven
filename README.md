@@ -198,8 +198,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=2.0 \
-        -DwlpPluginVersion=2.0 \
+        -DarchetypeVersion=2.1 \
+        -DwlpPluginVersion=2.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -213,8 +213,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.0 \
-        -DwlpPluginVersion=2.0 \
+        -DarchetypeVersion=2.1 \
+        -DwlpPluginVersion=2.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -228,8 +228,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=2.1-SNAPSHOT \
-        -DwlpPluginVersion=2.1-SNAPSHOT \
+        -DarchetypeVersion=2.1 \
+        -DwlpPluginVersion=2.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT

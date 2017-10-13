@@ -51,7 +51,7 @@ Examples:
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile7</artifactId>
-                        <version>17.0.0.1</version>
+                        <version>17.0.0.3</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <licenseArtifact>
