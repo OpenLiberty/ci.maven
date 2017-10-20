@@ -135,8 +135,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
         
         // output project compile dependencies
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = project.getDependencies();
+        List<Dependency> deps = getProjectCompileDependencies(project);
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope())) {
                 configDocument.createElement("projectCompileDependency",
@@ -314,6 +313,22 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
             return new File(proj.getBasedir(), "src/main/webapp");
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected List<Dependency> getProjectCompileDependencies(MavenProject proj) {
+        List<Dependency> deps = proj.getCompileDependencies();
+        if (deps.size() == 0) {
+            // in case getCompileDependencies() is not returning any dependency (e.g multi-module ear project)
+            log.debug("unable to get compile dependency using getComipleDependencies() from project " + proj.getArtifactId());
+            deps = proj.getDependencies();
+        }
+        
+        //for (Dependency dep : deps) {
+        //    log.debug(dep.getArtifactId() + ":" + dep.getScope());
+        //}
+        
+        return deps;
     }
     
     private String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
