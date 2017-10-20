@@ -208,9 +208,13 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public boolean isEarCompileDependency(Dependency dependency) {
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = project.getDependencies();
+        List<Dependency> deps = project.getCompileDependencies();
+        if (deps.size() == 0) {
+            // in case getCompileDependencies() is not returning any dependency (e.g multi-module ear project)
+            deps = project.getDependencies();
+        }
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) 
                     && dependency.getGroupId().equals(dep.getGroupId()) 

@@ -98,8 +98,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();
         
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = proj.getDependencies();
+        List<Dependency> deps = getProjectCompileDependencies(proj);
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope())) {
                 MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
@@ -149,8 +148,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = proj.getDependencies();
+        List<Dependency> deps = getProjectCompileDependencies(proj);
+        
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
                 addlibrary(parent, looseApp, dir, dep);
@@ -159,8 +158,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        @SuppressWarnings("unchecked")
-        List<Dependency> deps = proj.getDependencies();
+        List<Dependency> deps = getProjectCompileDependencies(proj);
+        
         for (Dependency dep : deps) {
             // skip the embedded library if it is included in the lib directory of the ear package
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) && !looseEar.isEarCompileDependency(dep)) {
