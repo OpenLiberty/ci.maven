@@ -320,7 +320,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         List<Dependency> deps = proj.getCompileDependencies();
         if (deps.size() == 0) {
             // in case getCompileDependencies() is not returning any dependency (e.g multi-module ear project)
-            log.debug("unable to get compile dependency using getComipleDependencies() from project " + proj.getArtifactId());
+            log.debug("Unable to get compile dependency using getCompileDependencies() from project " + proj.getArtifactId());
             deps = proj.getDependencies();
         }
         
