@@ -83,4 +83,8 @@ public class LooseApplication {
         }
         return defaultMF;
     }
+
+    public MavenProject getProject() {
+        return project;
+    }
 }

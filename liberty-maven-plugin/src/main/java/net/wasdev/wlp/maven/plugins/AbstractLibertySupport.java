@@ -15,21 +15,24 @@
  */
 package net.wasdev.wlp.maven.plugins;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.project.ProjectBuildingResult;
+import org.apache.maven.project.*;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.ant.AntHelper;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Liberty Abstract Mojo Support
@@ -83,5 +86,33 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         ProjectBuildingResult build = mavenProjectBuilder.build(pomArtifact, session.getProjectBuildingRequest());
         return build.getProject();
     }
-    
+
+    protected MavenProject getMavenProject(MavenProject proj, final Dependency dependency) {
+        try {
+            List<MavenProject> collectedProjects = proj.getParent().getCollectedProjects();
+            return Iterables.find(collectedProjects, new Predicate<MavenProject>() {
+                @Override
+                public boolean apply(MavenProject mavenProject) {
+                    return mavenProject.getArtifactId().equals(dependency.getArtifactId());
+                }
+            });
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    protected MavenProject getMavenProject(MavenProject proj, final Artifact artifact) {
+        try {
+            List<MavenProject> collectedProjects = proj.getParent().getCollectedProjects();
+            return Iterables.find(collectedProjects, new Predicate<MavenProject>() {
+                @Override
+                public boolean apply(MavenProject mavenProject) {
+                    return mavenProject.getArtifactId().equals(artifact.getArtifactId());
+                }
+            });
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
 }

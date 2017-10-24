@@ -18,8 +18,12 @@ package net.wasdev.wlp.maven.plugins.applications;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -101,8 +105,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         List<Dependency> deps = getProjectCompileDependencies(proj);
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope())) {
-                MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
-                        dep.getVersion());
+                MavenProject dependencyProject = getMavenProject(proj, dep);
                 if (dependencyProject.getBasedir() == null || !dependencyProject.getBasedir().exists()) {
                     if (looseEar.isEarSkinnyWars() && "war".equals(dep.getType())) {
                         throw new MojoExecutionException(
@@ -148,13 +151,30 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
-        List<Dependency> deps = getProjectCompileDependencies(proj);
-        
-        for (Dependency dep : deps) {
-            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
-                addlibrary(parent, looseApp, dir, dep);
+        if ("war".equals(proj.getModel().getPackaging())) {
+            proj.setArtifactFilter(new ArtifactFilter() {
+                @Override
+                public boolean include(Artifact artifact) {
+                    if ("compile".equals(artifact.getScope()) && "jar".equals(artifact.getType())) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            Set<Artifact> artifacts = proj.getArtifacts();
+            for (Artifact artifact : artifacts) {
+                addlibrary(parent, looseApp, dir, artifact);
+            }
+        } else {
+            List<Dependency> deps = getProjectCompileDependencies(proj);
+
+            for (Dependency dep : deps) {
+                if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
+                    addlibrary(parent, looseApp, dir, dep);
+                }
             }
         }
+
     }
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
@@ -181,6 +201,19 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                         resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
                         dir + resolveArtifact(dependProject.getArtifact()).getFile().getName());
             }
+        }
+    }
+
+    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact)
+            throws Exception {
+        MavenProject dependProject = getMavenProject(looseApp.getProject(), artifact);
+        if (dependProject != null && dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+            Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
+            looseApp.addOutputDir(archive, dependProject, "/");
+            looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
+        } else {
+            looseApp.getConfig().addFile(parent, artifact.getFile().getAbsolutePath(),
+                    dir + artifact.getFile().getName());
         }
     }
     
