@@ -15,8 +15,11 @@
  */
 package net.wasdev.wlp.maven.plugins;
 
+import java.util.List;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -77,11 +80,34 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         ant.setProject(getProject());
     }
     
+    @Parameter(property = "reactorProjects", required = true, readonly = true)
+    protected List<MavenProject> reactorProjects;
+    
     protected MavenProject getMavenProject(String groupId, String artifactId, String version)
             throws ProjectBuildingException {
+        
+        for (MavenProject p : reactorProjects) {
+            // Support loose configuration to all sub-module projects in the reactorProjects object. Need to be able to
+            // retrieve all transitive dependencies in these projects.
+            if (p.getGroupId().equals(groupId) && p.getArtifactId().equals(artifactId) && p.getVersion().equals(version)) {
+                p.setArtifactFilter(new ArtifactFilter() {
+                    @Override
+                    public boolean include(Artifact artifact) {
+                        if ("compile".equals(artifact.getScope())) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                log.debug("AbstractLibertySupport:getMavenProject() -> size of compile dependencies of "
+                        + p.getArtifactId() + " is " + p.getArtifacts().size());
+                return p;
+            }
+        }
+        
+        // get project object that are not in the current reactor.
         Artifact pomArtifact = repositorySystem.createProjectArtifact(groupId, artifactId, version);
         ProjectBuildingResult build = mavenProjectBuilder.build(pomArtifact, session.getProjectBuildingRequest());
         return build.getProject();
     }
-    
 }
