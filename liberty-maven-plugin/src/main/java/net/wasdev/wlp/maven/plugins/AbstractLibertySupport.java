@@ -83,6 +83,16 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Parameter(property = "reactorProjects", required = true, readonly = true)
     protected List<MavenProject> reactorProjects;
     
+    protected boolean isReactorMavenProject(MavenProject proj) {
+        for (MavenProject p : reactorProjects) {
+            if (p.getGroupId().equals(proj.getGroupId()) && p.getArtifactId().equals(proj.getArtifactId())
+                    && p.getVersion().equals(proj.getVersion())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     protected MavenProject getMavenProject(String groupId, String artifactId, String version)
             throws ProjectBuildingException {
         

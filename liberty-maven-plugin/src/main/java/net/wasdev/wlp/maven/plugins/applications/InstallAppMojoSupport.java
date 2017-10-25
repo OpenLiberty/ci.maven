@@ -98,12 +98,13 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();
         
-        List<Dependency> deps = getProjectCompileDependencies(proj);
+        // proj is one of the reactor project and has compile dependency loaded.
+        List<Dependency> deps = proj.getCompileDependencies();
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope())) {
                 MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
                         dep.getVersion());
-                if (dependencyProject.getBasedir() == null || !dependencyProject.getBasedir().exists()) {
+                if (!isReactorMavenProject(dependencyProject)) {
                     if (looseEar.isEarSkinnyWars() && "war".equals(dep.getType())) {
                         throw new MojoExecutionException(
                                 "Unable to create loose configuration for the EAR application with skinnyWars package from "
@@ -148,7 +149,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
-        List<Dependency> deps = getProjectCompileDependencies(proj);
+        List<Dependency> deps = proj.getCompileDependencies();
         
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
@@ -158,7 +159,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        List<Dependency> deps = getProjectCompileDependencies(proj);
+        List<Dependency> deps = proj.getCompileDependencies();
         
         for (Dependency dep : deps) {
             // skip the embedded library if it is included in the lib directory of the ear package
@@ -172,7 +173,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
             throws Exception {
         {
             MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-            if (dependProject.getBasedir() != null && dependProject.getBasedir().exists()) {
+            if (isReactorMavenProject(dependProject)) {
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, dependProject, "/");
                 looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
@@ -185,7 +186,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private boolean containsJavaSource(MavenProject proj) {
-        @SuppressWarnings("unchecked")
         List<String> srcDirs = proj.getCompileSourceRoots();
         for (String dir : srcDirs) {         
             File javaSourceDir = new File(dir);

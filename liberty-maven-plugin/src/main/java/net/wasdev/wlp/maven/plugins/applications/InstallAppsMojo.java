@@ -83,7 +83,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
     
     private void installDependencies() throws Exception {
-        List<Dependency> deps = getProjectCompileDependencies(project);
+        List<Dependency> deps = project.getCompileDependencies();
         
         for (Dependency dep : deps) {
             // skip if not an application type supported by Liberty
