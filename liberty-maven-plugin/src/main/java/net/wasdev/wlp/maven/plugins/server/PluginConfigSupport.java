@@ -18,7 +18,9 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
@@ -134,12 +136,15 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
         }
         
-        // output project compile dependencies
-        List<Dependency> deps = getProjectCompileDependencies(project);
-        for (Dependency dep : deps) {
-            if ("compile".equals(dep.getScope())) {
+        // Output project compile dependencies. 
+        // project.getArtifacts() will return all (including transitive) compile dependencies.
+        // if the mojo is set to COMIPLE dependencyScope.
+        Set<Artifact> artifacts = project.getArtifacts();
+        log.debug(this.getClass().getName() + " : number of compile dependencies is " + project.getArtifacts().size());
+        for (Artifact artifact : artifacts) {
+            if ("compile".equals(artifact.getScope())) {
                 configDocument.createElement("projectCompileDependency",
-                        dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion());
+                        artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             }
         }
         
@@ -320,7 +325,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         List<Dependency> deps = proj.getCompileDependencies();
         if (deps.size() == 0) {
             // in case getCompileDependencies() is not returning any dependency (e.g multi-module ear project)
-            log.debug("Unable to get compile dependency using getCompileDependencies() from project " + proj.getArtifactId());
+            log.info("TIU : " + "Unable to get compile dependency using getCompileDependencies() from project " + proj.getArtifactId());
             deps = proj.getDependencies();
         }
         
