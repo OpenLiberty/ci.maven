@@ -84,6 +84,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     
     private void installDependencies() throws Exception {
         List<Dependency> deps = project.getCompileDependencies();
+        log.debug("InstallAppsMojo.installDependencies() -> No. of compile dependencies for " + project.getArtifactId()
+                + " is " + deps.size());
         
         for (Dependency dep : deps) {
             // skip if not an application type supported by Liberty

@@ -139,6 +139,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // if the mojo is set to COMIPLE dependencyScope.
         Set<Artifact> artifacts = project.getArtifacts();
         log.debug(this.getClass().getName() + " : number of compile dependencies is " + project.getArtifacts().size());
+        log.debug("PluginConfigSupport.exportParametersToXm() -> No. of compile dependencies for " + project.getArtifactId()
+        + " is " + artifacts.size());
+        
         for (Artifact artifact : artifacts) {
             if ("compile".equals(artifact.getScope())) {
                 configDocument.createElement("projectCompileDependency",

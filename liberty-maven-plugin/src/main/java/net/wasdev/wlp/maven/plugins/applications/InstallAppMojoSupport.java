@@ -100,6 +100,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         // proj is one of the reactor project and has compile dependency loaded.
         List<Dependency> deps = proj.getCompileDependencies();
+        log.debug("InstallAppsMojoSupport.installLooseConfigEars() -> No. of compile dependencies for " + proj.getArtifactId()
+                + " is " + deps.size());
+        
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope())) {
                 MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
@@ -150,6 +153,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
         List<Dependency> deps = proj.getCompileDependencies();
+        log.debug("InstallAppsMojoSupport.addEmbeddedLib() -> No. of compile dependencies for " + proj.getArtifactId()
+                + " is " + deps.size());
         
         for (Dependency dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
@@ -160,6 +165,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
         List<Dependency> deps = proj.getCompileDependencies();
+        log.debug("InstallAppsMojoSupport.addSkinnyWarLib() -> No. of compile dependencies for " + proj.getArtifactId()
+        + " is " + deps.size());
         
         for (Dependency dep : deps) {
             // skip the embedded library if it is included in the lib directory of the ear package
