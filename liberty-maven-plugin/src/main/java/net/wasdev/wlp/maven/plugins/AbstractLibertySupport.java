@@ -64,6 +64,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Parameter(defaultValue = "${session}", readonly = true)
     protected MavenSession session;
     
+    @Parameter(property = "reactorProjects", required = true, readonly = true)
+    protected List<MavenProject> reactorProjects;
+    
     protected MavenProject getProject() {
         return project;
     }
@@ -77,9 +80,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         // Initialize ant helper instance
         ant.setProject(getProject());
     }
-    
-    @Parameter(property = "reactorProjects", required = true, readonly = true)
-    protected List<MavenProject> reactorProjects;
     
     protected boolean isReactorMavenProject(Artifact artifact) {
         for (MavenProject p : reactorProjects) {
