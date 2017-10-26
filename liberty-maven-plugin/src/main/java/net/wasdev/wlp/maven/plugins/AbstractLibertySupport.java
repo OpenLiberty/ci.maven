@@ -106,8 +106,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                         return false;
                     }
                 });
-                log.debug("AbstractLibertySupport:getMavenProject() -> size of compile dependencies of "
-                        + p.getArtifactId() + " is " + p.getArtifacts().size());
                 return p;
             }
         }

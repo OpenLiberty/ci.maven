@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -85,8 +86,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     
     private void installDependencies() throws Exception {
         Set<Artifact> artifacts = project.getArtifacts();
-        log.debug("InstallAppsMojo.installDependencies() -> No. of compile dependencies for " + project.getArtifactId()
-                + " is " + artifacts.size());
+        log.debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty

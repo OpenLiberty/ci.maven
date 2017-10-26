@@ -98,10 +98,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();
         
-        // proj is one of the reactor project and has compile dependency loaded.
         Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("InstallAppsMojoSupport.installLooseConfigEars() -> No. of compile dependencies for " + proj.getArtifactId()
-                + " is " + artifacts.size());
+        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());        
         
         for (Artifact artifact : artifacts) {
             if ("compile".equals(artifact.getScope())) {
@@ -150,42 +148,40 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
-        Set<Artifact> deps = proj.getArtifacts();
-        log.debug("InstallAppsMojoSupport.addEmbeddedLib() -> No. of compile dependencies for " + proj.getArtifactId()
-                + " is " + deps.size());
+        Set<Artifact> artifacts = proj.getArtifacts();
+        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
         
-        for (Artifact dep : deps) {
-            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
-                addlibrary(parent, looseApp, dir, dep);
+        for (Artifact artifact : artifacts) {
+            if ("compile".equals(artifact.getScope()) && "jar".equals(artifact.getType())) {
+                addlibrary(parent, looseApp, dir, artifact);
             }
         }
     }
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        Set<Artifact> deps = proj.getArtifacts();
-        log.debug("InstallAppsMojoSupport.addSkinnyWarLib() -> No. of compile dependencies for " + proj.getArtifactId()
-        + " is " + deps.size());
+        Set<Artifact> artifacts = proj.getArtifacts();
+        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
         
-        for (Artifact dep : deps) {
+        for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear package
-            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) && !looseEar.isEarCompileDependency(dep)) {
-                addlibrary(parent, looseEar, "/WEB-INF/lib/", dep);
+            if ("compile".equals(artifact.getScope()) && "jar".equals(artifact.getType()) && !looseEar.isEarCompileDependency(artifact)) {
+                addlibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
             }
         }
     }
     
-    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Artifact dep)
+    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact)
             throws Exception {
         {
-            if (isReactorMavenProject(dep)) {
-                MavenProject dependProject = getReactorMavenProject(dep);
+            if (isReactorMavenProject(artifact)) {
+                MavenProject dependProject = getReactorMavenProject(artifact);
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, dependProject, "/");
                 looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
             } else {
-                looseApp.getConfig().addFile(parent,
-                        resolveArtifact(dep).getFile().getAbsolutePath(),
-                        dir + resolveArtifact(dep).getFile().getName());
+                resolveArtifact(artifact);
+                looseApp.getConfig().addFile(parent, artifact.getFile().getAbsolutePath(),
+                        dir + artifact.getFile().getName());
             }
         }
     }

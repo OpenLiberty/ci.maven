@@ -134,14 +134,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
         }
         
-        // Output project compile dependencies. 
-        // project.getArtifacts() will return all (including transitive) compile dependencies.
-        // if the mojo is set to COMIPLE dependencyScope.
+        // returns all current project compile dependencies, including transitive dependencies
+        // if Mojo required dependencyScope is set to COMPILE
         Set<Artifact> artifacts = project.getArtifacts();
-        log.debug(this.getClass().getName() + " : number of compile dependencies is " + project.getArtifacts().size());
-        log.debug("PluginConfigSupport.exportParametersToXm() -> No. of compile dependencies for " + project.getArtifactId()
-        + " is " + artifacts.size());
-        
         for (Artifact artifact : artifacts) {
             if ("compile".equals(artifact.getScope())) {
                 configDocument.createElement("projectCompileDependency",
