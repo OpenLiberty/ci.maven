@@ -18,9 +18,9 @@ package net.wasdev.wlp.maven.plugins.applications;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -99,24 +99,23 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         looseEar.addApplicationXmlFile();
         
         // proj is one of the reactor project and has compile dependency loaded.
-        List<Dependency> deps = proj.getCompileDependencies();
+        Set<Artifact> artifacts = proj.getArtifacts();
         log.debug("InstallAppsMojoSupport.installLooseConfigEars() -> No. of compile dependencies for " + proj.getArtifactId()
-                + " is " + deps.size());
+                + " is " + artifacts.size());
         
-        for (Dependency dep : deps) {
-            if ("compile".equals(dep.getScope())) {
-                MavenProject dependencyProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(),
-                        dep.getVersion());
-                if (!isReactorMavenProject(dependencyProject)) {
-                    if (looseEar.isEarSkinnyWars() && "war".equals(dep.getType())) {
+        for (Artifact artifact : artifacts) {
+            if ("compile".equals(artifact.getScope())) {
+                if (!isReactorMavenProject(artifact)) {
+                    if (looseEar.isEarSkinnyWars() && "war".equals(artifact.getType())) {
                         throw new MojoExecutionException(
                                 "Unable to create loose configuration for the EAR application with skinnyWars package from "
-                                        + dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion()
+                                        + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion()
                                         + ". Please set the looseApplication configuration parameter to false and try again.");
                     }
-                    looseEar.addModuleFromM2(dependencyProject, resolveArtifact(dependencyProject.getArtifact()));
+                    looseEar.addModuleFromM2(resolveArtifact(artifact));
                 } else {
-                    switch (dep.getType()) {
+                    MavenProject dependencyProject = getReactorMavenProject(artifact);
+                    switch (artifact.getType()) {
                         case "jar":
                             looseEar.addJarModule(dependencyProject);
                             break;
@@ -139,8 +138,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                             break;
                         default:
                             // use the artifact from local .m2 repo
-                            looseEar.addModuleFromM2(dependencyProject,
-                                    resolveArtifact(dependencyProject.getArtifact()));
+                            looseEar.addModuleFromM2(resolveArtifact(artifact));
                             break;
                     }
                 }
@@ -152,11 +150,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir) throws Exception {
-        List<Dependency> deps = proj.getCompileDependencies();
+        Set<Artifact> deps = proj.getArtifacts();
         log.debug("InstallAppsMojoSupport.addEmbeddedLib() -> No. of compile dependencies for " + proj.getArtifactId()
                 + " is " + deps.size());
         
-        for (Dependency dep : deps) {
+        for (Artifact dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType())) {
                 addlibrary(parent, looseApp, dir, dep);
             }
@@ -164,11 +162,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        List<Dependency> deps = proj.getCompileDependencies();
+        Set<Artifact> deps = proj.getArtifacts();
         log.debug("InstallAppsMojoSupport.addSkinnyWarLib() -> No. of compile dependencies for " + proj.getArtifactId()
         + " is " + deps.size());
         
-        for (Dependency dep : deps) {
+        for (Artifact dep : deps) {
             // skip the embedded library if it is included in the lib directory of the ear package
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) && !looseEar.isEarCompileDependency(dep)) {
                 addlibrary(parent, looseEar, "/WEB-INF/lib/", dep);
@@ -176,18 +174,18 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
     }
     
-    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Dependency dep)
+    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Artifact dep)
             throws Exception {
         {
-            MavenProject dependProject = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-            if (isReactorMavenProject(dependProject)) {
+            if (isReactorMavenProject(dep)) {
+                MavenProject dependProject = getReactorMavenProject(dep);
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, dependProject, "/");
                 looseApp.addManifestFile(archive, dependProject, "maven-jar-plugin");
             } else {
                 looseApp.getConfig().addFile(parent,
-                        resolveArtifact(dependProject.getArtifact()).getFile().getAbsolutePath(),
-                        dir + resolveArtifact(dependProject.getArtifact()).getFile().getName());
+                        resolveArtifact(dep).getFile().getAbsolutePath(),
+                        dir + resolveArtifact(dep).getFile().getName());
             }
         }
     }

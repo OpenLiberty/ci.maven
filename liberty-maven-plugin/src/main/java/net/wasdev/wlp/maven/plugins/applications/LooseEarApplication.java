@@ -1,10 +1,9 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
@@ -87,10 +86,16 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
     
+    public String getModuleUri(Artifact artifact) throws Exception {
+        return getModuleUri(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType()); 
+    }
     public String getModuleUri(MavenProject proj) throws Exception {
-        String defaultUri = "/" + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+        return getModuleUri(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging()); 
+    }
+    public String getModuleUri(String groupId, String artifactId, String version, String type) throws Exception {
+        String defaultUri = "/" + getModuleName(groupId, artifactId, version, type);
         // both "jar" and "bundle" packaging type project are "jar" type dependencies that will be packaged in the ear lib directory
-        if (("jar".equals(proj.getPackaging()) || "bundle".equals(proj.getPackaging()))
+        if (("jar".equals(type) || "bundle".equals(type))
                 && getEarDefaultLibBundleDir() != null) {
             defaultUri = "/" + getEarDefaultLibBundleDir() + defaultUri;
         }
@@ -101,8 +106,8 @@ public class LooseEarApplication extends LooseApplication {
                 Xpp3Dom[] modules = val.getChildren();
                 if (modules != null) {
                     for (int i = 0; i < modules.length; i++) {
-                        if (proj.getGroupId().equals(getConfigValue(modules[i].getChild("groupId"))) 
-                                && proj.getArtifactId().equals(getConfigValue(modules[i].getChild("artifactId")))) {
+                        if (groupId.equals(getConfigValue(modules[i].getChild("groupId"))) 
+                                && artifactId.equals(getConfigValue(modules[i].getChild("artifactId")))) {
                             String uri = getConfigValue(modules[i].getChild("uri"));
                             if (uri != null) {
                                 return uri;
@@ -110,7 +115,7 @@ public class LooseEarApplication extends LooseApplication {
                                 String bundleDir = getConfigValue(modules[i].getChild("bundleDir"));
                                 String bundleFileName = getConfigValue(modules[i].getChild("bundleFileName"));
                                 if (bundleDir == null) {
-                                    if ("jar".equals(proj.getPackaging()) && getEarDefaultLibBundleDir() != null) {
+                                    if ("jar".equals(type) && getEarDefaultLibBundleDir() != null) {
                                         bundleDir = "/" + getEarDefaultLibBundleDir();
                                     } else {
                                         bundleDir = "/";
@@ -121,7 +126,7 @@ public class LooseEarApplication extends LooseApplication {
                                 if (bundleFileName != null) {
                                     return bundleDir + "/" + bundleFileName;
                                 } else {
-                                    return bundleDir + "/" + getModuleName(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+                                    return bundleDir + "/" + getModuleName(groupId, artifactId, version, type);
                                 }
                             }
                         }
@@ -138,8 +143,8 @@ public class LooseEarApplication extends LooseApplication {
         return null;
     }
     
-    public void addModuleFromM2(MavenProject dependencyProject, Artifact artifact) throws Exception {
-        String artifactName = getModuleUri(dependencyProject);
+    public void addModuleFromM2(Artifact artifact) throws Exception {
+        String artifactName = getModuleUri(artifact);
         config.addFile(artifact.getFile().getAbsolutePath(), artifactName);
     }
     
@@ -208,10 +213,9 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean isEarCompileDependency(Dependency dependency) {
-        List<Dependency> deps = project.getCompileDependencies();
-        for (Dependency dep : deps) {
+    public boolean isEarCompileDependency(Artifact dependency) {
+        Set<Artifact> deps = project.getArtifacts();
+        for (Artifact dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) 
                     && dependency.getGroupId().equals(dep.getGroupId()) 
                     && dependency.getArtifactId().equals(dep.getArtifactId())

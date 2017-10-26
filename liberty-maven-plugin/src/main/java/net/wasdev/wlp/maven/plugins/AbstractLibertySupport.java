@@ -25,8 +25,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.plugins.annotations.Component;
@@ -83,23 +81,22 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Parameter(property = "reactorProjects", required = true, readonly = true)
     protected List<MavenProject> reactorProjects;
     
-    protected boolean isReactorMavenProject(MavenProject proj) {
+    protected boolean isReactorMavenProject(Artifact artifact) {
         for (MavenProject p : reactorProjects) {
-            if (p.getGroupId().equals(proj.getGroupId()) && p.getArtifactId().equals(proj.getArtifactId())
-                    && p.getVersion().equals(proj.getVersion())) {
+            if (p.getGroupId().equals(artifact.getGroupId()) && p.getArtifactId().equals(artifact.getArtifactId())
+                    && p.getVersion().equals(artifact.getVersion())) {
                 return true;
             }
         }
         return false;
     }
     
-    protected MavenProject getMavenProject(String groupId, String artifactId, String version)
-            throws ProjectBuildingException {
-        
+    protected MavenProject getReactorMavenProject(Artifact artifact) {
         for (MavenProject p : reactorProjects) {
-            // Support loose configuration to all sub-module projects in the reactorProjects object. Need to be able to
-            // retrieve all transitive dependencies in these projects.
-            if (p.getGroupId().equals(groupId) && p.getArtifactId().equals(artifactId) && p.getVersion().equals(version)) {
+            // Support loose configuration to all sub-module projects in the reactorProjects object. 
+            // Need to be able to retrieve all transitive dependencies in these projects.
+            if (p.getGroupId().equals(artifact.getGroupId()) && p.getArtifactId().equals(artifact.getArtifactId())
+                    && p.getVersion().equals(artifact.getVersion())) {
                 p.setArtifactFilter(new ArtifactFilter() {
                     @Override
                     public boolean include(Artifact artifact) {
@@ -115,9 +112,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             }
         }
         
-        // get project object that are not in the current reactor.
-        Artifact pomArtifact = repositorySystem.createProjectArtifact(groupId, artifactId, version);
-        ProjectBuildingResult build = mavenProjectBuilder.build(pomArtifact, session.getProjectBuildingRequest());
-        return build.getProject();
+        return null;
     }
 }

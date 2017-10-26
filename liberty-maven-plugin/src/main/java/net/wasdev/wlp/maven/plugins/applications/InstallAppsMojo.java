@@ -19,8 +19,9 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.maven.model.Dependency;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -83,6 +84,36 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
     
     private void installDependencies() throws Exception {
+        Set<Artifact> artifacts = project.getArtifacts();
+        log.debug("InstallAppsMojo.installDependencies() -> No. of compile dependencies for " + project.getArtifactId()
+                + " is " + artifacts.size());
+        
+        for (Artifact artifact : artifacts) {
+            // skip if not an application type supported by Liberty
+            if (!isSupportedType(artifact.getType())) {
+                continue;
+            }
+            // skip assemblyArtifact if specified as a dependency
+            if (assemblyArtifact != null && matches(artifact, assemblyArtifact)) {
+                continue;
+            }
+            if (artifact.getScope().equals("compile")) {
+                if (isSupportedType(artifact.getType())) {
+                    if (isReactorMavenProject(artifact)) {
+                        MavenProject dependProj = getReactorMavenProject(artifact);
+                        installLooseApplication(dependProj);
+                    } else {
+                        installApp(resolveArtifact(artifact));
+                    }
+                } else {
+                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                            project.getId()));
+                }
+            }
+        }
+    }
+    /* TODO: remove this method
+    private void installDependencies_() throws Exception {
         List<Dependency> deps = project.getCompileDependencies();
         log.debug("InstallAppsMojo.installDependencies() -> No. of compile dependencies for " + project.getArtifactId()
                 + " is " + deps.size());
@@ -111,6 +142,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             }
         }
     }
+    */
     
     protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
@@ -168,7 +200,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private boolean mavenWarPluginExists(MavenProject proj) {
         MavenProject currentProject = proj;
         while(currentProject != null) {
@@ -187,10 +218,10 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         return false;
     }
     
-    private boolean matches(Dependency dep, ArtifactItem assemblyArtifact) {
-        return dep.getGroupId().equals(assemblyArtifact.getGroupId())
-                && dep.getArtifactId().equals(assemblyArtifact.getArtifactId())
-                && dep.getType().equals(assemblyArtifact.getType());
+    private boolean matches(Artifact artifact, ArtifactItem assemblyArtifact) {
+        return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
+                && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
+                && artifact.getType().equals(assemblyArtifact.getType());
     }
     
     private boolean isSupportedType(String type) {
