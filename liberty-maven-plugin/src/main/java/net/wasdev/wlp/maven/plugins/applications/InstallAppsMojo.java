@@ -112,37 +112,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             }
         }
     }
-    /* TODO: remove this method
-    private void installDependencies_() throws Exception {
-        List<Dependency> deps = project.getCompileDependencies();
-        log.debug("InstallAppsMojo.installDependencies() -> No. of compile dependencies for " + project.getArtifactId()
-                + " is " + deps.size());
-        
-        for (Dependency dep : deps) {
-            // skip if not an application type supported by Liberty
-            if (!isSupportedType(dep.getType())) {
-                continue;
-            }
-            // skip assemblyArtifact if specified as a dependency
-            if (assemblyArtifact != null && matches(dep, assemblyArtifact)) {
-                continue;
-            }
-            if (dep.getScope().equals("compile")) {
-                MavenProject dependProj = getMavenProject(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-                if (isSupportedType(dependProj.getPackaging())) {
-                    if (looseApplication && dependProj.getBasedir() != null && dependProj.getBasedir().exists()) {
-                        installLooseApplication(dependProj);
-                    } else {
-                        installApp(resolveArtifact(dependProj.getArtifact()));
-                    }
-                } else {
-                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
-                            project.getId()));
-                }
-            }
-        }
-    }
-    */
     
     protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {

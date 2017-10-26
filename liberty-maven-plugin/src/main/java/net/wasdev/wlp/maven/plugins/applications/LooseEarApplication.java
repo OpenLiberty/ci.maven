@@ -89,9 +89,11 @@ public class LooseEarApplication extends LooseApplication {
     public String getModuleUri(Artifact artifact) throws Exception {
         return getModuleUri(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType()); 
     }
+    
     public String getModuleUri(MavenProject proj) throws Exception {
         return getModuleUri(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging()); 
     }
+    
     public String getModuleUri(String groupId, String artifactId, String version, String type) throws Exception {
         String defaultUri = "/" + getModuleName(groupId, artifactId, version, type);
         // both "jar" and "bundle" packaging type project are "jar" type dependencies that will be packaged in the ear lib directory
@@ -213,13 +215,14 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public boolean isEarCompileDependency(Artifact dependency) {
+    public boolean isEarCompileDependency(Artifact artifact) {
+        // get all ear project compile dependencies
         Set<Artifact> deps = project.getArtifacts();
         for (Artifact dep : deps) {
             if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) 
-                    && dependency.getGroupId().equals(dep.getGroupId()) 
-                    && dependency.getArtifactId().equals(dep.getArtifactId())
-                    && dependency.getVersion().equals(dep.getVersion())) {
+                    && artifact.getGroupId().equals(dep.getGroupId()) 
+                    && artifact.getArtifactId().equals(dep.getArtifactId())
+                    && artifact.getVersion().equals(dep.getVersion())) {
                return true;
             }
         }
