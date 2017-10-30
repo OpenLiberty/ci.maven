@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/liberty-archetype-webapp/src/main/resources/archetype-resources" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/liberty-plugin-archetype/src/main/resources/archetype-resources" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/liberty-archetype-ear/src/main/resources/archetype-resources" includeSubdirectories="true" />
+    </excludeFromCompile>
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="liberty-archetype-ear" />
+        <module name="liberty-archetype-webapp" />
+        <module name="liberty-maven-plugin" />
+        <module name="liberty-plugin-archetype" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="liberty-archetype-ear" target="1.7" />
+      <module name="liberty-archetype-webapp" target="1.7" />
+      <module name="liberty-maven" target="1.7" />
+      <module name="liberty-maven-app-parent" target="1.7" />
+      <module name="liberty-maven-plugin" target="1.7" />
+      <module name="liberty-plugin-archetype" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

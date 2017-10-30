@@ -120,11 +120,30 @@ public class LooseEarApplication extends LooseApplication {
                                     if ("jar".equals(type) && getEarDefaultLibBundleDir() != null) {
                                         bundleDir = "/" + getEarDefaultLibBundleDir();
                                     } else {
-                                        bundleDir = "/";
+                                        bundleDir = "";
                                     }
                                 } else {
                                     bundleDir = "/" + bundleDir;
                                 }
+
+//                                if (bundleDir.equals("/")) {
+//                                    bundleDir = "";
+//                                }
+
+
+                                if (bundleDir.length() > 1 && bundleDir.charAt(0) == bundleDir.charAt(1)) {
+                                    StringBuilder sb = new StringBuilder(bundleDir);
+                                    do {
+                                        sb.deleteCharAt(0);
+                                    } while (sb.length() > 1 && sb.charAt(0) == sb.charAt(1));
+
+                                    bundleDir = sb.toString();
+                                    if (bundleDir.equals("/")) {
+                                        bundleDir = "";
+                                    }
+                                }
+
+
                                 if (bundleFileName != null) {
                                     return bundleDir + "/" + bundleFileName;
                                 } else {
