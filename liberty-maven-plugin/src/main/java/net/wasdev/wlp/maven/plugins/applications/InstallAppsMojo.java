@@ -98,7 +98,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             }
             if (artifact.getScope().equals("compile")) {
                 if (isSupportedType(artifact.getType())) {
-                    if (isReactorMavenProject(artifact)) {
+                    if (looseApplication && isReactorMavenProject(artifact)) {
                         MavenProject dependProj = getReactorMavenProject(artifact);
                         installLooseApplication(dependProj);
                     } else {
