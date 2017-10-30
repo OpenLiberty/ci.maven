@@ -18,8 +18,9 @@ package net.wasdev.wlp.maven.plugins.server;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.maven.model.Dependency;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -88,7 +89,6 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected File exportParametersToXml() throws Exception {
         PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
         
-        @SuppressWarnings("unchecked")
         List<Profile> profiles = project.getActiveProfiles();
         configDocument.createActiveBuildProfilesElement("activeBuildProfiles", profiles);
         
@@ -134,12 +134,13 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("aggregatorParentBasedir", project.getParent().getBasedir());
         }
         
-        // output project compile dependencies
-        List<Dependency> deps = getProjectCompileDependencies(project);
-        for (Dependency dep : deps) {
-            if ("compile".equals(dep.getScope())) {
+        // returns all current project compile dependencies, including transitive dependencies
+        // if Mojo required dependencyScope is set to COMPILE
+        Set<Artifact> artifacts = project.getArtifacts();
+        for (Artifact artifact : artifacts) {
+            if ("compile".equals(artifact.getScope())) {
                 configDocument.createElement("projectCompileDependency",
-                        dep.getGroupId() + ":" + dep.getArtifactId() + ":" + dep.getVersion());
+                        artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             }
         }
         
@@ -313,22 +314,6 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
             return new File(proj.getBasedir(), "src/main/webapp");
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-    protected List<Dependency> getProjectCompileDependencies(MavenProject proj) {
-        List<Dependency> deps = proj.getCompileDependencies();
-        if (deps.size() == 0) {
-            // in case getCompileDependencies() is not returning any dependency (e.g multi-module ear project)
-            log.debug("Unable to get compile dependency using getCompileDependencies() from project " + proj.getArtifactId());
-            deps = proj.getDependencies();
-        }
-        
-        //for (Dependency dep : deps) {
-        //    log.debug(dep.getArtifactId() + ":" + dep.getScope());
-        //}
-        
-        return deps;
     }
     
     private String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
