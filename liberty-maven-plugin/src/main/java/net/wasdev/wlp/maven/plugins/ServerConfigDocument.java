@@ -198,7 +198,6 @@ public class ServerConfigDocument {
     
     private static void parseInclude(Document doc) throws XPathExpressionException, IOException, SAXException {
         // parse include document in source server xml
-        XPath xPath = XPathFactory.newInstance().newXPath();
         NodeList nodeList = (NodeList) XPATH_SERVER_INCLUDE.evaluate(doc, XPathConstants.NODESET);
        
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -252,21 +251,25 @@ public class ServerConfigDocument {
         }
     }
     
-    private static void parseDropinsFile(File file) throws IOException, XPathExpressionException, SAXException {
-        // get input XML Document
-    		Document doc;
-    		try {
-			doc = parseDocument(new FileInputStream(file));
+    private static Document parseDropinsXMLFile(File file) throws FileNotFoundException, IOException {
+		try (FileInputStream is = new FileInputStream(file)){
+			return parseDocument(is);
     		} catch (SAXException ex) {
     			//If the file was not valid XML, assume it was some other non XML file in dropins.
     			System.out.println("Dropins file " + file.getAbsolutePath() + " was not parseable as XML");
-    			return;
+    			return null;
     		}
-        
-        parseApplication(doc, XPATH_SERVER_APPLICATION);
-        parseApplication(doc, XPATH_SERVER_WEB_APPLICATION);
-        parseApplication(doc, XPATH_SERVER_ENTERPRISE_APPLICATION);
-        parseInclude(doc);
+    }
+    
+    private static void parseDropinsFile(File file) throws IOException, XPathExpressionException, SAXException {
+        // get input XML Document
+    		Document doc = parseDropinsXMLFile(file);
+        if (doc != null) {
+	        parseApplication(doc, XPATH_SERVER_APPLICATION);
+	        parseApplication(doc, XPATH_SERVER_WEB_APPLICATION);
+	        parseApplication(doc, XPATH_SERVER_ENTERPRISE_APPLICATION);
+	        parseInclude(doc);
+        }
     }
     
     private static Document getIncludeDoc(String loc) throws IOException, SAXException {
@@ -433,10 +436,11 @@ public class ServerConfigDocument {
     
     private static void parseDropinsFilesVariables(File file) throws SAXException, IOException, XPathExpressionException {
         // get input XML Document 
-        Document doc = parseDocument(new FileInputStream(file));
-        
-        parseVariables(doc);
-        parseIncludeVariables(doc);
+        Document doc = parseDropinsXMLFile(file);
+        if (doc != null) {
+	        parseVariables(doc);
+	        parseIncludeVariables(doc);
+        }
     }
     
     /* 
