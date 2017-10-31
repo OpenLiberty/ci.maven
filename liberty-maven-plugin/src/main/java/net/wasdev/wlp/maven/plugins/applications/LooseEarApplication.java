@@ -215,11 +215,12 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public boolean isEarCompileDependency(Artifact artifact) {
+    public boolean isEarDependency(Artifact artifact) {
         // get all ear project compile dependencies
         Set<Artifact> deps = project.getArtifacts();
         for (Artifact dep : deps) {
-            if ("compile".equals(dep.getScope()) && "jar".equals(dep.getType()) 
+            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+                    && "jar".equals(dep.getType()) 
                     && artifact.getGroupId().equals(dep.getGroupId()) 
                     && artifact.getArtifactId().equals(dep.getArtifactId())
                     && artifact.getVersion().equals(dep.getVersion())) {
