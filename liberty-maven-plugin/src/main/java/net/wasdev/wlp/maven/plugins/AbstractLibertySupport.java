@@ -100,7 +100,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 p.setArtifactFilter(new ArtifactFilter() {
                     @Override
                     public boolean include(Artifact artifact) {
-                        if ("compile".equals(artifact.getScope())) {
+                        if ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) {
                             return true;
                         }
                         return false;

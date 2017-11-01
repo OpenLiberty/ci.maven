@@ -138,7 +138,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // if Mojo required dependencyScope is set to COMPILE
         Set<Artifact> artifacts = project.getArtifacts();
         for (Artifact artifact : artifacts) {
-            if ("compile".equals(artifact.getScope())) {
+            if ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) {
                 configDocument.createElement("projectCompileDependency",
                         artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             }
