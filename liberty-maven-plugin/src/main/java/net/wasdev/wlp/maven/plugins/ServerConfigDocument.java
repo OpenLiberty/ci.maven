@@ -403,13 +403,6 @@ public class ServerConfigDocument {
 
     private static File getConfigDropinsDir() {
         File configDropins = null;
-
-        // if configDirectory exists and contains configDropins directory,
-        // its configDropins has higher precedence.
-        if (configDirectory != null && configDirectory.exists()) {
-            configDropins = new File(configDirectory, "configDropins");
-        }
-
         if (configDropins == null || !configDropins.exists()) {
             configDropins = new File(getServerXML().getParent(), "configDropins");
         }
