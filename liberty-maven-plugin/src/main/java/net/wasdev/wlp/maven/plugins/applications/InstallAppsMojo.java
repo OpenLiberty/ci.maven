@@ -34,7 +34,7 @@ import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
-@Mojo(name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE)
+@Mojo(name = "install-apps", requiresDependencyResolution=ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallAppsMojo extends InstallAppMojoSupport {
     
     protected void doExecute() throws Exception {
