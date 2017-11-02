@@ -19,7 +19,7 @@
         <module>test-assembly</module>
         <module>assembly-it</module>
         <module>basic-it</module>
-        <module>ear-project-it</module>
+        <module>ear-project-it</modgit diule>
         <module>install-features-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>

@@ -71,10 +71,12 @@ public class LooseConfigTestIT {
         
         expression = "/archive/archive";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <archive/> element ==>", 2, nodes.getLength());
+        assertEquals("Number of <archive/> element ==>", 3, nodes.getLength());
         assertEquals("archive targetInArchive attribute value", "/SampleEJB.jar", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         assertEquals("archive targetInArchive attribute value", "/modules/web.war", 
                 nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+        assertEquals("archive targetInArchive attribute value", "/SampleWAR2.war", 
+                nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }
