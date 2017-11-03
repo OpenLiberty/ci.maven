@@ -29,6 +29,12 @@
             <type>war</type>
         </dependency>
         <dependency>
+            <groupId>net.wasdev.wlp.maven.it</groupId>
+            <artifactId>SampleWAR2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
@@ -59,6 +65,11 @@
                             <groupId>net.wasdev.wlp.maven.it</groupId>
                             <artifactId>SampleWAR</artifactId>
                             <uri>/modules/web.war</uri>
+                        </webModule>
+                        <webModule>
+                            <groupId>net.wasdev.wlp.maven.it</groupId>
+                            <artifactId>SampleWAR2</artifactId>
+                            <!-- uri and bundleDir elements not included to test issue 264 -->
                         </webModule>
                     </modules>
                 </configuration>
