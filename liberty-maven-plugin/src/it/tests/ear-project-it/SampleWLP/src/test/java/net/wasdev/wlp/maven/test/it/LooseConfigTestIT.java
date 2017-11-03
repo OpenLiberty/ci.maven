@@ -78,5 +78,12 @@ public class LooseConfigTestIT {
                 nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         assertEquals("archive targetInArchive attribute value", "/SampleWAR2.war", 
                 nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+        
+        expression = "/archive/archive/file";
+        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of <archive/> element ==>", 5, nodes.getLength());
+        // test runtime scope dependency to be incldued in the ?WEB-INF/lib
+        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-1.2.17.jar", 
+                nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }

@@ -102,7 +102,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());        
         
         for (Artifact artifact : artifacts) {
-            if ("compile".equals(artifact.getScope())) {
+            if ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) {
                 if (!isReactorMavenProject(artifact)) {
                     if (looseEar.isEarSkinnyWars() && "war".equals(artifact.getType())) {
                         throw new MojoExecutionException(
@@ -152,7 +152,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
         
         for (Artifact artifact : artifacts) {
-            if ("compile".equals(artifact.getScope()) && "jar".equals(artifact.getType())) {
+            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+                    && "jar".equals(artifact.getType())) {
                 addlibrary(parent, looseApp, dir, artifact);
             }
         }
@@ -164,7 +165,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear package
-            if ("compile".equals(artifact.getScope()) && "jar".equals(artifact.getType()) && !looseEar.isEarCompileDependency(artifact)) {
+            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+                    && "jar".equals(artifact.getType()) && !looseEar.isEarDependency(artifact)) {
                 addlibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
             }
         }
