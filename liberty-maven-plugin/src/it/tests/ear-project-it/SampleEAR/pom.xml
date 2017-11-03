@@ -66,6 +66,7 @@
                             <artifactId>SampleWAR</artifactId>
                             <uri>/modules/web.war</uri>
                         </webModule>
+                        <!-- uri and bundleDir elements not included to test issue 264 -->
                         <webModule>
                             <groupId>net.wasdev.wlp.maven.it</groupId>
                             <artifactId>SampleWAR2</artifactId>

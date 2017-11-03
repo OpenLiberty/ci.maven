@@ -125,6 +125,8 @@ public class LooseEarApplication extends LooseApplication {
                                 } else {
                                     bundleDir = "/" + bundleDir;
                                 }
+                                
+                                // remove duplicate forward slashes. At this point, we know bundleDir starts with a slash or is empty
                                 if (bundleDir.length() > 1 && bundleDir.charAt(0) == bundleDir.charAt(1)) {
                                     StringBuilder sb = new StringBuilder(bundleDir);
                                     do {
