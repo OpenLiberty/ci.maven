@@ -16,11 +16,11 @@
     </properties>
 
     <modules>
-<!--         <module>test-assembly</module>
+        <module>test-assembly</module>
         <module>assembly-it</module>
-        <module>basic-it</module> -->
+        <module>basic-it</module>
         <module>ear-project-it</module>
-<!--         <module>install-features-it</module>
+        <module>install-features-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
@@ -44,7 +44,7 @@
         <module>skip-start-server-it</module>
         <module>test-server-param-default</module>
         <module>test-server-param-pom-override</module>
-        <module>test-server-param-configdir-override</module> -->
+        <module>test-server-param-configdir-override</module>
     </modules>
 <!--These profiles are included to suppress warnings that they are missing whenever tests are ran -->
     <profiles>
