@@ -131,7 +131,7 @@ public class LooseEarApplication extends LooseApplication {
                                         sb.deleteCharAt(0);
                                     } while (sb.length() > 1 && sb.charAt(0) == sb.charAt(1));
                                     bundleDir = sb.toString();
-                                    if (bundleDir.equals("/")) {
+                                    if ("/".equals(bundleDir)) {
                                         bundleDir = "";
                                     }
                                 }
