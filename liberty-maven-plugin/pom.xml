@@ -53,6 +53,11 @@
             <artifactId>plexus-build-api</artifactId>
             <version>0.0.7</version>
         </dependency>
+        <dependency>
+            <groupId>net.wasdev.wlp.common</groupId>
+            <artifactId>common-impl</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <profiles>
