@@ -198,8 +198,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=2.0 \
-        -DwlpPluginVersion=2.0 \
+        -DarchetypeVersion=2.1.1 \
+        -DwlpPluginVersion=2.1.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -213,11 +213,12 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.0 \
-        -DwlpPluginVersion=2.0 \
+        -DarchetypeVersion=2.1.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
+        
+By default, the `liberty-maven-plugin` version is set the same as the `liberty-archetype-webapp` archetype version used. To specify a different version of the plugin, use the `wlpPluginVersion` parameter. For example, you could set `-DwlpPluginVersion=2.1`.
         
 ### liberty-archetype-ear
 
@@ -228,11 +229,12 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=2.1-SNAPSHOT \
-        -DwlpPluginVersion=2.1-SNAPSHOT \
+        -DarchetypeVersion=2.1.1 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
+
+By default, the `liberty-maven-plugin` version is set the same as the `liberty-archetype-ear` archetype version used. To specify a different version of the plugin, use the `wlpPluginVersion` parameter. For example, you could set `-DwlpPluginVersion=2.1`.
 
 
 If you are using a snapshot version of `liberty-archetype-webapp` or `liberty-archetype-ear`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
