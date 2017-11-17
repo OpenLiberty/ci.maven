@@ -16,6 +16,7 @@
         <module>SampleEJB</module>
         <module>SampleWAR</module>
         <module>SampleWAR2</module>
+        <module>AppXmlEAR</module>
         <module>SampleEAR</module>
         <module>SampleWLP</module>
         <module>skinnywar-ear</module>
