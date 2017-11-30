@@ -239,18 +239,20 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     }
     
     private Dependency resolveFromProjectDepMgmt(ArtifactItem item) {
-        List<Dependency> list = getProject().getDependencyManagement().getDependencies();
-        
-        for (Dependency dependency : list) {
-            if (dependency.getGroupId().equals(item.getGroupId())
-                    && dependency.getArtifactId().equals(item.getArtifactId())
-                    && dependency.getType().equals(item.getType())) {
-                log.debug("Found ArtifactItem from project dependencyManagement " + dependency.getGroupId() + ":"
-                        + dependency.getArtifactId() + ":" + dependency.getVersion());
-                return dependency;
+        // if project has dependencyManagement section
+        if (getProject().getDependencyManagement() != null) {
+            List<Dependency> list = getProject().getDependencyManagement().getDependencies();
+            
+            for (Dependency dependency : list) {
+                if (dependency.getGroupId().equals(item.getGroupId())
+                        && dependency.getArtifactId().equals(item.getArtifactId())
+                        && dependency.getType().equals(item.getType())) {
+                    log.debug("Found ArtifactItem from project dependencyManagement " + dependency.getGroupId() + ":"
+                            + dependency.getArtifactId() + ":" + dependency.getVersion());
+                    return dependency;
+                }
             }
         }
-        
         log.debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
                 + " is not found from project dependencyManagement.");
         return null;
