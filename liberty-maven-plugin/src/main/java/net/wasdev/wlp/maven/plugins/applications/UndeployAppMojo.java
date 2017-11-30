@@ -23,7 +23,7 @@ import net.wasdev.wlp.ant.UndeployTask;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.types.PatternSet;
@@ -33,7 +33,7 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * Undeploy application from liberty server. If no parameters have been defined
  * the mojo will undeploy all applications from the server.
  */
-@Mojo(name = "undeploy")
+@Mojo(name = "undeploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 
 public class UndeployAppMojo extends BasicSupport {
     
