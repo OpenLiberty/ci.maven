@@ -16,18 +16,19 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.awt.Desktop;
-
+import java.io.IOException;
 import java.net.URI;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import net.wasdev.wlp.maven.plugins.BasicSupport;
 
 /**
  * Display an application URL in the default browser.
  */
 @Mojo(name = "display-url")
-public class DisplayUrlMojo extends BasicSupport {
+public class DisplayUrlMojo extends AbstractMojo {
     
     /**
      * Display a URI in the default browser
@@ -35,10 +36,13 @@ public class DisplayUrlMojo extends BasicSupport {
     @Parameter
     protected URI applicationURL;
  
-    @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (applicationURL != null && Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().browse(applicationURL);
+            try {
+                Desktop.getDesktop().browse(applicationURL);
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getLocalizedMessage(), e);
+            }
         }
     }
 }

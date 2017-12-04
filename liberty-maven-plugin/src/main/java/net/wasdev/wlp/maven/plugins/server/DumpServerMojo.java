@@ -21,11 +21,12 @@ import java.text.MessageFormat;
 import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Dump diagnostic information from the server into an archive.
   */
-@Mojo(name = "dump-server")
+@Mojo(name = "dump-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DumpServerMojo extends StartDebugMojoSupport {
 
     /**

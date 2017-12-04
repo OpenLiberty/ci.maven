@@ -22,6 +22,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.ant.DeployTask;
@@ -30,7 +31,7 @@ import net.wasdev.wlp.maven.plugins.BasicSupport;
 /**
  * Deploy application to liberty server
  */
-@Mojo(name = "deploy")
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployAppMojo extends BasicSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location

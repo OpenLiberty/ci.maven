@@ -20,13 +20,14 @@ import java.text.MessageFormat;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Start a liberty server
  */
-@Mojo(name = "start-server") 
+@Mojo(name = "start-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
 
 public class StartServerMojo extends StartDebugMojoSupport {
 
