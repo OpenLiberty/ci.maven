@@ -151,42 +151,35 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Override
     protected Artifact getArtifact(final ArtifactItem item) throws MojoExecutionException {
         assert item != null;
+        Artifact artifact = null;
         
-        // resolve version in case it is a range
         if (item.getVersion() != null) {
-            try {
-                resolveVersionRange(item);
-            } catch (VersionRangeResolutionException e) {
-                throw new MojoExecutionException(e.getLocalizedMessage(), e);
-            }
-        }
-        
-        // Return the artifact from the project dependency if it is available and the mojo 
-        // should have requiresDependencyResolution=ResolutionScope.COMPILE_PLUS_RUNTIME set 
-        Artifact artifact = resolveFromProjectDependencies(item);
-        
-        if (artifact != null) {
-            if (item.getVersion() == null) {
-                item.setVersion(artifact.getVersion());
-            }
-            // To maintain existing behavior, when the version is set in ArtifactItem which is
-            // different from dependencies configuration, the version in ArtifactItem takes 
-            // precedence.  
-            if (artifact.isResolved() && artifact.getVersion().equals(item.getVersion())) {
-                return artifact;
-            } else {
-                // create artifact from item
-                return createArtifact(item);
-            }
+            // if version is set in ArtifactItem, it will always override the one in project dependency
+            artifact = createArtifact(item);
         } else {
-            // if item has no version set, try to get it from the project dependencyManagement section
-            if (item.getVersion() == null && resolveFromProjectDepMgmt(item) != null) {
+            // Return the artifact from the project dependency if it is available and the mojo
+            // should have requiresDependencyResolution=ResolutionScope.COMPILE_PLUS_RUNTIME set
+            artifact = resolveFromProjectDependencies(item);
+            
+            if (artifact != null) {
+                // in case it is not resolved yet
+                if (!artifact.isResolved()) {
+                    item.setVersion(artifact.getVersion());
+                    artifact = createArtifact(item);
+                }
+            } else if (resolveFromProjectDepMgmt(item) != null) {
+                // if item has no version set, try to get it from the project dependencyManagement section
                 // get version from dependencyManagement
                 item.setVersion(resolveFromProjectDepMgmt(item).getVersion());
+                artifact = createArtifact(item);
+            } else {
+                    throw new MojoExecutionException(
+                            "Unable to find artifact version of " + item.getGroupId() + ":" + item.getArtifactId()
+                                    + " in either project dependencies or in project dependencyManagement.");
             }
-            // create artifact from item
-            return createArtifact(item);
         }
+        
+        return artifact;
     }
 
     /**
@@ -202,8 +195,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         assert item != null;
         
         if (item.getVersion() == null) {
-            throw new MojoExecutionException("Unable to find artifact version of " + item.getGroupId()
-                + ":" + item.getArtifactId() + " in either project dependencies or in project dependencyManagement.");
+            throw new MojoExecutionException("Unable to find artifact without version specified: " + item.getGroupId()
+                + ":" + item.getArtifactId() + ":" + item.getVersion() + " in either project dependencies or in project dependencyManagement.");
         }
         
         // if version is a range get the highest available version
@@ -298,10 +291,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         File artifactFile = resolutionResult.getArtifact().getFile();
         
         return artifactFile;
-    }
-    
-    private String resolveVersionRange(ArtifactItem item) throws VersionRangeResolutionException {
-        return resolveVersionRange(item.getGroupId(), item.getArtifactId(), item.getType(), item.getVersion());
     }
     
     private String resolveVersionRange(String groupId, String artifactId, String extension, String version)
