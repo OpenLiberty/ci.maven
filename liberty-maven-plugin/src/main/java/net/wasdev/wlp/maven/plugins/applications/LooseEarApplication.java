@@ -18,7 +18,7 @@ public class LooseEarApplication extends LooseApplication {
         File sourceDir = new File(project.getBasedir(), "src/main/application");
         String path = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "earSourceDirectory");
         if (path != null) {
-            sourceDir = new File(project.getBasedir(), path);
+            sourceDir = new File(path);
         }
         config.addDir(sourceDir.getCanonicalPath(), "/");
     }
@@ -27,7 +27,7 @@ public class LooseEarApplication extends LooseApplication {
         File applicationXmlFile = null;
         String path = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "applicationXml");
         if (path != null && !path.isEmpty()) {
-            applicationXmlFile = new File(project.getBasedir(), path);
+            applicationXmlFile = new File(path);
             config.addFile(applicationXmlFile.getCanonicalPath(), "/META-INF/application.xml");
         } else if (getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml") == null ||
                 getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin", "generateApplicationXml").equals("true")) {
@@ -68,7 +68,7 @@ public class LooseEarApplication extends LooseApplication {
         // get raXmlFile optional rar plugin parameter
         String path = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-rar-plugin", "raXmlFile");
         if (path != null && !path.isEmpty()) {
-            File raXmlFile = new File(proj.getBasedir(), path);
+            File raXmlFile = new File(path);
             config.addFile(rarArchive, raXmlFile.getCanonicalPath(), "/META-INF/ra.xml");
         }
 
@@ -80,7 +80,7 @@ public class LooseEarApplication extends LooseApplication {
     public String getRarSourceDirectory(MavenProject proj) throws Exception {
         String dir = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-rar-plugin", "rarSourceDirectory");
         if (dir != null) {
-            return new File(proj.getBasedir(), dir).getCanonicalPath();
+            return new File(dir).getCanonicalPath();
         } else {
             return new File(proj.getBasedir(), "src/main/rar").getCanonicalPath();
         }
