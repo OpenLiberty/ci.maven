@@ -45,6 +45,7 @@
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
+                    <version>2.1.2-SNAPSHOT</version>
                     <configuration>
                         <!-- set install-apps goal parameters -->
                         <looseApplication>true</looseApplication>
@@ -64,6 +65,13 @@
                             <goals>
                                 <goal>install-server</goal>
                                 <goal>create-server</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>install-feature</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                              <goal>install-feature</goal>
                             </goals>
                         </execution>
                         <execution>
