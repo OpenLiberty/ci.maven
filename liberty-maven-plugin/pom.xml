@@ -68,19 +68,14 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
+                        <version>3.0.1</version>
                         <configuration>
                             <debug>false</debug>
-                            <goals>
-                                <goal>install</goal>
-                            </goals>
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
                                 <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
                             </properties>
-                            <profiles>
-                                <profile>offline-its</profile>
-                            </profiles>
                         </configuration>
                         <executions>
                             <execution>
@@ -102,21 +97,15 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>1.8</version>
+                        <version>3.0.1</version>
                         <configuration>
                             <debug>false</debug>
-                            <goals>
-                                <goal>install</goal>
-                            </goals>
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
                                 <wlpVersion>${wlpVersion}</wlpVersion>
                                 <wlpLicense>${wlpLicense}</wlpLicense>
                             </properties>
-                            <profiles>
-                                <profile>online-its</profile>
-                            </profiles>
                         </configuration>
                         <executions>
                             <execution>
