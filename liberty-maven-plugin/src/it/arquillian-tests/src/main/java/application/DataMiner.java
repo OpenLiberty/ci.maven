@@ -28,7 +28,7 @@ public class DataMiner {
 	@PersistenceContext(unitName="pu")
 	private EntityManager em;
 
-	@Schedule(hour = "*", minute = "*", persistent = false)
+	@Schedule(hour = "*", minute = "*", second = "*/10", persistent = false)
 	public void fetchData() {
 		System.out.println("here");
 		

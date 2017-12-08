@@ -27,7 +27,7 @@
 	</scm>
 
 	<properties>
-	    <mainAppName>test-configure-arquillian</mainAppName>
+		<mainAppName>test-configure-arquillian</mainAppName>
 		<!-- Liberty server properties -->
 		<wlpServerName>LibertyProjectServer</wlpServerName>
 		<testServerHttpPort>9080</testServerHttpPort>
@@ -91,26 +91,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-client</artifactId>
-			<version>3.1.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
 			<version>1.0.4</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.javalite</groupId>
-			<artifactId>javalite-common</artifactId>
-			<version>1.4.13</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20140107</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.ejb</groupId>
@@ -126,13 +110,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.wasdev.wlp.starters.web</groupId>
-			<artifactId>provided-pom</artifactId>
-			<version>0.0.3</version>
-			<type>pom</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.wasdev.wlp.starters.persistence</groupId>
 			<artifactId>provided-pom</artifactId>
 			<version>0.0.3</version>
@@ -141,13 +118,6 @@
 		</dependency>
 		<dependency>
 			<groupId>net.wasdev.wlp.starters.rest</groupId>
-			<artifactId>runtime-pom</artifactId>
-			<version>0.0.3</version>
-			<type>pom</type>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.wasdev.wlp.starters.web</groupId>
 			<artifactId>runtime-pom</artifactId>
 			<version>0.0.3</version>
 			<type>pom</type>
@@ -295,7 +265,8 @@
 						<configuration>
 							<target>
 								<javac srcdir="${project.basedir}/src/test-profile-resources"
-									destdir="${project.build.directory}/test-classes" includes="${test.to.include}.java" classpathref="maven.test.classpath"/>
+									destdir="${project.build.directory}/test-classes" includes="${test.to.include}.java"
+									classpathref="maven.test.classpath" />
 							</target>
 						</configuration>
 						<goals>
@@ -330,16 +301,16 @@
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 			</properties>
 		</profile>
-        <profile>
-            <!-- Main app should start before test app in console log -->
-            <id>verify-main-app</id>
-            <properties>
-                <skip.arquillian.xml>false</skip.arquillian.xml>
-                <verify.apps>${mainAppName}</verify.apps>
-                <test.to.include>VerifyMainAppIT</test.to.include>
-                <arquillian.xml.to.include>none</arquillian.xml.to.include>
-            </properties>
-        </profile>
+		<profile>
+			<!-- Main app should start before test app in console log -->
+			<id>verify-main-app</id>
+			<properties>
+				<skip.arquillian.xml>false</skip.arquillian.xml>
+				<verify.apps>${mainAppName}</verify.apps>
+				<test.to.include>VerifyMainAppIT</test.to.include>
+				<arquillian.xml.to.include>none</arquillian.xml.to.include>
+			</properties>
+		</profile>
 	</profiles>
 
 </project>
