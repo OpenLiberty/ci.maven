@@ -31,7 +31,6 @@ public class SkipWithoutXmlIT {
 		while ((line = br.readLine()) != null) {
 			// Make sure a comment indicates that the file was generated
 			// by the configure-arquillian goal.
-			System.out.println("line: " + line);
 			if(line.equals(Constants.CONFIGURE_ARQUILLIAN_COMMENT)) {
 				found = true;
 			}
