@@ -19,13 +19,14 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Start a liberty server in debug mode
  */
-@Mojo(name = "debug-server") 
+@Mojo(name = "debug-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
 
 public class DebugServerMojo extends StartDebugMojoSupport {
 

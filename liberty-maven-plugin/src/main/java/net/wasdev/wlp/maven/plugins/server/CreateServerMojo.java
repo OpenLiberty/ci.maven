@@ -27,7 +27,7 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Create a liberty server
   */
-@Mojo(name = "create-server", requiresDependencyResolution=ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "create-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
 public class CreateServerMojo extends PluginConfigSupport {
 
     /**
