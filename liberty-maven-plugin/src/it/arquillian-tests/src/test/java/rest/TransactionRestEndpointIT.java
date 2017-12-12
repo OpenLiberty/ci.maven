@@ -19,7 +19,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 
 @RunWith(Arquillian.class)
 public class TransactionRestEndpointIT {
-	
+
 	@Deployment
 	public static WebArchive createDeploymentY() {
 		File[] mavenFiles = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeDependencies().resolve()
@@ -45,6 +45,7 @@ public class TransactionRestEndpointIT {
 
 	@Test
 	public void testDataExistsAtEndpoint() throws Exception {
+		Thread.sleep(10000);
 		URL endpoint = new URL("http://localhost:9080/myLibertyApp/api/transactions");
 		String body = readAllAndClose(endpoint.openStream());
 		int bodyLength = body.length();
@@ -53,6 +54,7 @@ public class TransactionRestEndpointIT {
 
 	@Test
 	public void testNewDataAddedToEndpoint() throws Exception {
+		Thread.sleep(10000);
 		String firstBody = readAllAndClose(new URL("http://localhost:9080/myLibertyApp/api/transactions").openStream());
 		int firstBodyLength = firstBody.length();
 		Thread.sleep(12000);
@@ -61,7 +63,7 @@ public class TransactionRestEndpointIT {
 		int secondBodyLength = secondBody.length();
 		assertTrue(secondBodyLength > firstBodyLength);
 	}
-	
+
 	String readAllAndClose(InputStream is) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
