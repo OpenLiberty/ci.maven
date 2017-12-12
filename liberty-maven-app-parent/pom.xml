@@ -73,6 +73,9 @@
                             <goals>
                               <goal>install-feature</goal>
                             </goals>
+                            <configuration>
+                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>install-apps</id>
@@ -88,7 +91,7 @@
                                 <goal>package-server</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>target/wlp-package</outputDirectory>
+                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
                             </configuration>
                         </execution>
                         <execution>
