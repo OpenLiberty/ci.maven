@@ -198,8 +198,8 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=2.1.1 \
-        -DwlpPluginVersion=2.1.1 \
+        -DarchetypeVersion=2.1.2 \
+        -DwlpPluginVersion=2.1.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -213,7 +213,7 @@ Example:
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.1.1 \
+        -DarchetypeVersion=2.1.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -229,7 +229,7 @@ By default, the `liberty-maven-plugin` version is set the same as the `liberty-a
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=2.1.1 \
+        -DarchetypeVersion=2.1.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT

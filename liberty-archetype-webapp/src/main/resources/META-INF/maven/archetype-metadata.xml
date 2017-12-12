@@ -7,10 +7,10 @@
         <requiredProperty key="groupId"/>
         <requiredProperty key="artifactId"/>
         <requiredProperty key="wlpRuntimeVersion">
-            <defaultValue>17.0.0.3</defaultValue>
+            <defaultValue>17.0.0.4</defaultValue>
         </requiredProperty>
         <requiredProperty key="wlpPluginVersion">
-            <defaultValue>2.1.1</defaultValue>
+            <defaultValue>2.1.2</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <fileSets>
