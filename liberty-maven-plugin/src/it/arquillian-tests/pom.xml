@@ -10,6 +10,7 @@
 		<groupId>net.wasdev.wlp.maven.it</groupId>
 		<artifactId>tests</artifactId>
 		<version>1.0-SNAPSHOT</version>
+		<relativePath>../tests</relativePath>
 	</parent>
 
 	<licenses>
