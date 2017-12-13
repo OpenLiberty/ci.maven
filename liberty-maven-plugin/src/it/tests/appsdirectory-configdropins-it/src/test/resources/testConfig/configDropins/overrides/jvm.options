@@ -1,2 +1,0 @@
-# non-xml files should be ignored by the server configuration parser
--Dfoo=bar
