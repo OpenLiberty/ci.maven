@@ -1,5 +1,0 @@
-<server description="default server">
-    <featureManager>    
-        <feature>microProfile-1.2</feature>
-    </featureManager>     
-</server>

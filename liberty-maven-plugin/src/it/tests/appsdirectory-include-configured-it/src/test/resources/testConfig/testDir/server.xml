@@ -1,3 +1,0 @@
-<server>
-    <webApplication id="appsdirectory-include-configured-it" location="appsdirectory-include-configured-it.war" name="appsdirectory-include-configured-it"/>
-</server>

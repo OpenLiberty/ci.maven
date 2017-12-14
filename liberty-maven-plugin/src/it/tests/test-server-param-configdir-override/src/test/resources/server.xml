@@ -1,7 +1,0 @@
-<!-- src/test/resources/server.xml  -->
-<server description="default server">
-    <featureManager>        
-        <feature>osgiBundle-1.0</feature>
-        <feature>jsp-2.3</feature>
-    </featureManager>     
-</server>
