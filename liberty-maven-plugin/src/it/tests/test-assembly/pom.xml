@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.wasdev.wlp.maven.it</groupId>
+        <artifactId>tests</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>test-assembly</artifactId>
+    <packaging>liberty-assembly</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>test-war</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>test-eba</artifactId>
+            <version>${project.version}</version>
+            <type>eba</type>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>@pom.version@</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <stripVersion>true</stripVersion>
+                    <assemblyArtifact>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>assembly-server</artifactId>
+                        <version>${project.version}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                    <serverName>test</serverName>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                        <feature>mongodb-2.0</feature>
+                        <feature>oauth-2.0</feature>
+                        <feature>couchdb-1.0</feature>
+                    </features>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
