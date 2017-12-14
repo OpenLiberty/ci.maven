@@ -21,12 +21,8 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 public class TransactionRestEndpointIT {
 
 	@Deployment
-	public static WebArchive createDeploymentY() {
-		File[] mavenFiles = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeDependencies().resolve()
-				.withTransitivity().asFile();
-
-		return ShrinkWrap.create(WebArchive.class).addPackage("application.rest").addPackage("application")
-				.addAsLibraries(mavenFiles);
+	public static WebArchive createDeployment() {
+		return ShrinkWrap.create(WebArchive.class).addPackage("application.rest").addPackage("application");
 	}
 
 	@Test
