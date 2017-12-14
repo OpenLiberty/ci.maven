@@ -5,11 +5,15 @@
 	<engine>
 		<property name="deploymentExportPath">target/</property>
 	</engine>
-	<container qualifier="websphere" default="true">
+	<container qualifier="liberty_managed" default="true">
 		<configuration>
+			<property name="hostName">localhost</property>
 			<property name="wlpHome">target/wlp</property>
 			<property name="serverName">LibertyProjectServer</property>
 			<property name="httpPort">9080</property>
+			<property name="httpsPort">9443</property>
+            <property name="username">admin</property>
+            <property name="password">admin</property>
 		</configuration>
 	</container>
 </arquillian>
