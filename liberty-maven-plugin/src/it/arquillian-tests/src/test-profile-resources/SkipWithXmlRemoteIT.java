@@ -22,6 +22,7 @@ public class SkipWithXmlRemoteIT {
 		// This test has the skip flag true with the XML file already existing.
 		// In this case, the server should use the arquillian.xml that is in
 		// src/test/resources/arquillian.xml.
+		
 		File arquillianXML = new File("target/test-classes/arquillian.xml");
 		InputStream is = new FileInputStream(arquillianXML);
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
