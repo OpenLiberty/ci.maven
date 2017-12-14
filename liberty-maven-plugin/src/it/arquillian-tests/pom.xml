@@ -4,12 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>test-configure-arquillian</artifactId>
+	<version>1.0.0.Final</version>
 	<packaging>liberty-assembly</packaging>
 
 	<parent>
 		<groupId>net.wasdev.wlp.maven.it</groupId>
 		<artifactId>tests</artifactId>
 		<version>1.0-SNAPSHOT</version>
+		<relativePath>../tests</relativePath>
 	</parent>
 
 	<licenses>
@@ -35,6 +37,12 @@
 		<warContext>myLibertyApp</warContext>
 		<package.file>${project.build.directory}/${app.name}.zip</package.file>
 		<packaging.type>usr</packaging.type>
+
+		<!-- Test properties -->
+		<arquillian.managed.artifact>arquillian-wlp-managed-8.5</arquillian.managed.artifact>
+		<arquillian.managed.version>1.0.0.Final-SNAPSHOT</arquillian.managed.version>
+		<arquillian.remote.artifact>arquillian-wlp-remote-8.5</arquillian.remote.artifact>
+		<arquillian.remote.version>1.0.0.Beta2</arquillian.remote.version>
 	</properties>
 
 	<repositories>
@@ -264,7 +272,7 @@
 						<configuration>
 							<target>
 								<javac srcdir="${project.basedir}/src/test-profile-resources"
-									destdir="${project.build.directory}/test-classes" includes="${test.to.include}.java"
+									destdir="${project.build.directory}/test-classes" includes="${tests.to.include}"
 									classpathref="maven.test.classpath" />
 							</target>
 						</configuration>
@@ -286,11 +294,11 @@
 			<properties>
 				<skip.arquillian.xml>true</skip.arquillian.xml>
 				<verify.apps></verify.apps>
-				<test.to.include>SkipWithXmlIT</test.to.include>
+				<tests.to.include>SkipWithXmlIT.java, TransactionRestEndpointIT.java</tests.to.include>
 				<arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
 				<arquillian.launch>liberty_managed</arquillian.launch>
-				<arquillian.container.type>arquillian-wlp-managed-8.5</arquillian.container.type>
-				<arquillian.container.version>1.0.0.Final-SNAPSHOT</arquillian.container.version>
+				<arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+				<arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
 			</properties>
 		</profile>
 		<profile>
@@ -299,11 +307,12 @@
 			<properties>
 				<skip.arquillian.xml>true</skip.arquillian.xml>
 				<verify.apps></verify.apps>
-				<test.to.include>SkipWithoutXmlIT</test.to.include>
+				<tests.to.include>SkipWithoutXmlIT.java,
+					TransactionRestEndpointIT.java</tests.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 				<arquillian.launch>liberty_managed</arquillian.launch>
-				<arquillian.container.type>arquillian-wlp-managed-8.5</arquillian.container.type>
-				<arquillian.container.version>1.0.0.Final-SNAPSHOT</arquillian.container.version>
+				<arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+				<arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
 			</properties>
 		</profile>
 		<profile>
@@ -312,11 +321,12 @@
 			<properties>
 				<skip.arquillian.xml>false</skip.arquillian.xml>
 				<verify.apps>${project.artifactId}</verify.apps>
-				<test.to.include>VerifyMainAppIT</test.to.include>
+				<tests.to.include>VerifyMainAppIT.java,
+					TransactionRestEndpointIT.java</tests.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 				<arquillian.launch>liberty_managed</arquillian.launch>
-				<arquillian.container.type>arquillian-wlp-managed-8.5</arquillian.container.type>
-				<arquillian.container.version>1.0.0.Final-SNAPSHOT</arquillian.container.version>
+				<arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+				<arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
 			</properties>
 		</profile>
 		<profile>
@@ -325,11 +335,11 @@
 			<properties>
 				<skip.arquillian.xml>true</skip.arquillian.xml>
 				<verify.apps></verify.apps>
-				<test.to.include>SkipWithXmlIT</test.to.include>
+				<tests.to.include>SkipWithXmlIT.java</tests.to.include>
 				<arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
 				<arquillian.launch>liberty_remote</arquillian.launch>
-				<arquillian.container.type>arquillian-wlp-remote-8.5</arquillian.container.type>
-				<arquillian.container.version>1.0.0.Beta2</arquillian.container.version>
+				<arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
+				<arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
 			</properties>
 		</profile>
 		<profile>
@@ -338,11 +348,11 @@
 			<properties>
 				<skip.arquillian.xml>true</skip.arquillian.xml>
 				<verify.apps></verify.apps>
-				<test.to.include>SkipWithoutXmlIT</test.to.include>
+				<tests.to.include>SkipWithoutXmlIT.java</tests.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 				<arquillian.launch>liberty_remote</arquillian.launch>
-				<arquillian.container.type>arquillian-wlp-remote-8.5</arquillian.container.type>
-				<arquillian.container.version>1.0.0.Beta2</arquillian.container.version>
+				<arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
+				<arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
 			</properties>
 		</profile>
 

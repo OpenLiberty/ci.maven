@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 
 import org.junit.Test;
 
+import net.wasdev.wlp.common.arquillian.util.Constants;
+
 /**
  * Only included in the verify-main-app Maven profile.
  * 
@@ -15,6 +17,24 @@ import org.junit.Test;
  *
  */
 public class VerifyMainAppIT {
+
+	@Test
+	public void testVerifyAppInArquillianXml() throws Exception {
+		// Make sure that the verifyApps property is properly written to arquillian.xml
+
+		File arquillianXML = new File("target/test-classes/arquillian.xml");
+		InputStream is = new FileInputStream(arquillianXML);
+		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		String line;
+		while ((line = br.readLine()) != null) {
+			if (line.contains("<property name=\"verifyApps\">test-configure-arquillian</property>")) {
+				return;
+			}
+		}
+
+		assertTrue(false); // Should have returned in the while loop if the test
+		// passed
+	}
 
 	@Test
 	public void testVerifyMainApp() throws Exception {
@@ -46,7 +66,8 @@ public class VerifyMainAppIT {
 			}
 		}
 
-		assertTrue(false); // Should have returned in the while loop if the test passed
+		assertTrue(false); // Should have returned in the while loop if the test
+							// passed
 	}
 
 }
