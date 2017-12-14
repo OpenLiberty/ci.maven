@@ -3,14 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>test-configure-arquillian</artifactId>
+	<artifactId>${mainAppName}</artifactId>
 	<packaging>liberty-assembly</packaging>
 
 	<parent>
 		<groupId>net.wasdev.wlp.maven.it</groupId>
 		<artifactId>tests</artifactId>
 		<version>1.0-SNAPSHOT</version>
-		<relativePath>../tests</relativePath>
 	</parent>
 
 	<licenses>
@@ -28,6 +27,7 @@
 	</scm>
 
 	<properties>
+		<mainAppName>test-configure-arquillian</mainAppName>
 		<!-- Liberty server properties -->
 		<wlpServerName>LibertyProjectServer</wlpServerName>
 		<testServerHttpPort>9080</testServerHttpPort>
@@ -289,6 +289,7 @@
 				<verify.apps></verify.apps>
 				<test.to.include>SkipWithXmlIT</test.to.include>
 				<arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
+				<arquillian.launch>websphere</arquillian.launch>
 			</properties>
 		</profile>
 		<profile>
@@ -299,6 +300,8 @@
 				<verify.apps></verify.apps>
 				<test.to.include>SkipWithoutXmlIT</test.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
+				<arquillian.launch>websphere</arquillian.launch>
+
 			</properties>
 		</profile>
 		<profile>
@@ -306,11 +309,36 @@
 			<id>verify-main-app</id>
 			<properties>
 				<skip.arquillian.xml>false</skip.arquillian.xml>
-				<verify.apps>${project.artifactId}</verify.apps>
+				<verify.apps>${mainAppName}</verify.apps>
 				<test.to.include>VerifyMainAppIT</test.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 			</properties>
 		</profile>
+		<profile>
+			<!-- Should use the arquillian.xml in src/test/resources -->
+			<id>skip-with-xml-remote</id>
+			<properties>
+				<skip.arquillian.xml>true</skip.arquillian.xml>
+				<verify.apps></verify.apps>
+				<test.to.include>SkipWithXmlRemoteIT</test.to.include>
+				<arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
+				<arquillian.launch>wlp-remote</arquillian.launch>
+
+			</properties>
+		</profile>
+		<profile>
+			<!-- Should use the XML generated from the configure-arquillian goal -->
+			<id>skip-without-xml-remote</id>
+			<properties>
+				<skip.arquillian.xml>true</skip.arquillian.xml>
+				<verify.apps></verify.apps>
+				<test.to.include>SkipWithoutXmlRemoteIT</test.to.include>
+				<arquillian.xml.to.include>none</arquillian.xml.to.include>
+				<arquillian.launch>wlp-remote</arquillian.launch>
+
+			</properties>
+		</profile>
+
 	</profiles>
 
 </project>

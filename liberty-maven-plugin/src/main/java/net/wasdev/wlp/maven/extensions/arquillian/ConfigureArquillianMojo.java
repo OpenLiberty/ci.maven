@@ -32,11 +32,9 @@ public class ConfigureArquillianMojo extends BasicSupport {
 	@Parameter
 	private Map<String, String> arquillianProperties;
 	public TypeProperty type = TypeProperty.NOTFOUND;
-	
+
 	public enum TypeProperty {
-		MANAGED,
-		REMOTE,
-		NOTFOUND;
+		MANAGED, REMOTE, NOTFOUND;
 	}
 
 	/*
@@ -54,63 +52,62 @@ public class ConfigureArquillianMojo extends BasicSupport {
 	@Override
 	public void doExecute() throws MojoExecutionException, MojoFailureException {
 		File arquillianXml = new File(project.getBuild().getDirectory(), "test-classes/arquillian.xml");
-       Set<Artifact> artifacts = project.getArtifacts();
-        for (Artifact artifact : artifacts) {
-            if (artifact.getArtifactId().equals("arquillian-wlp-remote-8.5")) {
-            	type = TypeProperty.REMOTE;
-              }
-            else if (artifact.getArtifactId().equals("arquillian-wlp-managed-8.5")) {
-            	type = TypeProperty.MANAGED;
-            }
-          }
-//        if(type == TypeProperty.NOTFOUND) {
-//        	throw new Exception()
-//        }
-        
+		Set<Artifact> artifacts = project.getArtifacts();
+		for (Artifact artifact : artifacts) {
+			if (artifact.getArtifactId().equals("arquillian-wlp-remote-8.5")) {
+				type = TypeProperty.REMOTE;
+			} else if (artifact.getArtifactId().equals("arquillian-wlp-managed-8.5")) {
+				type = TypeProperty.MANAGED;
+			}
+		}
+		if (type == TypeProperty.NOTFOUND) {
+			throw new MojoExecutionException("Arquillian WLP Managed or Remote Dependency not found");
+		}
 
 		if (skipIfArquillianXmlExists && arquillianXml.exists()) {
 			log.info(
 					"Skipping configure-arquillian goal because arquillian.xml already exists in \"target/test-classes\".");
-		} else if(type == TypeProperty.MANAGED){
+		} else if (type == TypeProperty.MANAGED) {
 			configureArquillianManaged(arquillianXml);
-		}
-		else {
+		} else {
 			configureArquillianRemote(arquillianXml);
 		}
 	}
 
 	private void configureArquillianManaged(File arquillianXml) throws MojoExecutionException {
 		try {
-			LibertyManagedObject arquillianManaged = new LibertyManagedObject(installDirectory.getCanonicalPath(), serverName,
-				getHttpPort(), LibertyManagedProperty.getArquillianProperties(arquillianProperties));
+			LibertyManagedObject arquillianManaged = new LibertyManagedObject(installDirectory.getCanonicalPath(),
+					serverName, getHttpPort(), LibertyManagedProperty.getArquillianProperties(arquillianProperties));
 			arquillianManaged.build(arquillianXml);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new MojoExecutionException("Error configuring Arquillian.", e);
 		}
 	}
-	
+
 	private void configureArquillianRemote(File arquillianXml) throws MojoExecutionException {
 		try {
-			LibertyRemoteObject arquillianRemote = new LibertyRemoteObject(LibertyRemoteProperty.getArquillianProperties(arquillianProperties));
+			LibertyRemoteObject arquillianRemote = new LibertyRemoteObject(
+					LibertyRemoteProperty.getArquillianProperties(arquillianProperties));
 			arquillianRemote.build(arquillianXml);
-		} catch(Exception e) {
-			throw new MojoExecutionException("Error configuring Arquillian.", e);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Error configuring Arquillian.");
 		}
 	}
 
 	/**
 	 * @return the HTTP port that the managed Liberty server is running on.
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws XPathExpressionException 
-	 * @throws FileNotFoundException 
-	 * @throws ArquillianConfigurationException 
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws FileNotFoundException
+	 * @throws ArquillianConfigurationException
 	 */
-	private int getHttpPort() throws FileNotFoundException, XPathExpressionException, IOException, ParserConfigurationException, SAXException, ArquillianConfigurationException {
-			File serverXML = new File(serverDirectory + "/server.xml");
-			File bootstrapProperties = new File(serverDirectory + "/bootstrap.properties");
-			return HttpPortUtil.getHttpPort(serverXML, bootstrapProperties);
+	private int getHttpPort() throws FileNotFoundException, XPathExpressionException, IOException,
+			ParserConfigurationException, SAXException, ArquillianConfigurationException {
+		File serverXML = new File(serverDirectory + "/server.xml");
+		File bootstrapProperties = new File(serverDirectory + "/bootstrap.properties");
+		return HttpPortUtil.getHttpPort(serverXML, bootstrapProperties);
 	}
 
 }
