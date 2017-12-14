@@ -8,8 +8,6 @@ import java.io.InputStreamReader;
 
 import org.junit.Test;
 
-import net.wasdev.wlp.common.arquillian.util.Constants;
-
 /**
  * Only included in the verify-main-app Maven profile.
  * 
@@ -18,56 +16,57 @@ import net.wasdev.wlp.common.arquillian.util.Constants;
  */
 public class VerifyMainAppIT {
 
-	@Test
-	public void testVerifyAppInArquillianXml() throws Exception {
-		// Make sure that the verifyApps property is properly written to arquillian.xml
+    @Test
+    public void testVerifyAppInArquillianXml() throws Exception {
+        // Make sure that the verifyApps property is properly written to
+        // arquillian.xml
 
-		File arquillianXML = new File("target/test-classes/arquillian.xml");
-		InputStream is = new FileInputStream(arquillianXML);
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		String line;
-		while ((line = br.readLine()) != null) {
-			if (line.contains("<property name=\"verifyApps\">test-configure-arquillian</property>")) {
-				return;
-			}
-		}
+        File arquillianXML = new File("target/test-classes/arquillian.xml");
+        InputStream is = new FileInputStream(arquillianXML);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (line.contains("<property name=\"verifyApps\">test-configure-arquillian</property>")) {
+                return;
+            }
+        }
 
-		assertTrue(false); // Should have returned in the while loop if the test
-		// passed
-	}
+        assertTrue(false); // Should have returned in the while loop if the test
+        // passed
+    }
 
-	@Test
-	public void testVerifyMainApp() throws Exception {
-		// This test verifies that the main app should start before the
-		// Arquillian test application by looking at the build.log console
-		// output.
+    @Test
+    public void testVerifyMainApp() throws Exception {
+        // This test verifies that the main app should start before the
+        // Arquillian test application by looking at the build.log console
+        // output.
 
-		String mainAppOutput = "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/myLibertyApp/";
-		String testAppOutput = // The test app name is randomly generated, so we
-								// don't know it here. Instead just make sure
-								// that another app is started after the main
-								// app.
-				"[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/";
+        String mainAppOutput = "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/myLibertyApp/";
+        String testAppOutput = // The test app name is randomly generated, so we
+                               // don't know it here. Instead just make sure
+                               // that another app is started after the main
+                               // app.
+                "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/";
 
-		boolean foundMainApp = false;
+        boolean foundMainApp = false;
 
-		File buildLog = new File("build.log");
-		InputStream is = new FileInputStream(buildLog);
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        File buildLog = new File("build.log");
+        InputStream is = new FileInputStream(buildLog);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-		String line;
-		while ((line = br.readLine()) != null) {
-			if (!foundMainApp) {
-				if (line.contains(mainAppOutput)) {
-					foundMainApp = true;
-				}
-			} else if (line.contains(testAppOutput)) {
-				return;
-			}
-		}
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (!foundMainApp) {
+                if (line.contains(mainAppOutput)) {
+                    foundMainApp = true;
+                }
+            } else if (line.contains(testAppOutput)) {
+                return;
+            }
+        }
 
-		assertTrue(false); // Should have returned in the while loop if the test
-							// passed
-	}
+        assertTrue(false); // Should have returned in the while loop if the test
+                           // passed
+    }
 
 }

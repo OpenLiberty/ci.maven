@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Table(name = "transactions")
 public class Transaction {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -26,48 +26,48 @@ public class Transaction {
     // Epoch time
     @Column(name = "cur_time")
     private long time;
-    
+
     public void setTime(long time) {
-    	this.time = time;
+        this.time = time;
     }
-    
+
     public long getTime() {
-    	return time;
+        return time;
     }
-    
+
     // Price
     private float price;
-    
+
     public void setPrice(float price) {
-    	this.price = price;
+        this.price = price;
     }
-    
+
     public float getPrice() {
-    	return price;
+        return price;
     }
-    
+
     // Buy Amount
     @Column(name = "buy_amount")
     private float buy;
-    
+
     public void setBuy(float buy) {
-    	this.buy = buy;
+        this.buy = buy;
     }
-    
+
     public float getBuy() {
-    	return buy;
+        return buy;
     }
-    
+
     // Sell Amount
     @Column(name = "sell_amount")
     private float sell;
-    
+
     public void setSell(float sell) {
-    	this.sell = sell;
+        this.sell = sell;
     }
-    
+
     public float getSell() {
-    	return sell;
+        return sell;
     }
-    
+
 }

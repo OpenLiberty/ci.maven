@@ -18,60 +18,60 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 @RunWith(Arquillian.class)
 public class TransactionRestEndpointIT {
 
-	@Deployment
-	public static WebArchive createDeployment() {
-		return ShrinkWrap.create(WebArchive.class).addPackage("application.rest").addPackage("application");
-	}
+    @Deployment
+    public static WebArchive createDeployment() {
+        return ShrinkWrap.create(WebArchive.class).addPackage("application.rest").addPackage("application");
+    }
 
-	@Test
-	public void testRunningOnServer() throws Exception {
-		Properties p = System.getProperties();
-		Enumeration<Object> keys = p.keys();
-		while (keys.hasMoreElements()) {
-			String key = (String) keys.nextElement();
-			String value = (String) p.get(key);
-			if (key.equals("wlp.process.type") && value.equals("server")) {
-				return;
-			}
-		}
-		assertTrue(false);
-	}
+    @Test
+    public void testRunningOnServer() throws Exception {
+        Properties p = System.getProperties();
+        Enumeration<Object> keys = p.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            String value = (String) p.get(key);
+            if (key.equals("wlp.process.type") && value.equals("server")) {
+                return;
+            }
+        }
+        assertTrue(false);
+    }
 
-	@Test
-	public void testDataExistsAtEndpoint() throws Exception {
-		Thread.sleep(10000);
-		URL endpoint = new URL("http://localhost:9080/myLibertyApp/api/transactions");
-		String body = readAllAndClose(endpoint.openStream());
-		int bodyLength = body.length();
-		assertTrue(bodyLength > 0);
-	}
+    @Test
+    public void testDataExistsAtEndpoint() throws Exception {
+        Thread.sleep(10000);
+        URL endpoint = new URL("http://localhost:9080/myLibertyApp/api/transactions");
+        String body = readAllAndClose(endpoint.openStream());
+        int bodyLength = body.length();
+        assertTrue(bodyLength > 0);
+    }
 
-	@Test
-	public void testNewDataAddedToEndpoint() throws Exception {
-		Thread.sleep(10000);
-		String firstBody = readAllAndClose(new URL("http://localhost:9080/myLibertyApp/api/transactions").openStream());
-		int firstBodyLength = firstBody.length();
-		Thread.sleep(12000);
-		String secondBody = readAllAndClose(
-				new URL("http://localhost:9080/myLibertyApp/api/transactions").openStream());
-		int secondBodyLength = secondBody.length();
-		assertTrue(secondBodyLength > firstBodyLength);
-	}
+    @Test
+    public void testNewDataAddedToEndpoint() throws Exception {
+        Thread.sleep(10000);
+        String firstBody = readAllAndClose(new URL("http://localhost:9080/myLibertyApp/api/transactions").openStream());
+        int firstBodyLength = firstBody.length();
+        Thread.sleep(12000);
+        String secondBody = readAllAndClose(
+                new URL("http://localhost:9080/myLibertyApp/api/transactions").openStream());
+        int secondBodyLength = secondBody.length();
+        assertTrue(secondBodyLength > firstBodyLength);
+    }
 
-	String readAllAndClose(InputStream is) throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			int read;
-			while ((read = is.read()) != -1) {
-				out.write(read);
-			}
-		} finally {
-			try {
-				is.close();
-			} catch (Exception e) {
-			}
-		}
-		return out.toString();
-	}
+    String readAllAndClose(InputStream is) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            int read;
+            while ((read = is.read()) != -1) {
+                out.write(read);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (Exception e) {
+            }
+        }
+        return out.toString();
+    }
 
 }
