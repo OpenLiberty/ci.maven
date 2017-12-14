@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>${mainAppName}</artifactId>
+	<artifactId>test-configure-arquillian</artifactId>
 	<packaging>liberty-assembly</packaging>
 
 	<parent>
@@ -27,7 +27,6 @@
 	</scm>
 
 	<properties>
-		<mainAppName>test-configure-arquillian</mainAppName>
 		<!-- Liberty server properties -->
 		<wlpServerName>LibertyProjectServer</wlpServerName>
 		<testServerHttpPort>9080</testServerHttpPort>
@@ -309,7 +308,7 @@
 			<id>verify-main-app</id>
 			<properties>
 				<skip.arquillian.xml>false</skip.arquillian.xml>
-				<verify.apps>${mainAppName}</verify.apps>
+				<verify.apps>${project.artifactId}</verify.apps>
 				<test.to.include>VerifyMainAppIT</test.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 			</properties>
