@@ -1,4 +1,4 @@
-# ci.maven [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven) [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/net.wasdev.wlp.maven.plugins/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.wasdev.wlp.maven.plugins%22%20AND%20a%3A%22liberty-maven-plugin%22)
+# ci.maven [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven) [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/net.wasdev.wlp.maven.plugins/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.wasdev.wlp.maven.plugins%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build status](https://ci.appveyor.com/api/projects/status/otcvoi4fg69ecarj?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven)
 
 Collection of Maven plug-ins and archetypes for managing WebSphere Application Server Liberty servers and applications.
 
@@ -25,7 +25,7 @@ Use Maven 3.x to build the Liberty plug-ins and archetypes.
 
 ## Information for release 2.0
 
-A number of new features and changes were made in release 2.0 of the Liberty Maven plug-in and are described 
+A number of new features and changes were made in release 2.0 of the Liberty Maven plug-in and are described
 [here](docs/version_2.0_differences.md).
 
 ## Plug-ins
@@ -82,7 +82,7 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 
 ##### Liberty installation configuration
 
-`liberty-maven-plugin` must first be configured with the Liberty server installation information. The installation information can be specified as an [existing installation directory](docs/installation-configuration.md#using-an-existing-installation), a [packaged server](docs/installation-configuration.md#using-a-packaged-server), or as a [Maven artifact](docs/installation-configuration.md#using-maven-artifact). The `liberty-maven-plugin` can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository). 
+`liberty-maven-plugin` must first be configured with the Liberty server installation information. The installation information can be specified as an [existing installation directory](docs/installation-configuration.md#using-an-existing-installation), a [packaged server](docs/installation-configuration.md#using-a-packaged-server), or as a [Maven artifact](docs/installation-configuration.md#using-maven-artifact). The `liberty-maven-plugin` can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository).
 By default, the plug-in installs the Liberty runtime with the Java EE 7 Web Profile features from the Liberty repository.
 
 #### Goals
@@ -123,20 +123,20 @@ Additional parameters shared by all server-based goals. [See common server param
 
 ### liberty-assembly
 
-The `liberty-assembly` Maven packaging type is used to create a packaged Liberty server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server. Any application or test code included in the project is automatically compiled and tests run at appropriate unit or integration test phase. Application code is installed as a loose application WAR file if `installAppPackages` is set to `all` or `project` and `looseApplication` is set to `true`. 
+The `liberty-assembly` Maven packaging type is used to create a packaged Liberty server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server. Any application or test code included in the project is automatically compiled and tests run at appropriate unit or integration test phase. Application code is installed as a loose application WAR file if `installAppPackages` is set to `all` or `project` and `looseApplication` is set to `true`.
 
 The `liberty-assembly` default lifecycle includes:
 
 | Phase | Goal |
-| ----- | ---- | 
+| ----- | ---- |
 | pre-clean | liberty:stop-server |
 | process-resources | maven-resources-plugin:resources |
 | compile | maven-compiler-plugin:compile |
 | process-test-resources | maven-resources-plugin:testResources |
 | test-compile | maven-compiler-plugin:testCompile |
-| test | maven-surefire-plugin:test | 
+| test | maven-surefire-plugin:test |
 | prepare-package | liberty:create-server, liberty:install-feature |
-| package | liberty:install-apps, liberty:package-server | 
+| package | liberty:install-apps, liberty:package-server |
 | pre-integration-test | liberty:test-start-server |
 | integration-test | maven-failsafe-plugin:integration-test |
 | post-integration-test | liberty:test-stop-server |
