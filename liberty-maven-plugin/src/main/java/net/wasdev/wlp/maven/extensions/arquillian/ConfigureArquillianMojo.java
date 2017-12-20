@@ -31,9 +31,9 @@ public class ConfigureArquillianMojo extends BasicSupport {
 
     @Parameter
     private Map<String, String> arquillianProperties;
-    public TypeProperty type = TypeProperty.NOTFOUND;
-
-    public enum TypeProperty {
+    
+    private TypeProperty type = TypeProperty.NOTFOUND;
+    private enum TypeProperty {
         MANAGED, REMOTE, NOTFOUND;
     }
 
