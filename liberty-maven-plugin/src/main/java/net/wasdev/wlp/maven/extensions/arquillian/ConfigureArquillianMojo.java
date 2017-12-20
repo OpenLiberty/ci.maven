@@ -56,8 +56,10 @@ public class ConfigureArquillianMojo extends BasicSupport {
         for (Artifact artifact : artifacts) {
             if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_REMOTE_DEPENDENCY)) {
                 type = TypeProperty.REMOTE;
+                break;
             } else if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_MANAGED_DEPENDENCY)) {
                 type = TypeProperty.MANAGED;
+                break;
             }
         }
         

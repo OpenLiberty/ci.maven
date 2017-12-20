@@ -321,8 +321,7 @@
 			<properties>
 				<skip.arquillian.xml>false</skip.arquillian.xml>
 				<verify.apps>${project.artifactId}</verify.apps>
-				<tests.to.include>VerifyMainAppIT.java,
-					TransactionRestEndpointIT.java</tests.to.include>
+				<tests.to.include>VerifyMainAppIT.java,TransactionRestEndpointIT.java</tests.to.include>
 				<arquillian.xml.to.include>none</arquillian.xml.to.include>
 				<arquillian.launch>liberty_managed</arquillian.launch>
 				<arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
