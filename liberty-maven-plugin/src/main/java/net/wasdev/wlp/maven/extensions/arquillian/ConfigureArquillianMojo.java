@@ -22,6 +22,7 @@ import net.wasdev.wlp.common.arquillian.objects.LibertyManagedObject;
 import net.wasdev.wlp.common.arquillian.objects.LibertyProperty;
 import net.wasdev.wlp.common.arquillian.objects.LibertyRemoteObject;
 import net.wasdev.wlp.common.arquillian.util.ArquillianConfigurationException;
+import net.wasdev.wlp.common.arquillian.util.Constants;
 import net.wasdev.wlp.common.arquillian.util.HttpPortUtil;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
 
@@ -53,14 +54,16 @@ public class ConfigureArquillianMojo extends BasicSupport {
         File arquillianXml = new File(project.getBuild().getDirectory(), "test-classes/arquillian.xml");
         Set<Artifact> artifacts = project.getArtifacts();
         for (Artifact artifact : artifacts) {
-            if (artifact.getArtifactId().equals("arquillian-wlp-remote-8.5")) {
+            if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_REMOTE_DEPENDENCY)) {
                 type = TypeProperty.REMOTE;
-            } else if (artifact.getArtifactId().equals("arquillian-wlp-managed-8.5")) {
+            } else if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_MANAGED_DEPENDENCY)) {
                 type = TypeProperty.MANAGED;
             }
         }
+        
         if (type == TypeProperty.NOTFOUND) {
-            throw new MojoExecutionException("Arquillian WLP Managed or Remote Dependency not found");
+            log.warn("Arquillian Liberty Managed and Remote dependencies were not found. Defaulting to use the Liberty Managed container.");
+            type = TypeProperty.MANAGED;
         }
 
         if (skipIfArquillianXmlExists && arquillianXml.exists()) {
@@ -70,14 +73,14 @@ public class ConfigureArquillianMojo extends BasicSupport {
         }
 
         switch (type) {
-        case MANAGED:
-            configureArquillianManaged(arquillianXml);
-            break;
-        case REMOTE:
-            configureArquillianRemote(arquillianXml);
-            break;
-        default:
-            throw new MojoExecutionException("This should never happen.");
+            case MANAGED:
+                configureArquillianManaged(arquillianXml);
+                break;
+            case REMOTE:
+                configureArquillianRemote(arquillianXml);
+                break;
+            default:
+                throw new MojoExecutionException("This should never happen.");
         }
     }
 
