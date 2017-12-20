@@ -41,16 +41,37 @@
                 <version>3.0.0</version>
             </plugin>
             <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <version>1.12</version>
+              <executions>
+                <execution>
+                  <id>escape-baskslashes</id>
+                  <phase>process-test-resources</phase>
+                  <goals>
+                    <goal>regex-property</goal>
+                  </goals>
+                  <configuration>
+                    <value>${project.build.directory}</value>
+                    <regex>\\</regex>
+                    <replacement>\\\\</replacement>
+                    <name>escapedBuildDirectory</name>
+                    <failIfNoMatch>false</failIfNoMatch>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.5</version>
                 <!--  add WLP_OUTPUT_DIR envvar in server.env to change the server output directory.
-                      it will override the <outputDirectory/> value and it will be tested in 
+                      it will override the <outputDirectory/> value and it will be tested in
                       ServerOutputDirIT. The value must be an absolute path.
                 -->
                 <configuration>
                     <target>
-                        <echo message="WLP_OUTPUT_DIR=${project.build.directory}/LibertyOutput" file="${project.basedir}/src/test/resources/server.env" />
+                        <echo message="WLP_OUTPUT_DIR=${escapedBuildDirectory}/LibertyOutput" file="${project.basedir}/src/test/resources/server.env" />
                     </target>
                 </configuration>
                 <executions>
