@@ -39,7 +39,26 @@ public class LooseApplication {
     public void addManifestFile(Element parent, MavenProject proj, String pluginId) throws Exception {
         config.addFile(parent, getManifestFile(proj, "org.apache.maven.plugins", pluginId), "/META-INF/MANIFEST.MF");    
     }
-    
+
+    public void addMetaInfFiles(Element parent, MavenProject proj, String pluginId) throws Exception {
+        File metaInfFolder = new File(proj.getBuild().getOutputDirectory() + "/" + "META-INF");
+        boolean existsAndHasAdditionalFiles = metaInfFolder.exists() && metaInfFolder.list().length > 0;
+        if (existsAndHasAdditionalFiles) {
+            // then we should add each file from this folder
+            addFiles(parent, metaInfFolder, "/META-INF");
+        }
+    }
+
+    private void addFiles(Element parent, File file, String targetPrefix) {
+        for (File subFile : file.listFiles()) {
+            if (subFile.isDirectory()) {
+                addFiles(parent, subFile, targetPrefix + "/" + subFile.getName() + "/");
+            } else {
+                config.addFile(parent, subFile.getAbsolutePath(), targetPrefix + "/" + subFile.getName());
+            }
+        }
+    }
+
     public void addManifestFile(MavenProject proj, String pluginId) throws Exception {
         config.addFile(getManifestFile(proj, "org.apache.maven.plugins", pluginId), "/META-INF/MANIFEST.MF"); 
     }
