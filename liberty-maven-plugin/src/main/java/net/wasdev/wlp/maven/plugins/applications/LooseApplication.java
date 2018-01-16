@@ -52,7 +52,7 @@ public class LooseApplication {
     private void addFiles(Element parent, File file, String targetPrefix) {
         for (File subFile : file.listFiles()) {
             if (subFile.isDirectory()) {
-                addFiles(parent, subFile, targetPrefix + "/" + subFile.getName() + "/");
+                addFiles(parent, subFile, targetPrefix + "/" + subFile.getName());
             } else {
                 config.addFile(parent, subFile.getAbsolutePath(), targetPrefix + "/" + subFile.getName());
             }
