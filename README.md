@@ -119,6 +119,14 @@ Parameters shared by all goals. [See common parameters](docs/common-parameters.m
 
 Additional parameters shared by all server-based goals. [See common server parameters](docs/common-server-parameters.md#common-server-parameters).
 
+#### Extensions
+
+Extensions are goals that improve the compatibility or user experience of third party libraries used with Liberty. The `liberty-maven-plugin` provides the following extensions.
+
+| Extension | Description |
+| --------- | ------------ |
+| [configure-arquillian](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the `liberty-maven-plugin`. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
+
 ## Packaging types
 
 ### liberty-assembly
