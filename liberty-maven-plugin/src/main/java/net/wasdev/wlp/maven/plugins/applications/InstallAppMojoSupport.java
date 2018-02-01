@@ -55,7 +55,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         copyFile.setFile(artifact.getFile());
         String fileName = artifact.getFile().getName();
         if (stripVersion) {
-            fileName = stripVersionFromName(fileName, artifact.getVersion());
+            fileName = stripVersionFromName(fileName, artifact.getBaseVersion());
             copyFile.setTofile(new File(destDir, fileName));
         } else {
             copyFile.setTodir(destDir);
