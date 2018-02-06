@@ -23,11 +23,12 @@ The `configure-arquillian` goal will perform configuration for the Liberty Manag
 | Property | Type | Description | Default |
 -----------| ------------ | ------- | ------- |
 | `arquillianProperties` | Dictionary | Used to set key/value pairs of configuration parameters in `arquillian.xml`. | **Managed:** A dictionary containing values for `wlpHome`, `serverName`, and `httpPort` as specified in the `liberty-maven-plugin`.<br>**Remote:** An empty dictionary when using the Arquillian Liberty Remote container. |
-| `skipIfArquillianXmlExists` | Boolean | Skips the `configure-arquillian` goal if `arquillian.xml` already exists in the target directory. | False |
+| `skipIfArquillianXmlExists` | Boolean | Skips the `configure-arquillian` goal if `arquillian.xml` already exists in the `target` directory. | False |
 
 TODO: Add link to JBoss documentation of configuration parameters. These links might be outdated due to container name change...
 
 https://docs.jboss.org/author/display/ARQ/WLP+V8.5+-+Managed
+
 https://docs.jboss.org/author/display/ARQ/WLP+V8.5+-+Remote
 
 #### Usage Example
