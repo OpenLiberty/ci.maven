@@ -12,7 +12,7 @@ For more convenient integration with the Arquillian Liberty Managed/Remote conta
 
 #### Automatic generation of `arquillian.xml`
 
-For both Arquillian Liberty Managed and Remote containers, the `configure-arquillian` goal can automatically generate and configure the `arquillian.xml` that exists in the `src/test/resources` directory, eliminating the need for the user to manually create the file in projects with only a single Arquillian container. 
+For both Arquillian Liberty Managed and Remote containers, the `configure-arquillian` goal can automatically generate and configure the `arquillian.xml` that usually exists in the `src/test/resources` directory, eliminating the need for the user to manually create the file in projects with only a single Arquillian container. 
 
 Furthermore, when using the Arquillian Liberty Managed container, `configure-arquillian` will also automatically specify the three required configuration parameters: `wlpHome`, `serverName`, and `httpPort`. These are set to values specified in the `liberty-maven-plugin`. 
 
