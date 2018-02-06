@@ -49,6 +49,8 @@ public class LooseEarApplication extends LooseApplication {
         config.addDir(moduleArchive, proj.getBuild().getOutputDirectory(), "/");
         // add manifest.mf
         addManifestFile(moduleArchive, proj, pluginId);
+        // add meta-inf files if any
+        addMetaInfFiles(moduleArchive, proj, pluginId);
         return moduleArchive;
     }
 
