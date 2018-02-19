@@ -9,6 +9,8 @@ install:
       - cmd: COPY mvn.cmd mvn.bat
       - cmd: COPY mvnDebug.cmd mvnDebug.bat
       - cmd: cd C:\projects\ci-maven
+      - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-http-proxy.ps1'))
+      - ps: .\appveyor.ps1
 
 build_script:
   # Build the compiled extension
