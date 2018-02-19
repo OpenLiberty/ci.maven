@@ -6,7 +6,7 @@ $mavenConfig = '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
     <profile>
       <id>appveyor</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <repositories>
         <repository>
