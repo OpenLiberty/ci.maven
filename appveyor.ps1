@@ -21,6 +21,19 @@ $mavenConfig = '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
             </releases>
         </repository>
       </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
     </profile>
   </profiles>
 </settings>'
