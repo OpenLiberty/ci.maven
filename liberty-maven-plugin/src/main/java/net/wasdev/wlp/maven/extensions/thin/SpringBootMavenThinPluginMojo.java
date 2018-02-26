@@ -26,7 +26,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import net.wasdev.wlp.common.thin.plugin.util.ThinPluginUtility;
+
+import com.ibm.ws.app.manager.springboot.util.SpringBootThinUtil;
 
 @Mojo(name = "thin", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class SpringBootMavenThinPluginMojo extends AbstractMojo {
@@ -93,7 +94,7 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
 		getLog().info("Thinning " + getArtifactExtension() + ": "+ targetThinJar.getAbsolutePath());
 		getLog().info("Lib index cache: "+ libIndexCache.getAbsolutePath());
 
-		ThinPluginUtility thinUtil = new ThinPluginUtility(sourceFatJar, targetThinJar, libIndexCache,
+		SpringBootThinUtil thinUtil = new SpringBootThinUtil(sourceFatJar, targetThinJar, libIndexCache,
 				putLibCacheInDirectory);
 		thinUtil.execute();
 	}
