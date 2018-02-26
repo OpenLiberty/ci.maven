@@ -13,14 +13,11 @@ package net.wasdev.wlp.maven.extensions.thin;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.zip.ZipException;
 
-import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -52,12 +49,6 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
 	private String finalName;
 
 	/**
-	 * Library index cache as a Directory
-	 */
-	@Parameter(property = "putLibCacheInDirectory", defaultValue = "false")
-	private boolean putLibCacheInDirectory;
-
-	/**
 	 * Classifier to add to the artifact generated. If given, the artifact will be
 	 * attached with that classifier and the main artifact will be deployed as the
 	 * main artifact. If this is not given (default), it will replace the main
@@ -77,25 +68,17 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
 			File sourceFatJar = getTargetFile();
 			thin(sourceFatJar);
 		} catch (IOException | NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new MojoExecutionException(e.getMessage());
 		}
 	}
 
 	private void thin(File sourceFatJar) throws ZipException, IOException, NoSuchAlgorithmException {	
 		File targetThinJar = new File(outputDirectory, "thin-" + finalName + "." + getArtifactExtension());
-		String libFile = "libIndexCache";
-		if (putLibCacheInDirectory) {
-			libFile += "-" + finalName;
-		} else {
-			libFile += "-" + finalName + ".zip";
-		}
+		String libFile = "libIndexCache-"+ finalName + ".zip";
 		File libIndexCache = new File(outputDirectory, libFile);
 		getLog().info("Thinning " + getArtifactExtension() + ": "+ targetThinJar.getAbsolutePath());
 		getLog().info("Lib index cache: "+ libIndexCache.getAbsolutePath());
-
-		SpringBootThinUtil thinUtil = new SpringBootThinUtil(sourceFatJar, targetThinJar, libIndexCache,
-				putLibCacheInDirectory);
+		SpringBootThinUtil thinUtil = new SpringBootThinUtil(sourceFatJar, targetThinJar, libIndexCache, false);
 		thinUtil.execute();
 	}
 
@@ -107,7 +90,6 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
 		if (!this.outputDirectory.exists()) {
 			this.outputDirectory.mkdirs();
 		}
-
 		return new File(this.outputDirectory, this.finalName + classifier + "." + getArtifactExtension());
 	}
 
