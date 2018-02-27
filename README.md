@@ -218,7 +218,17 @@ Example:
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
         
-By default, the runtime used is Open Liberty.  To change to use WebSphere Liberty, you can set `-DlibertyGroupId=com.ibm.websphere.appserver.runtime` and `-DlibertyArtifactId=wlp-microProfile1`.
+By default, the runtime used is the WebSphere Liberty MicroProfile package.  To change to use Open Liberty, you can set `-DlibertyGroupId=io.openliberty` and `-DlibertyArtifactId=openliberty-runtime`.  For example:
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeArtifactId=liberty-archetype-mp \
+        -DarchetypeVersion=2.1.3 \
+        -DgroupId=test \
+        -DartifactId=test \
+        -DlibertyGroupId=io.openliberty \
+        -DlibertyArtifactId=openliberty-runtime \
+        -Dversion=1.0-SNAPSHOT
 
 By default, the `liberty-maven-plugin` version is set the same as the `liberty-archetype-mp` archetype version used. To specify a different version of the plugin, use the `wlpPluginVersion` parameter. For example, you could set `-DwlpPluginVersion=2.1`.
         
