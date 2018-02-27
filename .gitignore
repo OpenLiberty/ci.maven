@@ -5,3 +5,4 @@ target/
 .classpath
 .factorypath
 .idea/
+.DS_Store
