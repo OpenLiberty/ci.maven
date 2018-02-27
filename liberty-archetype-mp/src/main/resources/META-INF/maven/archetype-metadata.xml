@@ -7,10 +7,10 @@
         <requiredProperty key="groupId"/>
         <requiredProperty key="artifactId"/>
         <requiredProperty key="libertyGroupId">
-            <defaultValue>io.openliberty</defaultValue>
+            <defaultValue>com.ibm.websphere.appserver.runtime</defaultValue>
         </requiredProperty>
         <requiredProperty key="libertyArtifactId">
-            <defaultValue>openliberty-runtime</defaultValue>
+            <defaultValue>wlp-microProfile1</defaultValue>
         </requiredProperty>
         <requiredProperty key="wlpRuntimeVersion">
             <defaultValue>17.0.0.4</defaultValue>
