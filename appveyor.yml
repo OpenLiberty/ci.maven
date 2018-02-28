@@ -9,6 +9,7 @@ install:
       - cmd: COPY mvn.cmd mvn.bat
       - cmd: COPY mvnDebug.cmd mvnDebug.bat
       - cmd: cd C:\projects\ci-maven
+      - ps: .\appveyor.ps1
 
 build_script:
   # Build the compiled extension

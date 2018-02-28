@@ -1,4 +1,4 @@
-# ci.maven [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven) [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/net.wasdev.wlp.maven.plugins/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.wasdev.wlp.maven.plugins%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build status](https://ci.appveyor.com/api/projects/status/otcvoi4fg69ecarj/branch/master?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven)
+# ci.maven [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/net.wasdev.wlp.maven.plugins/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.wasdev.wlp.maven.plugins%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven) [![Build status](https://ci.appveyor.com/api/projects/status/otcvoi4fg69ecarj/branch/master?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3882b05e21b14d85bfe2f7bfe6abef13)](https://www.codacy.com/app/wasdevb1/ci.maven?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WASdev/ci.maven&amp;utm_campaign=Badge_Grade)
 
 Collection of Maven plug-ins and archetypes for managing WebSphere Application Server Liberty servers and applications.
 
@@ -118,6 +118,14 @@ Parameters shared by all goals. [See common parameters](docs/common-parameters.m
 ##### Common Server Parameters
 
 Additional parameters shared by all server-based goals. [See common server parameters](docs/common-server-parameters.md#common-server-parameters).
+
+#### Extensions
+
+Extensions are goals that improve the compatibility or user experience of third party libraries used with Liberty. The `liberty-maven-plugin` provides the following extensions.
+
+| Extension | Description |
+| --------- | ------------ |
+| [configure-arquillian](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the `liberty-maven-plugin`. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
 
 ## Packaging types
 
