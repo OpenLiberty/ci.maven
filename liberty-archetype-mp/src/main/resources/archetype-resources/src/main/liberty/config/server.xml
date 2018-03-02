@@ -21,9 +21,19 @@
 
     <applicationManager autoExpand="true" />
     
-    <quickStartSecurity userName="admin" userPassword="admin"/>
-    <keyStore id="defaultKeyStore" password="mpKeystore"/>    
+     <!-- 
+     Uncomment this section to try APIs which require security 
+     (e.g. MicroProfile Metrics).  Note, this configuration is
+     for test purposes only and MUST NOT BE USED IN PRODUCTION
+     AS IT IS INSECURE. -->  
+     <!--   
+    <variable name="admin.password" value="change_it" />
+    <variable name="keystore.password" value="change_it" />
     
+    <quickStartSecurity userName="admin" userPassword="${admin.password}"/>
+    <keyStore id="defaultKeyStore" password="${keystore.password}"/>    
+     -->
+     
     <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}" id="defaultHttpEndpoint" />
     
     <webApplication id="${artifactId}" location="${artifactId}.war" name="${artifactId}"/>
