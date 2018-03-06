@@ -6,6 +6,6 @@ RUN unzip /config/${artifactId}.zip && \
     rm -rf /config/${artifactId}.zip
 
 FROM openliberty/open-liberty
+LABEL maintainer="Graham Charters" vendor="IBM" github="https://github.com/WASdev/ci.maven"
 COPY --from=server-setup /config/ /config/
-EXPOSE 9080
-EXPOSE 9443
+EXPOSE 9080 9443
