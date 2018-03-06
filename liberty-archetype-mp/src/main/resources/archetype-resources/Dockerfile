@@ -1,0 +1,11 @@
+FROM openliberty/open-liberty as server-setup
+COPY /target/${artifactId}.zip /config/
+RUN unzip /config/${artifactId}.zip && \
+    mv /wlp/usr/servers/${artifactId}Server/* /config/ && \
+    rm -rf /config/wlp && \
+    rm -rf /config/${artifactId}.zip
+
+FROM openliberty/open-liberty
+COPY --from=server-setup /config/ /config/
+EXPOSE 9080
+EXPOSE 9443

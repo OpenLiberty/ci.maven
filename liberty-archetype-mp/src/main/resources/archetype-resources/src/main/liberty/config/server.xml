@@ -34,7 +34,7 @@
     <keyStore id="defaultKeyStore" password="${keystore.password}"/>    
      -->
      
-    <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}" id="defaultHttpEndpoint" />
+    <httpEndpoint host="*" httpPort="${default.http.port}" httpsPort="${default.https.port}" id="defaultHttpEndpoint"/>
     
     <webApplication id="${artifactId}" location="${artifactId}.war" name="${artifactId}"/>
 </server>
