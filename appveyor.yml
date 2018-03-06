@@ -15,6 +15,7 @@ install:
     - ps: .\appveyor.ps1
 
 build_script:
-    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION"
+    - "echo %WLP_VERSION%"
+    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=%WLP_VERSION%"
 
 test: off
