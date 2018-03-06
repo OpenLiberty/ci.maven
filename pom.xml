@@ -67,5 +67,6 @@
         <module>liberty-plugin-archetype</module>
         <module>liberty-archetype-webapp</module>
         <module>liberty-archetype-ear</module>
+        <module>liberty-archetype-mp</module>
     </modules>
 </project>

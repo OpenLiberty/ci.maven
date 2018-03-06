@@ -11,6 +11,7 @@ Collection of Maven plug-ins and archetypes for managing WebSphere Application S
  * [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
  * [liberty-plugin-archetype](#liberty-plugin-archetype)
+ * [liberty-archetype-mp](#liberty-archetype-mp)
  * [liberty-archetype-webapp](#liberty-archetype-webapp)
  * [liberty-archetype-ear](#liberty-archetype-ear)
 
@@ -212,6 +213,34 @@ Example:
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
 
+### liberty-archetype-mp
+
+`liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+
+#### Usage
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeArtifactId=liberty-archetype-mp \
+        -DarchetypeVersion=2.1.3 \
+        -DgroupId=test \
+        -DartifactId=test \
+        -Dversion=1.0-SNAPSHOT
+        
+By default, the runtime used is the WebSphere Liberty MicroProfile package.  To change to use Open Liberty, you can set `-DlibertyGroupId=io.openliberty` and `-DlibertyArtifactId=openliberty-runtime`.  For example:
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeArtifactId=liberty-archetype-mp \
+        -DarchetypeVersion=2.1.3 \
+        -DgroupId=test \
+        -DartifactId=test \
+        -DlibertyGroupId=io.openliberty \
+        -DlibertyArtifactId=openliberty-runtime \
+        -Dversion=1.0-SNAPSHOT
+
+By default, the `liberty-maven-plugin` version is set the same as the `liberty-archetype-mp` archetype version used. To specify a different version of the plugin, use the `wlpPluginVersion` parameter. For example, you could set `-DwlpPluginVersion=2.1`.
+        
 ### liberty-archetype-webapp
 
 `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
@@ -227,7 +256,7 @@ Example:
         -Dversion=1.0-SNAPSHOT
         
 By default, the `liberty-maven-plugin` version is set the same as the `liberty-archetype-webapp` archetype version used. To specify a different version of the plugin, use the `wlpPluginVersion` parameter. For example, you could set `-DwlpPluginVersion=2.1`.
-        
+
 ### liberty-archetype-ear
 
 `liberty-archetype-ear` is used to generate a multi-module project that includes an EJB module, a web application module and an EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
