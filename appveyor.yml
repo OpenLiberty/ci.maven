@@ -1,8 +1,9 @@
 environment:
     matrix:
         - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
-        - WLP_VERSION: 17.0.0.3
-        - WLP_VERSION: 17.0.0.4
+          WLP_VERSION: 17.0.0.3
+        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
+          WLP_VERSION: 17.0.0.4
 
 install:
     - cmd: choco install maven
