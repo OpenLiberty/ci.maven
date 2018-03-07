@@ -1,10 +1,10 @@
 sudo: false
 language: java
-matrix:
-  include:
-    - jdk: openjdk7
-      env: WLP_VERSION=17.0.0.1
-    - jdk: oraclejdk8
-      env: WLP_VERSION=17.0.0.3
+jdk:
+    - openjdk7
+    - oraclejdk8
+env:
+    - WLP_VERSION=17.0.0.3
+    - WLP_VERSION=17.0.0.4
 script:
-  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION -DwlpLicense=$WLP_LICENSE
+  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION

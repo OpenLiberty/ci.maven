@@ -1,18 +1,21 @@
 environment:
-  matrix:
+    matrix:
         - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
+          WLP_VERSION: 17.0.0.3
+        - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
+          WLP_VERSION: 17.0.0.4
 
 install:
-      - cmd: choco install maven
-      - cmd: refreshenv
-      - cmd: cd C:\ProgramData\chocolatey\lib\maven\apache-maven-3.5.2\bin\
-      - cmd: COPY mvn.cmd mvn.bat
-      - cmd: COPY mvnDebug.cmd mvnDebug.bat
-      - cmd: cd C:\projects\ci-maven
-      - ps: .\appveyor.ps1
+    - cmd: choco install maven
+    - cmd: refreshenv
+    - cmd: cd C:\ProgramData\chocolatey\lib\maven\apache-maven-3.5.2\bin\
+    - cmd: COPY mvn.cmd mvn.bat
+    - cmd: COPY mvnDebug.cmd mvnDebug.bat
+    - cmd: cd C:\projects\ci-maven
+    - ps: .\appveyor.ps1
 
 build_script:
-  # Build the compiled extension
-  - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=17.0.0.3"
+    - "echo %WLP_VERSION%"
+    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=%WLP_VERSION%"
 
 test: off
