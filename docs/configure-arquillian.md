@@ -39,7 +39,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 <plugin>
 	<groupId>net.wasdev.wlp.maven.plugins</groupId>
 	<artifactId>liberty-maven-plugin</artifactId>
-	<version>2.1.2</version>
+	<version>2.2</version>
 	<extensions>true</extensions>
 	<!-- Specify configuration, executions for liberty-maven-plugin -->
 	<configuration>
@@ -47,7 +47,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 		<assemblyArtifact>
 			<groupId>com.ibm.websphere.appserver.runtime</groupId>
 			<artifactId>wlp-webProfile7</artifactId>
-			<version>17.0.0.3</version>
+			<version>[17.0.0.4,)</version>
 			<type>zip</type>
 		</assemblyArtifact>
 		<assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
