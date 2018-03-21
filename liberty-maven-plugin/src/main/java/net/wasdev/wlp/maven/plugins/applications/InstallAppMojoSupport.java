@@ -40,9 +40,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 
 	protected void installApp(Artifact artifact, boolean thin) throws Exception {
 		if (artifact.getFile() == null || artifact.getFile().isDirectory() || thin) {
-			String warName = getAppFileName(project);
+			String warName = getAppFileName(project, thin);
 			if (thin) {
-				warName = "thin-" + project.getBuild().getFinalName() +".spr";
 				copyLibIndexCache();
 			}
 			File f = new File(project.getBuild().getDirectory() + "/" + warName);
@@ -230,15 +229,21 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 	}
 
 	// get loose application configuration file name for project artifact
-	protected String getLooseConfigFileName(MavenProject project) {
-		return getAppFileName(project) + ".xml";
+	protected String getLooseConfigFileName(MavenProject project, boolean thin) {
+		return getAppFileName(project, thin) + ".xml";
 	}
 
 	// get loose application configuration file name for project artifact
-	private String getAppFileName(MavenProject project) {
-		String name = project.getBuild().getFinalName() + "." + project.getPackaging();
-		if (project.getPackaging().equals("liberty-assembly")) {
-			name = project.getBuild().getFinalName() + ".war";
+	private String getAppFileName(MavenProject project, Boolean thin) {
+		String name = project.getBuild().getFinalName();
+		if (thin) {
+			name = "thin-" + name + ".spr";
+		}
+		else if (project.getPackaging().equals("liberty-assembly")) {
+			name = name + ".war";
+		}
+		else {
+			name = name + "." + project.getPackaging();
 		}
 		if (stripVersion) {
 			name = stripVersionFromName(name, project.getVersion());

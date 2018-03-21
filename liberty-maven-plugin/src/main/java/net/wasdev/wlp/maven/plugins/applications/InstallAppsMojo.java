@@ -121,7 +121,11 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 	}
 
 	protected void installProject(boolean thin) throws Exception {
-		if (isSupportedType(project.getPackaging())) {
+		String packagingType = project.getPackaging();
+		if(thin) {
+			packagingType = "spr";
+		}
+		if (isSupportedType(packagingType)) {
 			if (looseApplication) {
 				installLooseApplication(project, thin);
 			} else {
@@ -134,7 +138,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 	}
 
 	private void installLooseApplication(MavenProject proj, boolean thin) throws Exception {
-		String looseConfigFileName = getLooseConfigFileName(proj);
+		String looseConfigFileName = getLooseConfigFileName(proj, thin);
 		String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
 		File destDir = new File(serverDirectory, getAppsDirectory());
 		File looseConfigFile = new File(destDir, looseConfigFileName);

@@ -58,7 +58,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected boolean looseApplication;
 
     /**
-     * Packages to install. One of "all", "dependencies" or "project".
+     * Packages to install. One of "all", "dependencies" , "project" or "thin-project".
      */
     @Parameter(property = "installAppPackages", defaultValue = "dependencies")
     private String installAppPackages;
