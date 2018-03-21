@@ -206,6 +206,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		boolean supported = false;
 		switch (type) {
 		case "ear":
+		case "spr":
 		case "war":
 		case "rar":
 		case "eba":

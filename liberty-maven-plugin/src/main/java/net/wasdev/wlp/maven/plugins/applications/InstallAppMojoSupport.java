@@ -42,7 +42,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 		if (artifact.getFile() == null || artifact.getFile().isDirectory() || thin) {
 			String warName = getAppFileName(project);
 			if (thin) {
-				warName = "thin-" + warName;
+				warName = "thin-" + project.getBuild().getFinalName() +".spr";
 				copyLibIndexCache();
 			}
 			File f = new File(project.getBuild().getDirectory() + "/" + warName);
@@ -54,9 +54,6 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 		}
 
 		File destDir = new File(serverDirectory, getAppsDirectory());
-		if (thin) {
-			destDir = new File(serverDirectory, getAppsDirectory() + "/spr");
-		}
 
 		log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
