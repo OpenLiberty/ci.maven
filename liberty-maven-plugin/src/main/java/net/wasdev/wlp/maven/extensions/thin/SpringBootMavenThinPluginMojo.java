@@ -24,7 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import com.ibm.ws.app.manager.springboot.util.SpringBootThinUtil;
+import net.wasdev.wlp.common.springboot.util.SpringBootThinUtil;
 
 @Mojo(name = "thin", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class SpringBootMavenThinPluginMojo extends AbstractMojo {
