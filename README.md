@@ -21,7 +21,7 @@ Use Maven 3.x to build the Liberty plug-ins and archetypes.
 
 * `mvn install` : builds the plug-in and the archetypes.
 * `mvn install -Poffline-its -DwlpInstallDir=<liberty_install_directory>` : builds the plug-in and the archetypes and runs the integration tests by providing an existing installation.
-* `mvn install -Ponline-its -DwlpVersion=<liberty_version> -DwlpLicense=<liberty_license_code>` : builds the plug-in and archetypes and runs the integration tests by downloading a new server.
+* `mvn install -Ponline-its -DruntimeVersion=<liberty_version> -DwlpLicense=<liberty_license_code>` : builds the plug-in and archetypes and runs the integration tests by downloading a new server.
   * Liberty versions and their respective link to the license code can be found in the [index.yml](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/index.yml) file. You can obtain the license code by reading the current license and looking for the D/N: <license code> line.
 
 ## Information for release 2.0

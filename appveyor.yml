@@ -15,6 +15,6 @@ install:
 
 build_script:
     - "echo %WLP_VERSION%"
-    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=%WLP_VERSION%"
+    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -DruntimeVersion=%WLP_VERSION%"
 
 test: off

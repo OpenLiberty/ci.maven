@@ -48,9 +48,9 @@
                 <version>@pom.version@</version>
                 <configuration>
                     <assemblyArtifact>
-                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                        <artifactId>wlp-javaee7</artifactId>
-                        <version>17.0.0.2</version>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <version>${runtimeVersion}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>jee7sampleServer</serverName>

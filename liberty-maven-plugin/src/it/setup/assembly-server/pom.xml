@@ -1,154 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>setup</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<groupId>net.wasdev.wlp.maven.it</groupId>
+		<artifactId>setup</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
 
-    <artifactId>assembly-server</artifactId>
-    <packaging>pom</packaging>
+	<artifactId>assembly-server</artifactId>
+	<packaging>pom</packaging>
 
-    <properties>
-        <!-- Specify Liberty profile server installation directory -->
-        <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
-    </properties>
+	<properties>
+		<!-- Specify Liberty profile server installation directory -->
+		<wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
+	</properties>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.4</version>
-                </plugin>
-                <plugin>
-                    <groupId>net.wasdev.wlp.maven.plugins</groupId>
-                    <artifactId>liberty-maven-plugin</artifactId>
-                    <version>@pom.version@</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <!-- install the liberty server zip the local maven repo. This is 
-                    used by the liberty-packaging-test and liberty-packaging-it tests -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install-liberty-to-repo</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>${basedir}/target/liberty.zip</file>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>${project.artifactId}</artifactId>
-                            <version>${project.version}</version>
-                            <packaging>zip</packaging>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>offline-its</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <!-- zip up the liberty server to deploy it to the local maven repo (next plugin) -->
-                        <!-- I would expect the server is already available as a zip, but I can't find it -->
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-resources</phase>
-                                <configuration>
-                                    <target>
-                                        <zip basedir="${wlp.install.dir}"
-                                            destfile="${basedir}/target/liberty.zip"
-                                            excludes="usr/servers/**" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>online-its</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>net.wasdev.wlp.maven.plugins</groupId>
-                        <artifactId>liberty-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>downloading-wlp</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>server-status</goal>
-                                </goals>
-                                <configuration>
-                                    <assemblyArtifact>
-                                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                                        <artifactId>wlp-webProfile7</artifactId>
-                                        <version>${wlpVersion}</version>
-                                        <type>zip</type>
-                                    </assemblyArtifact>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>install-wab-feature</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>install-feature</goal>
-                                </goals>
-                                <configuration>
-                                    <features>
-                                        <feature>osgiBundle-1.0</feature>
-                                        <acceptLicense>true</acceptLicense>
-                                    </features>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>process-resources</phase>
-                                <configuration>
-                                    <target>
-                                        <zip basedir="${basedir}/target/liberty/wlp"
-                                            destfile="${basedir}/target/liberty.zip" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>net.wasdev.wlp.maven.plugins</groupId>
+					<artifactId>liberty-maven-plugin</artifactId>
+					<version>@pom.version@</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<!-- install the liberty server zip the local maven repo. This is used 
+					by the liberty-packaging-test and liberty-packaging-it tests -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install-liberty-to-repo</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>${basedir}/target/liberty.zip</file>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>${project.artifactId}</artifactId>
+							<version>${project.version}</version>
+							<packaging>zip</packaging>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>offline-its</id>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- zip up the liberty server to deploy it to the local maven repo 
+							(next plugin) -->
+						<!-- I would expect the server is already available as a zip, but I 
+							can't find it -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>generate-resources</phase>
+								<configuration>
+									<target>
+										<zip basedir="${wlp.install.dir}" destfile="${basedir}/target/liberty.zip"
+											excludes="usr/servers/**" />
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>online-its</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>net.wasdev.wlp.maven.plugins</groupId>
+						<artifactId>liberty-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>downloading-wlp</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>server-status</goal>
+								</goals>
+								<configuration>
+									<assemblyArtifact>
+										<groupId>${runtimeGroupId}</groupId>
+										<artifactId>${runtimeArtifactId}</artifactId>
+										<version>${runtimeVersion}</version>
+										<type>zip</type>
+									</assemblyArtifact>
+								</configuration>
+							</execution>
+							<execution>
+								<id>install-wab-feature</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>install-feature</goal>
+								</goals>
+								<configuration>
+									<features>
+										<feature>osgiBundle-1.0</feature>
+										<acceptLicense>true</acceptLicense>
+									</features>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>process-resources</phase>
+								<configuration>
+									<target>
+										<zip basedir="${basedir}/target/liberty/wlp" destfile="${basedir}/target/liberty.zip" />
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

@@ -5,7 +5,11 @@ jdk:
     - openjdk7
     - oraclejdk8
 env:
-    - WLP_VERSION=18.0.0.1
-    - WLP_VERSION=17.0.0.4
+    - RUNTIME_VERSION=18.0.0.1
+    - RUNTIME_VERSION=17.0.0.4
+    - GROUP_ID = io.openliberty
+      ARTIFACT_ID = openliberty-runtime
+    - GROUP_ID = com.ibm.websphere.appserver.runtime
+      ARTIFACT_ID = wlp-javaee7
 script:
-  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION
+  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DruntimeGroupId=$GROUP_ID -DruntimeArtifactId=$ARTIFACT_ID -DruntimeVersion=$RUNTIME_VERSION
