@@ -147,18 +147,30 @@
         <!-- Profiles for WLP vs OL -->
         <profile>
             <id>wlp-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
             <properties>
                 <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
                 <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
-                <runtimeVersion>18.0.0.1</runtimeVersion>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
         </profile>
         <profile>
             <id>ol-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
             <properties>
                 <runtimeGroupId>io.openliberty</runtimeGroupId>
                 <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
-                <runtimeVersion>18.0.0.1</runtimeVersion>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
         </profile>
 
