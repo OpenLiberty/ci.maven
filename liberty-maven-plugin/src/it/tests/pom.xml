@@ -17,8 +17,6 @@
 
     <modules>
         <module>test-assembly</module>
-        <module>assembly-it</module>
-        <module>basic-it</module>
         <module>assembly-artifact-it</module>
         <module>assembly-artifact-no-version-it</module>
         <module>ear-project-it</module>
@@ -27,7 +25,6 @@
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
         <module>loose-config-it</module>
-        <module>test-assembly-with-code-it</module>
         <module>config-packagefile-runnable-it</module>
         <module>config-packagefile-all-it</module>
         <module>appsdirectory-apps-configured-bootstraps-it</module>  
@@ -48,14 +45,38 @@
         <module>test-server-param-pom-override</module>
         <module>test-server-param-configdir-override</module>
     </modules>
-<!--These profiles are included to suppress warnings that they are missing whenever tests are ran -->
-    <profiles>
+
+    <!-- Profiles for WLP vs OL -->
+    <profiles>   
         <profile>
-            <id>online-its</id>
+            <id>wlp-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on WLP are here -->
+            <modules>
+                <module>assembly-it</module> <!-- This test uses EBAs not available in Open Liberty -->
+                <module>basic-it</module> <!-- This test uses EBAs not available in Open Liberty -->
+                <module>test-assembly-with-code-it</module> <!-- This test uses the osgiBundle-1.0 feature which is not available in Open Liberty -->
+            </modules>
         </profile>
         <profile>
-            <id>offline-its</id>
+            <id>ol-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on Open Liberty are here -->
+            <modules>
+            
+            </modules>
         </profile>
     </profiles>
+    
 </project>
 

@@ -153,6 +153,7 @@
                 </property>
             </activation>
             <properties>
+                <runtime>wlp</runtime>
                 <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
                 <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
@@ -167,6 +168,7 @@
                 </property>
             </activation>
             <properties>
+                <runtime>ol</runtime>
                 <runtimeGroupId>io.openliberty</runtimeGroupId>
                 <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
