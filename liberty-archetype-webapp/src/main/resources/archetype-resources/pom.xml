@@ -8,7 +8,7 @@
     <parent>
         <groupId>net.wasdev.wlp.maven.parent</groupId>
         <artifactId>liberty-maven-app-parent</artifactId>
-        <version>${wlpPluginVersion}</version>
+        <version>${libertyPluginVersion}</version>
     </parent>
     
     <properties>
@@ -63,12 +63,12 @@
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>${wlpPluginVersion}</version>
+                <version>${libertyPluginVersion}</version>
                 <configuration>
                     <assemblyArtifact>
-                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                        <artifactId>wlp-webProfile7</artifactId>
-                        <version>${wlpRuntimeVersion}</version>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <version>${runtimeVersion}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>${project.artifactId}Server</serverName>

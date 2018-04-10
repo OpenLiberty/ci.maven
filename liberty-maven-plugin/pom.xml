@@ -86,7 +86,7 @@
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
-                                <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
+                                <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
                             </properties>
                             <profiles>
                                 <profile>offline-its</profile>

@@ -15,7 +15,7 @@
 
     <properties>
         <!-- Specify Liberty profile server installation directory -->
-        <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
+        <liberty.install.dir>${libertyInstallDir}</liberty.install.dir>
     </properties>
 
     <build>
@@ -80,7 +80,7 @@
                                 <phase>generate-resources</phase>
                                 <configuration>
                                     <target>
-                                        <zip basedir="${wlp.install.dir}" destfile="${basedir}/target/liberty.zip"
+                                        <zip basedir="${liberty.install.dir}" destfile="${basedir}/target/liberty.zip"
                                             excludes="usr/servers/**" />
                                     </target>
                                 </configuration>

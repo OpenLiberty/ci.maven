@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<archetype-descriptor
+<archetype-descriptor name="liberty-archetype-ear"
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
-    name="sample"
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <requiredProperties>
-        <requiredProperty key="groupId" />
-        <requiredProperty key="artifactId" />
-        <requiredProperty key="wlpRuntimeVersion">
-            <defaultValue>17.0.0.4</defaultValue>
+        <requiredProperty key="groupId"/>
+        <requiredProperty key="artifactId"/>
+        <requiredProperty key="runtimeGroupId">
+            <defaultValue>io.openliberty</defaultValue>
         </requiredProperty>
-        <requiredProperty key="wlpPluginVersion">
-            <defaultValue>2.1.2</defaultValue>
+        <requiredProperty key="runtimeArtifactId">
+            <defaultValue>openliberty-runtime</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="runtimeVersion">
+            <defaultValue>18.0.0.1</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="libertyPluginVersion">
+            <defaultValue>2.2</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <modules>

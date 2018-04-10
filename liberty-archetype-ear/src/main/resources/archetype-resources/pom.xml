@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.wasdev.wlp.maven.parent</groupId>
         <artifactId>liberty-maven-app-parent</artifactId>
-        <version>${wlpPluginVersion}</version>
+        <version>${libertyPluginVersion}</version>
     </parent>
     
     <groupId>${groupId}</groupId>
