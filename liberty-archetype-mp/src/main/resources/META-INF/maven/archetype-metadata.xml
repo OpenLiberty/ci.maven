@@ -13,7 +13,7 @@
             <defaultValue>openliberty-runtime</defaultValue>
         </requiredProperty>
         <requiredProperty key="runtimeVersion">
-            <defaultValue>18.0.0.1</defaultValue>
+            <defaultValue>[18.0.0.1,)</defaultValue>
         </requiredProperty>
         <requiredProperty key="libertyPluginVersion">
             <defaultValue>2.2</defaultValue>
