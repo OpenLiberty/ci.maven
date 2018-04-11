@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +15,7 @@
 
     <properties>
         <!-- Specify Liberty profile server installation directory -->
-        <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
+        <liberty.install.dir>${libertyInstallDir}</liberty.install.dir>
     </properties>
 
     <build>
@@ -39,8 +40,8 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <!-- install the liberty server zip the local maven repo. This is 
-                    used by the liberty-packaging-test and liberty-packaging-it tests -->
+                <!-- install the liberty server zip the local maven repo. This is used 
+                    by the liberty-packaging-test and liberty-packaging-it tests -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <executions>
@@ -68,8 +69,10 @@
             <build>
                 <plugins>
                     <plugin>
-                        <!-- zip up the liberty server to deploy it to the local maven repo (next plugin) -->
-                        <!-- I would expect the server is already available as a zip, but I can't find it -->
+                        <!-- zip up the liberty server to deploy it to the local maven repo 
+                            (next plugin) -->
+                        <!-- I would expect the server is already available as a zip, but I 
+                            can't find it -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <executions>
@@ -77,8 +80,7 @@
                                 <phase>generate-resources</phase>
                                 <configuration>
                                     <target>
-                                        <zip basedir="${wlp.install.dir}"
-                                            destfile="${basedir}/target/liberty.zip"
+                                        <zip basedir="${liberty.install.dir}" destfile="${basedir}/target/liberty.zip"
                                             excludes="usr/servers/**" />
                                     </target>
                                 </configuration>
@@ -107,9 +109,9 @@
                                 </goals>
                                 <configuration>
                                     <assemblyArtifact>
-                                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                                        <artifactId>wlp-webProfile7</artifactId>
-                                        <version>${wlpVersion}</version>
+                                        <groupId>${runtimeGroupId}</groupId>
+                                        <artifactId>${runtimeArtifactId}</artifactId>
+                                        <version>${runtimeVersion}</version>
                                         <type>zip</type>
                                     </assemblyArtifact>
                                 </configuration>
@@ -137,8 +139,7 @@
                                 <phase>process-resources</phase>
                                 <configuration>
                                     <target>
-                                        <zip basedir="${basedir}/target/liberty/wlp"
-                                            destfile="${basedir}/target/liberty.zip" />
+                                        <zip basedir="${basedir}/target/liberty/wlp" destfile="${basedir}/target/liberty.zip" />
                                     </target>
                                 </configuration>
                                 <goals>

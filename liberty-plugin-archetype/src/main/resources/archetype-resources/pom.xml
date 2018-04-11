@@ -99,7 +99,7 @@
                 <plugin>
                     <groupId>net.wasdev.wlp.maven.plugins</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
-                    <version>${wlpPluginVersion}</version>
+                    <version>${libertyPluginVersion}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -112,7 +112,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <wlp.install.dir>../target/wlp</wlp.install.dir>
+                <liberty.install.dir>../target/wlp</liberty.install.dir>
             </properties>
             <build>
                 <plugins>
@@ -140,11 +140,11 @@
             <id>custom-liberty</id>
             <activation>
                 <property>
-                    <name>wlpInstallDir</name>
+                    <name>libertyInstallDir</name>
                 </property>
             </activation>
             <properties>
-                <wlp.install.dir>${wlpInstallDir}</wlp.install.dir>
+                <liberty.install.dir>${libertyInstallDir}</liberty.install.dir>
             </properties>
        </profile>
 

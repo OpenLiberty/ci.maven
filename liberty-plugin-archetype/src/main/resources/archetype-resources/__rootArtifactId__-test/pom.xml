@@ -111,7 +111,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <installDirectory>${wlp.install.dir}</installDirectory>
+                    <installDirectory>${liberty.install.dir}</installDirectory>
                     <userDirectory>${project.build.directory}</userDirectory>
                     <serverName>test</serverName>
                 </configuration>

@@ -5,7 +5,9 @@ jdk:
     - openjdk7
     - oraclejdk8
 env:
-    - WLP_VERSION=17.0.0.3
-    - WLP_VERSION=17.0.0.4
+    - RUNTIME=ol RUNTIME_VERSION=18.0.0.1
+    - RUNTIME=ol RUNTIME_VERSION=17.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.1
+    - RUNTIME=wlp RUNTIME_VERSION=17.0.0.4
 script:
-  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -DwlpVersion=$WLP_VERSION
+  - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION

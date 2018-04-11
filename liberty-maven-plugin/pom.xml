@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -85,7 +86,7 @@
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
-                                <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
+                                <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
                             </properties>
                             <profiles>
                                 <profile>offline-its</profile>
@@ -120,8 +121,9 @@
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
-                                <wlpVersion>${wlpVersion}</wlpVersion>
-                                <wlpLicense>${wlpLicense}</wlpLicense>
+                                <runtimeGroupId>${runtimeGroupId}</runtimeGroupId>
+                                <runtimeArtifactId>${runtimeArtifactId}</runtimeArtifactId>
+                                <runtimeVersion>${runtimeVersion}</runtimeVersion>
                             </properties>
                             <profiles>
                                 <profile>online-its</profile>
@@ -140,6 +142,39 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Profiles for WLP vs OL -->
+        <profile>
+            <id>wlp-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>wlp</runtime>
+                <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+                <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>ol-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>ol</runtime>
+                <runtimeGroupId>io.openliberty</runtimeGroupId>
+                <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+        </profile>
+
     </profiles>
 
     <prerequisites>

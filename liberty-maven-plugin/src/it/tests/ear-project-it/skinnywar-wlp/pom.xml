@@ -44,9 +44,9 @@
                 <configuration>
                     <stripVersion>true</stripVersion>
                     <assemblyArtifact>
-                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                        <artifactId>wlp-javaee7</artifactId>
-                        <version>${wlpVersion}</version>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <version>${runtimeVersion}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>

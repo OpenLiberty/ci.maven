@@ -37,7 +37,7 @@
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>2.3.7</version>
                 </plugin>
-           </plugins>
+            </plugins>
         </pluginManagement>
 
         <plugins>
@@ -123,9 +123,9 @@
                             <version>@pom.version@</version>
                             <configuration>
                                 <assemblyArtifact>
-                                    <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                                    <artifactId>wlp-webProfile7</artifactId>
-                                    <version>${wlpVersion}</version>
+                                    <groupId>${runtimeGroupId}</groupId>
+                                    <artifactId>${runtimeArtifactId}</artifactId>
+                                    <version>${runtimeVersion}</version>
                                     <type>zip</type>
                                 </assemblyArtifact>
                             </configuration>

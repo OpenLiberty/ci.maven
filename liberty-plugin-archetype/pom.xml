@@ -50,6 +50,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
+                        <version>3.0.1</version>
                         <inherited>true</inherited>
                         <executions>
                             <execution>
@@ -75,8 +76,8 @@
                                         <interactiveMode>false</interactiveMode>
                                         <artifactId>myProject</artifactId>
                                         <groupId>myGroup</groupId>
-                                        <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
-                                        <wlpPluginVersion>${project.version}</wlpPluginVersion>
+                                        <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
+                                        <libertyPluginVersion>${project.version}</libertyPluginVersion>
                                     </properties>
                                 </configuration>
                             </execution>
@@ -103,7 +104,7 @@
         <profile>
             <id>online-its</id>
             <properties>
-                <wlpInstallDir>${project.build.directory}/wlp</wlpInstallDir>
+                <libertyInstallDir>${project.build.directory}/wlp</libertyInstallDir>
             </properties>
             <build>
                 <plugins>
@@ -129,7 +130,7 @@
                                         </artifactItem>
                                     </artifactItems>
                                     <overWrite>yes</overWrite>
-                                    <outputDirectory>${wlpInstallDir}</outputDirectory>
+                                    <outputDirectory>${libertyInstallDir}</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -144,7 +145,7 @@
                                 <configuration>
                                     <target>
                                         <chmod perm="+x" verbose="true">
-                                            <fileset dir="${wlpInstallDir}/bin">
+                                            <fileset dir="${libertyInstallDir}/bin">
                                                 <exclude name="*.bat" />
                                                 <exclude name="/tools/*.*" />
                                             </fileset>
@@ -160,7 +161,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>1.8</version>
+                        <version>3.0.1</version>
                         <inherited>true</inherited>
                         <executions>
                             <execution>
@@ -186,8 +187,8 @@
                                         <interactiveMode>false</interactiveMode>
                                         <artifactId>myProject</artifactId>
                                         <groupId>myGroup</groupId>
-                                        <wlpInstallDir>${wlpInstallDir}</wlpInstallDir>
-                                        <wlpPluginVersion>${project.version}</wlpPluginVersion>
+                                        <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
+                                        <libertyPluginVersion>${project.version}</libertyPluginVersion>
                                     </properties>
                                 </configuration>
                             </execution>

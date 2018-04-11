@@ -29,9 +29,9 @@
                 <version>@pom.version@</version>
                 <configuration>
                     <assemblyArtifact>
-                        <groupId>io.openliberty</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>[17.0.0.0,)</version>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <version>${runtimeVersion}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
