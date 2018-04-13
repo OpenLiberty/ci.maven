@@ -25,22 +25,20 @@ Use the `assemblyArchive` parameter to specify a packaged server archive (create
 </plugin>
 ```
 
-#### Using Maven artifact
+#### Using a Maven artifact
 
 Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). 
 
-The Maven Central repository includes the following Liberty runtime artifacts:
+The Maven Central repository includes the following Liberty runtime artifacts. Versions of each artifact can be found by following each link.
 
-|Artifact ID | Versions | Description |
+|Group ID : Artifact ID | Description |
 | --- | ----------------- | ----------- |
-| [wlp-javaee7](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee7/) | 17.0.0.1, 16.0.0.4, 16.0.0.3, 16.0.0.2, 8.5.5.9, 8.5.5.8, 8.5.5.7, 8.5.5.6 | Liberty runtime with all Java EE 7 Full Platform features. |
-| [wlp-webProfile7](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile7/) | 17.0.0.1, 16.0.0.4, 16.0.0.3, 16.0.0.2, 8.5.5.9, 8.5.5.8, 8.5.5.7, 8.5.5.6 | Liberty runtime with Java EE 7 Web Profile features. |
-| [wlp-kernel](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-kernel/) | 17.0.0.1, 16.0.0.4, 16.0.0.3, 16.0.0.2, 8.5.5.9, 8.5.5.8 | Liberty runtime kernel. |
-| [wlp-osgi](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-osgi/) | 17.0.0.1, 16.0.0.4, 16.0.0.3, 16.0.0.2, 8.5.5.9, 8.5.5.8 | Liberty runtime with features that support OSGi applications. |
-| [wlp-microProfile1](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile1/) | 17.0.0.1, 16.0.0.4, 16.0.0.3 | Liberty with features for a MicroProfile runtime. |
-
-
-Note: The group ID for these artifacts is: `com.ibm.websphere.appserver.runtime`.
+| [`io.openliberty:openliberty-runtime`](https://repo1.maven.org/maven2/io/openliberty/openliberty-runtime/)  | Open Liberty runtime. |
+| [`com.ibm.websphere.appserver.runtime:wlp-javaee7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee7/)  | Websphere Liberty runtime with all Java EE 7 Full Platform features. |
+| [`com.ibm.websphere.appserver.runtime:wlp-webProfile7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile7/) | WebSphere Liberty runtime with Java EE 7 Web Profile features. |
+| [`com.ibm.websphere.appserver.runtime:wlp-kernel`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-kernel/)  | Websphere Liberty runtime kernel. |
+| [`com.ibm.websphere.appserver.runtime:wlp-osgi`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-osgi/) |  Websphere Liberty runtime with features that support OSGi applications. |
+| [`com.ibm.websphere.appserver.runtime:wlp-microProfile1`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile1/) | Websphre Liberty with features for a MicroProfile runtime. |
 
 Example for using the `assemblyArtifact` parameter:
 ```xml
@@ -58,7 +56,7 @@ Example for using the `assemblyArtifact` parameter:
 </plugin>
 ```
 
-#### Using a repository
+#### Using a repository (Websphere Liberty Only)
 
 Use the `install` parameter to download and install Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location.
 

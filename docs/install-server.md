@@ -3,10 +3,9 @@
 Installs Liberty runtime and optionally upgrades the runtime installation to a supported production edition.
 
 To upgrade the runtime installation, the Liberty license jar file which is available to download from IBM Fix Central or the Passport
-Advantage website, must be installed to Maven local repository or an internal custom repository using the
-maven-install-plugin version 2.5 and up. See [Installing an artifact with a custom POM](http://maven.apache.org/plugins/maven-install-plugin/examples/custom-pom-installation.html)
+Advantage website, must be installed to Maven local repository or an internal custom repository using the `maven-install-plugin` version 2.5 and up. See [Installing an artifact with a custom POM](http://maven.apache.org/plugins/maven-install-plugin/examples/custom-pom-installation.html)
 
-This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by create-server, dump-server, java-dump-server, package-server, run-server, start-server, test-start-server and debug-server goals.
+This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`, `start-server`, `test-start-server` and `debug-server` goals.
 
 Examples:
  1. Install from a packaged server using `assemblyArchive` parameter.

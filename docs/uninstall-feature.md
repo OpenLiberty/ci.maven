@@ -2,6 +2,8 @@
 ---
 Uninstall a feature from the Liberty runtime.
 
+This goal will be skipped in versions of the Open Liberty runtime (`io.openliberty:openliberty-runtime`) that do not include `bin/installUtility`. A warning message will be displayed. The Open Liberty runtime is always bundled with all applicable features and there isn't any need to install or uninstall any additional features.
+
 ###### Additional Parameters
 
 The following are the parameters supported by this goal in addition to the [common parameters](common-parameters.md#common-parameters).
