@@ -23,11 +23,6 @@ Use Maven 3.x to build the Liberty plug-ins and archetypes.
 * `mvn install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plug-in and the archetypes and runs the integration tests by providing an existing installation.
 * `mvn install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plug-in and archetypes and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WLP Java EE 7 runtime.
 
-## Information for release 2.0
-
-A number of new features and changes were made in release 2.0 of the Liberty Maven plug-in and are described
-[here](docs/version_2.0_differences.md).
-
 ## Plug-ins
 
 ### liberty-maven-plugin
