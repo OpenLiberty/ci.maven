@@ -29,7 +29,7 @@ Use the `assemblyArchive` parameter to specify a packaged server archive (create
 
 Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). 
 
-The Maven Central repository includes the following Liberty runtime artifacts. Versions of each artifact can be found by following each link.
+The Maven Central repository includes the following Liberty runtime artifacts. Versions for each artifact can be found at the specified link.
 
 |Group ID : Artifact ID | Description |
 | --- | ----------------- | ----------- |
