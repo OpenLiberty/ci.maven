@@ -25,13 +25,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
  * runtime.
  */
-@Mojo(name = "uninstall-feature", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "uninstall-feature")
 
 public class UninstallFeatureMojo extends BasicSupport {
     

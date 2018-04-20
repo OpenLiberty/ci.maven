@@ -23,13 +23,12 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
  * runtime.
  */
-@Mojo(name = "install-feature", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "install-feature")
 public class InstallFeatureMojo extends BasicSupport {
     
     /**
