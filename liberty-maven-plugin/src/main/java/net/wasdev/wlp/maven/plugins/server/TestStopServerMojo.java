@@ -17,12 +17,11 @@ package net.wasdev.wlp.maven.plugins.server;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Quickly bypass stopping server if server isn't started
  */
-@Mojo(name = "test-stop-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "test-stop-server")
 
 public class TestStopServerMojo extends StopServerMojo {
     

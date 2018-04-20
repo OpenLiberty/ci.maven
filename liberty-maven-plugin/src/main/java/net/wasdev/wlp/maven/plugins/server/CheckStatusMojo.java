@@ -19,12 +19,11 @@ import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Check a liberty server status
  */
-@Mojo(name = "server-status", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "server-status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {

@@ -22,15 +22,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import net.wasdev.wlp.ant.ServerTask;
 
 /**
  * Package a liberty server
  */
-@Mojo(name = "package-server", defaultPhase = LifecyclePhase.PACKAGE,
-      requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "package-server", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     /**

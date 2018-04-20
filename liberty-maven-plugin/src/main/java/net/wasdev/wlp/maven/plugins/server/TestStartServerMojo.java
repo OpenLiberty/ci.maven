@@ -17,12 +17,11 @@ package net.wasdev.wlp.maven.plugins.server;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Start a liberty server if tests are not skipped
  */
-@Mojo(name = "test-start-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "test-start-server")
 
 public class TestStartServerMojo extends StartServerMojo {
     

@@ -19,7 +19,6 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.FileUtils;
 
 import net.wasdev.wlp.ant.ServerTask;
@@ -27,7 +26,7 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Create a liberty server
   */
-@Mojo(name = "create-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME) 
+@Mojo(name = "create-server")
 public class CreateServerMojo extends PluginConfigSupport {
 
     /**
