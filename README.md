@@ -88,12 +88,16 @@ The `liberty-maven-plugin` provides the following goals.
 | --------- | ------------ |
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plug-in goals and usually does not need to be executed explicitly. |
 | [create-server](docs/create-server.md#create-server) | Create a Liberty server. |
-| [start-server](docs/start-server.md#start-server) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
+| [start](docs/start-server.md#start-server) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
+| [start-server](docs/start-server.md#start-server) | Alias of the `start` goal. |
 | [test-start-server](docs/test-start-server.md/#test-start-server) | Allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument. |
-| [run-server](docs/run-server.md#run-server) | Start a Liberty server in foreground. The server instance will be automatically created if it does not exist. |
-| [stop-server](docs/stop-server.md#stop-server) | Stop a Liberty server. The server instance must exist and must be running. |
+| [run](docs/run-server.md#run-server) | Start a Liberty server in foreground. The server instance will be automatically created if it does not exist. |
+| [run-server](docs/run-server.md#run-server) | Alias of the `run` goal. |
+| [stop](docs/stop-server.md#stop-server) | Stop a Liberty server. The server instance must exist and must be running. |
+| [stop-server](docs/stop-server.md#stop-server) | Alias of the `stop` goal. |
 | [test-stop-server](docs/test-stop-server.md#stop-server) | Allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument. |
-| [debug-server](docs/debug-server.md#debug-server) | Start a Liberty server in debug mode. |
+| [debug](docs/debug-server.md#debug-server) | Start a Liberty server in debug mode. |
+| [debug-server](docs/debug-server.md#debug-server) | Alias of the `debug` goal. |
 | [package-server](docs/package-server.md#package-server) | Package a Liberty server. |
 | [clean-server](docs/clean-server.md#clean-server) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
 | [dump-server](docs/dump-server.md#dump-server) | Dump diagnostic information from the server into an archive. |
@@ -105,6 +109,8 @@ The `liberty-maven-plugin` provides the following goals.
 | [install-apps](docs/install-apps.md#install-apps) | Copy applications specified as Maven compile dependencies to Liberty server's `dropins` or `apps` directory. |
 | [compile-jsp](docs/compile-jsp.md#compile-jsps) | Compile JSPs in the src/main/webapp into the target/classes directory |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
+| status | Check a Liberty server status. |
+| server-status | Alias of the `status` goal. |
 
 
 ##### Common Parameters
