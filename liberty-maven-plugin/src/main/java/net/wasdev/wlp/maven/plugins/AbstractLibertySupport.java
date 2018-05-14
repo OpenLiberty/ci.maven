@@ -70,13 +70,13 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     protected AntHelper ant;
     
     @Component
-    private RepositorySystem repositorySystem;
+    protected RepositorySystem repositorySystem;
 
     @Parameter( defaultValue = "${repositorySystemSession}", readonly = true, required = true )
-    private RepositorySystemSession repoSession;
+    protected RepositorySystemSession repoSession;
 
     @Parameter( defaultValue = "${project.remoteProjectRepositories}", readonly = true, required = true )
-    private List<RemoteRepository> repositories;
+    protected List<RemoteRepository> repositories;
     
     @Component
     protected ProjectBuilder mavenProjectBuilder;
@@ -180,6 +180,33 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         }
         
         return artifact;
+    }
+    
+    /**
+     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * defined by the given the coordinates.
+     * 
+     * @param groupId
+     *            The group ID
+     * @param artifactId
+     *            The artifact ID
+     * @param type
+     *            The type (e.g. jar)
+     * @param version
+     *            The version, or null to retrieve it from the dependency list
+     *            or from the DependencyManagement section of the pom.
+     * @return Artifact The artifact for the given item
+     * @throws MojoExecutionException
+     *             Failed to create artifact
+     */
+    protected Artifact getArtifact(String groupId, String artifactId, String type, String version) throws MojoExecutionException {
+        ArtifactItem item = new ArtifactItem();
+        item.setGroupId(groupId);
+        item.setArtifactId(artifactId);
+        item.setType(type);
+        item.setVersion(version);
+
+        return getArtifact(item);
     }
 
     /**

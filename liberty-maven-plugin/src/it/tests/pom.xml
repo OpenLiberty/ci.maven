@@ -21,6 +21,7 @@
         <module>assembly-artifact-no-version-it</module>
         <module>ear-project-it</module>
         <module>install-features-it</module>
+        <module>install-features-dependencies-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
