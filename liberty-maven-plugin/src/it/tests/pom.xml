@@ -21,7 +21,6 @@
         <module>assembly-artifact-no-version-it</module>
         <module>ear-project-it</module>
         <module>install-features-it</module>
-        <module>install-features-dependencies-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
@@ -74,7 +73,15 @@
             </activation>
             <!-- Tests that should only run on Open Liberty are here -->
             <modules>
-            
+                <module>install-features-dependencies-already-installed-it</module>
+                <module>install-features-dependencies-install-more-it</module>
+                <module>install-features-dependencies-it</module>
+                <module>install-features-dependencies-pluginlist-it</module>
+                <module>install-features-dependencies-server-identical-it</module>
+                <module>install-features-dependencies-server-it</module>
+                <module>install-features-dependencies-server-pluginlist-it</module>
+                <module>install-features-pluginlist-it</module>
+                <module>install-features-server-it</module>
             </modules>
         </profile>
     </profiles>

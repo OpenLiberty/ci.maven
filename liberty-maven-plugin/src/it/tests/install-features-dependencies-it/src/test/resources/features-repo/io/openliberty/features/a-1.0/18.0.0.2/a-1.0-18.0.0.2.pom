@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.openliberty.features</groupId>
-  <artifactId>jaxb-2.2</artifactId>
+  <artifactId>a-1.0</artifactId>
   <version>18.0.0.2</version>
   <packaging>esa</packaging>
   <name>Java XML Bindings 2.2</name>
@@ -14,11 +14,6 @@
       <artifactId>i.classloading-1.0</artifactId>
       <version>18.0.0.2</version>
       <type>esa</type>
-    </dependency>
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-      <version>2.2.12</version>
     </dependency>
   </dependencies>
 </project>

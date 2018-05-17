@@ -789,11 +789,11 @@
                 "linkLabelSuffix":" (optional)"
             }
         ],
-        "lowerCaseShortName":"jaxb-2.2",
+        "lowerCaseShortName":"a-1.0",
         "provideFeature":[
-            "com.ibm.websphere.appserver.jaxb-2.2"
+            "com.ibm.websphere.appserver.a-2.2"
         ],
-        "mavenCoordinates":"io.openliberty.features:jaxb-2.2:18.0.0.2",
+        "mavenCoordinates":"io.openliberty.features:a-1.0:18.0.0.2",
         "requireFeature":[
             "com.ibm.websphere.appserver.classloading-1.0"
         ],
@@ -802,9 +802,342 @@
                 "feature":"com.ibm.websphere.appserver.classloading-1.0"
             }
         ],
-        "shortName":"jaxb-2.2",
+        "shortName":"a-1.0",
         "typeLabel":"Feature",
-        "vanityRelativeURL":"features-com.ibm.websphere.appserver.jaxb-2.2",
+        "vanityRelativeURL":"features-com.ibm.websphere.appserver.a-1.0",
+        "visibility":"PUBLIC",
+        "webDisplayPolicy":"VISIBLE"
+    }
+},
+
+{
+    "description":"<div id=\"ibm-wasdev-feature-desc-content\">\nThis feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.\n</div>\n<h2 id=\"ibm-wasdev-feature-instructions-title\">Command Line Install</h2>\n<div id=\"ibm-wasdev-feature-instructions-content\">\nTo install the feature from the command line, type:<br/><code>bin/installUtility install jaxb-2.2</code> <br/>\nIf you are installing into 8.5.5.5 or earlier and the feature supports that version, use the featureManager command, for example:<br/><code>bin/featureManager install jaxb-2.2 --when-file-exists=ignore</code>\n</div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Config Instructions</h2> \n<div id=\"ibm-wasdev-feature-notes-content\">\nTo use the feature at runtime add the following to your server.xml file<br/>\n<code>&lt;featureManager&gt;</br>\n&nbsp;&nbsp;&lt;feature&gt;jaxb-2.2&lt;/feature&gt;</br>\n&lt;/featureManager&gt;</br></code> </div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Additional Information</h2> \n <div id=\"ibm-wasdev-feature-additional-information\">\n  <ul>\n   <li>For the complete feature documentation, see the <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/rwlp_feature_jaxb-2.2.html\">jaxb-2.2</a> feature description in IBM Knowledge Center.</li>\n   <li>For more detailed installation instructions, including using Installation Manager and WebSphere Developer Tools, see <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_inst_assets.html\">Installing Liberty Repository assets</a> in IBM Knowledge Center.</li>\n   <li>For offline installation from a directory-based repository using 8.5.5.8 or higher, see <a href=\"https://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/t_install_assets_installUtility.html\">Installing assets using the installUtility command</a> in IBM Knowledge Center.</li>\n   <li>For system requirements, see <a href=\"http://www-969.ibm.com/software/reports/compatibility/clarity-reports/report/html/softwareReqsForProductByComponent?deliverableId=1337870535828&duComponent=Server_118F7A80A6C511E2A4CA497F0925FE1B\">WebSphere Application Server detailed system requirements</a>. Select the appropriate release, and click <b>WebSphere Application Server (all editions)</b>. Select the edition, and choose the offering you want in Requirements by component.</li>\n  </ul>\n</div>\n",
+    "licenseId":"http://www.ibm.com/licenses/wlp-featureterms-v1",
+    "licenseType":"UNSPECIFIED",
+    "name":"Java XML Bindings 2.2",
+    "provider":{
+        "name":"IBM Corp."
+    },
+    "shortDescription":"This feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.",
+    "type":"com.ibm.websphere.Feature",
+    "version":"1.0.0",
+    "wlpInformation":{
+        "appliesTo":"io.openliberty; productEdition=\"Open\"; productVersion=\"18.0.0.2\"",
+        "appliesToFilterInfo":[
+            {
+                "editions":[
+                    "Base",
+                    "Developers",
+                    "Express",
+                    "ND",
+                    "z/OS"
+                ],
+                "hasMaxVersion":"true",
+                "maxVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "minVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "productId":"com.ibm.websphere.appserver",
+                "rawEditions":[
+                    "BASE",
+                    "BASE_ILAN",
+                    "DEVELOPERS",
+                    "EXPRESS",
+                    "ND",
+                    "zOS"
+                ]
+            }
+        ],
+        "displayPolicy":"VISIBLE",
+        "downloadPolicy":"INSTALLER",
+        "installPolicy":"MANUAL",
+        "javaSEVersionRequirements":{
+            "minVersion":"1.6.0",
+            "rawRequirements":[
+                "com.ibm.websphere.javaee.jaxb.2.2_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.jaxb.tools.2.2.10_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.org.apache.geronimo.osgi.registry.1.1_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))"
+            ],
+            "versionDisplayString":"Java SE 6, Java SE 7, Java SE 8"
+        },
+        "links":[
+            {
+                "label":"Features that this feature enables",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.provideFeature=com.ibm.websphere.appserver.classloading-1.0&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that enable this feature",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.requireFeature=com.ibm.websphere.appserver.jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that this feature supersedes",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.supersededBy=jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2"
+                ]
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name"
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name",
+                "linkLabelSuffix":" (optional)"
+            }
+        ],
+        "lowerCaseShortName":"b-1.0",
+        "provideFeature":[
+            "com.ibm.websphere.appserver.a-2.2"
+        ],
+        "mavenCoordinates":"io.openliberty.features:b-1.0:18.0.0.2",
+        "requireFeature":[
+            "com.ibm.websphere.appserver.classloading-1.0"
+        ],
+        "requireFeatureWithTolerates":[
+            {
+                "feature":"com.ibm.websphere.appserver.classloading-1.0"
+            }
+        ],
+        "shortName":"b-1.0",
+        "typeLabel":"Feature",
+        "vanityRelativeURL":"features-com.ibm.websphere.appserver.b-1.0",
+        "visibility":"PUBLIC",
+        "webDisplayPolicy":"VISIBLE"
+    }
+},
+
+{
+    "description":"<div id=\"ibm-wasdev-feature-desc-content\">\nThis feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.\n</div>\n<h2 id=\"ibm-wasdev-feature-instructions-title\">Command Line Install</h2>\n<div id=\"ibm-wasdev-feature-instructions-content\">\nTo install the feature from the command line, type:<br/><code>bin/installUtility install jaxb-2.2</code> <br/>\nIf you are installing into 8.5.5.5 or earlier and the feature supports that version, use the featureManager command, for example:<br/><code>bin/featureManager install jaxb-2.2 --when-file-exists=ignore</code>\n</div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Config Instructions</h2> \n<div id=\"ibm-wasdev-feature-notes-content\">\nTo use the feature at runtime add the following to your server.xml file<br/>\n<code>&lt;featureManager&gt;</br>\n&nbsp;&nbsp;&lt;feature&gt;jaxb-2.2&lt;/feature&gt;</br>\n&lt;/featureManager&gt;</br></code> </div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Additional Information</h2> \n <div id=\"ibm-wasdev-feature-additional-information\">\n  <ul>\n   <li>For the complete feature documentation, see the <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/rwlp_feature_jaxb-2.2.html\">jaxb-2.2</a> feature description in IBM Knowledge Center.</li>\n   <li>For more detailed installation instructions, including using Installation Manager and WebSphere Developer Tools, see <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_inst_assets.html\">Installing Liberty Repository assets</a> in IBM Knowledge Center.</li>\n   <li>For offline installation from a directory-based repository using 8.5.5.8 or higher, see <a href=\"https://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/t_install_assets_installUtility.html\">Installing assets using the installUtility command</a> in IBM Knowledge Center.</li>\n   <li>For system requirements, see <a href=\"http://www-969.ibm.com/software/reports/compatibility/clarity-reports/report/html/softwareReqsForProductByComponent?deliverableId=1337870535828&duComponent=Server_118F7A80A6C511E2A4CA497F0925FE1B\">WebSphere Application Server detailed system requirements</a>. Select the appropriate release, and click <b>WebSphere Application Server (all editions)</b>. Select the edition, and choose the offering you want in Requirements by component.</li>\n  </ul>\n</div>\n",
+    "licenseId":"http://www.ibm.com/licenses/wlp-featureterms-v1",
+    "licenseType":"UNSPECIFIED",
+    "name":"Java XML Bindings 2.2",
+    "provider":{
+        "name":"IBM Corp."
+    },
+    "shortDescription":"This feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.",
+    "type":"com.ibm.websphere.Feature",
+    "version":"1.0.0",
+    "wlpInformation":{
+        "appliesTo":"io.openliberty; productEdition=\"Open\"; productVersion=\"18.0.0.2\"",
+        "appliesToFilterInfo":[
+            {
+                "editions":[
+                    "Base",
+                    "Developers",
+                    "Express",
+                    "ND",
+                    "z/OS"
+                ],
+                "hasMaxVersion":"true",
+                "maxVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "minVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "productId":"com.ibm.websphere.appserver",
+                "rawEditions":[
+                    "BASE",
+                    "BASE_ILAN",
+                    "DEVELOPERS",
+                    "EXPRESS",
+                    "ND",
+                    "zOS"
+                ]
+            }
+        ],
+        "displayPolicy":"VISIBLE",
+        "downloadPolicy":"INSTALLER",
+        "installPolicy":"MANUAL",
+        "javaSEVersionRequirements":{
+            "minVersion":"1.6.0",
+            "rawRequirements":[
+                "com.ibm.websphere.javaee.jaxb.2.2_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.jaxb.tools.2.2.10_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.org.apache.geronimo.osgi.registry.1.1_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))"
+            ],
+            "versionDisplayString":"Java SE 6, Java SE 7, Java SE 8"
+        },
+        "links":[
+            {
+                "label":"Features that this feature enables",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.provideFeature=com.ibm.websphere.appserver.classloading-1.0&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that enable this feature",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.requireFeature=com.ibm.websphere.appserver.jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that this feature supersedes",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.supersededBy=jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2"
+                ]
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name"
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name",
+                "linkLabelSuffix":" (optional)"
+            }
+        ],
+        "lowerCaseShortName":"c-1.0",
+        "provideFeature":[
+            "com.ibm.websphere.appserver.a-2.2"
+        ],
+        "mavenCoordinates":"io.openliberty.features:c-1.0:18.0.0.2",
+        "requireFeature":[
+            "com.ibm.websphere.appserver.classloading-1.0"
+        ],
+        "requireFeatureWithTolerates":[
+            {
+                "feature":"com.ibm.websphere.appserver.classloading-1.0"
+            }
+        ],
+        "shortName":"c-1.0",
+        "typeLabel":"Feature",
+        "vanityRelativeURL":"features-com.ibm.websphere.appserver.c-1.0",
+        "visibility":"PUBLIC",
+        "webDisplayPolicy":"VISIBLE"
+    }
+},
+
+{
+    "description":"<div id=\"ibm-wasdev-feature-desc-content\">\nThis feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.\n</div>\n<h2 id=\"ibm-wasdev-feature-instructions-title\">Command Line Install</h2>\n<div id=\"ibm-wasdev-feature-instructions-content\">\nTo install the feature from the command line, type:<br/><code>bin/installUtility install jaxb-2.2</code> <br/>\nIf you are installing into 8.5.5.5 or earlier and the feature supports that version, use the featureManager command, for example:<br/><code>bin/featureManager install jaxb-2.2 --when-file-exists=ignore</code>\n</div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Config Instructions</h2> \n<div id=\"ibm-wasdev-feature-notes-content\">\nTo use the feature at runtime add the following to your server.xml file<br/>\n<code>&lt;featureManager&gt;</br>\n&nbsp;&nbsp;&lt;feature&gt;jaxb-2.2&lt;/feature&gt;</br>\n&lt;/featureManager&gt;</br></code> </div>\n <h2 id=\"ibm-wasdev-feature-notes-title\">Additional Information</h2> \n <div id=\"ibm-wasdev-feature-additional-information\">\n  <ul>\n   <li>For the complete feature documentation, see the <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/rwlp_feature_jaxb-2.2.html\">jaxb-2.2</a> feature description in IBM Knowledge Center.</li>\n   <li>For more detailed installation instructions, including using Installation Manager and WebSphere Developer Tools, see <a href=\"http://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_inst_assets.html\">Installing Liberty Repository assets</a> in IBM Knowledge Center.</li>\n   <li>For offline installation from a directory-based repository using 8.5.5.8 or higher, see <a href=\"https://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/t_install_assets_installUtility.html\">Installing assets using the installUtility command</a> in IBM Knowledge Center.</li>\n   <li>For system requirements, see <a href=\"http://www-969.ibm.com/software/reports/compatibility/clarity-reports/report/html/softwareReqsForProductByComponent?deliverableId=1337870535828&duComponent=Server_118F7A80A6C511E2A4CA497F0925FE1B\">WebSphere Application Server detailed system requirements</a>. Select the appropriate release, and click <b>WebSphere Application Server (all editions)</b>. Select the edition, and choose the offering you want in Requirements by component.</li>\n  </ul>\n</div>\n",
+    "licenseId":"http://www.ibm.com/licenses/wlp-featureterms-v1",
+    "licenseType":"UNSPECIFIED",
+    "name":"Java XML Bindings 2.2",
+    "provider":{
+        "name":"IBM Corp."
+    },
+    "shortDescription":"This feature enables support for the Java Architecture for XML Binding 2.2 specification, which provides easy mapping of Java classes to XML documents.",
+    "type":"com.ibm.websphere.Feature",
+    "version":"1.0.0",
+    "wlpInformation":{
+        "appliesTo":"io.openliberty; productEdition=\"Open\"; productVersion=\"18.0.0.2\"",
+        "appliesToFilterInfo":[
+            {
+                "editions":[
+                    "Base",
+                    "Developers",
+                    "Express",
+                    "ND",
+                    "z/OS"
+                ],
+                "hasMaxVersion":"true",
+                "maxVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "minVersion":{
+                    "compatibilityLabel":"18.0.0.2",
+                    "inclusive":true,
+                    "label":"18.0.0",
+                    "value":"18.0.0.2"
+                },
+                "productId":"com.ibm.websphere.appserver",
+                "rawEditions":[
+                    "BASE",
+                    "BASE_ILAN",
+                    "DEVELOPERS",
+                    "EXPRESS",
+                    "ND",
+                    "zOS"
+                ]
+            }
+        ],
+        "displayPolicy":"VISIBLE",
+        "downloadPolicy":"INSTALLER",
+        "installPolicy":"MANUAL",
+        "javaSEVersionRequirements":{
+            "minVersion":"1.6.0",
+            "rawRequirements":[
+                "com.ibm.websphere.javaee.jaxb.2.2_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.jaxb.tools.2.2.10_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))",
+                "com.ibm.ws.org.apache.geronimo.osgi.registry.1.1_1.0.20.jar: (&(osgi.ee=JavaSE)(version=1.6))"
+            ],
+            "versionDisplayString":"Java SE 6, Java SE 7, Java SE 8"
+        },
+        "links":[
+            {
+                "label":"Features that this feature enables",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.provideFeature=com.ibm.websphere.appserver.classloading-1.0&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that enable this feature",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.requireFeature=com.ibm.websphere.appserver.jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2&type=com.ibm.websphere.Feature"
+                ]
+            },
+            {
+                "label":"Features that this feature supersedes",
+                "linkLabelProperty":"name",
+                "query":[
+                    "wlpInformation.supersededBy=jaxb-2.2&wlpInformation.appliesToFilterInfo.minVersion.value=18.0.0.2"
+                ]
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name"
+            },
+            {
+                "label":"Features that supersede this feature",
+                "linkLabelProperty":"name",
+                "linkLabelSuffix":" (optional)"
+            }
+        ],
+        "lowerCaseShortName":"d-1.0",
+        "provideFeature":[
+            "com.ibm.websphere.appserver.a-2.2"
+        ],
+        "mavenCoordinates":"io.openliberty.features:d-1.0:18.0.0.2",
+        "requireFeature":[
+            "com.ibm.websphere.appserver.classloading-1.0"
+        ],
+        "requireFeatureWithTolerates":[
+            {
+                "feature":"com.ibm.websphere.appserver.classloading-1.0"
+            }
+        ],
+        "shortName":"d-1.0",
+        "typeLabel":"Feature",
+        "vanityRelativeURL":"features-com.ibm.websphere.appserver.d-1.0",
         "visibility":"PUBLIC",
         "webDisplayPolicy":"VISIBLE"
     }
