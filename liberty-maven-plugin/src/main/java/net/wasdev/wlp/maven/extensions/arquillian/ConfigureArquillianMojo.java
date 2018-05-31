@@ -38,6 +38,7 @@ import net.wasdev.wlp.common.arquillian.objects.LibertyManagedObject;
 import net.wasdev.wlp.common.arquillian.objects.LibertyProperty;
 import net.wasdev.wlp.common.arquillian.objects.LibertyRemoteObject;
 import net.wasdev.wlp.common.arquillian.util.ArquillianConfigurationException;
+import net.wasdev.wlp.common.arquillian.util.ArtifactCoordinates;
 import net.wasdev.wlp.common.arquillian.util.Constants;
 import net.wasdev.wlp.common.arquillian.util.HttpPortUtil;
 import net.wasdev.wlp.maven.plugins.BasicSupport;
@@ -69,13 +70,26 @@ public class ConfigureArquillianMojo extends BasicSupport {
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         File arquillianXml = new File(project.getBuild().getDirectory(), "test-classes/arquillian.xml");
         Set<Artifact> artifacts = project.getArtifacts();
+        
+        outerloop:
         for (Artifact artifact : artifacts) {
-            if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_REMOTE_DEPENDENCY)) {
-                type = TypeProperty.REMOTE;
-                break;
-            } else if (artifact.getArtifactId().equals(Constants.ARQUILLIAN_MANAGED_DEPENDENCY)) {
-                type = TypeProperty.MANAGED;
-                break;
+            for(ArtifactCoordinates coors : Constants.ARQUILLIAN_REMOTE_DEPENDENCY) {
+                String groupId = artifact.getGroupId();
+                String artifactId = artifact.getArtifactId();
+                if (groupId.equals(coors.getGroupId()) && artifactId.equals(coors.getArtifactId())) {
+                    type = TypeProperty.REMOTE;
+                    log.info("Automatically detected the Arquillian Remote Managed container at the following coordinates: " + groupId + ":" + artifactId + ".");
+                    break outerloop;
+                }
+            }
+            for(ArtifactCoordinates coors : Constants.ARQUILLIAN_MANAGED_DEPENDENCY) {
+                String groupId = artifact.getGroupId();
+                String artifactId = artifact.getArtifactId();
+                if (groupId.equals(coors.getGroupId()) && artifactId.equals(coors.getArtifactId())) {
+                    type = TypeProperty.MANAGED;
+                    log.info("Automatically detected the Arquillian Liberty Managed container at the following coordinates: " + groupId + ":" + artifactId + ".");
+                    break outerloop;
+                }
             }
         }
         
@@ -85,8 +99,7 @@ public class ConfigureArquillianMojo extends BasicSupport {
         }
 
         if (skipIfArquillianXmlExists && arquillianXml.exists()) {
-            log.info(
-                    "Skipping configure-arquillian goal because arquillian.xml already exists in \"target/test-classes\".");
+            log.info("Skipping configure-arquillian goal because arquillian.xml already exists in \"target/test-classes\".");
             return;
         }
 
