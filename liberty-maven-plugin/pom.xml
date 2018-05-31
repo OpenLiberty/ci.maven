@@ -65,7 +65,7 @@
         <dependency>
             <groupId>net.wasdev.wlp.common</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 
