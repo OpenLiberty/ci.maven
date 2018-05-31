@@ -78,7 +78,7 @@ public class ConfigureArquillianMojo extends BasicSupport {
                 String artifactId = artifact.getArtifactId();
                 if (groupId.equals(coors.getGroupId()) && artifactId.equals(coors.getArtifactId())) {
                     type = TypeProperty.REMOTE;
-                    log.info("Automatically detected the Arquillian Remote Managed container at the following coordinates: " + groupId + ":" + artifactId + ".");
+                    log.info("Automatically detected the Arquillian Liberty Remote container at the following coordinates: " + groupId + ":" + artifactId + ".");
                     break outerloop;
                 }
             }
