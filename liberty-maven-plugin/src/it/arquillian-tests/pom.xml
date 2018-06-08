@@ -39,10 +39,10 @@
 		<packaging.type>usr</packaging.type>
 
 		<!-- Test properties -->
-		<arquillian.managed.artifact>arquillian-wlp-managed-8.5</arquillian.managed.artifact>
-		<arquillian.managed.version>1.0.0.CR1</arquillian.managed.version>
-		<arquillian.remote.artifact>arquillian-wlp-remote-8.5</arquillian.remote.artifact>
-		<arquillian.remote.version>1.0.0.CR1</arquillian.remote.version>
+		<arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
+		<arquillian.managed.version>1.0.0</arquillian.managed.version>
+		<arquillian.remote.artifact>arquillian-liberty-remote</arquillian.remote.artifact>
+		<arquillian.remote.version>1.0.0</arquillian.remote.version>
 	</properties>
 
 	<repositories>
@@ -67,7 +67,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.arquillian.container</groupId>
+			<groupId>io.openliberty.arquillian</groupId>
 			<artifactId>${arquillian.container.type}</artifactId>
 			<version>${arquillian.container.version}</version>
 			<scope>test</scope>
