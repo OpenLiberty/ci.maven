@@ -31,8 +31,8 @@
                         </goals>
                         <configuration>
                            <serverId>dhe</serverId>
-                           <url>https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/nightly/2018-05-03_1425/</url>
-                           <fromFile>openliberty-all-20180503-1300.zip</fromFile>
+                           <url>https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/nightly/2018-06-12_0629/</url>
+                           <fromFile>openliberty-all-20180612-0500.zip</fromFile>
                            <toFile>target/openliberty-all.zip</toFile>
                         </configuration>
                     </execution>

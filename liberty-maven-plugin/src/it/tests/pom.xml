@@ -73,15 +73,7 @@
             </activation>
             <!-- Tests that should only run on Open Liberty are here -->
             <modules>
-                <module>install-features-dependencies-already-installed-it</module>
-                <module>install-features-dependencies-install-more-it</module>
-                <module>install-features-dependencies-it</module>
-                <module>install-features-dependencies-pluginlist-it</module>
-                <module>install-features-dependencies-server-identical-it</module>
-                <module>install-features-dependencies-server-it</module>
-                <module>install-features-dependencies-server-pluginlist-it</module>
-                <module>install-features-pluginlist-it</module>
-                <module>install-features-server-it</module>
+                <module>../openliberty-install-feature-test</module>
             </modules>
         </profile>
     </profiles>
