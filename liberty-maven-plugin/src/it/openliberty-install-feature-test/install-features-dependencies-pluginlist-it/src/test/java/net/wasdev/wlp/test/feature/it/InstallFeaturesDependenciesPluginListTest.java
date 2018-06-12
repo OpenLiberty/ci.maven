@@ -15,9 +15,6 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.feature.it;
 
-import java.io.File;
-import java.io.FilenameFilter;
-
 import static junit.framework.Assert.*;
 import org.junit.Test;
 
