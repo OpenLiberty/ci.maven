@@ -138,7 +138,7 @@ public class InstallFeatureMojo extends BasicSupport {
         Set<String> result = new HashSet<String>();
         for (Feature feature : features.getFeatures()) {
             if ((findEsaFiles && feature.getFeature().endsWith(".esa"))
-                    || !findEsaFiles && !feature.getFeature().endsWith(".esa")) {
+                    || (!findEsaFiles && !feature.getFeature().endsWith(".esa"))) {
                 result.add(feature.getFeature());
                 log.debug("Plugin listed " + (findEsaFiles ? "ESA" : "feature") + ": " + feature.getFeature());
             }
