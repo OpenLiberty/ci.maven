@@ -127,7 +127,7 @@ public class InstallFeatureMojo extends BasicSupport {
         }
 
         Set<String> dependencyFeatures = getDependencyFeatures();
-        Set<String> serverFeatures = util.getServerFeatures(serverDirectory, pluginListedFeatures.isEmpty());
+        Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory) : null;
 
         Set<String> featuresToInstall = InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
 

@@ -18,14 +18,13 @@ package net.wasdev.wlp.test.feature.it;
 import static junit.framework.Assert.*;
 import org.junit.Test;
 
-public class InstallFeatureDependenciesServerPluginListTest extends BaseInstallFeature {
+public class InstallFeaturesDependenciesPluginListNoServerTest extends BaseInstallFeature {
 
     @Test
     public void testNumberOfFeatures() throws Exception {
-        assertEquals("Number of installed features", 10, features.length);
+        assertEquals("Number of installed features", 9, features.length);
         assertContains("a-1.0");
         assertContains("b-1.0");
-        assertContains("c-1.0");
     }
 
 }
