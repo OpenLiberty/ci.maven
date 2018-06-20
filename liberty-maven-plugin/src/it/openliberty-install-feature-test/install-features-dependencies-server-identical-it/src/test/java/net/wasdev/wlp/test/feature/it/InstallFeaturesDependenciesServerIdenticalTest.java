@@ -23,7 +23,7 @@ public class InstallFeaturesDependenciesServerIdenticalTest extends BaseInstallF
     @Test
     public void testNumberOfFeatures() throws Exception {
         assertEquals("Number of installed features", 8, features.length);
-        assertContains("a-1.0");
+        assertInstalled("a-1.0");
     }
 
 }

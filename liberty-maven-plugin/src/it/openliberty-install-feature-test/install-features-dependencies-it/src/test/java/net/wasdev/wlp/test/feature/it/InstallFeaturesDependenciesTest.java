@@ -23,7 +23,10 @@ public class InstallFeaturesDependenciesTest extends BaseInstallFeature {
     @Test
     public void testNumberOfFeatures() throws Exception {
         assertEquals("Number of installed features", 8, features.length);
-        assertContains("a-1.0");
+        assertInstalled("a-1.0");
+        
+        // sanity check
+        assertFalse("Feature b-1.0 should not have been installed", getFeatureInfo().contains("b-1.0"));
     }
 
 }

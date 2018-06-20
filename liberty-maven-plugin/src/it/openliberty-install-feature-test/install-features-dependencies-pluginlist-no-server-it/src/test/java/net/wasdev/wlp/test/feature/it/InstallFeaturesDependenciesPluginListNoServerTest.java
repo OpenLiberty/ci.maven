@@ -23,8 +23,8 @@ public class InstallFeaturesDependenciesPluginListNoServerTest extends BaseInsta
     @Test
     public void testNumberOfFeatures() throws Exception {
         assertEquals("Number of installed features", 9, features.length);
-        assertContains("a-1.0");
-        assertContains("b-1.0");
+        assertInstalled("a-1.0");
+        assertInstalled("b-1.0");
     }
 
 }
