@@ -17,9 +17,6 @@ package net.wasdev.wlp.test.feature.it;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
 import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
 
 import static junit.framework.Assert.*;
