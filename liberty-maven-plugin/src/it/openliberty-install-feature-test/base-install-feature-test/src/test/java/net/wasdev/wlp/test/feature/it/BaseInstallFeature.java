@@ -54,7 +54,7 @@ public class BaseInstallFeature {
         return found;
     }
     
-    private String getFeatureInfo() throws Exception {
+    protected String getFeatureInfo() throws Exception {
         File installDirectory = new File("liberty", "wlp");
         return InstallFeatureUtil.productInfo(installDirectory, "featureInfo");
     }
