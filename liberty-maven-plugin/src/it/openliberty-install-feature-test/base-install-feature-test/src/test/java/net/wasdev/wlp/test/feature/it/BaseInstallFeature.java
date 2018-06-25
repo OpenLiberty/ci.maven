@@ -20,6 +20,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
+import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
 
 import static junit.framework.Assert.*;
 import org.junit.Before;
@@ -56,78 +57,9 @@ public class BaseInstallFeature {
         return found;
     }
     
-    protected String getFeatureInfo() throws Exception {
-        Process pr = null;
-        InputStream is = null;
-        Scanner s = null;
-        Worker worker = null;
+    private String getFeatureInfo() throws Exception {
         File installDirectory = new File("liberty", "wlp");
-        try {
-            String command;
-            if (isWindows()) {
-                command = installDirectory + "\\bin\\productInfo.bat featureInfo";
-            } else {
-                command = installDirectory + "/bin/productInfo featureInfo";
-            }
-            pr = Runtime.getRuntime().exec(command);
-            worker = new Worker(pr);
-            worker.start();
-            worker.join(300000);
-            if (worker.exit == null) {
-                throw new Exception("productInfo featureInfo error: timeout");
-            }
-            int exitValue = pr.exitValue();
-
-            is = pr.getInputStream();
-            s = new Scanner(is);
-            // use regex to match the beginning of the input
-            s.useDelimiter("\\A");
-            if (s.hasNext()) {
-                return s.next();
-            } else if (exitValue != 0) {
-                throw new Exception("productInfo featureInfo exited with return code " + exitValue);
-            }
-        } catch (InterruptedException ex) {
-            worker.interrupt();
-            Thread.currentThread().interrupt();
-            throw ex;
-        } finally {
-            if (s != null) {
-                s.close();
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
-            }
-            if (pr != null) {
-                pr.destroy();
-            }
-        }
-        return null;
-    }
-    
-    private static boolean isWindows() {
-        String osName = System.getProperty("os.name", "unknown").toLowerCase();
-        return osName.indexOf("windows") >= 0;
-    }
-    
-    private static class Worker extends Thread {
-        private final Process process;
-        private Integer exit;
-
-        private Worker(Process process) {
-            this.process = process;
-        }
-
-        public void run() {
-            try {
-                exit = process.waitFor();
-            } catch (InterruptedException ignore) {
-                return;
-            }
-        }
+        return InstallFeatureUtil.productInfo(installDirectory, "featureInfo");
     }
 
 }
