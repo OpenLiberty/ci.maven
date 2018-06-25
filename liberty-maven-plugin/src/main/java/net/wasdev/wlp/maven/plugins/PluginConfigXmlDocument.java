@@ -26,6 +26,8 @@ import org.apache.maven.model.Profile;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
+import net.wasdev.wlp.common.plugins.util.XmlDocument;
+
 public class PluginConfigXmlDocument extends XmlDocument {
     
     private PluginConfigXmlDocument() {    

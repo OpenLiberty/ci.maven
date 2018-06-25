@@ -17,10 +17,13 @@ package net.wasdev.wlp.maven.plugins;
 
 import java.io.File;
 import java.io.IOException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Element;
+
+import net.wasdev.wlp.common.plugins.util.XmlDocument;
 
 public class ApplicationXmlDocument extends XmlDocument {
     

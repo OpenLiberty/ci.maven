@@ -16,9 +16,12 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Element;
-import net.wasdev.wlp.maven.plugins.XmlDocument;
+
+import net.wasdev.wlp.common.plugins.util.XmlDocument;
 
 public class LooseConfigData extends XmlDocument {
     

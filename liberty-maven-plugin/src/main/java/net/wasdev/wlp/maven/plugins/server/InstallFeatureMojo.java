@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2017.
+ * (C) Copyright IBM Corporation 2015, 2018.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,14 +15,24 @@
  */
 package net.wasdev.wlp.maven.plugins.server;
 
-import net.wasdev.wlp.ant.InstallFeatureTask;
-import net.wasdev.wlp.maven.plugins.BasicSupport;
-import net.wasdev.wlp.maven.plugins.server.types.Features;
-
+import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
+import net.wasdev.wlp.ant.InstallFeatureTask;
+import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
+import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
+import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
+import net.wasdev.wlp.maven.plugins.BasicSupport;
+import net.wasdev.wlp.maven.plugins.server.types.Features;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
@@ -38,6 +48,51 @@ public class InstallFeatureMojo extends BasicSupport {
     @Parameter
     private Features features;
 
+    private class InstallFeatureMojoUtil extends InstallFeatureUtil {
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas)  throws PluginScenarioException, PluginExecutionException {
+            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas);
+        }
+
+        @Override
+        public void debug(String msg) {
+            log.debug(msg);
+        }
+        
+        @Override
+        public void debug(String msg, Throwable e) {
+            log.debug(msg, e);
+        }
+        
+        @Override
+        public void debug(Throwable e) {
+            log.debug(e);
+        }
+        
+        @Override
+        public void warn(String msg) {
+            log.warn(msg);
+        }
+
+        @Override
+        public void info(String msg) {
+            log.info(msg);
+        }
+        
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
+        }
+        
+        @Override
+        public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
+            try {
+                return getArtifact(groupId, artifactId, type, version).getFile();
+            } catch (MojoExecutionException e) {
+                throw new PluginExecutionException(e);
+            }
+        }
+    }
+        
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -47,12 +102,63 @@ public class InstallFeatureMojo extends BasicSupport {
         if (skip) {
             return;
         }
-        
+
         // for liberty-assembly integration
         if (features == null) {
             return;
         }
+
+        checkServerHomeExists();
+        installFeatures();
+    }
+
+    private void installFeatures() throws PluginExecutionException {       
+        Set<String> pluginListedFeatures = getPluginListedFeatures(false);
+        Set<String> pluginListedEsas = getPluginListedFeatures(true);
         
+        InstallFeatureUtil util;
+        try {
+            util = new InstallFeatureMojoUtil(pluginListedEsas);
+        } catch (PluginScenarioException e) {
+            log.debug(e.getMessage());
+            log.debug("Installing features from installUtility.");
+            installFeaturesFromAnt(features.getFeatures());
+            return;
+        }
+
+        Set<String> dependencyFeatures = getDependencyFeatures();
+        Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory) : null;
+
+        Set<String> featuresToInstall = InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
+
+        util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
+    }
+    
+    private Set<String> getPluginListedFeatures(boolean findEsaFiles) {
+        Set<String> result = new HashSet<String>();
+        for (Feature feature : features.getFeatures()) {
+            if ((findEsaFiles && feature.getFeature().endsWith(".esa"))
+                    || (!findEsaFiles && !feature.getFeature().endsWith(".esa"))) {
+                result.add(feature.getFeature());
+                log.debug("Plugin listed " + (findEsaFiles ? "ESA" : "feature") + ": " + feature.getFeature());
+            }
+        }
+        return result;
+    }
+    
+    private Set<String> getDependencyFeatures() {
+        Set<String> result = new HashSet<String>();
+        List<org.apache.maven.model.Dependency> dependencyArtifacts = project.getDependencies();
+        for (org.apache.maven.model.Dependency dependencyArtifact: dependencyArtifacts){
+            if (("esa").equals(dependencyArtifact.getType())) {
+                result.add(dependencyArtifact.getArtifactId());
+                log.debug("Dependency feature: " + dependencyArtifact.getArtifactId());
+            }
+        }
+        return result;
+    }
+
+    private void installFeaturesFromAnt(List<Feature> installFeatures) {
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");
 
@@ -68,7 +174,7 @@ public class InstallFeatureMojo extends BasicSupport {
         installFeatureTask.setTo(features.getTo());
         // whenFileExist is deprecated, but keep it to ensure backward compatibility
         installFeatureTask.setWhenFileExists(features.getWhenFileExists());
-        installFeatureTask.setFeatures(features.getFeatures());
+        installFeatureTask.setFeatures(installFeatures);
         installFeatureTask.setFrom(features.getFrom());
         installFeatureTask.execute();
     }
