@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <!-- Create an openliberty kernel zip from the opneliberty development dirver -->
+    <!-- Create an openliberty kernel zip from the openliberty development driver -->
     <!-- Remove this project when the openliberty-kernel-18.0.0.x is available in maven central -->
 
     <artifactId>openliberty-kernel</artifactId>
@@ -42,6 +42,7 @@
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
+                <version>@pom.version</version>
                 <extensions>true</extensions>
                 <configuration>
                     <assemblyArchive>target/openliberty-all.zip</assemblyArchive>
@@ -51,5 +52,5 @@
                 </configuration>
             </plugin>
         </plugins>
-</build>
+    </build>
 </project>
