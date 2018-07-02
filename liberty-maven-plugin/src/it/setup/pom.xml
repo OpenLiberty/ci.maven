@@ -19,6 +19,7 @@
         <module>test-eba</module>
         <module>test-war</module>
         <module>assembly-server</module>
+        <module>openliberty-kernel</module>
     </modules>
 
 </project>

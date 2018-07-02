@@ -73,7 +73,7 @@
             </activation>
             <!-- Tests that should only run on Open Liberty are here -->
             <modules>
-            
+                <module>../openliberty-install-feature-test</module>
             </modules>
         </profile>
     </profiles>
