@@ -9,6 +9,6 @@ env:
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.1
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.2
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.1
-    - RUNTIME=wlp RUNTIME_VERSION=17.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.2
 script:
   - travis_wait mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
