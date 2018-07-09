@@ -4,7 +4,9 @@ Install one or more features packaged as Subsystem Archive (ESA) files to the Li
 
 To install the missing features declared in the `server.xml` file, set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
 
-This goal will be skipped in versions of the Open Liberty runtime (`io.openliberty:openliberty-runtime`) that do not include `bin/installUtility`. A warning message will be displayed. The Open Liberty runtime is bundled with all applicable features. There is no need to install or uninstall additional features.
+This goal can install features from Maven artifacts using the project's `dependencies` section in Open Liberty and WebSphere Liberty versions 18.0.0.2 and above.
+
+This goal will be skipped in the Open Liberty runtime (`io.openliberty:openliberty-runtime`) versions 18.0.0.1 and below. A warning message will be displayed. The Open Liberty runtime versions 18.0.0.1 and below are bundled with all applicable features. There is no need to install or uninstall additional features.
 
 ###### Additional Parameters
 
@@ -49,7 +51,115 @@ Examples:
 </plugin>
  ```
 
-2. Check the server.xml file and install any required features that are missing from the runtime.
+2. Install features from Maven artifacts listed as dependencies in Liberty runtime versions 18.0.0.2 and above. Use the `io.openliberty.features` groupId for Open Liberty features, or the `com.ibm.websphere.appserver.features` groupId for WebSphere Liberty features.  The `features-bom` artifact in each groupId provides the bill of materials (BOM) for each release.  Note that the BOM for WebSphere Liberty also includes the BOM for Open Liberty.
+
+ * Install Open Liberty features:
+ ```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.openliberty.features</groupId>
+            <artifactId>features-bom</artifactId>
+            <version>18.0.0.2</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>jaxrs-2.1</artifactId>
+        <type>esa</type>
+    </dependency>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>jsonp-1.1</artifactId>
+        <type>esa</type>
+    </dependency>
+</dependencies>
+
+<plugin>
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <executions>
+        ...
+        <execution>
+            <id>install-feature</id>
+            <phase>prepare-package</phase>
+            <goals>
+                <goal>install-feature</goal>
+            </goals>
+            <configuration>
+                <features>
+                    <acceptLicense>true</acceptLicense>
+                </features>
+            </configuration>
+        </execution>
+        ...
+    </executions>
+    <configuration>
+       <installDirectory>/opt/ibm/wlp</installDirectory>
+       <serverName>test</serverName>
+    </configuration>
+</plugin>
+ ```
+     
+ * Install WebSphere Liberty features:
+ ```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.ibm.websphere.appserver.features</groupId>
+            <artifactId>features-bom</artifactId>
+            <version>18.0.0.2</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>com.ibm.websphere.appserver.features</groupId>
+        <artifactId>servlet-3.0</artifactId>
+        <type>esa</type>
+    </dependency>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>localConnector-1.0</artifactId>
+        <type>esa</type>
+    </dependency>
+</dependencies>
+
+<plugin>
+    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <executions>
+        ...
+        <execution>
+            <id>install-feature</id>
+            <phase>prepare-package</phase>
+            <goals>
+                <goal>install-feature</goal>
+            </goals>
+            <configuration>
+                <features>
+                    <acceptLicense>true</acceptLicense>
+                </features>
+            </configuration>
+        </execution>
+        ...
+    </executions>
+    <configuration>
+       <installDirectory>/opt/ibm/wlp</installDirectory>
+       <serverName>test</serverName>
+    </configuration>
+</plugin>
+ ```
+
+3. Check the server.xml file and install any required features that are missing from the runtime.
  ```xml
 <plugin>
     <groupId>net.wasdev.wlp.maven.plugins</groupId>
