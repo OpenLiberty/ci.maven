@@ -34,6 +34,8 @@ The Maven Central repository includes the following Liberty runtime artifacts. V
 | Group ID : Artifact ID | Description |
 | ---------------------- | ----------- |
 | [`io.openliberty:openliberty-runtime`](https://repo1.maven.org/maven2/io/openliberty/openliberty-runtime/)  | Open Liberty runtime. |
+| [`io.openliberty:openliberty-javaee8`](https://repo1.maven.org/maven2/io/openliberty/openliberty-javaee8/)  | Open Liberty runtime with all Java EE 8 Full Platform features. |
+| [`io.openliberty:openliberty-webProfile8`](https://repo1.maven.org/maven2/io/openliberty/openliberty-webProfile8/)  | Open Liberty runtime with Java EE 8 Web Profile features. |
 | [`io.openliberty:openliberty-kernel`](https://repo1.maven.org/maven2/io/openliberty/openliberty-kernel/)  | Open Liberty runtime kernel. |
 | [`com.ibm.websphere.appserver.runtime:wlp-javaee7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee7/)  | WebSphere Liberty runtime with all Java EE 7 Full Platform features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-webProfile7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile7/) | WebSphere Liberty runtime with Java EE 7 Web Profile features. |
