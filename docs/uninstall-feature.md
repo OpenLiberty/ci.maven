@@ -2,7 +2,7 @@
 ---
 Uninstall a feature from the Liberty runtime.
 
-This goal will be skipped in versions of the Open Liberty runtime (`io.openliberty:openliberty-runtime`) and Open Liberty runtime kernel (`io.openliberty:openliberty-kernel`) that do not include `bin/installUtility`. A warning message will be displayed.
+This goal will be skipped in versions of the Open Liberty runtime that do not include `bin/installUtility`. A warning message will be displayed.
 
 ###### Additional Parameters
 
