@@ -2,11 +2,14 @@
 ---
 Install one or more features packaged as Subsystem Archive (ESA) files to the Liberty runtime.
 
-To install the missing features declared in the `server.xml` file, set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
+In Open Liberty and WebSphere Liberty runtime versions 18.0.0.2 and above, this goal can install features specified in the following ways:
+* Maven artifacts from the project's `dependencies` section,
+* `feature` names in the `features` configuration,
+* features declared in the `server.xml` file, its `include` elements, and from additional configuration files in the `configDropins` directory.
 
-This goal can install features from Maven artifacts using the project's `dependencies` section in Open Liberty and WebSphere Liberty versions 18.0.0.2 and above.
+In WebSphere Liberty runtime versions 18.0.0.1 and below, this goal will install features specified as `feature` names in the `features` configuration. To install the missing features declared in the `server.xml` file (including its `include` elements, and from additional configuration files in the `configDropins` directory), set the `acceptLicense` parameter to `true` but do not specify any `feature` names in the `features` configuration.
 
-This goal will be skipped in the Open Liberty runtime (`io.openliberty:openliberty-runtime`) versions 18.0.0.1 and below. A warning message will be displayed. The Open Liberty runtime versions 18.0.0.1 and below are bundled with all applicable features. There is no need to install or uninstall additional features.
+In Open Liberty runtime versions 18.0.0.1 and below, this goal will be skipped. A warning message will be displayed. The Open Liberty runtime versions 18.0.0.1 and below are bundled with all applicable features. There is no need to install or uninstall additional features.
 
 ###### Additional Parameters
 
