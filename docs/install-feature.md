@@ -54,7 +54,7 @@ Examples:
 </plugin>
  ```
 
-2. Install features from Maven artifacts listed as dependencies in Liberty runtime versions 18.0.0.2 and above. Use the `io.openliberty.features` groupId for Open Liberty features, or the `com.ibm.websphere.appserver.features` groupId for WebSphere Liberty features.  The `features-bom` artifact in each groupId provides the bill of materials (BOM) for each release, and the BOM for WebSphere Liberty includes the BOM for Open Liberty.  Features listed as dependencies also provide WebSphere Application Server Liberty API, SPI, and Java specification dependencies for compilation.
+2. Install features from Maven artifacts listed as dependencies in Liberty runtime versions 18.0.0.2 and above. Use the `io.openliberty.features` groupId for Open Liberty features, or the `com.ibm.websphere.appserver.features` groupId for WebSphere Liberty features.  The `features-bom` artifact in each groupId provides the bill of materials (BOM) for each release, and the BOM for WebSphere Liberty includes the BOM for Open Liberty.  Features listed as dependencies also provide Liberty API, SPI, and Java specification dependencies for compilation.
 
  * Install Open Liberty features:
  ```xml
