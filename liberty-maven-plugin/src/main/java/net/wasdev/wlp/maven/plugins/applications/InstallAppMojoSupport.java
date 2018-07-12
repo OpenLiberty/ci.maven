@@ -237,7 +237,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 	private String getAppFileName(MavenProject project, Boolean thin) {
 		String name = project.getBuild().getFinalName();
 		if (thin) {
-			name = "thin-" + name + ".spr";
+			name = "thin-" + name + ".spring";
 		}
 		else if (project.getPackaging().equals("liberty-assembly")) {
 			name = name + ".war";

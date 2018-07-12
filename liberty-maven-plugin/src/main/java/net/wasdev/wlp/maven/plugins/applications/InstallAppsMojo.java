@@ -123,7 +123,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 	protected void installProject(boolean thin) throws Exception {
 		String packagingType = project.getPackaging();
 		if(thin) {
-			packagingType = "spr";
+			packagingType = "spring";
 		}
 		if (isSupportedType(packagingType)) {
 			if (looseApplication) {
@@ -210,7 +210,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		boolean supported = false;
 		switch (type) {
 		case "ear":
-		case "spr":
+		case "spring":
 		case "war":
 		case "rar":
 		case "eba":
