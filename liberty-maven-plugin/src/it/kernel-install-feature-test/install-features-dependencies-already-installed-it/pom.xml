@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>openliberty-install-feature-tests</artifactId>
+        <artifactId>kernel-install-feature-tests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     
