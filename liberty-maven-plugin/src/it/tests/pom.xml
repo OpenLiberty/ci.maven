@@ -44,6 +44,7 @@
         <module>test-server-param-default</module>
         <module>test-server-param-pom-override</module>
         <module>test-server-param-configdir-override</module>
+        <module>../kernel-install-feature-test</module>
     </modules>
 
     <!-- Profiles for WLP vs OL -->
@@ -73,7 +74,6 @@
             </activation>
             <!-- Tests that should only run on Open Liberty are here -->
             <modules>
-                <module>../openliberty-install-feature-test</module>
             </modules>
         </profile>
     </profiles>
