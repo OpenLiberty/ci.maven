@@ -20,8 +20,8 @@
                 <version>@pom.version@</version>
                 <configuration>
                     <assemblyArtifact>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>openliberty-kernel</artifactId>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeKernelId}</artifactId>
                         <version>18.0.0.2</version>
                         <type>zip</type>
                     </assemblyArtifact>
