@@ -17,10 +17,10 @@
 	</parent>
 
 	<groupId>net.wasdev.wlp.maven.parent</groupId>
-	<artifactId>liberty-maven-springboot-thin-app-parent</artifactId>
+	<artifactId>liberty-spring-boot-parent</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Liberty Maven Plugin Spring Boot Thin App Parent</name>
+	<name>Liberty Spring Boot Parent</name>
 	<description>Liberty Maven Plugin Spring Boot Thin App Parent</description>
 	<url>https://github.com/WASdev/ci.maven</url>
 
