@@ -73,7 +73,7 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
 	}
 
 	private void thin(File sourceFatJar) throws ZipException, IOException, NoSuchAlgorithmException {	
-		File targetThinJar = new File(outputDirectory, "thin-" + finalName + "." + "spring");
+		File targetThinJar = new File(outputDirectory, "thin-" + sourceFatJar.getName());
 		File libIndexCache = new File(outputDirectory, "lib.index.cache");
 		getLog().info("Thinning " + getArtifactExtension() + ": "+ targetThinJar.getAbsolutePath());
 		getLog().info("Lib index cache: "+ libIndexCache.getAbsolutePath());

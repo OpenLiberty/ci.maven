@@ -39,9 +39,13 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 	protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
 	protected void installApp(Artifact artifact, boolean thin) throws Exception {
+		File destDir = new File(serverDirectory, getAppsDirectory());
+		
 		if (artifact.getFile() == null || artifact.getFile().isDirectory() || thin) {
-			String warName = getAppFileName(project, thin);
+			String warName = getAppFileName(project);
 			if (thin) {
+				warName = "thin-" + warName;
+				destDir = new File(destDir, "spring");
 				copyLibIndexCache();
 			}
 			File f = new File(project.getBuild().getDirectory() + "/" + warName);
@@ -51,9 +55,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 		if (!artifact.getFile().exists()) {
 			throw new MojoExecutionException(messages.getString("error.install.app.missing"));
 		}
-
-		File destDir = new File(serverDirectory, getAppsDirectory());
-
+		
 		log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
 		Copy copyFile = (Copy) ant.createTask("copy");
@@ -73,6 +75,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 
 		deleteApplication(new File(serverDirectory, "apps"), artifact.getFile());
 		deleteApplication(new File(serverDirectory, "dropins"), artifact.getFile());
+		deleteApplication(new File(serverDirectory, "dropins/spring"), artifact.getFile());
 		// application can be expanded if server.xml configure with <applicationManager
 		// autoExpand="true"/>
 		deleteApplication(new File(serverDirectory, "apps/expanded"), artifact.getFile());
@@ -229,17 +232,14 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 	}
 
 	// get loose application configuration file name for project artifact
-	protected String getLooseConfigFileName(MavenProject project, boolean thin) {
-		return getAppFileName(project, thin) + ".xml";
+	protected String getLooseConfigFileName(MavenProject project) {
+		return getAppFileName(project) + ".xml";
 	}
 
 	// get loose application configuration file name for project artifact
-	private String getAppFileName(MavenProject project, Boolean thin) {
+	private String getAppFileName(MavenProject project) {
 		String name = project.getBuild().getFinalName();
-		if (thin) {
-			name = "thin-" + name + ".spring";
-		}
-		else if (project.getPackaging().equals("liberty-assembly")) {
+	    if (project.getPackaging().equals("liberty-assembly")) {
 			name = name + ".war";
 		}
 		else {

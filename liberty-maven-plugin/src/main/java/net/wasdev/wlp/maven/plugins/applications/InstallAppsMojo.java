@@ -36,6 +36,8 @@ import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
  */
 @Mojo(name = "install-apps", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallAppsMojo extends InstallAppMojoSupport {
+	
+	private boolean installThinProject = false;
 
 	protected void doExecute() throws Exception {
 		if (skip) {
@@ -50,7 +52,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 
 		boolean installDependencies = false;
 		boolean installProject = false;
-		boolean installThinProject = false;
+		
 
 		switch (getInstallAppPackages()) {
 		case "all":
@@ -122,9 +124,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 
 	protected void installProject(boolean thin) throws Exception {
 		String packagingType = project.getPackaging();
-		if(thin) {
-			packagingType = "spring";
-		}
 		if (isSupportedType(packagingType)) {
 			if (looseApplication) {
 				installLooseApplication(project, thin);
@@ -138,7 +137,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 	}
 
 	private void installLooseApplication(MavenProject proj, boolean thin) throws Exception {
-		String looseConfigFileName = getLooseConfigFileName(proj, thin);
+		String looseConfigFileName = getLooseConfigFileName(proj);
 		String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
 		File destDir = new File(serverDirectory, getAppsDirectory());
 		File looseConfigFile = new File(destDir, looseConfigFileName);
@@ -210,13 +209,17 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		boolean supported = false;
 		switch (type) {
 		case "ear":
-		case "spring":
 		case "war":
 		case "rar":
 		case "eba":
 		case "esa":
 		case "liberty-assembly":
 			supported = true;
+			break;
+		case "jar":
+			if(installThinProject) {
+				supported = true;
+			}
 			break;
 		default:
 			break;
