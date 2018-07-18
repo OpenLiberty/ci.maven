@@ -44,7 +44,6 @@
         <module>test-server-param-default</module>
         <module>test-server-param-pom-override</module>
         <module>test-server-param-configdir-override</module>
-        <module>../kernel-install-feature-test</module>
     </modules>
 
     <!-- Profiles for WLP vs OL -->
