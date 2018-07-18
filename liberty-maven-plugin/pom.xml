@@ -122,6 +122,7 @@
                             <properties>
                                 <runtimeGroupId>${runtimeGroupId}</runtimeGroupId>
                                 <runtimeArtifactId>${runtimeArtifactId}</runtimeArtifactId>
+                                <runtimeKernelId>${runtimeKernelId}</runtimeKernelId>
                                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
                             </properties>
                             <profiles>
@@ -155,6 +156,7 @@
                 <runtime>wlp</runtime>
                 <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
                 <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+                <runtimeKernelId>wlp-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
         </profile>
@@ -170,6 +172,7 @@
                 <runtime>ol</runtime>
                 <runtimeGroupId>io.openliberty</runtimeGroupId>
                 <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+                <runtimeKernelId>openliberty-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
         </profile>
