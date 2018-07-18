@@ -86,6 +86,10 @@
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
                                 <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
+                                <!-- Hard-code a version for the assembly artifact tests -->
+                                <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+                                <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+                                <runtimeVersion>18.0.0.2</runtimeVersion>
                             </properties>
                             <profiles>
                                 <profile>offline-its</profile>
