@@ -75,11 +75,13 @@ Examples:
         <groupId>io.openliberty.features</groupId>
         <artifactId>jaxrs-2.1</artifactId>
         <type>esa</type>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>io.openliberty.features</groupId>
         <artifactId>jsonp-1.1</artifactId>
         <type>esa</type>
+        <scope>provided</scope>
     </dependency>
 </dependencies>
 
@@ -128,11 +130,13 @@ Examples:
         <groupId>com.ibm.websphere.appserver.features</groupId>
         <artifactId>servlet-3.0</artifactId>
         <type>esa</type>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>io.openliberty.features</groupId>
         <artifactId>localConnector-1.0</artifactId>
         <type>esa</type>
+        <scope>provided</scope>
     </dependency>
 </dependencies>
 
