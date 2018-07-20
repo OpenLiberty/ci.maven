@@ -17,6 +17,7 @@ package net.wasdev.wlp.maven.plugins.server;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -242,49 +243,47 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
     protected boolean isAppConfiguredInSourceServerXml(String fileName) {
 
-        boolean bConfigured = false;
+    	boolean bConfigured = false; 
 
-        // get server.xml source
-        File serverXML = new File(serverDirectory, "server.xml");
+    	Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
-        if (serverXML != null && serverXML.exists()) {
-            try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(log, serverXML, configDirectory,
-                        bootstrapPropertiesFile, bootstrapProperties, serverEnv);
-
-                if (scd != null && scd.getLocations().contains(fileName)) {
-                    log.debug("Application configuration is found in server.xml : " + fileName);
-                    bConfigured = true;
-                }
-            } catch (Exception e) {
-                log.warn(e.getLocalizedMessage());
-                log.debug(e);
-            }
+        if (locations.contains(fileName)) {
+            log.debug("Application configuration is found in server.xml : " + fileName);
+            bConfigured = true;
         }
+        
         return bConfigured;
     }
 
     protected boolean isAnyAppConfiguredInSourceServerXml() {
 
-        boolean bConfigured = false;
+    	boolean bConfigured = false; 
+
+    	Set<String> locations = getAppConfigLocationsFromSourceServerXml();
+        if (locations.size() > 0) {
+            log.debug("Application configuration is found in server.xml.");
+            bConfigured = true;
+        } 
+
+        return bConfigured;
+    }
+    
+    protected Set<String> getAppConfigLocationsFromSourceServerXml() {
+
+        ServerConfigDocument scd = null;
 
         File serverXML = new File(serverDirectory, "server.xml");
 
         if (serverXML != null && serverXML.exists()) {
             try {
-                ServerConfigDocument scd = ServerConfigDocument.getInstance(log, serverXML, configDirectory,
+                scd = ServerConfigDocument.getInstance(log, serverXML, configDirectory,
                         bootstrapPropertiesFile, bootstrapProperties, serverEnv);
-
-                if (scd != null && scd.getLocations().size() > 0) {
-                    log.debug("Application configuration is found in server.xml.");
-                    bConfigured = true;
-                }
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);
             }
         }
-        return bConfigured;
+        return scd != null ? scd.getLocations() : new HashSet<String>();
     }
 
     protected String getAppsDirectory() {

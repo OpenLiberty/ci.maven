@@ -45,6 +45,9 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         }
         checkServerHomeExists();
         checkServerDirectoryExists();
+        
+        // Delete our generated configDropins XML (a new one will be generated if necessary)
+        cleanupPreviousExecution();
 
         // update target server configuration
         copyConfigFiles();
@@ -86,11 +89,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         if (applicationXml.hasChildElements()) {
             log.warn(messages.getString("warn.install.app.add.configuration"));
             applicationXml.writeApplicationXmlDocument(serverDirectory);
-        } else {
-            if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
-                ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
-            }
         }
+
     }
 
     private void installDependencies(boolean thin) throws Exception {
@@ -183,6 +183,12 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                     proj.getPackaging()));
             installApp(proj.getArtifact(), thin);
             break;
+        }
+    }
+    
+    private void cleanupPreviousExecution() {
+        if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
+            ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
         }
     }
 
