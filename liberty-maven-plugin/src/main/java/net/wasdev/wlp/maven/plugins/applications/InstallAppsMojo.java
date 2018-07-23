@@ -58,7 +58,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		case "all":
 			installDependencies = true;
 			installProject = true;
-			installThinProject = true;
 			break;
 		case "dependencies":
 			installDependencies = true;
