@@ -45,7 +45,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 			String warName = getAppFileName(project);
 			if (thin) {
 				warName = "thin-" + warName;
-				destDir = new File(destDir, "spring");
+				//When the apps directory is "dropins" place the thin application in dropins/spring folder and
+				//when the apps directory is "apps" place the thin application in apps folder
+				if(destDir.getName().equalsIgnoreCase("dropins")) {
+					destDir = new File(destDir, "spring");
+				}				
 				copyLibIndexCache();
 			}
 			File f = new File(project.getBuild().getDirectory() + "/" + warName);
@@ -71,7 +75,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 		// validate application configuration if appsDirectory="dropins" or inject
 		// webApplication
 		// to target server.xml if not found for appsDirectory="apps"
-		validateAppConfig(fileName, artifact.getArtifactId());
+		validateAppConfig(fileName, artifact.getArtifactId(), thin);
 
 		deleteApplication(new File(serverDirectory, "apps"), artifact.getFile());
 		deleteApplication(new File(serverDirectory, "dropins"), artifact.getFile());
@@ -251,11 +255,11 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 		return name;
 	}
 
-	protected void validateAppConfig(String fileName, String artifactId) throws Exception {
+	protected void validateAppConfig(String fileName, String artifactId, boolean thin) throws Exception {
 		String appsDir = getAppsDirectory();
 		if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
 			// add application configuration
-			applicationXml.createApplicationElement(fileName, artifactId);
+			applicationXml.createApplicationElement(fileName, artifactId, thin);
 		} else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
 			throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
 	}

@@ -148,7 +148,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 						proj.getPackaging()));
 				installApp(proj.getArtifact(), thin);
 			} else {
-				validateAppConfig(application, proj.getArtifactId());
+				validateAppConfig(application, proj.getArtifactId(), thin);
 				log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
 				installLooseConfigWar(proj, config);
 				deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
@@ -157,7 +157,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 			}			
 			break;
 		case "ear":
-			validateAppConfig(application, proj.getArtifactId());
+			validateAppConfig(application, proj.getArtifactId(), thin);
 			log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
 			installLooseConfigEar(proj, config);
 			deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
@@ -166,7 +166,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 			break;
 		case "liberty-assembly":
 			if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
-				validateAppConfig(application, proj.getArtifactId());
+				validateAppConfig(application, proj.getArtifactId(), thin);
 				log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
 				installLooseConfigWar(proj, config);
 				deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);

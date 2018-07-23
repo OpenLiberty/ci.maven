@@ -38,12 +38,16 @@ public class ApplicationXmlDocument extends XmlDocument {
         }
     }
     
-    public void createApplicationElement(String appFileName, String artifactId) {
+    public void createApplicationElement(String appFileName, String artifactId, boolean thin) {
         File app = new File(appFileName);
         
         switch (appFileName.substring(appFileName.lastIndexOf(".")+1)) {
             case "war":
-                createElement("webApplication", app, artifactId);
+            	if(thin) {
+            		createElement("springBootApplication", app, artifactId);
+            	} else {
+            		createElement("webApplication", app, artifactId);
+            	}                
                 break;
             case "ear":
                 createElement("enterpriseApplication", app, artifactId);
@@ -51,6 +55,11 @@ public class ApplicationXmlDocument extends XmlDocument {
             case "rar":
                 createElement("resourceAdapter", app, artifactId);
                 break;
+            case "jar":
+            	if(thin) {
+            		createElement("springBootApplication", app, artifactId);
+            	}
+            	break;
             default:
                 break;
         }
