@@ -143,12 +143,18 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		LooseConfigData config = new LooseConfigData();
 		switch (proj.getPackaging()) {
 		case "war":
-			validateAppConfig(application, proj.getArtifactId());
-			log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-			installLooseConfigWar(proj, config);
-			deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-			deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-			config.toXmlFile(looseConfigFile);
+			if(thin) {
+				log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
+						proj.getPackaging()));
+				installApp(proj.getArtifact(), thin);
+			} else {
+				validateAppConfig(application, proj.getArtifactId());
+				log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+				installLooseConfigWar(proj, config);
+				deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+				deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+				config.toXmlFile(looseConfigFile);
+			}			
 			break;
 		case "ear":
 			validateAppConfig(application, proj.getArtifactId());
