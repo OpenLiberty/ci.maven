@@ -114,16 +114,11 @@ public class BasicSupport extends AbstractLibertySupport {
 	 * Server Directory: ${installDirectory}/usr/servers/${serverName}/
 	 */
 	protected File serverDirectory;
-
-	/**
-	 * Shared Resources Directory: ${installDirectory}/usr/shared/resources/
-	 */
-	protected File sharedResourceDir;
 	
 	/**
 	 * Spring Directory: ${installDirectory}/usr/servers/${serverName}/workarea/spring/
 	 */
-	protected File springDirectory;
+	protected File workareaSpringDirectory;
 
 	protected static enum InstallType {
 		FROM_FILE, ALREADY_EXISTS, FROM_ARCHIVE
@@ -245,16 +240,11 @@ public class BasicSupport extends AbstractLibertySupport {
 
 			// Set server directory
 			serverDirectory = new File(serversDirectory, serverName);
-
-			File sharedDirectory = new File(userDirectory, "shared");
-
-			// Set sharedResourceDir
-			sharedResourceDir = new File(sharedDirectory, "resources");
 			
 			File workAreaDirectory = new File(serverDirectory, "workarea");
 			
 			//Set spring directory
-			springDirectory = new File(workAreaDirectory, "spring");
+			workareaSpringDirectory = new File(workAreaDirectory, "spring");
 
 			log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
 

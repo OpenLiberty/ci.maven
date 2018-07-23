@@ -85,7 +85,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
 	private void copyLibIndexCache() throws IOException {
 		String libIndexCacheName = "lib.index.cache";
 		File sourceLibDir = new File(project.getBuild().getDirectory(), libIndexCacheName);
-		File destLibDir = new File(springDirectory, libIndexCacheName);
+		File destLibDir = new File(workareaSpringDirectory, libIndexCacheName);
 		FileUtils.copyDirectory(sourceLibDir, destLibDir);
 	}
 
