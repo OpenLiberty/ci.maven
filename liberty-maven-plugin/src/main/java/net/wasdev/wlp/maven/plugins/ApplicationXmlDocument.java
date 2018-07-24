@@ -26,9 +26,9 @@ import org.w3c.dom.Element;
 import net.wasdev.wlp.common.plugins.util.XmlDocument;
 
 public class ApplicationXmlDocument extends XmlDocument {
-    
+
     public static final String APP_XML_FILENAME = "install_apps_configuration_1491924271.xml";
-    
+
     public ApplicationXmlDocument() {
         try {
             createDocument("server");
@@ -37,34 +37,34 @@ public class ApplicationXmlDocument extends XmlDocument {
             e.printStackTrace();
         }
     }
-    
+
     public void createApplicationElement(String appFileName, String artifactId, boolean thin) {
         File app = new File(appFileName);
-        
-        switch (appFileName.substring(appFileName.lastIndexOf(".")+1)) {
-            case "war":
-            	if(thin) {
-            		createElement("springBootApplication", app, artifactId);
-            	} else {
-            		createElement("webApplication", app, artifactId);
-            	}                
-                break;
-            case "ear":
-                createElement("enterpriseApplication", app, artifactId);
-                break;
-            case "rar":
-                createElement("resourceAdapter", app, artifactId);
-                break;
-            case "jar":
-            	if(thin) {
-            		createElement("springBootApplication", app, artifactId);
-            	}
-            	break;
-            default:
-                break;
+
+        switch (appFileName.substring(appFileName.lastIndexOf(".") + 1)) {
+        case "war":
+            if (thin) {
+                createElement("springBootApplication", app, artifactId);
+            } else {
+                createElement("webApplication", app, artifactId);
+            }
+            break;
+        case "ear":
+            createElement("enterpriseApplication", app, artifactId);
+            break;
+        case "rar":
+            createElement("resourceAdapter", app, artifactId);
+            break;
+        case "jar":
+            if (thin) {
+                createElement("springBootApplication", app, artifactId);
+            }
+            break;
+        default:
+            break;
         }
-    }    
- 
+    }
+
     public void createElement(String element, File appFile, String artifactId) {
         Element child = doc.createElement(element);
         child.setAttribute("id", artifactId);
@@ -72,7 +72,7 @@ public class ApplicationXmlDocument extends XmlDocument {
         child.setAttribute("name", artifactId);
         doc.getDocumentElement().appendChild(child);
     }
-    
+
     public void writeApplicationXmlDocument(File serverDirectory) throws IOException, TransformerException {
         File applicationXml = getApplicationXmlFile(serverDirectory);
         if (!applicationXml.getParentFile().exists()) {
@@ -80,12 +80,12 @@ public class ApplicationXmlDocument extends XmlDocument {
         }
         writeXMLDocument(applicationXml);
     }
-    
+
     public static File getApplicationXmlFile(File serverDirectory) {
-        File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME); 
+        File f = new File(serverDirectory, "configDropins/defaults/" + APP_XML_FILENAME);
         return f;
     }
-        
+
     public boolean hasChildElements() {
         return doc.getDocumentElement().getChildNodes().getLength() > 0;
     }
