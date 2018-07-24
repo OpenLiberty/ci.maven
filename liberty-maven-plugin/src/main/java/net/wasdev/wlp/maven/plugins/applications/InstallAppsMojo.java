@@ -71,16 +71,18 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
 		default:
 			return;
 		}
-		if (installDependencies) {
-			installDependencies(false);
-		}
-		if (installProject) {
-			installProject(false);
-		}
+		
 		if (installThinProject) {
 			installProject(true);
+		} else {
+			if (installDependencies) {
+				installDependencies(false);
+			}
+			if (installProject) {
+				installProject(false);
+			}
 		}
-
+		
 		// create application configuration in configDropins if it is not configured
 		if (applicationXml.hasChildElements()) {
 			log.warn(messages.getString("warn.install.app.add.configuration"));
