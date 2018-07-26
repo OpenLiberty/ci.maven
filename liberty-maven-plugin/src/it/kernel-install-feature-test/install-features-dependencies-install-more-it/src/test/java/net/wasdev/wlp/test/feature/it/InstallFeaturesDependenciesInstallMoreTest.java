@@ -21,12 +21,11 @@ import org.junit.Test;
 public class InstallFeaturesDependenciesInstallMoreTest extends BaseInstallFeature {
 
     @Test
-    public void testNumberOfFeatures() throws Exception {
-        assertEquals("Number of installed features", 11, features.length);
-        assertInstalled("a-1.0");
-        assertInstalled("b-1.0");
-        assertInstalled("c-1.0");
-        assertInstalled("d-1.0");
+    public void testInstalledFeatures() throws Exception {
+        assertInstalled("appSecurityClient-1.0");
+        assertInstalled("beanValidation-2.0");
+        assertInstalled("couchdb-1.0");
+        assertInstalled("distributedMap-1.0");
     }
 
 }

@@ -1,5 +1,5 @@
 <server description="default server">
     <featureManager>    
-        <feature>b-1.0</feature>
+        <feature>beanValidation-2.0</feature>
     </featureManager>     
 </server>

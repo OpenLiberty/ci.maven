@@ -36,11 +36,20 @@ public class BaseInstallFeature {
             }
         });
     }
+    
+    protected void assertInstallStatus(String feature, boolean expectation) throws Exception {
+        String expectationString = (expectation ? "installed" : "not installed");
+        assertEquals("Feature " + feature + " was expected to be " + expectationString + " in the lib/features directory", expectation, existsInFeaturesDirectory(feature));
+        String featureInfo = getFeatureInfo();
+        assertEquals("Feature " + feature + " was expected to be " + expectationString + " according to productInfo featureInfo: " + featureInfo, expectation, featureInfo.contains(feature));
+    }
 
     protected void assertInstalled(String feature) throws Exception {
-        assertTrue("Feature " + feature + " was not installed into the lib/features directory", existsInFeaturesDirectory(feature));
-        String featureInfo = getFeatureInfo();
-        assertTrue("Feature " + feature + " was not installed according to productInfo featureInfo: " + featureInfo, featureInfo.contains(feature));
+        assertInstallStatus(feature, true);
+    }
+    
+    protected void assertNotInstalled(String feature) throws Exception {
+        assertInstallStatus(feature, false);
     }
     
     protected boolean existsInFeaturesDirectory(String feature) {

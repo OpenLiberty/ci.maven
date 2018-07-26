@@ -1,5 +1,5 @@
 <server description="default server">
     <featureManager>    
-        <feature>c-1.0</feature>
+        <feature>couchdb-1.0</feature>
     </featureManager>     
 </server>

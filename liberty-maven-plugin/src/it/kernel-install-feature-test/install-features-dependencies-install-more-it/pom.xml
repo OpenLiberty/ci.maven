@@ -15,7 +15,7 @@
     <dependencies>
        <dependency>
            <groupId>io.openliberty.features</groupId>
-           <artifactId>a-1.0</artifactId>
+           <artifactId>appSecurityClient-1.0</artifactId>
            <version>18.0.0.2</version>
            <type>esa</type>
            <scope>provided</scope>
@@ -61,7 +61,7 @@
                         <configuration>
                             <features>
                                 <acceptLicense>true</acceptLicense>
-                                <feature>b-1.0</feature>
+                                <feature>beanValidation-2.0</feature>
                             </features>
                         </configuration>
                     </execution>
@@ -74,8 +74,8 @@
                         <configuration>
                             <features>
                                 <acceptLicense>true</acceptLicense>
-                                <feature>c-1.0</feature>
-                                <feature>d-1.0</feature>
+                                <feature>couchdb-1.0</feature>
+                                <feature>distributedMap-1.0</feature>
                             </features>
                         </configuration>
                     </execution>

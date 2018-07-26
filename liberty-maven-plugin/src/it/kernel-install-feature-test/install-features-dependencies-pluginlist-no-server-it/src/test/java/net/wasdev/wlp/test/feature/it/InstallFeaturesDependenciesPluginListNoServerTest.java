@@ -21,10 +21,11 @@ import org.junit.Test;
 public class InstallFeaturesDependenciesPluginListNoServerTest extends BaseInstallFeature {
 
     @Test
-    public void testNumberOfFeatures() throws Exception {
-        assertTrue("Number of installed features", features.length >= 9); // default server template may have some default features
-        assertInstalled("a-1.0");
-        assertInstalled("b-1.0");
+    public void testInstalledFeatures() throws Exception {
+        assertInstalled("appSecurityClient-1.0");
+        assertInstalled("beanValidation-2.0");
+        assertNotInstalled("couchdb-1.0");
+        assertNotInstalled("distributedMap-1.0");
     }
 
 }

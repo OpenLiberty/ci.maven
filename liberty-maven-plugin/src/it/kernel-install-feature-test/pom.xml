@@ -29,14 +29,6 @@
         <module>install-features-server-it</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>openliberty-features-repo</id>
-            <name>openliberty features repo</name>
-            <url>file://${project.basedir}/../resources/features-repo</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>net.wasdev.wlp.maven.it</groupId>

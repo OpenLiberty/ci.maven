@@ -51,7 +51,7 @@
                         <configuration>
                             <features>
                                 <acceptLicense>true</acceptLicense>
-                                <feature>b-1.0</feature>
+                                <feature>beanValidation-2.0</feature>
                             </features>
                         </configuration>
                     </execution>
