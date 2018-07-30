@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>net.wasdev.wlp.maven.parent</groupId>
 		<artifactId>liberty-spring-boot-parent</artifactId>
-		<version>1.5.10.RELEASE</version>
+		<version>1.5.14.RELEASE</version>
 	</parent>
 
 	<properties>
