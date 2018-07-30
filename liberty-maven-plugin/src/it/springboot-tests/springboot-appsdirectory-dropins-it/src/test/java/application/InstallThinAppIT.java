@@ -32,7 +32,7 @@ public class InstallThinAppIT {
 	
 	@Test
 	public void testLibIndexCacheExists() throws Exception {
-	    File f = new File("target/liberty/wlp/usr/servers/test/workarea/spring/lib.index.cache");
+	    File f = new File("target/liberty/wlp/usr/shared/resources/lib.index.cache");
 	    assertTrue(f.getCanonicalFile() + " doesn't exist. Plugin failed to place the cache directory at right destination.", f.exists());    
 	    
 	}
