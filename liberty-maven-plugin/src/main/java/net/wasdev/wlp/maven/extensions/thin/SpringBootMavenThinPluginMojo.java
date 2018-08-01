@@ -68,7 +68,7 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
             File sourceFatJar = getTargetFile();
             thin(sourceFatJar);
         } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage());
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
