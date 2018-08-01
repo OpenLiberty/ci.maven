@@ -16,7 +16,6 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
@@ -87,9 +86,12 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         copyFile.execute();
     }
 
-    private void copyLibIndexCache() throws IOException {
+    private void copyLibIndexCache() throws Exception {
         String libIndexCacheName = "lib.index.cache";
         File sourceLibDir = new File(project.getBuild().getDirectory(), libIndexCacheName);
+        if (!sourceLibDir.exists()) {
+            throw new MojoExecutionException(sourceLibDir.getCanonicalPath() +" does not exist and cannot be installed");
+        }
         File destLibDir = new File(sharedResourcesDirectory, libIndexCacheName);
         FileUtils.copyDirectory(sourceLibDir, destLibDir);
     }
