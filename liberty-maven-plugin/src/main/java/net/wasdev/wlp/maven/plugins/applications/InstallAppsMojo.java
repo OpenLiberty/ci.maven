@@ -215,11 +215,17 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         boolean supported = false;
         switch (type) {
         case "ear":
-        case "war":
         case "rar":
         case "eba":
         case "esa":
         case "liberty-assembly":
+            if(installThinProject) {
+                log.warn("thin-project cannot be configured for installAppPackages for the " + type + " packaging type");
+            } else {
+                supported = true;
+            }         
+            break;
+        case "war":
             supported = true;
             break;
         case "jar":
