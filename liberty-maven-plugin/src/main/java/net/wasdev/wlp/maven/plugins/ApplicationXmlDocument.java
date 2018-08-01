@@ -37,6 +37,9 @@ public class ApplicationXmlDocument extends XmlDocument {
             e.printStackTrace();
         }
     }
+    public void createApplicationElement(String appFileName, String artifactId) {
+        createApplicationElement(appFileName, artifactId, false);
+    }
 
     public void createApplicationElement(String appFileName, String artifactId, boolean thin) {
         File app = new File(appFileName);
