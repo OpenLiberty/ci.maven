@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import net.wasdev.wlp.common.springboot.util.SpringBootThinException;
 import net.wasdev.wlp.common.springboot.util.SpringBootThinUtil;
 
 @Mojo(name = "thin", defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
@@ -67,12 +68,17 @@ public class SpringBootMavenThinPluginMojo extends AbstractMojo {
         try {
             File sourceFatJar = getTargetFile();
             thin(sourceFatJar);
+        } catch (SpringBootThinException e) {
+            throw new MojoExecutionException(
+                    "Plugin execution failed because the application archive is not an executable archive. The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.",
+                    e);
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
-    private void thin(File sourceFatJar) throws ZipException, IOException, NoSuchAlgorithmException {
+    private void thin(File sourceFatJar)
+            throws ZipException, IOException, NoSuchAlgorithmException, SpringBootThinException {
         File targetThinJar = new File(outputDirectory, "thin-" + sourceFatJar.getName());
         File libIndexCache = new File(outputDirectory, "lib.index.cache");
         getLog().info("Thinning " + getArtifactExtension() + ": " + targetThinJar.getAbsolutePath());
