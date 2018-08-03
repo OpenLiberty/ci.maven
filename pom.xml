@@ -55,7 +55,7 @@
 
     <modules>
         <module>liberty-maven-app-parent</module>
-	<module>liberty-spring-boot-parent</module>
+        <module>liberty-spring-boot-parent</module>
         <module>liberty-maven-plugin</module>
         <module>liberty-plugin-archetype</module>
         <module>liberty-archetype-webapp</module>
