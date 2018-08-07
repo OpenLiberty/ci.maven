@@ -243,29 +243,26 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
     protected boolean isAppConfiguredInSourceServerXml(String fileName) {
 
-    	boolean bConfigured = false; 
-
-    	Set<String> locations = getAppConfigLocationsFromSourceServerXml();
+        Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
         if (locations.contains(fileName)) {
             log.debug("Application configuration is found in server.xml : " + fileName);
-            bConfigured = true;
+            return true;
+        } else {
+            return false;
         }
-        
-        return bConfigured;
     }
 
     protected boolean isAnyAppConfiguredInSourceServerXml() {
 
-    	boolean bConfigured = false; 
+        Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
-    	Set<String> locations = getAppConfigLocationsFromSourceServerXml();
         if (locations.size() > 0) {
             log.debug("Application configuration is found in server.xml.");
-            bConfigured = true;
-        } 
-
-        return bConfigured;
+            return true;
+        } else {
+            return false;
+        }
     }
     
     protected Set<String> getAppConfigLocationsFromSourceServerXml() {
