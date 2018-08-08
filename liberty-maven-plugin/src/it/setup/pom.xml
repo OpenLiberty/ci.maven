@@ -18,7 +18,35 @@
     <modules>
         <module>test-eba</module>
         <module>test-war</module>
-        <module>assembly-server</module>
     </modules>
+
+    <!-- Profiles for WLP vs OL -->
+    <profiles>   
+        <profile>
+            <id>wlp-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on WLP are here -->
+            <modules>
+                <module>assembly-server</module> <!-- This test uses the osgiBundle-1.0 feature which is not available in Open Liberty -->
+            </modules>
+        </profile>
+        <profile>
+            <id>ol-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on Open Liberty are here -->
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
