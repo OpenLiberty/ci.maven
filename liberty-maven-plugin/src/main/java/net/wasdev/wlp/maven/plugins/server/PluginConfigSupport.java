@@ -59,8 +59,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected boolean looseApplication;
 
     /**
-     * Packages to install. One of "all", "dependencies" , "project" or
-     * "thin-project".
+     * Packages to install. One of "all", "dependencies" or "project".
      */
     @Parameter(property = "installAppPackages", defaultValue = "dependencies")
     private String installAppPackages;
@@ -86,7 +85,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     /*
-     * Export plugin configuration parameters to target/liberty-plugin-config.xml
+     * Export plugin configuration parameters to
+     * target/liberty-plugin-config.xml
      */
     protected File exportParametersToXml() throws Exception {
         PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
@@ -159,8 +159,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     /*
-     * Get the file from configDrectory if it exists; otherwise return def only if
-     * it exists, or null if not
+     * Get the file from configDrectory if it exists; otherwise return def only
+     * if it exists, or null if not
      */
     protected File getFileFromConfigDirectory(String file, File def) {
         File f = new File(configDirectory, file);
@@ -178,8 +178,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     /*
-     * return the filename of the project artifact to be installed by install-apps
-     * goal
+     * return the filename of the project artifact to be installed by
+     * install-apps goal
      */
     protected String getApplicationFilename() {
         // A project doesn't build a web application artifact but getting the
