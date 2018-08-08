@@ -2,7 +2,7 @@
 ---
 Uninstall a feature from the Liberty runtime.
 
-This goal will be skipped in versions of the Open Liberty runtime (`io.openliberty:openliberty-runtime`) that do not include `bin/installUtility`. A warning message will be displayed. The Open Liberty runtime is bundled with all applicable features. There is no need to install or uninstall additional features.
+This goal will be skipped in versions of the Open Liberty runtime that do not include `bin/installUtility`. A warning message will be displayed. The Open Liberty runtime versions 18.0.0.1 and below are bundled with all applicable features, so there is no need to install or uninstall additional features. In version 18.0.0.2, Open Liberty is available as different [runtime artifacts](installation-configuration.md#using-maven-artifact) with their corresponding features and does not support uninstalling features.
 
 ###### Additional Parameters
 

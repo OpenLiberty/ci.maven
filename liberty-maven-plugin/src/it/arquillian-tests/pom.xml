@@ -109,12 +109,12 @@
             <version>3.2</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>net.wasdev.wlp.common</groupId>
-            <artifactId>ci.common</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>net.wasdev.wlp.common</groupId>
+			<artifactId>ci.common</artifactId>
+			<version>1.2.1</version>
+			<scope>test</scope>
+		</dependency>
 
         <!-- Rest dependencies -->
         <dependency>
