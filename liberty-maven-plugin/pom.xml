@@ -90,6 +90,7 @@
                             <profiles>
                                 <profile>offline-its</profile>
                             </profiles>
+                            <streamLogs>true</streamLogs>
                         </configuration>
                         <executions>
                             <execution>
@@ -128,6 +129,7 @@
                             <profiles>
                                 <profile>online-its</profile>
                             </profiles>
+                            <streamLogs>true</streamLogs>
                         </configuration>
                         <executions>
                             <execution>

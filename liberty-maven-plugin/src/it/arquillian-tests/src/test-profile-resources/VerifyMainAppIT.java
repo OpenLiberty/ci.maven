@@ -57,12 +57,8 @@ public class VerifyMainAppIT {
         // Arquillian test application by looking at the build.log console
         // output.
 
-        String mainAppOutput = "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/myLibertyApp/";
-        String testAppOutput = // The test app name is randomly generated, so we
-                               // don't know it here. Instead just make sure
-                               // that another app is started after the main
-                               // app.
-                "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/";
+        String mainAppOutput = "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/test-configure-arquillian/";
+        String testAppOutput = "[AUDIT   ] CWWKT0016I: Web application available (default_host): http://localhost:9080/test/";
 
         boolean foundMainApp = false;
 
