@@ -113,6 +113,11 @@ public class BasicSupport extends AbstractLibertySupport {
      * Server Directory: ${installDirectory}/usr/servers/${serverName}/
      */
     protected File serverDirectory;
+    
+    /**
+     * Shared Resources Directory : ${installDirectory}/usr/shared/resources/
+     */
+    protected File sharedResourcesDirectory;
 
     protected static enum InstallType {
         FROM_FILE, ALREADY_EXISTS, FROM_ARCHIVE
@@ -228,6 +233,15 @@ public class BasicSupport extends AbstractLibertySupport {
             
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
             
+            // Set shared direcory
+            File sharedDirectory = new File(userDirectory, "shared");
+            
+            sharedResourcesDirectory = new File(sharedDirectory, "resources");
+            
+            if(!sharedResourcesDirectory.exists()) {
+                sharedResourcesDirectory.mkdirs();
+            }
+                     
             // Set output directory
             if (getWlpOutputDir() != null) {
                 outputDirectory = new File(getWlpOutputDir());

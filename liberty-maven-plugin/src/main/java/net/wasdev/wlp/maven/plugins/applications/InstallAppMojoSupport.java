@@ -20,12 +20,14 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.w3c.dom.Element;
 
+import net.wasdev.wlp.ant.SpringBootUtilTask;
 import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
 
@@ -229,12 +231,41 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
     
     protected void validateAppConfig(String fileName, String artifactId) throws Exception {
+        validateAppConfig(fileName, artifactId, false);
+    }
+    
+    protected void validateAppConfig(String fileName, String artifactId, boolean isSpringBootApp) throws Exception {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
-            applicationXml.createApplicationElement(fileName, artifactId);
+            applicationXml.createApplicationElement(fileName, artifactId, isSpringBootApp);
         }
         else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
+    }
+    
+    /**
+     * Executes the SpringBootUtilTask to thin the Spring Boot application executable archive and place the thin archive and lib.index.cache in the specified location.
+     * 
+     * @param installDirectory : Installation directory of Liberty profile.
+     * @param fatArchiveSrcLocation : Source Spring Boot FAT executable archive location.
+     * @param thinArchiveTargetLocation : Target thin archive location.
+     * @param libIndexCacheTargetLocation : Library cache location.
+     */
+    protected void invokeSpringBootUtilCommand(File installDirectory, String fatArchiveSrcLocation, String thinArchiveTargetLocation, String libIndexCacheTargetLocation) throws Exception{
+        SpringBootUtilTask springBootUtilTask = (SpringBootUtilTask) ant.createTask("antlib:net/wasdev/wlp/ant:springBootUtil");
+        if (springBootUtilTask == null) {
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "springBootUtil"));
+        }
+        
+        Validate.notNull(fatArchiveSrcLocation, "Spring Boot source archive location cannot be null");
+        Validate.notNull(thinArchiveTargetLocation, "Target thin archive location cannot be null");
+        Validate.notNull(libIndexCacheTargetLocation, "Library cache location cannot be null");
+        
+        springBootUtilTask.setInstallDir(installDirectory);
+        springBootUtilTask.setTargetThinAppPath(thinArchiveTargetLocation);
+        springBootUtilTask.setSourceAppPath(fatArchiveSrcLocation);
+        springBootUtilTask.setTargetLibCachePath(libIndexCacheTargetLocation);
+        springBootUtilTask.execute();        
     }
 }
