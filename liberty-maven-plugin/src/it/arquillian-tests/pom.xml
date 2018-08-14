@@ -5,7 +5,7 @@
 
     <artifactId>test-configure-arquillian</artifactId>
     <version>1.0.0.Final</version>
-    <packaging>liberty-assembly</packaging>
+    <packaging>war</packaging>
 
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
@@ -13,6 +13,36 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../tests</relativePath>
     </parent>
+
+    <pluginRepositories>
+        <!-- Configure Sonatype OSS Maven snapshots repository -->
+        <pluginRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <!-- Configure Sonatype OSS Maven snapshots repository -->
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <licenses>
         <license>
@@ -40,18 +70,10 @@
 
         <!-- Test properties -->
         <arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
-        <arquillian.managed.version>1.0.1</arquillian.managed.version>
+        <arquillian.managed.version>1.0.2</arquillian.managed.version>
         <arquillian.remote.artifact>arquillian-liberty-remote</arquillian.remote.artifact>
-        <arquillian.remote.version>1.0.1</arquillian.remote.version>
+        <arquillian.remote.version>1.0.2</arquillian.remote.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>liberty-starter-maven-repo</id>
-            <name>liberty-starter-maven-repo</name>
-            <url>http://liberty-starter.wasdev.developer.ibm.com/start/api/v1/repo</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -73,23 +95,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
-            <scope>test</scope>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
             <artifactId>shrinkwrap-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.195</version>
+            <groupId>net.wasdev.wlp.common</groupId>
+            <artifactId>ci.common</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -98,64 +118,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-            <version>1.0.4</version>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.ejb</groupId>
-            <artifactId>javax.ejb-api</artifactId>
-            <version>3.2</version>
-            <scope>provided</scope>
-        </dependency>
-		<dependency>
-			<groupId>net.wasdev.wlp.common</groupId>
-			<artifactId>ci.common</artifactId>
-			<version>1.2.1</version>
-			<scope>test</scope>
-		</dependency>
-
-        <!-- Rest dependencies -->
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.websphere.appserver.api</groupId>
-            <artifactId>com.ibm.websphere.appserver.api.jaxrs20</artifactId>
-            <version>1.0.10</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.websphere.appserver.api</groupId>
-            <artifactId>com.ibm.websphere.appserver.api.json</artifactId>
-            <version>1.0.10</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Persistence dependencies -->
-        <dependency>
-            <groupId>com.ibm.websphere.appserver.api</groupId>
-            <artifactId>com.ibm.websphere.appserver.api.persistence</artifactId>
-            <version>1.0.10</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>javax.persistence</artifactId>
-            <version>2.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -176,19 +142,17 @@
                             <outputDirectory>${project.build.directory}/wlp/usr/servers/${wlpServerName}/configDropins/defaults</outputDirectory>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-h2-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>h2</includeArtifactIds>
-                            <prependGroupId>true</prependGroupId>
-                            <outputDirectory>${project.build.directory}/wlp/usr/shared/resources/h2</outputDirectory>
-                        </configuration>
-                    </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <packagingExcludes>pom.xml</packagingExcludes>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -206,7 +170,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
+                    <configFile>src/main/resources/server.xml</configFile>
                     <packageFile>${project.build.directory}/WebsocketServerPackage.jar</packageFile>
                     <bootstrapProperties>
                         <default.http.port>9080</default.http.port>
@@ -237,12 +201,68 @@
                             <goal>configure-arquillian</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>stop-server-before-clean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>stop-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-server</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>install-server</goal>
+                            <goal>create-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>install-feature</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>install-feature</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-apps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>install-apps</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>package-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package-server</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-start-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>test-start-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-stop-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>test-stop-server</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>2.21.0</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                 </configuration>
@@ -293,16 +313,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun</groupId>
+                        <artifactId>tools</artifactId>
+                        <version>1.5.0</version>
+                        <scope>system</scope>
+                        <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>compile-and-copy-test-classes</id>
                         <phase>process-test-resources</phase>
                         <configuration>
                             <target>
-                                <property name="build.compiler" value="extJavac" />
                                 <javac srcdir="${project.basedir}/src/test-profile-resources"
                                     destdir="${project.build.directory}/test-classes" includes="${tests.to.include}"
-                                    classpathref="maven.test.classpath" includeantruntime="false" />
+                                    classpathref="maven.test.classpath" />
                             </target>
                         </configuration>
                         <goals>
@@ -323,7 +351,7 @@
             <properties>
                 <skip.arquillian.xml>true</skip.arquillian.xml>
                 <verify.apps></verify.apps>
-                <tests.to.include>SkipWithXmlIT.java, TransactionRestEndpointIT.java</tests.to.include>
+                <tests.to.include>SkipWithXmlIT.java, GreeterIT.java</tests.to.include>
                 <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
                 <arquillian.launch>liberty_managed</arquillian.launch>
                 <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
@@ -336,8 +364,7 @@
             <properties>
                 <skip.arquillian.xml>true</skip.arquillian.xml>
                 <verify.apps></verify.apps>
-                <tests.to.include>SkipWithoutXmlIT.java,
-                    TransactionRestEndpointIT.java</tests.to.include>
+                <tests.to.include>SkipWithoutXmlIT.java, GreeterIT.java</tests.to.include>
                 <arquillian.xml.to.include>none</arquillian.xml.to.include>
                 <arquillian.launch>liberty_managed</arquillian.launch>
                 <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
@@ -350,8 +377,7 @@
             <properties>
                 <skip.arquillian.xml>false</skip.arquillian.xml>
                 <verify.apps>${project.artifactId}</verify.apps>
-                <tests.to.include>TransactionRestEndpointIT.java,
-                    VerifyMainAppIT.java</tests.to.include>
+                <tests.to.include>GreeterIT.java, VerifyMainAppIT.java</tests.to.include>
                 <arquillian.xml.to.include>none</arquillian.xml.to.include>
                 <arquillian.launch>liberty_managed</arquillian.launch>
                 <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
@@ -388,3 +414,4 @@
     </profiles>
 
 </project>
+
