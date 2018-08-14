@@ -16,11 +16,9 @@
     </properties>
 
     <modules>
-        <module>test-assembly</module>
         <module>assembly-artifact-it</module>
         <module>assembly-artifact-no-version-it</module>
         <module>ear-project-it</module>
-        <module>install-features-it</module>
         <module>install-apps-project-it</module>
         <module>config-directory-it</module>
         <module>loose-config-fragment-it</module>
@@ -41,9 +39,6 @@
         <module>appsdirectory-set-appz-configured-it</module>
         <module>appsdirectory-set-appz-notconfigured-it</module>
         <module>skip-start-server-it</module>
-        <module>test-server-param-default</module>
-        <module>test-server-param-pom-override</module>
-        <module>test-server-param-configdir-override</module>
     </modules>
 
     <!-- Profiles for WLP vs OL -->
@@ -58,9 +53,15 @@
             </activation>
             <!-- Tests that should only run on WLP are here -->
             <modules>
-                <module>assembly-it</module> <!-- This test uses EBAs not available in Open Liberty -->
-                <module>basic-it</module> <!-- This test uses EBAs not available in Open Liberty -->
-                <module>test-assembly-with-code-it</module> <!-- This test uses the osgiBundle-1.0 feature which is not available in Open Liberty -->
+                <!-- These tests use osgiBundle feature that is not available in Open Liberty -->
+                <module>test-server-param-default</module>
+                <module>test-assembly</module>
+                <module>test-server-param-configdir-override</module>
+                <module>assembly-it</module>
+                <module>basic-it</module>
+                <module>test-server-param-pom-override</module>
+                <module>install-features-it</module>
+                <module>test-assembly-with-code-it</module>
             </modules>
         </profile>
         <profile>

@@ -116,19 +116,6 @@
                                     </assemblyArtifact>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>install-wab-feature</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>install-feature</goal>
-                                </goals>
-                                <configuration>
-                                    <features>
-                                        <feature>osgiBundle-1.0</feature>
-                                        <acceptLicense>true</acceptLicense>
-                                    </features>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
