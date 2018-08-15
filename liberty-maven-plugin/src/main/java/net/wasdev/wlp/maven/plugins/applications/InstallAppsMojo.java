@@ -164,6 +164,15 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
     
     private File getLibIndexCacheTarget() {
+        // Set shared direcory ${installDirectory}/usr/shared/
+        File sharedDirectory = new File(userDirectory, "shared");
+        
+        //Set shared resources directory ${installDirectory}/usr/shared/resources/
+        File sharedResourcesDirectory = new File(sharedDirectory, "resources");
+        
+        if(!sharedResourcesDirectory.exists()) {
+            sharedResourcesDirectory.mkdirs();
+        }
         File libIndexCacheTarget = new File(sharedResourcesDirectory, "lib.index.cache");
         return libIndexCacheTarget;
     }
