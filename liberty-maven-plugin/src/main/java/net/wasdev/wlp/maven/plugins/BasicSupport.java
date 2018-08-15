@@ -227,7 +227,7 @@ public class BasicSupport extends AbstractLibertySupport {
             serverDirectory = new File(serversDirectory, serverName);
             
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
-            
+                     
             // Set output directory
             if (getWlpOutputDir() != null) {
                 outputDirectory = new File(getWlpOutputDir());

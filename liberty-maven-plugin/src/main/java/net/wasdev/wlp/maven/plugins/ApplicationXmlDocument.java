@@ -39,7 +39,16 @@ public class ApplicationXmlDocument extends XmlDocument {
     }
     
     public void createApplicationElement(String appFileName, String artifactId) {
+        createApplicationElement(appFileName, artifactId, false);
+    }
+    
+    public void createApplicationElement(String appFileName, String artifactId, boolean isSpringBootApp) {
         File app = new File(appFileName);
+        
+        if(isSpringBootApp) {
+            createElement("springBootApplication", app, artifactId);
+            return;
+        }
         
         switch (appFileName.substring(appFileName.lastIndexOf(".")+1)) {
             case "war":
