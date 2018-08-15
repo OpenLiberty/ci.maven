@@ -27,9 +27,9 @@
 
 	<profiles>
 		<profile>
-			<id>1.8+includes</id>
+			<id>1.8includes</id>
 			<activation>
-				<jdk>[1.8,10)</jdk>
+				<jdk>1.8</jdk>
 			</activation>
 			<modules>
 				<module>springboot-appsdirectory-apps-it</module>
