@@ -1,0 +1,6 @@
+<server description="default server">
+    <featureManager>    
+        <feature>appsecurityclient-1.0</feature>
+        <feature>beanvalidation-2.0</feature>
+    </featureManager>     
+</server>
