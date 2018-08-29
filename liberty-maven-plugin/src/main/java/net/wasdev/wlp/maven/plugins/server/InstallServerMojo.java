@@ -16,13 +16,14 @@
 package net.wasdev.wlp.maven.plugins.server;
 
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Install a liberty server
  */
-@Mojo(name = "install-server")
+@Mojo(name = "install-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallServerMojo extends PluginConfigSupport {
-    
+
     protected void doExecute() throws Exception {
         if (skip) {
             return;
