@@ -1,6 +1,6 @@
 #### install-apps
 ---
-Copy applications specified as either Maven compile dependencies or the Maven project package to Liberty server's `dropins` or `apps` directory. Unlike the [deploy](deploy.md#deploy) goal, this goal only performs a simple copy operation. It does not require the server to be running and does not check if the application was successfully deployed. 
+Copy applications specified as either Maven compile dependencies or the Maven project package to Liberty server's `dropins` or `apps` directory. Unlike the [deploy](deploy.md#deploy) goal, this goal only performs a simple copy operation. It does not require the server to be running and does not check if the application was successfully deployed. To install Spring Boot applications on Liberty see [Spring Boot Support](spring-boot-support.md#spring-boot-support).
 
 ###### Additional Parameters
 
