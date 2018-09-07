@@ -43,16 +43,6 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.wasdev.wlp.ant</groupId>
-                <artifactId>wlp-anttasks</artifactId>
-                <version>1.5</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <modules>
         <module>liberty-maven-app-parent</module>
         <module>liberty-maven-plugin</module>
