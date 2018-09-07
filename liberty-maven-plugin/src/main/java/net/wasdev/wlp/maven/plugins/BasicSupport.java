@@ -109,6 +109,9 @@ public class BasicSupport extends AbstractLibertySupport {
     @Parameter(property = "outputDirectory")
     protected File outputDirectory = null;
     
+    @Parameter(property = "useOpenLiberty")
+    private boolean useOpenLiberty = true;
+    
     /**
      * Server Directory: ${installDirectory}/usr/servers/${serverName}/
      */
@@ -368,6 +371,7 @@ public class BasicSupport extends AbstractLibertySupport {
         installTask.setMaxDownloadTime(install.getMaxDownloadTime());
         installTask.setType(install.getType());
         installTask.setOffline(settings.isOffline());
+        installTask.setUseOpenLiberty(useOpenLiberty);
         
         String cacheDir = install.getCacheDirectory();
         if (cacheDir == null) {
