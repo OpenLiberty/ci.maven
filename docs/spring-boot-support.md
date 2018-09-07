@@ -1,5 +1,5 @@
 #### Spring Boot Support
-The `liberty-maven-plugin` provides support for Spring Boot applications, allowing you to install the [Spring Boot executable jar](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html) to Open Liberty and WebSphere Liberty runtime versions 18.0.0.2 and above. `spring-boot-maven-plugin` should be configured before `liberty-maven-plugin` to create an executable jar.
+The `liberty-maven-plugin` provides support for Spring Boot applications, allowing you to install the [Spring Boot executable jar](https://docs.spring.io/spring-boot/docs/current/reference/html/build-tool-plugins-maven-plugin.html) to Open Liberty and WebSphere Liberty runtime versions 18.0.0.2 and above. `spring-boot-maven-plugin` should be configured before `liberty-maven-plugin` to create an executable jar.
 
 ###### Additional Parameters
 
