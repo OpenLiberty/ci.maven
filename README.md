@@ -123,12 +123,12 @@ Additional parameters shared by all server-based goals. [See common server param
 
 #### Extensions
 
-Extensions are goals that improve the compatibility or user experience of third party libraries used with Liberty. The `liberty-maven-plugin` provides the following extensions.
+Extensions improve the compatibility or user experience of third party libraries used with Liberty. The `liberty-maven-plugin` provides the following extensions.
 
 | Extension | Description |
 | --------- | ------------ |
-| [configure-arquillian](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the `liberty-maven-plugin`. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
-| [Spring Boot Support](docs/spring-boot-support.md#spring-boot-support) | `liberty-maven-plugin` provides support for Spring Boot applications, allowing you to install the Spring Boot executable jar. |
+| [configure-arquillian goal](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the `liberty-maven-plugin`. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
+| [Spring Boot Support](docs/spring-boot-support.md#spring-boot-support) | The `liberty-maven-plugin` provides support for Spring Boot applications, allowing you to install Spring Boot executable JARs directly to the Liberty runtime. |
 
 ## Packaging types
 
