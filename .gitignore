@@ -6,3 +6,4 @@ target/
 .factorypath
 .idea/
 .DS_Store
+*.versionsBackup
