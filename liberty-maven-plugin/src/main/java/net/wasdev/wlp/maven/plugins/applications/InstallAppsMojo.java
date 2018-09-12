@@ -16,60 +16,27 @@
 package net.wasdev.wlp.maven.plugins.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
+import net.wasdev.wlp.maven.plugins.utils.SpringBootUtil;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
 @Mojo(name = "install-apps", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallAppsMojo extends InstallAppMojoSupport {
-    
-    /**
-     * Directory containing the generated archive.
-     * 
-     * @since 1.0
-     */
-    @Parameter(defaultValue = "${project.build.directory}", required = true)
-    private File outputDirectory;
-
-    /**
-     * Name of the generated archive.
-     * 
-     * @since 1.0
-     */
-    @Parameter(defaultValue = "${project.build.finalName}", required = true)
-    private String finalName;
-
-    /**
-     * Classifier to add to the artifact generated. If given, the artifact will be
-     * attached with that classifier and the main artifact will be deployed as the
-     * main artifact. If this is not given (default), it will replace the main
-     * artifact and only the repackaged artifact will be deployed. Attaching the
-     * artifact allows to deploy it alongside to the original one, see <a href=
-     * "http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html"
-     * > the maven documentation for more details</a>.
-     * 
-     * @since 1.0
-     */
-    @Parameter
-    private String classifier;
 
     protected void doExecute() throws Exception {
         if (skip) {
@@ -87,7 +54,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         
         boolean installDependencies = false;
         boolean installProject = false;
-        
+                
         switch (getInstallAppPackages()) {
             case "all":
                 installDependencies = true;
@@ -121,9 +88,10 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
 
     private void installSpringBootApp() throws Exception {
-        File fatArchiveSrc = getFatArchiveSrc();
-        //Check if the archiveSrc is executable and then invokeSpringUtilCommand. 
-        if(isFileExecutable(fatArchiveSrc)) {
+        File fatArchiveSrc = SpringBootUtil.getSpringBootUberJAR(project, getLog());
+        
+        // Check if the archiveSrc is executable and then invokeSpringUtilCommand. 
+        if(net.wasdev.wlp.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
             
@@ -136,17 +104,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             throw new MojoExecutionException(fatArchiveSrc.getCanonicalPath() +" file is not an executable archive. "
                     + "The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.");
         }
-    }
-    
-    private File getFatArchiveSrc() {
-        String classifier = (this.classifier == null ? "" : this.classifier.trim());
-        if (!classifier.isEmpty() && !classifier.startsWith("-")) {
-            classifier = "-" + classifier;
-        }
-        if (!this.outputDirectory.exists()) {
-            this.outputDirectory.mkdirs();
-        }
-        return new File(this.outputDirectory, this.finalName + classifier + "." + getArtifactExtension());
     }
     
     private File getThinArchiveTarget(File archiveSrc) {
@@ -164,7 +121,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     }
     
     private File getLibIndexCacheTarget() {
-        // Set shared direcory ${installDirectory}/usr/shared/
+        // Set shared directory ${installDirectory}/usr/shared/
         File sharedDirectory = new File(userDirectory, "shared");
         
         //Set shared resources directory ${installDirectory}/usr/shared/resources/
@@ -176,25 +133,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         File libIndexCacheTarget = new File(sharedResourcesDirectory, "lib.index.cache");
         return libIndexCacheTarget;
     }
- 
-    @SuppressWarnings("resource")
-    private boolean isFileExecutable(File archiveSrc) throws IOException {
-        if(archiveSrc.exists()) {
-            Manifest manifest = new JarFile(archiveSrc).getManifest();
-            if(manifest != null) {
-                String startClass = manifest.getMainAttributes().getValue("Start-Class");
-                if(startClass != null) {
-                    return true;
-                }
-            }  
-        }
-        return false;
-    }
-
-    private String getArtifactExtension() {
-        return project.getArtifact().getArtifactHandler().getExtension();
-    }
-    
 
     private void installDependencies() throws Exception {
         Set<Artifact> artifacts = project.getArtifacts();

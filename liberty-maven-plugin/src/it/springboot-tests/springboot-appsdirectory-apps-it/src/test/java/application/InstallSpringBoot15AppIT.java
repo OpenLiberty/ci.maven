@@ -25,7 +25,7 @@ public class InstallSpringBoot15AppIT {
     @Test
     public void testThinApplicationExistsInAppsDirectory() throws Exception {
 
-        File f = new File("target/liberty/wlp/usr/servers/test/apps/thin-springboot-appsdirectory-apps-it-1.0.0.Final.jar");
+        File f = new File("target/liberty/wlp/usr/servers/test/apps/thin-springboot-appsdirectory-apps-it-1.0.0.Final-exec.jar");
         assertTrue(f.getCanonicalFile() + " doesn't exist. Plugin failed to place the file at right destination.", f.exists());
     }
 
