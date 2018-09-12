@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -39,20 +38,31 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<!-- Test support for classifier configuration parameter -->
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<classifier>exec</classifier>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
 				<groupId>net.wasdev.wlp.maven.plugins</groupId>
 				<artifactId>liberty-maven-plugin</artifactId>
-				<version>@pom.version@</version> 
-				
+				<version>@pom.version@</version>
+
 				<!-- Specify configuration, executions for liberty-maven-plugin -->
 				<configuration>
 					<serverName>test</serverName>
 					<assemblyArtifact>
-					    <groupId>io.openliberty</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>18.0.0.2</version>
+						<groupId>io.openliberty</groupId>
+						<artifactId>openliberty-runtime</artifactId>
+						<version>18.0.0.2</version>
 						<type>zip</type>
 					</assemblyArtifact>
 					<appsDirectory>apps</appsDirectory>
@@ -104,8 +114,8 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.20</version>
 				<configuration>
-					<runOrder>alphabetical</runOrder>					                                        				
-                </configuration>
+					<runOrder>alphabetical</runOrder>
+				</configuration>
 				<executions>
 					<execution>
 						<id>default-integration-test</id>
