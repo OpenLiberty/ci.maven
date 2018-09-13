@@ -24,6 +24,8 @@
 
     <modules>
         <module>base-install-feature-test</module>
+        
+        <!-- The following uses Open Liberty features can install to either OL or WLP -->
         <module>install-features-dependencies-already-installed-it</module>
         <module>install-features-dependencies-install-more-it</module>
         <module>install-features-dependencies-it</module>
@@ -35,7 +37,38 @@
         <module>install-features-pluginlist-it</module>
         <module>install-features-server-already-installed-lowercase-it</module>
         <module>install-features-server-it</module>
+        <module>install-ol-features-no-accept-license-it</module>
     </modules>
+    
+    <!-- Profiles for WLP vs OL -->
+    <profiles>   
+        <profile>
+            <id>wlp-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on WLP are here -->
+            <modules>
+                <module>install-wlp-features-accept-license-it</module>
+                <module>install-wlp-features-no-accept-license-it</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ol-its</id>
+            <activation>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <!-- Tests that should only run on Open Liberty are here -->
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
