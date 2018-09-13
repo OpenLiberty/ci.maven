@@ -105,7 +105,7 @@ public class InstallFeatureMojo extends BasicSupport {
 
         // for liberty-assembly integration
         if (features == null) {
-            return;
+            features = new Features();
         }
 
         checkServerHomeExists();
