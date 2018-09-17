@@ -47,6 +47,8 @@ public class InstallFeatureMojo extends BasicSupport {
      */
     @Parameter
     private Features features;
+    
+    private boolean noFeaturesSection;
 
     private class InstallFeatureMojoUtil extends InstallFeatureUtil {
         public InstallFeatureMojoUtil(Set<String> pluginListedEsas)  throws PluginScenarioException, PluginExecutionException {
@@ -103,8 +105,13 @@ public class InstallFeatureMojo extends BasicSupport {
             return;
         }
 
-        // for liberty-assembly integration
         if (features == null) {
+            // For liberty-assembly integration:
+            // When using installUtility, if no features section was specified, 
+            // then don't install features because it requires license acceptance
+            noFeaturesSection = true;
+            
+            // initialize features section for all scenarios except for the above
             features = new Features();
         }
 
@@ -121,8 +128,14 @@ public class InstallFeatureMojo extends BasicSupport {
             util = new InstallFeatureMojoUtil(pluginListedEsas);
         } catch (PluginScenarioException e) {
             log.debug(e.getMessage());
-            log.debug("Installing features from installUtility.");
-            installFeaturesFromAnt(features.getFeatures());
+            if (noFeaturesSection) {
+                log.debug("Skipping feature installation with installUtility because the "
+                        + "features configuration element with an acceptLicense parameter "
+                        + "was not specified for the install-feature goal.");
+            } else {
+                log.debug("Installing features from installUtility.");
+                installFeaturesFromAnt(features.getFeatures());
+            }
             return;
         }
 
