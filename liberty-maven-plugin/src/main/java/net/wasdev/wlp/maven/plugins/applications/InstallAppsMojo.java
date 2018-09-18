@@ -95,10 +95,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
             
-            Artifact artifact = project.getArtifact();
-            artifact.setFile(thinArchiveTarget);
-            
-            validateAppConfig(artifact.getFile().getName(), artifact.getArtifactId(), true);
+            validateAppConfig(thinArchiveTarget.getName(), project.getArtifactId(), true);
             invokeSpringBootUtilCommand(installDirectory, fatArchiveSrc.getCanonicalPath(), thinArchiveTarget.getCanonicalPath(), libIndexCacheTarget.getCanonicalPath());
         } else {
             throw new MojoExecutionException(fatArchiveSrc.getCanonicalPath() +" file is not an executable archive. "
