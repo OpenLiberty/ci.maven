@@ -21,6 +21,14 @@ install:
         cd C:\projects\ci-maven
     - ps: .\appveyor.ps1
 
+before_build:
+    - cmd: |
+        echo "Installing ci.common lib ...."
+        git clone https://github.com/wasdev/ci.common.git ci.common
+        cd ci.common
+        mvn clean install
+        cd..
+
 build_script:
     - "echo %WLP_VERSION%"
     - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=%RUNTIME% -DruntimeVersion=%RUNTIME_VERSION%"
