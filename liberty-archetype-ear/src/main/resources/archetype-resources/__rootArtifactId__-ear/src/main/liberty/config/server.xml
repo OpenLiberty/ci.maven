@@ -3,7 +3,7 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>javaee-7.0</feature>
+        <feature>webProfile-7.0</feature>
     </featureManager>
 
     <!-- Encoded password can be generated using bin/securityUtility -->
