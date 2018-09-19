@@ -122,6 +122,7 @@
                             <projectsDirectory>src/it</projectsDirectory>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <properties>
+                                <runtime>${runtime}</runtime>
                                 <runtimeGroupId>${runtimeGroupId}</runtimeGroupId>
                                 <runtimeArtifactId>${runtimeArtifactId}</runtimeArtifactId>
                                 <runtimeKernelId>${runtimeKernelId}</runtimeKernelId>

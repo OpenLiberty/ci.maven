@@ -55,7 +55,7 @@ public class BaseInstallFeature {
     protected boolean existsInFeaturesDirectory(String feature) {
         boolean found = false;
         for (File file : features) {
-            if (file.getName().endsWith("." + feature + ".mf")) {
+            if (file.getName().equals("com.ibm.websphere.appserver." + feature + ".mf")) {
                 found = true;
                 break;
             }
