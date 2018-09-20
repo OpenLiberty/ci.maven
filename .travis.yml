@@ -14,7 +14,10 @@ cache:
     directories:
         - $HOME/.m2
 before_install:
-    - echo 'Installing ci.common lib ....'
+    - echo "Deleting old .m2 artifacts..."
+    - rm -rf $HOME/.m2/repository/net/wasdev
+    - rm -rf $HOME/.m2/repository/io/openliberty
+    - echo 'Installing ci.common lib...'
     - git clone https://github.com/wasdev/ci.common.git ./ci.common
     - cd ./ci.common
     - mvn clean install
