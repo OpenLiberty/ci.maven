@@ -10,6 +10,9 @@ env:
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.2
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.1
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.2
+cache:
+    directories:
+        - $HOME/.m2
 before_install:
     - echo 'Installing ci.common lib ....'
     - git clone https://github.com/wasdev/ci.common.git ./ci.common
