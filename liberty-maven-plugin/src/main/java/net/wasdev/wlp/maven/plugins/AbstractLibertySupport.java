@@ -28,11 +28,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
@@ -104,7 +104,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     protected boolean isReactorMavenProject(Artifact artifact) {
         for (MavenProject p : reactorProjects) {
             if (p.getGroupId().equals(artifact.getGroupId()) && p.getArtifactId().equals(artifact.getArtifactId())
-                    && p.getVersion().equals(artifact.getVersion())) {
+                    && p.getVersion().equals(artifact.getBaseVersion())) {
                 return true;
             }
         }
@@ -116,7 +116,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             // Support loose configuration to all sub-module projects in the reactorProjects object. 
             // Need to be able to retrieve all transitive dependencies in these projects.
             if (p.getGroupId().equals(artifact.getGroupId()) && p.getArtifactId().equals(artifact.getArtifactId())
-                    && p.getVersion().equals(artifact.getVersion())) {
+                    && p.getVersion().equals(artifact.getBaseVersion())) {
                 p.setArtifactFilter(new ArtifactFilter() {
                     @Override
                     public boolean include(Artifact artifact) {
