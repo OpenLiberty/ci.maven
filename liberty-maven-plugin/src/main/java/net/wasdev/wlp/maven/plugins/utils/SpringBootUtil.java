@@ -54,6 +54,29 @@ public class SpringBootUtil {
      * @return the JAR File if it was found, false otherwise
      */
     public static File getSpringBootUberJAR(MavenProject project, Log log) {
+
+        File fatArchive = getSpringBootUberJARLocation(project, log);
+
+        if (net.wasdev.wlp.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
+            log.info("Found Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
+            return fatArchive;
+        }
+
+        log.warn("Spring Boot Uber JAR was not found in expected location: " + fatArchive.getAbsolutePath());
+        return null;
+    }
+
+    /**
+     * Get the Spring Boot Uber JAR in its expected location, taking into account the
+     * spring-boot-maven-plugin classifier configuration as well.  No validation is done,
+     * that is, there is no guarantee the JAR file actually exists at the returned location.
+     *
+     * @param outputDirectory
+     * @param project
+     * @param log
+     * @return the File representing the JAR location, whether a file exists there or not.
+     */
+    public static File getSpringBootUberJARLocation(MavenProject project, Log log) {
         String classifier = getSpringBootMavenPluginClassifier(project, log);
 
         if (classifier == null) {
@@ -63,16 +86,9 @@ public class SpringBootUtil {
             classifier = "-" + classifier;
         }
 
-        File fatArchive = new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + classifier
+        return new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + classifier
                 + "." + project.getArtifact().getArtifactHandler().getExtension());
 
-        if (net.wasdev.wlp.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
-            log.info("Found Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
-            return fatArchive;
-        }
-
-        log.warn("Spring Boot Uber JAR was not found in expected location: " + fatArchive.getAbsolutePath());
-        return null;
     }
 
 }
