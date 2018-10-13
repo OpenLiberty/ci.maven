@@ -223,14 +223,14 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
 
 ### liberty-archetype-mp
 
-The `liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+The `liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile 1.4 application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
 
 #### Usage
 
     mvn archetype:generate \
         -DarchetypeGroupId=net.wasdev.wlp.maven \
         -DarchetypeArtifactId=liberty-archetype-mp \
-        -DarchetypeVersion=2.3-SNAPSHOT \
+        -DarchetypeVersion=1.4-SNAPSHOT \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT

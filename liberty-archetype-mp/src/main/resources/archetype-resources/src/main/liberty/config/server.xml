@@ -15,7 +15,7 @@
 -->
 <server description="Sample MicroProfile server">
     <featureManager>
-        <feature>microProfile-1.2</feature>
+        <feature>microProfile-1.4</feature>
     </featureManager>
     
 
