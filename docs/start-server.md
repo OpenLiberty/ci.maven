@@ -6,6 +6,8 @@ Start a Liberty server in background. The server instance will be automatically 
 
 The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
 
+The start-server goal will update any [server configuration](common-server-parameters.md#common-server-parameters) files that were changed in the source directory. 
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | clean | Clean all cached information on server start up. The default value is `false`. | No |
