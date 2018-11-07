@@ -49,12 +49,26 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <executions>
-                    <execution>
-                        <id>install-liberty-server</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-server</goal>
-                        </goals>
+                     <execution>
+                            <id>create-server</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>install-server</goal>
+                                <goal>create-server</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>install-feature</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                              <goal>install-feature</goal>
+                            </goals>
+                            <configuration>
+                                <features>
+                                    <acceptLicense>true</acceptLicense>
+                                    <feature>osgiBundle-1.0</feature>
+                                </features>
+                            </configuration>
                     </execution>
                     <execution>
                         <id>start-liberty-server</id>

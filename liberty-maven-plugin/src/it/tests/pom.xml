@@ -57,11 +57,11 @@
                 <module>test-server-param-default</module>
                 <module>test-assembly</module>
                 <module>test-server-param-configdir-override</module>
-                <!-- <module>assembly-it</module> --> <!-- TODO fix this test -->
-                <!-- <module>basic-it</module> --> <!-- TODO fix this test -->
+                <module>assembly-it</module>
+                <module>basic-it</module>
                 <module>test-server-param-pom-override</module>
                 <module>install-features-it</module>
-                <!-- <module>test-assembly-with-code-it</module> --> <!-- TODO fix this test -->
+                <module>test-assembly-with-code-it</module>
             </modules>
         </profile>
         <profile>

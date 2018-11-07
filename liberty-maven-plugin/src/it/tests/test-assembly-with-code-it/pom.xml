@@ -58,6 +58,7 @@
                     <features>
                         <acceptLicense>true</acceptLicense>
                         <feature>oauth-2.0</feature>
+                        <feature>osgiBundle-1.0</feature>
                     </features>
                     <looseApplication>true</looseApplication>
                     <installAppPackages>all</installAppPackages>
