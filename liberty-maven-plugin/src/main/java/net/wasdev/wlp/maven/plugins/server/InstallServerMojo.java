@@ -42,7 +42,6 @@ public class InstallServerMojo extends PluginConfigSupport {
         if (skip) {
             return;
         }
-        log.info(MessageFormat.format(messages.getString("info.variable.set"), "libertySettingsFolder", libertySettingsFolder));
 
         copyLibertySettings();
 
@@ -50,23 +49,28 @@ public class InstallServerMojo extends PluginConfigSupport {
     }
 
     private void copyLibertySettings() throws MojoExecutionException, IOException {
-        if (libertySettingsFolder.isDirectory()) {
+        if (libertySettingsFolder.exists()) {
+            if (!libertySettingsFolder.isDirectory()) {
+                throw new MojoExecutionException("The Liberty configuration <libertySettingsFolder> must be a directory. Value found: " + libertySettingsFolder.toString());
+            }
+
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "libertySettingsFolder", libertySettingsFolder));
+
+            // copy config files to <install directory>/etc
             File[] files = libertySettingsFolder.listFiles();
             if (files != null && files.length > 0) {
                 File installDir = new File(installDirectory + "/etc");
-
                 if (!installDir.exists()) {
                     installDir.mkdirs();
                 }
 
                 log.info("Copying " + files.length + " file" + ((files.length == 1) ? "":"s") + " to " + installDir.getCanonicalPath());
-
                 FileUtils.copyDirectory(libertySettingsFolder, installDir);
             } else {
                 log.info("No custom Liberty configuration files found.");
             }
         } else {
-            throw new MojoExecutionException("The Liberty configuration <libertySettingsFolder> must be an existing directory. Value found: " + libertySettingsFolder.toString());
+            log.debug("No custom Liberty configuration folder found.");
         }
     }
 }
