@@ -87,38 +87,6 @@
                 </goals>
             </execution>
             <execution>
-                <id>install-artifact</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>install-apps</goal>
-                </goals>
-            </execution>
-            <execution>
-               <id>start-liberty-server</id>
-               <phase>pre-integration-test</phase>
-               <goals>
-                   <goal>start-server</goal>
-               </goals>
-               <configuration>
-                   <background>true</background>
-                   <verifyTimeout>40</verifyTimeout>
-               </configuration>
-            </execution>
-            <execution>
-               <id>check-liberty-server</id>
-               <phase>pre-integration-test</phase>
-               <goals>
-                   <goal>server-status</goal>
-               </goals>
-            </execution>
-            <execution>
-                <id>stop-liberty-server</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                    <goal>stop-server</goal>
-                </goals>
-            </execution>
-            <execution>
                 <id>clean-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
