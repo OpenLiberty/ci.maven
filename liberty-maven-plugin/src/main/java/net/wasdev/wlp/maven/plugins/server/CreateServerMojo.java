@@ -15,8 +15,11 @@
  */
 package net.wasdev.wlp.maven.plugins.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
@@ -34,6 +37,12 @@ public class CreateServerMojo extends PluginConfigSupport {
      */
     @Parameter(property = "template")
     private String template;
+
+    /**
+     * Directory of custom configuration files
+     */
+    @Parameter(property = "libertySettingsFolder", defaultValue = "${basedir}/src/main/resources/etc")
+    private File libertySettingsFolder;
     
     @Override
     protected void doExecute() throws Exception {
@@ -69,5 +78,32 @@ public class CreateServerMojo extends PluginConfigSupport {
         // copy files _after_ we create the server
         copyConfigFiles();
 
+        copyLibertySettings();
+    }
+
+    private void copyLibertySettings() throws MojoExecutionException, IOException {
+        if (libertySettingsFolder.exists()) {
+            if (!libertySettingsFolder.isDirectory()) {
+                throw new MojoExecutionException("The Liberty configuration <libertySettingsFolder> must be a directory. Value found: " + libertySettingsFolder.toString());
+            }
+
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "libertySettingsFolder", libertySettingsFolder));
+
+            // copy config files to <install directory>/etc
+            File[] files = libertySettingsFolder.listFiles();
+            if (files != null && files.length > 0) {
+                File installDir = new File(installDirectory + "/etc");
+                if (!installDir.exists()) {
+                    installDir.mkdirs();
+                }
+
+                log.info("Copying " + files.length + " file" + ((files.length == 1) ? "":"s") + " to " + installDir.getCanonicalPath());
+                FileUtils.copyDirectory(libertySettingsFolder, installDir);
+            } else {
+                log.info("No custom Liberty configuration files found.");
+            }
+        } else {
+            log.debug("No custom Liberty configuration folder found.");
+        }
     }
 }
