@@ -76,7 +76,7 @@
           <serverName>test</serverName>
           <installAppPackages>project</installAppPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
-          <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig/repository.properties</libertySettingsFolder>
+          <libertySettingsFolder>${project.basedir}/testLibertyConfig/repository.properties</libertySettingsFolder>
         </configuration>
         <executions>
             <execution>
