@@ -26,15 +26,10 @@
         <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.9</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.maven.shared</groupId>
-        <artifactId>maven-invoker</artifactId>
-        <version>3.0.1</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.9</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   
@@ -81,7 +76,7 @@
           <serverName>test</serverName>
           <installAppPackages>project</installAppPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
-          <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig</libertySettingsFolder>
+          <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig/repository.properties</libertySettingsFolder>
         </configuration>
         <executions>
             <execution>
