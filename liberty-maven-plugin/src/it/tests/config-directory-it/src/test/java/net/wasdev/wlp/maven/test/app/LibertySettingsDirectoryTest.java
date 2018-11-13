@@ -5,7 +5,12 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import org.junit.Test;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -13,10 +18,12 @@ import org.apache.maven.shared.invoker.InvocationOutputHandler;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
+import org.junit.Test;
+import org.w3c.dom.Document;
 
 /**
  * 
- * configDirectory test case
+ * libertySettingsFolder test case
  * 
  */
 
@@ -31,10 +38,24 @@ public class LibertySettingsDirectoryTest {
     
     @Test
     public void testLibertyConfigDirInvalidDir() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
 
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile( new File("../src/test/resources/invalidDirPom.xml"));
-        request.setGoals( Collections.singletonList("package"));
+        File pomFilePath = new File("../pom.xml");
+        Document pomFile = builder.parse(pomFilePath);
+        pomFile.getDocumentElement().normalize();
+
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        String pomVersion = xpath.evaluate("/project/build/plugins/plugin[artifactId='liberty-maven-plugin']/version", pomFile);
+
+        Properties props = new Properties();
+        props.put("pluginVersion", pomVersion);
+
+        InvocationRequest request = new DefaultInvocationRequest()
+        .setPomFile( new File("../src/test/resources/invalidDirPom.xml"))
+        .setGoals( Collections.singletonList("package"))
+        .setProperties(props);
 
         InvocationOutputHandler outputHandler = new InvocationOutputHandler(){
             @Override
@@ -51,6 +72,6 @@ public class LibertySettingsDirectoryTest {
         InvocationResult result = invoker.execute( request );
 
         assertTrue("Exited successfully, expected non-zero exit code.", result.getExitCode() != 0);
-        assertNotNull("Expected Exception to be thrown.", result.getExecutionException());
+        assertNotNull("Expected MojoExecutionException to be thrown.", result.getExecutionException());
     }
 }
