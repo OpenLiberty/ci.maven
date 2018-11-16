@@ -26,10 +26,15 @@
         <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.9</version>
-      <scope>test</scope>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.9</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-invoker</artifactId>
+        <version>3.0.1</version>
     </dependency>
   </dependencies>
   
@@ -76,6 +81,7 @@
           <serverName>test</serverName>
           <installAppPackages>project</installAppPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
+          <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig</libertySettingsFolder>
         </configuration>
         <executions>
             <execution>
@@ -83,38 +89,6 @@
                 <phase>package</phase>
                 <goals>
                     <goal>create-server</goal>
-                </goals>
-            </execution>
-            <execution>
-                <id>install-artifact</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>install-apps</goal>
-                </goals>
-            </execution>
-            <execution>
-               <id>start-liberty-server</id>
-               <phase>pre-integration-test</phase>
-               <goals>
-                   <goal>start-server</goal>
-               </goals>
-               <configuration>
-                   <background>true</background>
-                   <verifyTimeout>40</verifyTimeout>
-               </configuration>
-            </execution>
-            <execution>
-               <id>check-liberty-server</id>
-               <phase>pre-integration-test</phase>
-               <goals>
-                   <goal>server-status</goal>
-               </goals>
-            </execution>
-            <execution>
-                <id>stop-liberty-server</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                    <goal>stop-server</goal>
                 </goals>
             </execution>
             <execution>
@@ -142,6 +116,9 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <systemPropertyVariables>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>

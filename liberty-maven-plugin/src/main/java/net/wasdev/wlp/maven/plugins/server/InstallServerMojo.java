@@ -24,10 +24,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 @Mojo(name = "install-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallServerMojo extends PluginConfigSupport {
 
+    @Override
     protected void doExecute() throws Exception {
         if (skip) {
             return;
         }
+
         installServerAssembly();
     }
 }

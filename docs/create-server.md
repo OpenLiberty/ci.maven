@@ -11,6 +11,7 @@ If the server has already been created, the create-server goal will update the [
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | template | Name of the template to use when creating a new server. | No |
+| libertySettingsFolder | Path to directory containing liberty configuration files. | No |
 
 Example:
 ```xml
