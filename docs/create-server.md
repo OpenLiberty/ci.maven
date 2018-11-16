@@ -9,6 +9,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | template | Name of the template to use when creating a new server. | No |
+| libertySettingsFolder | Path to directory containing liberty configuration files. | No |
 
 Example:
 ```xml
