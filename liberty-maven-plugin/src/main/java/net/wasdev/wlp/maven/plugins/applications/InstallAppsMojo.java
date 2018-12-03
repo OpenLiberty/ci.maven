@@ -29,7 +29,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
-import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
+import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
+import net.wasdev.wlp.common.plugins.config.LooseConfigData;
 import net.wasdev.wlp.maven.plugins.utils.SpringBootUtil;
 
 /**

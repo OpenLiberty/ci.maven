@@ -171,6 +171,7 @@ public class InstallFeatureMojo extends BasicSupport {
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     private void installFeaturesFromAnt(List<Feature> installFeatures) {
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
                 .createTask("antlib:net/wasdev/wlp/ant:install-feature");

@@ -5,6 +5,8 @@ import java.io.File;
 
 import org.apache.maven.project.MavenProject;
 
+import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+
 public class LooseWarApplication extends LooseApplication {
     
     public LooseWarApplication(MavenProject project, LooseConfigData config) {

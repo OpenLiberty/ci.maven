@@ -29,7 +29,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import net.wasdev.wlp.maven.plugins.ApplicationXmlDocument;
+import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
 import net.wasdev.wlp.maven.plugins.PluginConfigXmlDocument;
 import net.wasdev.wlp.maven.plugins.ServerConfigDocument;
 

@@ -8,6 +8,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
+import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+
 public class LooseEarApplication extends LooseApplication {
 
     public LooseEarApplication(MavenProject project, LooseConfigData config) {
