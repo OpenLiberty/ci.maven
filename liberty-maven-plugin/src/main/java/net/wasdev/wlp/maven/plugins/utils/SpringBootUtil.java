@@ -35,7 +35,7 @@ public class SpringBootUtil {
     public static String getSpringBootMavenPluginClassifier(MavenProject project, Log log) {
         String classifier = null;
         try {
-            classifier = MavenProjectUtil.getPluginConfigurationString(project,
+            classifier = MavenProjectUtil.getPluginGoalConfigurationString(project,
                     "org.springframework.boot:spring-boot-maven-plugin", "repackage", "classifier");
         } catch (PluginScenarioException e) {
             log.debug("No classifier found for spring-boot-maven-plugin");

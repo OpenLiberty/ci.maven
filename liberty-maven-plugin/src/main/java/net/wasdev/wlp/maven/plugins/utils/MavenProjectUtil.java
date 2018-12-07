@@ -28,7 +28,26 @@ import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
 public class MavenProjectUtil {
     
     /**
-     * Get a String configuration element from a goal from a plugin
+     * Get a configuration value from a plugin
+     * @param proj
+     * @param pluginGroupId
+     * @param pluginArtifactId
+     * @param key
+     * @return
+     */
+    public static String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom val = dom.getChild(key);
+            if (val != null) {
+                return val.getValue();
+            }
+        }
+        return null;
+}
+    
+    /**
+     * Get a configuration value from a goal from a plugin
      * @param project
      * @param pluginKey
      * @param goal
@@ -36,8 +55,8 @@ public class MavenProjectUtil {
      * @return the value of the configuration parameter
      * @throws PluginScenarioException
      */
-    public static String getPluginConfigurationString(MavenProject project, String pluginKey, String goal, String configName) throws PluginScenarioException {
-        PluginExecution execution = getPluginExecution(project, pluginKey, goal);
+    public static String getPluginGoalConfigurationString(MavenProject project, String pluginKey, String goal, String configName) throws PluginScenarioException {
+        PluginExecution execution = getPluginGoalExecution(project, pluginKey, goal);
         
         final Xpp3Dom config = (Xpp3Dom)execution.getConfiguration();
         if(config != null) {
@@ -57,7 +76,7 @@ public class MavenProjectUtil {
      * @return the execution object
      * @throws PluginScenarioException
      */
-    public static PluginExecution getPluginExecution(Plugin plugin, String goal) throws PluginScenarioException {
+    public static PluginExecution getPluginGoalExecution(Plugin plugin, String goal) throws PluginScenarioException {
         List<PluginExecution> executions = plugin.getExecutions();
         
         for(Iterator<PluginExecution> iterator = executions.iterator(); iterator.hasNext();) {
@@ -77,9 +96,9 @@ public class MavenProjectUtil {
      * @return the execution object
      * @throws PluginScenarioException
      */
-    public static PluginExecution getPluginExecution(MavenProject project, String pluginKey, String goal) throws PluginScenarioException {
+    public static PluginExecution getPluginGoalExecution(MavenProject project, String pluginKey, String goal) throws PluginScenarioException {
         Plugin plugin = project.getPlugin(pluginKey);
-        return getPluginExecution(plugin, goal);
+        return getPluginGoalExecution(plugin, goal);
     }
 
 }
