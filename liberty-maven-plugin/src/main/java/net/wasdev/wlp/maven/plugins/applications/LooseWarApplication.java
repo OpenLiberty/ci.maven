@@ -26,9 +26,4 @@ public class LooseWarApplication extends LooseApplication {
         } 
         config.addDir(sourceDir, "/");
     }
-
-    @Override
-    public File getManifestFile(Object... params) {
-        return null; // not used here
-    }
 }

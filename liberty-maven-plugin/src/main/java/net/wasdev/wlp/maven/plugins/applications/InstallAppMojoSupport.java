@@ -95,8 +95,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // retrieves dependent library jar files
         addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
 
-        // add Manifest file
-        looseWar.addManifestFile(proj, "maven-war-plugin");
+        // add default Manifest file
+        looseWar.addManifestFile(null);
     }
 
     // install ear project artifact using loose application configuration file
@@ -153,7 +153,8 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
 
         // add Manifest file
-        looseEar.addManifestFile(proj, "maven-ear-plugin");
+        File manifestFile = looseEar.getManifestFile(proj, "maven-ear-plugin");
+        looseEar.addManifestFile(manifestFile);
     }
 
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir)
@@ -189,7 +190,14 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 MavenProject dependProject = getReactorMavenProject(artifact);
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
-                looseApp.addManifestFileWithParent(archive, dependProject, "maven-jar-plugin");
+                
+                // Get appropriate manifest file for the project type and add it
+                File manifestFile = null; // Use default for WARs
+                if(looseApp instanceof LooseEarApplication) {
+                    LooseEarApplication looseEar = (LooseEarApplication) looseApp;
+                    manifestFile = looseEar.getManifestFile(dependProject, "maven-jar-plugin");
+                }
+                looseApp.addManifestFileWithParent(archive, manifestFile);
             } else {
                 resolveArtifact(artifact);
                 looseApp.getConfig().addFile(parent, artifact.getFile(), dir + artifact.getFile().getName());

@@ -61,7 +61,8 @@ public class LooseEarApplication extends LooseApplication {
         Element moduleArchive = config.addArchive(getModuleUri(proj));
         config.addDir(moduleArchive, outputDirectory, "/");
         // add manifest.mf
-        addManifestFileWithParent(moduleArchive, proj, pluginId);
+        File manifestFile = getManifestFile(proj, pluginId);
+        addManifestFileWithParent(moduleArchive, manifestFile);
         // add meta-inf files if any
         addMetaInfFiles(moduleArchive, outputDirectory);
         return moduleArchive;
@@ -89,7 +90,8 @@ public class LooseEarApplication extends LooseApplication {
         }
 
         // add Manifest file
-        addManifestFileWithParent(rarArchive, proj, "maven-rar-plugin");
+        File manifestFile = getManifestFile(proj, "maven-rar-plugin");
+        addManifestFileWithParent(rarArchive, manifestFile);
         return rarArchive;
     }
 
@@ -243,7 +245,8 @@ public class LooseEarApplication extends LooseApplication {
         if (isEarSkinnyWars() && newMf.exists()) {
             config.addDir(parent, newMf, "/META-INF");
         } else {
-            addManifestFileWithParent(parent, proj, "maven-war-plugin");
+            File manifestFile = getManifestFile(proj, "maven-war-plugin");
+            addManifestFileWithParent(parent, manifestFile);
         }
     }
 
@@ -261,24 +264,14 @@ public class LooseEarApplication extends LooseApplication {
         return false;
     }
 
-    @Override
-    public File getManifestFile(Object... params) throws PluginExecutionException {
-        if (params.length != 2) {
-            throw new PluginExecutionException("Incorrect number of parameters for manifest retrieval.");
-        }
-        Object projectParam = params[0];
-        Object pluginArtifactIdParam = params[1];
-        if (projectParam instanceof MavenProject && pluginArtifactIdParam instanceof String) {
-            MavenProject proj = (MavenProject) projectParam;
-            String pluginArtifactId = (String) pluginArtifactIdParam;
-            Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", pluginArtifactId, null, null);
-            if (dom != null) {
-                Xpp3Dom archive = dom.getChild("archive");
-                if (archive != null) {
-                    Xpp3Dom val = archive.getChild("manifestFile");
-                    if (val != null) {
-                        return new File(proj.getBasedir().getAbsolutePath() + "/" + val.getValue());
-                    }
+    public File getManifestFile(MavenProject proj, String pluginArtifactId) throws PluginExecutionException {
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom archive = dom.getChild("archive");
+            if (archive != null) {
+                Xpp3Dom val = archive.getChild("manifestFile");
+                if (val != null) {
+                    return new File(proj.getBasedir().getAbsolutePath() + "/" + val.getValue());
                 }
             }
         }
