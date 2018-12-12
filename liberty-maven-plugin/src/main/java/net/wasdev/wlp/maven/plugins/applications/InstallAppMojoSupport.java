@@ -32,6 +32,7 @@ import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
 import net.wasdev.wlp.common.plugins.config.LooseApplication;
 import net.wasdev.wlp.common.plugins.config.LooseConfigData;
 import net.wasdev.wlp.maven.plugins.server.PluginConfigSupport;
+import net.wasdev.wlp.maven.plugins.utils.MavenProjectUtil;
 
 /**
  * Install artifact into Liberty server support.
@@ -95,8 +96,9 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // retrieves dependent library jar files
         addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
 
-        // add default Manifest file
-        looseWar.addManifestFile(null);
+        // add Manifest file
+        File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
+        looseWar.addManifestFile(manifestFile);
     }
 
     // install ear project artifact using loose application configuration file
@@ -153,7 +155,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
 
         // add Manifest file
-        File manifestFile = looseEar.getManifestFile(proj, "maven-ear-plugin");
+        File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-ear-plugin");
         looseEar.addManifestFile(manifestFile);
     }
 
@@ -191,12 +193,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
                 
-                // Get appropriate manifest file for the project type and add it
-                File manifestFile = null; // Use default for WARs
-                if(looseApp instanceof LooseEarApplication) {
-                    LooseEarApplication looseEar = (LooseEarApplication) looseApp;
-                    manifestFile = looseEar.getManifestFile(dependProject, "maven-jar-plugin");
-                }
+                File manifestFile = MavenProjectUtil.getManifestFile(dependProject, "maven-jar-plugin");
                 looseApp.addManifestFileWithParent(archive, manifestFile);
             } else {
                 resolveArtifact(artifact);

@@ -10,7 +10,6 @@ import org.w3c.dom.Element;
 
 import net.wasdev.wlp.common.plugins.config.LooseApplication;
 import net.wasdev.wlp.common.plugins.config.LooseConfigData;
-import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
 import net.wasdev.wlp.maven.plugins.utils.MavenProjectUtil;
 
 public class LooseEarApplication extends LooseApplication {
@@ -61,7 +60,7 @@ public class LooseEarApplication extends LooseApplication {
         Element moduleArchive = config.addArchive(getModuleUri(proj));
         config.addDir(moduleArchive, outputDirectory, "/");
         // add manifest.mf
-        File manifestFile = getManifestFile(proj, pluginId);
+        File manifestFile = MavenProjectUtil.getManifestFile(proj, pluginId);
         addManifestFileWithParent(moduleArchive, manifestFile);
         // add meta-inf files if any
         addMetaInfFiles(moduleArchive, outputDirectory);
@@ -90,7 +89,7 @@ public class LooseEarApplication extends LooseApplication {
         }
 
         // add Manifest file
-        File manifestFile = getManifestFile(proj, "maven-rar-plugin");
+        File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-rar-plugin");
         addManifestFileWithParent(rarArchive, manifestFile);
         return rarArchive;
     }
@@ -245,7 +244,7 @@ public class LooseEarApplication extends LooseApplication {
         if (isEarSkinnyWars() && newMf.exists()) {
             config.addDir(parent, newMf, "/META-INF");
         } else {
-            File manifestFile = getManifestFile(proj, "maven-war-plugin");
+            File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
             addManifestFileWithParent(parent, manifestFile);
         }
     }
@@ -263,18 +262,5 @@ public class LooseEarApplication extends LooseApplication {
         }
         return false;
     }
-
-    public File getManifestFile(MavenProject proj, String pluginArtifactId) throws PluginExecutionException {
-        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", pluginArtifactId, null, null);
-        if (dom != null) {
-            Xpp3Dom archive = dom.getChild("archive");
-            if (archive != null) {
-                Xpp3Dom val = archive.getChild("manifestFile");
-                if (val != null) {
-                    return new File(proj.getBasedir().getAbsolutePath() + "/" + val.getValue());
-                }
-            }
-        }
-        return null;
-    }
+    
 }

@@ -15,6 +15,7 @@
  */
 package net.wasdev.wlp.maven.plugins.utils;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -99,6 +100,26 @@ public class MavenProjectUtil {
     public static PluginExecution getPluginGoalExecution(MavenProject project, String pluginKey, String goal) throws PluginScenarioException {
         Plugin plugin = project.getPlugin(pluginKey);
         return getPluginGoalExecution(plugin, goal);
+    }
+    
+    /**
+     * Get manifest file from plugin configuration
+     * @param proj
+     * @param pluginArtifactId
+     * @return the manifest file
+     */
+    public static File getManifestFile(MavenProject proj, String pluginArtifactId) {
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom archive = dom.getChild("archive");
+            if (archive != null) {
+                Xpp3Dom val = archive.getChild("manifestFile");
+                if (val != null) {
+                    return new File(proj.getBasedir().getAbsolutePath() + "/" + val.getValue());
+                }
+            }
+        }
+        return null;
     }
 
 }
