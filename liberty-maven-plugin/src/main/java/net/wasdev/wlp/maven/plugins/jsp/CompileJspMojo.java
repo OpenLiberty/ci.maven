@@ -56,7 +56,6 @@ public class CompileJspMojo extends BasicSupport {
         // don't delete temporary server dir
         compile.setCleanup(false);
 
-        @SuppressWarnings("unchecked")
         List<Plugin> plugins = getProject().getBuildPlugins();
         for (Plugin plugin : plugins) {
             if ("org.apache.maven.plugins:maven-compiler-plugin".equals(plugin.getKey())) {
@@ -86,7 +85,6 @@ public class CompileJspMojo extends BasicSupport {
         // first add target/classes (or whatever is configured)
         classpath.add(getProject().getBuild().getOutputDirectory());
 
-        @SuppressWarnings("unchecked")
         Set<Artifact> dependencies = getProject().getArtifacts();
         for (Artifact dep : dependencies) {
             if (!dep.isResolved()) {

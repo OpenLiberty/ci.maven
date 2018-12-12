@@ -19,7 +19,6 @@ import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Stop a liberty server
