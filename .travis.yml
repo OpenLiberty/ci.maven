@@ -12,9 +12,9 @@ jdk:
     - oraclejdk8
     - oraclejdk9
 env:
-    - RUNTIME=ol RUNTIME_VERSION=18.0.0.2
+    - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.3
-    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.2
+    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.3
 cache:
     directories:
