@@ -1,21 +1,15 @@
 sudo: required
 dist: trusty
 language: java
-matrix:
-    exclude:
-    - jdk: oraclejdk9
-      env: RUNTIME=ol RUNTIME_VERSION=18.0.0.3
-    - jdk: oraclejdk9
-      env: RUNTIME=wlp RUNTIME_VERSION=18.0.0.3
 jdk:
     - openjdk7
     - oraclejdk8
     - oraclejdk9
 env:
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
-    - RUNTIME=ol RUNTIME_VERSION=18.0.0.3
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.1
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
-    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.3
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.1
 cache:
     directories:
         - $HOME/.m2
