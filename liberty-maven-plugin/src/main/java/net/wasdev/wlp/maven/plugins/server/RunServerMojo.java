@@ -32,6 +32,12 @@ public class RunServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
+    
+    /**
+     * Run the server in embedded mode
+     */
+    @Parameter(property = "embedded", defaultValue = "false")
+    private boolean embedded;
 
     @Override
     protected void doExecute() throws Exception {
@@ -47,6 +53,7 @@ public class RunServerMojo extends StartDebugMojoSupport {
 
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
+        serverTask.setUseEmbeddedServer(embedded);
         serverTask.setClean(clean);
         serverTask.setOperation("run");       
         serverTask.execute();

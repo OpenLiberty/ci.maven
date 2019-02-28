@@ -19,12 +19,19 @@ import java.text.MessageFormat;
 
 import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Stop a liberty server
  */
 @Mojo(name = "stop-server")
 public class StopServerMojo extends StartDebugMojoSupport {
+    
+    /**
+     * Stop the server in embedded mode
+     */
+    @Parameter(property = "embedded", defaultValue = "false")
+    private boolean embedded;
 
     @Override
     protected void doExecute() throws Exception {
@@ -37,6 +44,7 @@ public class StopServerMojo extends StartDebugMojoSupport {
         if (serverDirectory.exists()) {
             try {
                 ServerTask serverTask = initializeJava();
+                serverTask.setUseEmbeddedServer(embedded);
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {

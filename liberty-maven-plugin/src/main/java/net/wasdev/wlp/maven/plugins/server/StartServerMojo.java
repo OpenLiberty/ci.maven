@@ -53,6 +53,12 @@ public class StartServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
+    
+    /**
+     * Start the server in embedded mode
+     */
+    @Parameter(property = "embedded", defaultValue = "false")
+    private boolean embedded;
 
     @Override
     protected void doExecute() throws Exception {
@@ -68,6 +74,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
 
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
+        serverTask.setUseEmbeddedServer(embedded);
         serverTask.setClean(clean);
         serverTask.setOperation("start");
         // Set server start timeout

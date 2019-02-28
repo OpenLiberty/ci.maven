@@ -26,21 +26,21 @@ import static junit.framework.Assert.*;
 
 public class InstallRarIT {
     
-    public final File CONSOLE_LOG = new File("target/liberty/wlp/usr/servers/jee7sampleServer/logs/console.log");
+    public final File MESSSAGES_LOG = new File("target/liberty/wlp/usr/servers/jee7sampleServer/logs/messages.log");
     
     @Test
     public void testAdapterInstall() throws Exception {
         String message = "J2CA7001I: Resource adapter helloworld-ear.helloworld-ra installed";
         
-        assertTrue(CONSOLE_LOG.getCanonicalFile() + " doesn't exist", CONSOLE_LOG.exists());
-        assertTrue("Expecting message [" + message + "] in server console log but not found.", 
+        assertTrue(MESSSAGES_LOG.getCanonicalFile() + " doesn't exist", MESSSAGES_LOG.exists());
+        assertTrue("Expecting message [" + message + "] in server message log but not found.", 
                 isAdapterInstalled(message));      
     }
     
     public boolean isAdapterInstalled(String message) throws FileNotFoundException {
         boolean installed = false;
         
-        Scanner scanner = new Scanner(CONSOLE_LOG);
+        Scanner scanner = new Scanner(MESSSAGES_LOG);
         while (scanner.hasNextLine()) {
             if(scanner.nextLine().contains(message)) { 
                 installed = true;
