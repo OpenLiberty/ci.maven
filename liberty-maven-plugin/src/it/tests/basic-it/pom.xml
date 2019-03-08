@@ -48,6 +48,22 @@
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
+                <configuration>
+                    <!-- Test embedded server -->
+                    <embedded>true</embedded>
+                    <assemblyArtifact>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>assembly-server</artifactId>
+                        <version>${project.version}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                    <serverName>test</serverName>
+                    <!--Testing to ensure passing an empty/null value does not fail-->
+                    <bootstrapProperties>
+                        <emptyVal_1></emptyVal_1>
+                        <emptyVal_2></emptyVal_2>
+                    </bootstrapProperties>
+                </configuration>
                 <executions>
                      <execution>
                             <id>create-server</id>
@@ -163,20 +179,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <assemblyArtifact>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>assembly-server</artifactId>
-                        <version>${project.version}</version>
-                        <type>zip</type>
-                    </assemblyArtifact>
-                    <serverName>test</serverName>
-                    <!--Testing to ensure passing an empty/null value does not fail-->
-                    <bootstrapProperties>
-                        <emptyVal_1></emptyVal_1>
-                        <emptyVal_2></emptyVal_2>
-                    </bootstrapProperties>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
