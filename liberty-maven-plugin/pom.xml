@@ -180,11 +180,33 @@
                 <runtimeKernelId>openliberty-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
-        </profile>
+            <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <pomExcludes>
+                                <pomExclude>test-server-param-default/pom.xml</pomExclude>
+                                <pomExclude>test-assembly/pom.xml</pomExclude>
+                                <pomExclude>test-server-param-configdir-override/pom.xml</pomExclude>
+                                <pomExclude>assembly-it/pom.xml</pomExclude>
+                                <pomExclude>basic-it/pom.xml</pomExclude>
+                                <pomExclude>test-server-param-pom-override/pom.xml</pomExclude>
+                                <pomExclude>install-features-it/pom.xml</pomExclude>
+                                <pomExclude>test-assembly-with-code-it/pom.xml</pomExclude>
+                            </pomExcludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+    </profile>
 
-    </profiles>
+</profiles>
 
-    <prerequisites>
-        <maven>3.0</maven>
-    </prerequisites>
+<prerequisites>
+    <maven>3.0</maven>
+</prerequisites>
 </project>
