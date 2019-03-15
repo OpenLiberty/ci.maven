@@ -31,6 +31,7 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
 import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+import net.wasdev.wlp.maven.plugins.ServerConfigDocument;
 import net.wasdev.wlp.maven.plugins.utils.SpringBootUtil;
 
 /**
@@ -220,6 +221,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     private void cleanupPreviousExecution() {
         if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
+            ServerConfigDocument.markInstanceStale();
         }
     }
 
