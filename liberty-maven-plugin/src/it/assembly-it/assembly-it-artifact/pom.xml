@@ -5,11 +5,11 @@
 
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>tests</artifactId>
+        <artifactId>assembly-it</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>test-assembly</artifactId>
+    <artifactId>assembly-it-artifact</artifactId>
     <packaging>liberty-assembly</packaging>
 
     <dependencies>

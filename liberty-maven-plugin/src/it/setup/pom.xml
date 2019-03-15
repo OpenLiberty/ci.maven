@@ -16,9 +16,9 @@
     </properties>
     
     <modules>
+        <module>assembly-server</module>
         <module>test-eba</module>
         <module>test-war</module>
-        <module>assembly-server</module>
         <module>test-parent</module>
     </modules>
 

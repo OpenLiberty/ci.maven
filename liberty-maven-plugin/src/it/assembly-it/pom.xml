@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>net.wasdev.wlp.maven.it</groupId>
         <artifactId>tests</artifactId>
@@ -10,141 +10,18 @@
     </parent>
     
     <artifactId>assembly-it</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
-        <plugins>
-            <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
-                <artifactId>liberty-maven-plugin</artifactId>
-                <version>@pom.version@</version>
-                <executions>
-                    <execution>
-                            <id>create-server</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>install-server</goal>
-                                <goal>create-server</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>install-feature</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                              <goal>install-feature</goal>
-                            </goals>
-                            <configuration>
-                                <features>
-                                    <acceptLicense>true</acceptLicense>
-                                    <feature>osgiBundle-1.0</feature>
-                                </features>
-                            </configuration>
-                    </execution>
-                    <execution>
-                        <id>start-liberty-server</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-server</goal>
-                        </goals>
-                        <configuration>
-                            <background>true</background>
-                            <verifyTimeout>40</verifyTimeout>
-                            <applications>test-war, test-eba</applications>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>check-liberty-server</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>server-status</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop-liberty-server</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop-server</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <assemblyArtifact>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>test-assembly</artifactId>
-                        <version>${project.version}</version>
-                        <type>zip</type>
-                    </assemblyArtifact>
-                    <serverName>test</serverName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <forkMode>once</forkMode>
-                    <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
-                    <argLine>-enableassertions</argLine>
-                    <workingDirectory>${project.build.directory}</workingDirectory>
-                    <includes>
-                        <include>**/Test*.java</include>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+    
+    <modules>
+        <module>assembly-it-artifact</module>
+        <module>assembly-it-tests</module>
+    </modules>
 
 </project>

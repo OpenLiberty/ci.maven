@@ -188,14 +188,13 @@
                         <artifactId>maven-invoker-plugin</artifactId>
                         <configuration>
                             <pomExcludes>
-                                <pomExclude>test-server-param-default/pom.xml</pomExclude>
-                                <pomExclude>test-assembly/pom.xml</pomExclude>
-                                <pomExclude>test-server-param-configdir-override/pom.xml</pomExclude>
-                                <pomExclude>assembly-it/pom.xml</pomExclude>
                                 <pomExclude>basic-it/pom.xml</pomExclude>
-                                <pomExclude>test-server-param-pom-override/pom.xml</pomExclude>
+                                <pomExclude>assembly-it/pom.xml</pomExclude>
+                                <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-default-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                 <pomExclude>install-features-it/pom.xml</pomExclude>
-                                <pomExclude>test-assembly-with-code-it/pom.xml</pomExclude>
                             </pomExcludes>
                         </configuration>
                     </plugin>
