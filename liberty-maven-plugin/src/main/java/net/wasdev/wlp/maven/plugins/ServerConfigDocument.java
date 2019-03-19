@@ -113,6 +113,14 @@ public class ServerConfigDocument {
         return docBuilder;
     }
 
+    /**
+     * Nulls out cached instance so a new one will be created next time a getInstance() is done.
+     * Not thread-safe.
+     */
+    public static void markInstanceStale() {
+        instance = null;
+    }
+    
     public static ServerConfigDocument getInstance(Log log, File serverXML, File configDir, File bootstrapFile,
             Map<String, String> bootstrapProp, File serverEnvFile) throws IOException {
         // Initialize if instance is not created yet, or source server xml file
