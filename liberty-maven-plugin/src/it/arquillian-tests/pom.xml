@@ -323,86 +323,100 @@
                                 <javac srcdir="${project.basedir}/src/test-profile-resources"
                                     destdir="${project.build.directory}/test-classes" includes="${tests.to.include}"
                                     classpathref="maven.test.classpath" includeantruntime="false" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
 
-        </plugins>
+            </plugins>
 
-    </build>
+        </build>
 
-    <profiles>
-        <profile>
-            <!-- Should use the arquillian.xml in src/test/resources -->
-            <id>skip-with-xml-managed</id>
-            <properties>
-                <skip.arquillian.xml>true</skip.arquillian.xml>
-                <verify.apps></verify.apps>
-                <tests.to.include>SkipWithXmlIT.java, GreeterIT.java</tests.to.include>
-                <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
-                <arquillian.launch>liberty_managed</arquillian.launch>
-                <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
-                <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Should use the XML generated from the configure-arquillian goal -->
-            <id>skip-without-xml-managed</id>
-            <properties>
-                <skip.arquillian.xml>true</skip.arquillian.xml>
-                <verify.apps></verify.apps>
-                <tests.to.include>SkipWithoutXmlIT.java, GreeterIT.java</tests.to.include>
-                <arquillian.xml.to.include>none</arquillian.xml.to.include>
-                <arquillian.launch>liberty_managed</arquillian.launch>
-                <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
-                <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Main app should start before test app in console log -->
-            <id>verify-main-app-managed</id>
-            <properties>
-                <skip.arquillian.xml>false</skip.arquillian.xml>
-                <verify.apps>${project.artifactId}</verify.apps>
-                <tests.to.include>GreeterIT.java, VerifyMainAppIT.java</tests.to.include>
-                <arquillian.xml.to.include>none</arquillian.xml.to.include>
-                <arquillian.launch>liberty_managed</arquillian.launch>
-                <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
-                <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Should use the arquillian.xml in src/test/resources -->
-            <id>skip-with-xml-remote</id>
-            <properties>
-                <skip.arquillian.xml>true</skip.arquillian.xml>
-                <verify.apps></verify.apps>
-                <tests.to.include>SkipWithXmlIT.java</tests.to.include>
-                <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
-                <arquillian.launch>liberty_remote</arquillian.launch>
-                <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
-                <arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Should use the XML generated from the configure-arquillian goal -->
-            <id>skip-without-xml-remote</id>
-            <properties>
-                <skip.arquillian.xml>true</skip.arquillian.xml>
-                <verify.apps></verify.apps>
-                <tests.to.include>SkipWithoutXmlIT.java</tests.to.include>
-                <arquillian.xml.to.include>none</arquillian.xml.to.include>
-                <arquillian.launch>liberty_remote</arquillian.launch>
-                <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
-                <arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
-            </properties>
-        </profile>
-    </profiles>
+        <profiles>
+            <profile>
+                <!-- Should use the arquillian.xml in src/test/resources -->
+                <id>skip-with-xml-managed</id>
+                <properties>
+                    <skip.arquillian.xml>true</skip.arquillian.xml>
+                    <verify.apps></verify.apps>
+                    <tests.to.include>SkipWithXmlIT.java, GreeterIT.java</tests.to.include>
+                    <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
+                    <arquillian.launch>liberty_managed</arquillian.launch>
+                    <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+                    <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
+                </properties>
+            </profile>
+            <profile>
+                <!-- Should use the XML generated from the configure-arquillian goal -->
+                <id>skip-without-xml-managed</id>
+                <properties>
+                    <skip.arquillian.xml>true</skip.arquillian.xml>
+                    <verify.apps></verify.apps>
+                    <tests.to.include>SkipWithoutXmlIT.java, GreeterIT.java</tests.to.include>
+                    <arquillian.xml.to.include>none</arquillian.xml.to.include>
+                    <arquillian.launch>liberty_managed</arquillian.launch>
+                    <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+                    <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
+                </properties>
+            </profile>
+            <profile>
+                <!-- Main app should start before test app in console log -->
+                <id>verify-main-app-managed</id>
+                <properties>
+                    <skip.arquillian.xml>false</skip.arquillian.xml>
+                    <verify.apps>${project.artifactId}</verify.apps>
+                    <tests.to.include>GreeterIT.java, VerifyMainAppIT.java</tests.to.include>
+                    <arquillian.xml.to.include>none</arquillian.xml.to.include>
+                    <arquillian.launch>liberty_managed</arquillian.launch>
+                    <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
+                    <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
+                </properties>
+            </profile>
+            <profile>
+                <!-- Should use the arquillian.xml in src/test/resources -->
+                <id>skip-with-xml-remote</id>
+                <properties>
+                    <skip.arquillian.xml>true</skip.arquillian.xml>
+                    <verify.apps></verify.apps>
+                    <tests.to.include>SkipWithXmlIT.java</tests.to.include>
+                    <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
+                    <arquillian.launch>liberty_remote</arquillian.launch>
+                    <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
+                    <arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
+                </properties>
+            </profile>
+            <profile>
+                <!-- Should use the XML generated from the configure-arquillian goal -->
+                <id>skip-without-xml-remote</id>
+                <properties>
+                    <skip.arquillian.xml>true</skip.arquillian.xml>
+                    <verify.apps></verify.apps>
+                    <tests.to.include>SkipWithoutXmlIT.java</tests.to.include>
+                    <arquillian.xml.to.include>none</arquillian.xml.to.include>
+                    <arquillian.launch>liberty_remote</arquillian.launch>
+                    <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
+                    <arquillian.container.version>${arquillian.remote.version}</arquillian.container.version>
+                </properties>
+            </profile>
+            <profile>
+            <!-- Java 11 dependencies -->
+            <id>java-11</id>
+            <activation>
+                <jdk>[11,)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                    <version>1.3.2</version>
+                </dependency>
+            </dependencies>
+      </profile>
+  </profiles>
 
 </project>
 
