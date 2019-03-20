@@ -16,7 +16,7 @@
        <dependency>
            <groupId>io.openliberty.features</groupId>
            <artifactId>appSecurityClient-1.0</artifactId>
-           <version>18.0.0.2</version>
+           <version>${runtimeVersion}</version>
            <type>esa</type>
            <scope>provided</scope>
        </dependency>
@@ -32,7 +32,7 @@
                     <assemblyArtifact>
                         <groupId>${runtimeGroupId}</groupId>
                         <artifactId>${runtimeKernelId}</artifactId>
-                        <version>18.0.0.2</version>
+                        <version>${runtimeVersion}</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
