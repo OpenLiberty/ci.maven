@@ -1,14 +1,14 @@
 # ci.maven [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/net.wasdev.wlp.maven.plugins/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.wasdev.wlp.maven.plugins%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build Status](https://travis-ci.org/WASdev/ci.maven.svg?branch=master)](https://travis-ci.org/WASdev/ci.maven) [![Build status](https://ci.appveyor.com/api/projects/status/otcvoi4fg69ecarj/branch/master?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3882b05e21b14d85bfe2f7bfe6abef13)](https://www.codacy.com/app/wasdevb1/ci.maven?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WASdev/ci.maven&amp;utm_campaign=Badge_Grade)
 
-Collection of Maven plug-ins and archetypes for managing WebSphere Application Server Liberty servers and applications.
+Collection of Maven plugins and archetypes for managing Open Liberty and WebSphere Liberty servers and applications.
 
 * [Build](#build)
-* [Plug-ins](#plug-ins)
-	* [liberty-maven-plugin](#liberty-maven-plugin)
+* [Plugins](#plugins)
+	* [Liberty Maven Plugin](#liberty-maven-plugin)
 		* [Configuration](#configuration)
 		* [Goals](#goals)
 * [Packaging types](#packaging-types)
- * [liberty-assembly](#liberty-assembly)
+	* [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
 	* [liberty-plugin-archetype](#liberty-plugin-archetype)
 	* [liberty-archetype-mp](#liberty-archetype-mp)
@@ -17,21 +17,21 @@ Collection of Maven plug-ins and archetypes for managing WebSphere Application S
 
 ## Build
 
-Use Maven 3.x to build the Liberty plug-ins and archetypes.
+Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
 
-* `mvn install` : builds the plug-in and the archetypes.
-* `mvn install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plug-in and the archetypes and runs the integration tests by providing an existing installation.
-* `mvn install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plug-in and archetypes and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WLP Java EE 7 runtime.
+* `mvn install` : builds the plugin and the archetypes.
+* `mvn install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plugin and the archetypes and runs the integration tests by providing an existing installation.
+* `mvn install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plugin and archetypes and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WebSphere Liberty Java EE 7 runtime.
 
-## Plug-ins
+## Plugins
 
-### liberty-maven-plugin
+### Liberty Maven Plugin
 
-`liberty-maven-plugin` provides a number of goals for managing a Liberty server and applications.
+The Liberty Maven Plugin provides a number of goals for managing a Liberty server and applications. Maven 3.5.0 or later is recommended to use the Liberty Maven Plugin. 
 
 #### Configuration
 
-To enable `liberty-maven-plugin` in your project add the following to your `pom.xml`:
+To enable Liberty Maven Plugin in your project add the following to your `pom.xml`:
 
 ```xml
 <project>
@@ -52,7 +52,7 @@ To enable `liberty-maven-plugin` in your project add the following to your `pom.
 </project>
 ```
 
-If you are using a snapshot version of `liberty-maven-plugin` then you will also need to add the following plug-in repository to your `pom.xml`:
+If you are using a snapshot version of Liberty Maven Plugin then you will also need to add the following plugin repository to your `pom.xml`:
 
 ```
 <project>
@@ -77,16 +77,16 @@ If you are using a snapshot version of `liberty-maven-plugin` then you will also
 
 ##### Liberty installation configuration
 
-The `liberty-maven-plugin` must first be configured with the Liberty server installation information. The installation information can be specified as an [existing installation directory](docs/installation-configuration.md#using-an-existing-installation), a [packaged server](docs/installation-configuration.md#using-a-packaged-server), or as a [Maven artifact](docs/installation-configuration.md#using-maven-artifact). The `liberty-maven-plugin` can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository).
-By default, the plug-in installs the Liberty runtime with the Java EE 7 Web Profile features from the Liberty repository.
+The Liberty Maven Plugin must first be configured with the Liberty server installation information. The installation information can be specified as an [existing installation directory](docs/installation-configuration.md#using-an-existing-installation), a [packaged server](docs/installation-configuration.md#using-a-packaged-server), or as a [Maven artifact](docs/installation-configuration.md#using-maven-artifact). The Liberty Maven Plugin can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository).
+By default, the plugin installs the Open Liberty runtime from Maven Central. 
 
 #### Goals
 
-The `liberty-maven-plugin` provides the following goals.
+The Liberty Maven Plugin provides the following goals.
 
 | Goal | Description |
 | --------- | ------------ |
-| [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plug-in goals and usually does not need to be executed explicitly. |
+| [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
 | [create-server](docs/create-server.md#create-server) | Create a Liberty server. |
 | [start](docs/start-server.md#start-server) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
 | [start-server](docs/start-server.md#start-server) | Alias of the `start` goal. |
@@ -123,12 +123,12 @@ Additional parameters shared by all server-based goals. [See common server param
 
 #### Extensions
 
-Extensions improve the compatibility or user experience of third party libraries used with Liberty. The `liberty-maven-plugin` provides the following extensions.
+Extensions improve the compatibility or user experience of third party libraries used with Liberty. The Liberty Maven Plugin provides the following extensions.
 
 | Extension | Description |
 | --------- | ------------ |
-| [configure-arquillian goal](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the `liberty-maven-plugin`. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
-| [Spring Boot Support](docs/spring-boot-support.md#spring-boot-support) | The `liberty-maven-plugin` provides support for Spring Boot applications, allowing you to install Spring Boot executable JARs directly to the Liberty runtime. |
+| [configure-arquillian goal](docs/configure-arquillian.md#configure-arquillian) | Integrates `arquillian.xml` configuration for the Liberty Managed and Remote Arquillian containers in the Liberty Maven Plugin. Automatically configures required `arquillian.xml` parameters for the Liberty Managed container. |
+| [Spring Boot Support](docs/spring-boot-support.md#spring-boot-support) | The Liberty Maven Plugin provides support for Spring Boot applications, allowing you to install Spring Boot executable JARs directly to the Liberty runtime. |
 
 ## Packaging types
 
@@ -204,7 +204,7 @@ By default, all archetypes that specify a Liberty runtime use the latest version
 
 The runtime version can also be set dynamically. For example, you can specify version `18.0.0.1` of the runtime by setting `-DruntimeVersion=18.0.0.1`.
 
-Finally, the default `liberty-maven-plugin` version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=2.2`.
+Finally, the default Liberty Maven Plugin version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=2.2`.
 
 ### liberty-plugin-archetype
 
@@ -223,7 +223,7 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
 
 ### liberty-archetype-mp
 
-The `liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+The `liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
 
 #### Usage
 
@@ -239,7 +239,7 @@ For this archetype, you might want to use the `wlp-microprofile1` runtime. You c
         
 ### liberty-archetype-webapp
 
-The `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes the [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+The `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes the [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
 
 #### Usage
 
@@ -253,7 +253,7 @@ The `liberty-archetype-webapp` is used to generate a basic single-module project
 
 ### liberty-archetype-ear
 
-The `liberty-archetype-ear` is used to generate a multi-module project that includes an EJB module, a web application module and an EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+The `liberty-archetype-ear` is used to generate a multi-module project that includes an EJB module, a web application module and an EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
 
 #### Usage
 
