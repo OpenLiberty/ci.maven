@@ -154,7 +154,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Location of customized configuration directory
      */
-    @Parameter(property = "configDirectory")
+    @Parameter(property = "configDirectory", defaultValue = "${basedir}/src/main/liberty/config")
     protected File configDirectory;
 
     /**
