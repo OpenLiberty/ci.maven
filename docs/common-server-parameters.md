@@ -5,7 +5,7 @@ Additional parameters shared by all server-based goals.
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to target server. configDirectory files will take precedence over other common server parameters. | No |
+| configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to target server. configDirectory files will take precedence over other common server parameters. The default value is `${basedir}/src/main/liberty/config`. | No |
 | bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. | No |
 | bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
 | jvmOptions | List of JVM options for the server instance. | No |
