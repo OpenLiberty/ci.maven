@@ -70,9 +70,9 @@
 
         <!-- Test properties -->
         <arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
-        <arquillian.managed.version>1.0.5</arquillian.managed.version>
+        <arquillian.managed.version>1.0.6</arquillian.managed.version>
         <arquillian.remote.artifact>arquillian-liberty-remote</arquillian.remote.artifact>
-        <arquillian.remote.version>1.0.5</arquillian.remote.version>
+        <arquillian.remote.version>1.0.6</arquillian.remote.version>
     </properties>
 
     <dependencyManagement>
@@ -298,7 +298,7 @@
                             <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/test-profile-resources</directory>
+                                    <directory>src/test-profile-resources/${arquillian.xml.dir}</directory>
                                     <includes>
                                         <include>${arquillian.xml.to.include}</include>
                                     </includes>
@@ -344,6 +344,7 @@
                     <skip.arquillian.xml>true</skip.arquillian.xml>
                     <verify.apps></verify.apps>
                     <tests.to.include>SkipWithXmlIT.java, GreeterIT.java</tests.to.include>
+                    <arquillian.xml.dir>managed</arquillian.xml.dir>
                     <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
                     <arquillian.launch>liberty_managed</arquillian.launch>
                     <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
@@ -357,11 +358,25 @@
                     <skip.arquillian.xml>true</skip.arquillian.xml>
                     <verify.apps></verify.apps>
                     <tests.to.include>SkipWithoutXmlIT.java, GreeterIT.java</tests.to.include>
+                    <arquillian.xml.dir></arquillian.xml.dir>
                     <arquillian.xml.to.include>none</arquillian.xml.to.include>
                     <arquillian.launch>liberty_managed</arquillian.launch>
                     <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
                     <arquillian.container.version>${arquillian.managed.version}</arquillian.container.version>
                 </properties>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                            <artifactId>liberty-maven-plugin</artifactId>
+                            <configuration>
+                                <arquillianProperties>
+                                    <standardFileDeleteRetryInterval>500</standardFileDeleteRetryInterval>
+                                </arquillianProperties>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </build>
             </profile>
             <profile>
                 <!-- Main app should start before test app in console log -->
@@ -370,6 +385,7 @@
                     <skip.arquillian.xml>false</skip.arquillian.xml>
                     <verify.apps>${project.artifactId}</verify.apps>
                     <tests.to.include>GreeterIT.java, VerifyMainAppIT.java</tests.to.include>
+                    <arquillian.xml.dir></arquillian.xml.dir>
                     <arquillian.xml.to.include>none</arquillian.xml.to.include>
                     <arquillian.launch>liberty_managed</arquillian.launch>
                     <arquillian.container.type>${arquillian.managed.artifact}</arquillian.container.type>
@@ -383,6 +399,7 @@
                     <skip.arquillian.xml>true</skip.arquillian.xml>
                     <verify.apps></verify.apps>
                     <tests.to.include>SkipWithXmlIT.java</tests.to.include>
+                    <arquillian.xml.dir>remote</arquillian.xml.dir>
                     <arquillian.xml.to.include>arquillian.xml</arquillian.xml.to.include>
                     <arquillian.launch>liberty_remote</arquillian.launch>
                     <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
@@ -396,6 +413,7 @@
                     <skip.arquillian.xml>true</skip.arquillian.xml>
                     <verify.apps></verify.apps>
                     <tests.to.include>SkipWithoutXmlIT.java</tests.to.include>
+                    <arquillian.xml.dir></arquillian.xml.dir>
                     <arquillian.xml.to.include>none</arquillian.xml.to.include>
                     <arquillian.launch>liberty_remote</arquillian.launch>
                     <arquillian.container.type>${arquillian.remote.artifact}</arquillian.container.type>
