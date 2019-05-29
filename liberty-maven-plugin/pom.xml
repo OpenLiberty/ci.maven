@@ -65,7 +65,7 @@
         <dependency>
             <groupId>net.wasdev.wlp.common</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.3.5</version>
+            <version>1.3.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>

@@ -1,20 +1,18 @@
 package net.wasdev.wlp.maven.plugins.server;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,7 +23,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -57,6 +54,8 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import com.sun.nio.file.SensitivityWatchEventModifier;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -82,9 +81,8 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
-import com.sun.nio.file.SensitivityWatchEventModifier;
-
 import net.wasdev.wlp.ant.ServerTask;
+import net.wasdev.wlp.common.plugins.util.DevUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for
@@ -170,8 +168,67 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(readonly = true, required = true, defaultValue = "${project.build.testOutputDirectory}")
     private File testOutputDirectory;
 
+    private class DevMojoUtil extends DevUtil {
+
+        public DevMojoUtil(List<String> jvmOptions, File serverDirectory) {
+            super(jvmOptions, serverDirectory);
+        }
+
+        @Override
+        public void debug(String msg) {
+            log.debug(msg);
+        }
+        
+        @Override
+        public void debug(String msg, Throwable e) {
+            log.debug(msg, e);
+        }
+        
+        @Override
+        public void debug(Throwable e) {
+            log.debug(e);
+        }
+        
+        @Override
+        public void warn(String msg) {
+            log.warn(msg);
+        }
+
+        @Override
+        public void info(String msg) {
+            log.info(msg);
+        }
+        
+        @Override
+        public void error(String msg) {
+            log.error(msg);
+        }
+
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
+        }
+
+        @Override
+        public void stopServer() {
+            try {
+                ServerTask serverTask = initializeJava();
+                serverTask.setOperation("stop");
+                serverTask.execute();
+            } catch (Exception e) {
+                // ignore
+                log.debug("Error stopping server", e);
+            }
+        }
+        
+    }
+
+    DevMojoUtil util;
+
     @Override
     protected void doExecute() throws Exception {
+        util = new DevMojoUtil(jvmOptions, serverDirectory);
+
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
 
@@ -184,44 +241,7 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        // shutdown hook to stop server when x mode is terminated
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                log.debug("Inside Shutdown Hook, shutting down server");
-
-                // cleaning up jvm.options files
-                if (jvmOptions == null || jvmOptions.isEmpty()) {
-                    File jvmOptionsFile = new File(serverDirectory.getAbsolutePath() + "/jvm.options");
-                    File jvmOptionsBackup = new File(serverDirectory.getAbsolutePath() + "/jvmBackup.options");
-                    if (jvmOptionsFile.exists()) {
-                        log.debug("Deleting liberty:dev jvm.options file");
-                        if (jvmOptionsBackup.exists()) {
-                            try {
-                                Files.copy(jvmOptionsBackup.toPath(), jvmOptionsFile.toPath(),
-                                        StandardCopyOption.REPLACE_EXISTING);
-                                jvmOptionsBackup.delete();
-                            } catch (IOException e) {
-                                log.error("Could not restore jvm.options: " + e.getMessage());
-                            }
-                        } else {
-                            boolean deleted = jvmOptionsFile.delete();
-                            if (deleted) {
-                                log.info("Sucessfully deleted liberty:dev jvm.options file");
-                            } else {
-                                log.error("Could not delete liberty:dev jvm.options file");
-                            }
-                        }
-                    }
-                }
-
-                // shutdown tests
-                executor.shutdown();
-
-                // stopping server
-                stopServer();
-            }
-        });
+        util.addShutdownHook(executor);
 
         if (skip) {
             return;
@@ -233,35 +253,7 @@ public class DevMojo extends StartDebugMojoSupport {
             checkServerHomeExists();
         }
 
-        // creating jvm.options file to open a debug port
-        log.debug("jvmOptions: " + jvmOptions);
-        if (jvmOptions != null && !jvmOptions.isEmpty()) {
-            log.warn(
-                    "Cannot start liberty:dev in debug mode because jvmOptions are specified in the server configuration");
-        } else {
-            File jvmOptionsFile = new File(serverDirectory.getAbsolutePath() + "/jvm.options");
-            if (jvmOptionsFile.exists()) {
-                log.debug("jvm.options already exists");
-                File jvmOptionsBackup = new File(serverDirectory.getAbsolutePath() + "/jvmBackup.options");
-                Files.copy(jvmOptionsFile.toPath(), jvmOptionsBackup.toPath());
-                boolean deleted = jvmOptionsFile.delete();
-                if (!deleted) {
-                    log.error("Could not move existing liberty:dev jvm.options file");
-                }
-            }
-            log.debug("Creating jvm.options file: " + jvmOptionsFile.getAbsolutePath());
-            StringBuilder sb = new StringBuilder("# Generated by liberty:dev \n");
-            sb.append("-Dwas.debug.mode=true\n");
-            sb.append("-Dcom.ibm.websphere.ras.inject.at.transform=true\n");
-            sb.append("-Dsun.reflect.noInflation=true\n");
-            sb.append("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=" + libertyDebugPort);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(jvmOptionsFile));
-            writer.write(sb.toString());
-            writer.close();
-            if (jvmOptionsFile.exists()) {
-                log.info("Successfully created liberty:dev jvm.options file");
-            }
-        }
+        util.enableServerDebug(libertyDebugPort);
 
         startDefaultServer();
 
@@ -730,23 +722,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 executionEnvironment(project, session, pluginManager));
     }
 
-    private void stopServer(String serverName) {
-        try {
-            ServerTask serverTask = initializeJava();
-            if (serverName != null) {
-                serverTask.setServerName(serverName);
-            }
-            serverTask.setOperation("stop");
-            serverTask.execute();
-        } catch (Exception e) {
-            // ignore
-            log.debug("Error stopping server", e);
-        }
-    }
-
-    private void stopServer() {
-        stopServer(null);
-    }
 
     
     private void startDefaultServer() throws Exception {
@@ -774,7 +749,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName, timeout,
                         serverTask.getLogFile());
                 if (startMessage == null) {
-                    stopServer();
+                    util.stopServer();
                     throw new MojoExecutionException(
                             MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
                 }
