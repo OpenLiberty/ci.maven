@@ -83,6 +83,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
+import net.wasdev.wlp.maven.plugins.applications.InstallAppMojoSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for
@@ -227,6 +228,19 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
+
+        // check default directory for war.xml (apps or dropins)
+        boolean looseApp = false;
+        File appsDestDir = new File(serverDirectory, "apps");
+        File dropinsDestDir = new File(serverDirectory, "dropins");
+        if (warXmlExists(appsDestDir) || warXmlExists(dropinsDestDir)){
+            looseApp = true;
+        }
+        if (!looseApp){
+            log.info("Installing the application in loose application mode.");
+            runMojo("install-apps", serverName, null);
+        }
+        
         util = new DevMojoUtil(jvmOptions, serverDirectory);
 
         sourceDirectory = new File(sourceDirectoryString.trim());
@@ -711,6 +725,10 @@ public class DevMojo extends StartDebugMojoSupport {
                 featureElems[i] =  element(name("feature"), dependencies.get(i));
             }
             elements.add(element(name("features"),featureElems));
+        } else if (goal.equals("install-apps")){
+            elements.add(element(name("looseApplication"), "true"));
+            elements.add(element(name("stripVersion"), "true"));
+            elements.add(element(name("installAppPackages"), "project"));
         }
         return (Element[]) elements.toArray(new Element[elements.size()]);
     }
@@ -864,7 +882,17 @@ public class DevMojo extends StartDebugMojoSupport {
 
     }
     
-
-
-
+    private boolean warXmlExists(File dir){
+        boolean looseApp = false;
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".war.xml")) {
+                    looseApp = true;
+                }
+            }
+        }
+        return looseApp;
+    }
+   
 }
