@@ -889,6 +889,7 @@ public class DevMojo extends StartDebugMojoSupport {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".war.xml") && file.getName().startsWith(DevMojo.this.project.getArtifactId())) {
                     looseApp = true;
+                    break;
                 }
             }
         }
