@@ -348,7 +348,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
                             log.debug("Java source file modified: " + fileChanged.getName());
-                            recompileJavaSource(javaFilesChanged, artifactPaths, executor);
+                            recompileJavaSource(javaFilesChanged, artifactPaths, executor, false);
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, outputDirectory, sourceDirectory);
@@ -358,7 +358,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         ArrayList<File> javaFilesChanged = new ArrayList<File>();
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            recompileJavaTest(javaFilesChanged, artifactPaths, executor);
+                            recompileJavaTest(javaFilesChanged, artifactPaths, executor, false);
                             
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) { 
                             log.debug("Java file deleted: " + fileChanged.getName());
@@ -520,15 +520,15 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
     
-    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, false);
+    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, false, initialCompile);
     }
 
-    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, true);
+    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, true, initialCompile);
     }
     
-    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
+    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests, boolean initialCompile) throws Exception {
         File logFile = null;
         String regexp = null;
         int messageOccurrences = -1;
