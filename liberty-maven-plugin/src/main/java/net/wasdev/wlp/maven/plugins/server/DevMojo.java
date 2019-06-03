@@ -261,9 +261,6 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        recompileJavaSource(javaFiles, artifactPaths, executor, true);
-        recompileJavaTest(javaTestFiles, artifactPaths, executor, true);
-
         log.info("Running goal: create-server");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "create-server", serverName, null);
         log.info("Running goal: install-feature");
@@ -274,16 +271,6 @@ public class DevMojo extends StartDebugMojoSupport {
         util = new DevMojoUtil(jvmOptions, serverDirectory);
 
         util.addShutdownHook(executor);
-
-        if (skip) {
-            return;
-        }
-        if (isInstall) {
-            installServerAssembly();
-        } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-            checkServerHomeExists();
-        }
 
         util.enableServerDebug(libertyDebugPort);
 
@@ -322,8 +309,6 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         String existingPom = readFile(pom);
-
-        
         
         // start watching files
         try (WatchService watcher = FileSystems.getDefault().newWatchService();) {
@@ -363,7 +348,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
                             log.debug("Java source file modified: " + fileChanged.getName());
-                            recompileJavaSource(javaFilesChanged, artifactPaths, executor, false);
+                            recompileJavaSource(javaFilesChanged, artifactPaths, executor);
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, outputDirectory, sourceDirectory);
@@ -373,7 +358,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         ArrayList<File> javaFilesChanged = new ArrayList<File>();
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            recompileJavaTest(javaFilesChanged, artifactPaths, executor, false);
+                            recompileJavaTest(javaFilesChanged, artifactPaths, executor);
                             
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) { 
                             log.debug("Java file deleted: " + fileChanged.getName());
@@ -535,29 +520,27 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
     
-    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, false, initialCompile);
+    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, false);
     }
 
-    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, true, initialCompile);
+    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, true);
     }
     
-    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests, boolean initialCompile) throws Exception {
+    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
         File logFile = null;
         String regexp = null;
         int messageOccurrences = -1;
-        if (!initialCompile){
-            if (!(skipTests || skipITs)) {
-                // before compiling source and running tests, check number of "application updated" messages
-                logFile = serverTask.getLogFile();
-                regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-                messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-                log.debug("Message occurrences before compile: " + messageOccurrences);
-            }
+        if (!(skipTests || skipITs)) {
+            // before compiling source and running tests, check number of
+            // "application updated" messages
+            logFile = serverTask.getLogFile();
+            regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+            messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
+            log.debug("Message occurrences before compile: " + messageOccurrences);
         }
         
-
         // source root is src/main/java or src/test/java
         File classesDir = tests ? testOutputDirectory : outputDirectory;
 
@@ -927,18 +910,10 @@ public class DevMojo extends StartDebugMojoSupport {
             File[] fList = directory.listFiles();
             if (fList != null) {
                 for (File file : fList) {
-                    if (suffix != null) {
-                        if (file.isFile() && file.getName().toLowerCase().endsWith("." + suffix)) {
-                            files.add(file);
-                        } else if (file.isDirectory()) {
-                            listFiles(file, files, suffix);
-                        }
-                    } else {
-                        if (file.isFile()) {
-                            files.add(file);
-                        } else if (file.isDirectory()) {
-                            listFiles(file, files, suffix);
-                        }
+                    if (file.isFile() && ((suffix == null) || (file.getName().toLowerCase().endsWith("." + suffix)))) {
+                        files.add(file);
+                    } else if (file.isDirectory()) {
+                        listFiles(file, files, suffix);
                     }
                 }
             }
