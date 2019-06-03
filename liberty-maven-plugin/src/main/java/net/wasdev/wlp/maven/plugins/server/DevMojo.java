@@ -540,7 +540,7 @@ public class DevMojo extends StartDebugMojoSupport {
             messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
             log.debug("Message occurrences before compile: " + messageOccurrences);
         }
-        
+
         // source root is src/main/java or src/test/java
         File classesDir = tests ? testOutputDirectory : outputDirectory;
 
