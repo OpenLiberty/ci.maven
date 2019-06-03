@@ -66,6 +66,7 @@ import org.apache.maven.model.Resource;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -643,8 +644,16 @@ public class DevMojo extends StartDebugMojoSupport {
                 runUnitTests();
                 log.info("Unit tests finished.");
             } catch (MojoExecutionException e) {
-                log.error("Failed to run unit tests", e);
-            }    
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    log.debug(e);
+                    log.error("Unit tests failed: " + cause.getLocalizedMessage());
+                    // if unit tests failed, don't run integration tests
+                    return;
+                } else {
+                    log.error("Failed to run unit tests", e);
+                }
+            }
         }
         
         // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
@@ -668,7 +677,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 runIntegrationTests();
                 log.info("Integration tests finished.");
             } catch (MojoExecutionException e) {
-                log.error("Failed to run integration tests", e);
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    log.debug(e);
+                    log.error("Integration tests failed: " + cause.getLocalizedMessage());
+                } else {
+                    log.error("Failed to run integration tests", e);
+                }
             }
         }
     }
@@ -705,7 +720,26 @@ public class DevMojo extends StartDebugMojoSupport {
             config = configuration();
         }
 
-        injectTestId(config);
+        if (phase.equals("test")) {
+            injectTestId(config);
+        } else if (phase.equals("integration-test")) {
+            injectTestId(config);
+            // clean up previous summary file
+            File summaryFile = null;
+            Xpp3Dom summaryFileElement = config.getChild("summaryFile");
+            if (summaryFileElement != null) {
+                summaryFile = new File(summaryFileElement.getValue());
+            } else {
+                summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
+            }
+            log.debug("Looking for summary file at " + summaryFile.getAbsolutePath());
+            if (summaryFile.exists()) {
+                boolean deleteResult = summaryFile.delete();
+                log.debug("Summary file deleted? " + deleteResult);
+            } else {
+                log.debug("Summary file doesn't exist");
+            }
+        }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 
         executeMojo(plugin, goal(phase), config, executionEnvironment(project, session.clone(), pluginManager));
@@ -733,6 +767,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runIntegrationTests() throws MojoExecutionException {
         runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
+        runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
     }
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
