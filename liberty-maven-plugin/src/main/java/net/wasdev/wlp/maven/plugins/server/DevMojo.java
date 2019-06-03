@@ -228,9 +228,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
-        
-        HashMap<File, List<File>> files = new HashMap<File, List<File>>();
-
         // collect artifacts absolute paths in order to build classpath
         Set<Artifact> artifacts = project.getArtifacts();
         List<String> artifactPaths = new ArrayList<String>();
@@ -264,8 +261,8 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        recompileJavaSource(javaFiles, artifactPaths, executor);
-        recompileJavaTest(javaTestFiles, artifactPaths, executor);
+        recompileJavaSource(javaFiles, artifactPaths, executor, true);
+        recompileJavaTest(javaTestFiles, artifactPaths, executor, true);
 
         log.info("Running goal: create-server");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "create-server", serverName, null);
@@ -366,7 +363,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
                             log.debug("Java source file modified: " + fileChanged.getName());
-                            recompileJavaSource(javaFilesChanged, artifactPaths, executor);
+                            recompileJavaSource(javaFilesChanged, artifactPaths, executor, false);
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, outputDirectory, sourceDirectory);
@@ -376,7 +373,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         ArrayList<File> javaFilesChanged = new ArrayList<File>();
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            recompileJavaTest(javaFilesChanged, artifactPaths, executor);
+                            recompileJavaTest(javaFilesChanged, artifactPaths, executor, false);
                             
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) { 
                             log.debug("Java file deleted: " + fileChanged.getName());
@@ -538,25 +535,28 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
     
-    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, false);
+    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, false, initialCompile);
     }
 
-    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, true);
+    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean initialCompile) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, true, initialCompile);
     }
     
-    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
+    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests, boolean initialCompile) throws Exception {
         File logFile = null;
         String regexp = null;
         int messageOccurrences = -1;
-        /*if (!(skipTests || skipITs)) {
-            // before compiling source and running tests, check number of "application updated" messages
-            logFile = serverTask.getLogFile();
-            regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-            messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-            log.debug("Message occurrences before compile: " + messageOccurrences);
-        }*/
+        if (!initialCompile){
+            if (!(skipTests || skipITs)) {
+                // before compiling source and running tests, check number of "application updated" messages
+                logFile = serverTask.getLogFile();
+                regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+                messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
+                log.debug("Message occurrences before compile: " + messageOccurrences);
+            }
+        }
+        
 
         // source root is src/main/java or src/test/java
         File classesDir = tests ? testOutputDirectory : outputDirectory;
@@ -747,13 +747,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
             } else if (goal.equals("create-server")){
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
-                log.info("dev check assemblyArtifact: " + (assemblyArtifact == null));
-                Element[] featureElems = new Element[4];
-                featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
-                featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
-                featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
-                featureElems[3] = element(name("type"), assemblyArtifact.getType());
-                elements.add(element(name("assemblyArtifact"), featureElems));
+                if (assemblyArtifact != null){
+                    Element[] featureElems = new Element[4];
+                    featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
+                    featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
+                    featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
+                    featureElems[3] = element(name("type"), assemblyArtifact.getType());
+                    elements.add(element(name("assemblyArtifact"), featureElems));
+                }  
             }
         }
         if (goal.equals("compile")){
