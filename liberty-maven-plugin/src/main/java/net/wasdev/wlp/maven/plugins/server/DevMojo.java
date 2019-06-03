@@ -757,9 +757,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 }  
             }
         }
-        if (goal.equals("compile")){
-            //elements.add(element(name("execution"), "default-compile"));
-        }
         return (Element[]) elements.toArray(new Element[elements.size()]);
     }
 
