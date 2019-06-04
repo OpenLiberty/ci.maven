@@ -366,19 +366,16 @@ public class DevMojo extends StartDebugMojoSupport {
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, testOutputDirectory, testSourceDirectory);
                         }
-                    } else if (directory.startsWith(configDirectory.toPath())) {  // config files                                                                    
-                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY ||  event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            // config directory does not exist, refresh only config file
-                            if (noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName())){ 
-                                copyFile(fileChanged, configDirectory, serverDirectory);
-                            } else if (!noConfigDir) { // config directory exists, refresh entire directory
+                    } else if (directory.startsWith(configDirectory.toPath())) { // config files
+                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY
+                                || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
+                            if ((noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName()))
+                                    || (!noConfigDir)) {
                                 copyFile(fileChanged, configDirectory, serverDirectory);
                             }
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
-                            if (noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName())){ 
-                                log.info("Config file deleted: " + fileChanged.getName());
-                                deleteFile(fileChanged, configDirectory, serverDirectory);
-                            } else if (!noConfigDir){
+                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                            if ((noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName()))
+                                    || (!noConfigDir)) {
                                 log.info("Config file deleted: " + fileChanged.getName());
                                 deleteFile(fileChanged, configDirectory, serverDirectory);
                             }
@@ -900,20 +897,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
         });
 
-    }
-    
-    private boolean warXmlExists(File dir){
-        boolean looseApp = false;
-        if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".war.xml") && file.getName().startsWith(DevMojo.this.project.getArtifactId())) {
-                    looseApp = true;
-                    break;
-                }
-            }
-        }
-        return looseApp;
     }
     
     private void listFiles(File directory, List<File> files, String suffix) {
