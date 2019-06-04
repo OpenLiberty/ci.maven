@@ -277,10 +277,12 @@ public class DevMojo extends StartDebugMojoSupport {
 
         startDefaultServer();
 
+        boolean noConfigDir = false;
 
         // config files
-        if (configDirectory == null) {
+        if (configDirectory == null || !configDirectory.exists()) {
             configDirectory = configFile.getParentFile();
+            noConfigDir = true;
             log.debug("configDirectory set to: " + configDirectory.getAbsolutePath());
         }
 
@@ -365,12 +367,17 @@ public class DevMojo extends StartDebugMojoSupport {
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, testOutputDirectory, testSourceDirectory);
                         }
-                    } else if (directory.startsWith(configDirectory.toPath())) {  // config files                                                                    
-                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY ||  event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            copyFile(fileChanged, configDirectory, serverDirectory);
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
-                            log.debug("Config file deleted: " + fileChanged.getName());
-                            deleteFile(fileChanged, configDirectory, serverDirectory);
+                    } else if (directory.startsWith(configDirectory.toPath())) { // config files
+                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY
+                                || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
+                            if (!noConfigDir || fileChanged.getAbsolutePath().endsWith(configFile.getName())) {
+                                copyFile(fileChanged, configDirectory, serverDirectory);
+                            }
+                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                            if (!noConfigDir || fileChanged.getAbsolutePath().endsWith(configFile.getName())) {
+                                log.info("Config file deleted: " + fileChanged.getName());
+                                deleteFile(fileChanged, configDirectory, serverDirectory);
+                            }
                         }
                     } else if (resourceParent != null && directory.startsWith(resourceParent.toPath())){ // resources
                         log.debug("Resource dir: " + resourceParent.toString());
@@ -541,7 +548,7 @@ public class DevMojo extends StartDebugMojoSupport {
             messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
             log.debug("Message occurrences before compile: " + messageOccurrences);
         }
-        
+
         // source root is src/main/java or src/test/java
         File classesDir = tests ? testOutputDirectory : outputDirectory;
 
@@ -943,20 +950,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
         });
 
-    }
-    
-    private boolean warXmlExists(File dir){
-        boolean looseApp = false;
-        if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".war.xml") && file.getName().startsWith(DevMojo.this.project.getArtifactId())) {
-                    looseApp = true;
-                    break;
-                }
-            }
-        }
-        return looseApp;
     }
     
     private void listFiles(File directory, List<File> files, String suffix) {
