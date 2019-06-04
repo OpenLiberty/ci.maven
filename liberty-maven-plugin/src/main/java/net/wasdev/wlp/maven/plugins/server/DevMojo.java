@@ -276,10 +276,12 @@ public class DevMojo extends StartDebugMojoSupport {
 
         startDefaultServer();
 
+        boolean noConfigDir = false;
 
         // config files
-        if (configDirectory == null) {
+        if (configDirectory == null || !configDirectory.exists()) {
             configDirectory = configFile.getParentFile();
+            noConfigDir = true;
             log.debug("configDirectory set to: " + configDirectory.getAbsolutePath());
         }
 
@@ -366,10 +368,20 @@ public class DevMojo extends StartDebugMojoSupport {
                         }
                     } else if (directory.startsWith(configDirectory.toPath())) {  // config files                                                                    
                         if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY ||  event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            copyFile(fileChanged, configDirectory, serverDirectory);
+                            // config directory does not exist, refresh only config file
+                            if (noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName())){ 
+                                copyFile(fileChanged, configDirectory, serverDirectory);
+                            } else if (!noConfigDir) { // config directory exists, refresh entire directory
+                                copyFile(fileChanged, configDirectory, serverDirectory);
+                            }
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
-                            log.debug("Config file deleted: " + fileChanged.getName());
-                            deleteFile(fileChanged, configDirectory, serverDirectory);
+                            if (noConfigDir && fileChanged.getAbsolutePath().endsWith(configFile.getName())){ 
+                                log.info("Config file deleted: " + fileChanged.getName());
+                                deleteFile(fileChanged, configDirectory, serverDirectory);
+                            } else if (!noConfigDir){
+                                log.info("Config file deleted: " + fileChanged.getName());
+                                deleteFile(fileChanged, configDirectory, serverDirectory);
+                            }
                         }
                     } else if (resourceParent != null && directory.startsWith(resourceParent.toPath())){ // resources
                         log.debug("Resource dir: " + resourceParent.toString());
