@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -83,7 +84,6 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
-import net.wasdev.wlp.maven.plugins.applications.InstallAppMojoSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for
@@ -228,50 +228,54 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
-
-        // check default directory for war.xml (apps or dropins)
-        boolean looseApp = false;
-        File appsDestDir = new File(serverDirectory, "apps");
-        File dropinsDestDir = new File(serverDirectory, "dropins");
-        if (warXmlExists(appsDestDir) || warXmlExists(dropinsDestDir)){
-            looseApp = true;
-        }
-        if (!looseApp){
-            log.info("Installing the application in loose application mode.");
-            runMojo("install-apps", serverName, null);
+        // collect artifacts absolute paths in order to build classpath
+        Set<Artifact> artifacts = project.getArtifacts();
+        List<String> artifactPaths = new ArrayList<String>();
+        for (Artifact artifact : artifacts) {
+            artifactPaths.add(artifact.getFile().getAbsolutePath());
         }
         
-        util = new DevMojoUtil(jvmOptions, serverDirectory);
-
+        // create an executor for tests with an additional queue of size 1, so any further changes detected mid-test will be in the following run
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<Runnable>(1, true));
+        
+        log.info("Running maven-compiler-plugin:compile");
+        runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
+        log.info("Running maven-compiler-plugin:resources");
+        runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
+        log.info("Running maven-compiler-plugin:testCompile");
+        runMojo("org.apache.maven.plugins:maven-compiler-plugin", "testCompile", null, null);
+        log.info("Running maven-compiler-plugin:testResources");
+        runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
+        
+        ArrayList<File> javaFiles = new ArrayList<File>();
+        listFiles(sourceDirectory, javaFiles, ".java");
+        
+        ArrayList<File> javaTestFiles = new ArrayList<File>();
+        listFiles(testSourceDirectory, javaTestFiles, ".java");
 
         log.debug("Source directory: " + sourceDirectory);
         log.debug("Output directory: " + outputDirectory);
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        // create an executor for tests with an additional queue of size 1, so any further changes detected mid-test will be in the following run
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<Runnable>(1, true));
+        log.info("Running goal: create-server");
+        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "create-server", serverName, null);
+        log.info("Running goal: install-feature");
+        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
+        log.info("Running goal: install-apps");
+        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
+        
+        util = new DevMojoUtil(jvmOptions, serverDirectory);
 
         util.addShutdownHook(executor);
-
-        if (skip) {
-            return;
-        }
-        if (isInstall) {
-            installServerAssembly();
-        } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-            checkServerHomeExists();
-        }
 
         util.enableServerDebug(libertyDebugPort);
 
         startDefaultServer();
 
-        HashMap<File, List<File>> files = new HashMap<File, List<File>>();
 
         // config files
         if (configDirectory == null) {
@@ -305,17 +309,9 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         String existingPom = readFile(pom);
-
-        // collect artifacts absolute paths in order to build classpath
-        Set<Artifact> artifacts = project.getArtifacts();
-        List<String> artifactPaths = new ArrayList<String>();
-        for (Artifact artifact : artifacts) {
-            artifactPaths.add(artifact.getFile().getAbsolutePath());
-        }
         
         // start watching files
         try (WatchService watcher = FileSystems.getDefault().newWatchService();) {
-            
             registerAll(sourceDirectory.toPath(), srcPath, watcher);
             registerAll(testSourceDirectory.toPath(), testSrcPath, watcher);
             registerAll(configDirectory.toPath(), configPath, watcher);
@@ -352,7 +348,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
                             log.debug("Java source file modified: " + fileChanged.getName());
-                            recompileJavaSource(files, javaFilesChanged, artifactPaths, executor);
+                            recompileJavaSource(javaFilesChanged, artifactPaths, executor);
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
                             log.debug("Java file deleted: " + fileChanged.getName());
                             deleteJavaFile(fileChanged, outputDirectory, sourceDirectory);
@@ -362,7 +358,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         ArrayList<File> javaFilesChanged = new ArrayList<File>();
                         javaFilesChanged.add(fileChanged);
                         if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            recompileJavaTest(files, javaFilesChanged, artifactPaths, executor);
+                            recompileJavaTest(javaFilesChanged, artifactPaths, executor);
                             
                         } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) { 
                             log.debug("Java file deleted: " + fileChanged.getName());
@@ -436,7 +432,7 @@ public class DevMojo extends StartDebugMojoSupport {
                                 }
                                 
                                 if (!dependencyIds.isEmpty()){
-                                    runMojo("install-feature", serverName, dependencyIds);
+                                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, dependencyIds);
                                     dependencyIds.clear();
                                 }
                                 
@@ -524,26 +520,27 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
     
-    private void recompileJavaSource(HashMap<File, List<File>> files, List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(files, javaFilesChanged, artifactPaths, executor, false);
+    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, false);
     }
 
-    private void recompileJavaTest(HashMap<File, List<File>> files, List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(files, javaFilesChanged, artifactPaths, executor, true);
+    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
+        recompileJava(javaFilesChanged, artifactPaths, executor, true);
     }
     
-    private void recompileJava(HashMap<File, List<File>> files, List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
+    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
         File logFile = null;
         String regexp = null;
         int messageOccurrences = -1;
         if (!(skipTests || skipITs)) {
-            // before compiling source and running tests, check number of "application updated" messages
+            // before compiling source and running tests, check number of
+            // "application updated" messages
             logFile = serverTask.getLogFile();
             regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
             messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
             log.debug("Message occurrences before compile: " + messageOccurrences);
         }
-
+        
         // source root is src/main/java or src/test/java
         File classesDir = tests ? testOutputDirectory : outputDirectory;
 
@@ -717,30 +714,41 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
         List elements = new ArrayList<Element>();
-        elements.add(element(name("serverName"), testServerName));
-        elements.add(element(name("configDirectory"), configDirectory.getAbsolutePath()));
-        if (goal.equals("install-feature") && (dependencies != null)) {
-            Element[] featureElems = new Element[dependencies.size()];
-            for (int i = 0; i < featureElems.length; i++){
-                featureElems[i] =  element(name("feature"), dependencies.get(i));
+        if (testServerName != null){
+            elements.add(element(name("serverName"), testServerName));
+            elements.add(element(name("configDirectory"), configDirectory.getAbsolutePath()));
+            if (goal.equals("install-feature") && (dependencies != null)) {
+                Element[] featureElems = new Element[dependencies.size()];
+                for (int i = 0; i < featureElems.length; i++){
+                    featureElems[i] =  element(name("feature"), dependencies.get(i));
+                }
+                elements.add(element(name("features"),featureElems));
+            } else if (goal.equals("install-apps")){
+                elements.add(element(name("looseApplication"), "true"));
+                elements.add(element(name("stripVersion"), "true"));
+                elements.add(element(name("installAppPackages"), "project"));
+                elements.add(element(name("configFile"), configFile.getAbsolutePath()));
+            } else if (goal.equals("create-server")){
+                elements.add(element(name("configFile"), configFile.getAbsolutePath()));
+                if (assemblyArtifact != null){
+                    Element[] featureElems = new Element[4];
+                    featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
+                    featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
+                    featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
+                    featureElems[3] = element(name("type"), assemblyArtifact.getType());
+                    elements.add(element(name("assemblyArtifact"), featureElems));
+                }  
             }
-            elements.add(element(name("features"),featureElems));
-        } else if (goal.equals("install-apps")){
-            elements.add(element(name("looseApplication"), "true"));
-            elements.add(element(name("stripVersion"), "true"));
-            elements.add(element(name("installAppPackages"), "project"));
         }
         return (Element[]) elements.toArray(new Element[elements.size()]);
     }
 
-    private void runMojo(String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
-        Plugin libertyMavenPlugin = project.getPlugin("net.wasdev.wlp.maven.plugins:liberty-maven-plugin");
-        log.info("plugin version: " + libertyMavenPlugin.getVersion());
-        executeMojo(libertyMavenPlugin, goal(goal), configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
+    private void runMojo(String plugin, String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
+        Plugin mavenPlugin = project.getPlugin(plugin);
+        log.info("plugin version: " + mavenPlugin.getVersion());
+        executeMojo(mavenPlugin, goal(goal), configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
                 executionEnvironment(project, session, pluginManager));
     }
-
-
     
     private void startDefaultServer() throws Exception {
         if (serverTask == null) {
@@ -894,6 +902,22 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return looseApp;
+    }
+    
+    private void listFiles(File directory, List<File> files, String suffix) {
+        if (directory != null) {
+            // Get all files from a directory.
+            File[] fList = directory.listFiles();
+            if (fList != null) {
+                for (File file : fList) {
+                    if (file.isFile() && ((suffix == null) || (file.getName().toLowerCase().endsWith("." + suffix)))) {
+                        files.add(file);
+                    } else if (file.isDirectory()) {
+                        listFiles(file, files, suffix);
+                    }
+                }
+            }
+        }
     }
    
 }
