@@ -592,7 +592,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
         try {
-            executor.execute(new TestJob(regexp, logFile, messageOccurrences));
+            executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
         } catch (RejectedExecutionException e) {
             log.debug("Cannot add thread since max threads reached", e);
         }
@@ -602,21 +602,35 @@ public class DevMojo extends StartDebugMojoSupport {
         private String regexp;
         private File logFile;
         private int messageOccurrences;
+        private ThreadPoolExecutor executor;
 
-        public TestJob(String regexp, File logFile, int messageOccurrences) {
+        public TestJob(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
             this.regexp = regexp;
             this.logFile = logFile;
             this.messageOccurrences = messageOccurrences;
+            this.executor = executor;
         }
 
         @Override
         public void run() {
-            runTests(regexp, logFile, messageOccurrences);
+            runTests(regexp, logFile, messageOccurrences, executor);
         }
     }
 
-    private void runTests(String regexp, File logFile, int messageOccurrences) {
+    private void runTests(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
         if (skipTests) {
+            return;
+        }
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            log.debug("Thread interrupted while waiting to start unit tests.", e);
+        }
+
+        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+        if (executor.getQueue().size() >= 1) {
+            log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
             return;
         }
 
@@ -628,6 +642,12 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (MojoExecutionException e) {
                 log.error("Failed to run unit tests", e);
             }    
+        }
+        
+        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+        if (executor.getQueue().size() >= 1) {
+            log.info("Changes were detected while tests were running. Restarting tests.");
+            return;
         }
         
         if (!skipITs) {
