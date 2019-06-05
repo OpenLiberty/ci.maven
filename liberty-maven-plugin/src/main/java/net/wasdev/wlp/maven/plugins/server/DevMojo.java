@@ -14,28 +14,9 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.Watchable;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.MessageFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,19 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
-
-import com.sun.nio.file.SensitivityWatchEventModifier;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -173,8 +142,8 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Dependency> existingDependencies;
         String existingPom; 
         
-        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs) throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs, boolean skipTests, boolean skipITs) throws IOException {
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -275,75 +244,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor,
-                boolean tests) {
-            try {
-                File logFile = null;
-                String regexp = null;
-                int messageOccurrences = -1;
-                if (!(skipTests || skipITs)) {
-                    // before compiling source and running tests, check number
-                    // of "application updated" messages
-                    logFile = serverTask.getLogFile();
-                    regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-                    messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-                    log.debug("Message occurrences before compile: " + messageOccurrences);
-                }
-
-                // source root is src/main/java or src/test/java
-                File classesDir = tests ? testOutputDirectory : outputDirectory;
-
-                List<String> optionList = new ArrayList<>();
-                List<File> outputDirs = new ArrayList<File>();
-
-                if (tests) {
-                    outputDirs.add(outputDirectory);
-                    outputDirs.add(testOutputDirectory);
-                } else {
-                    outputDirs.add(outputDirectory);
-                }
-                Set<File> classPathElems = getClassPath(artifactPaths, outputDirs);
-
-                JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-                StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
-                fileManager.setLocation(StandardLocation.CLASS_PATH, classPathElems);
-                fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(classesDir));
-
-                Iterable<? extends JavaFileObject> compilationUnits = fileManager
-                        .getJavaFileObjectsFromFiles(javaFilesChanged);
-
-                JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null,
-                        compilationUnits);
-                boolean didCompile = task.call();
-                if (didCompile) {
-                    if (tests) {
-                        log.info("Tests compilation was successful.");
-                    } else {
-                        log.info("Source compilation was successful.");
-                    }
-
-                    // run tests after successful compile
-                    if (tests) {
-                        // if only tests were compiled, don't need to wait for
-                        // app to update
-                        runTestThread(executor, null, null, -1);
-                    } else {
-                        runTestThread(executor, regexp, logFile, messageOccurrences);
-                    }
-                } else {
-                    if (tests) {
-                        log.info("Tests compilation had errors.");
-                    } else {
-                        log.info("Source compilation had errors.");
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Error compiling java files", e);
-            }
-        }
-
-        @Override
         public void recompileBuildFile(File buildFile, List<String> artifactPaths) {
             try {
                 String modifiedPom = util.readFile(buildFile);
@@ -418,7 +318,28 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Could not recompile pom.xml", e);
             }
         }
+        
+        public int getMessageOccurrences(String regexp, File logFile) {
+            int messageOccurrences = -1;
+            try {
+                logFile = serverTask.getLogFile();
+                regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+                messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
+                log.debug("Message occurrences before compile: " + messageOccurrences);
+            } catch (Exception e) {
+                log.debug("Failed to get message occurrences before compile", e);
+            }
+            return messageOccurrences;
 
+        }
+        
+        public void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
+            try {
+                executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
+            } catch (RejectedExecutionException e) {
+                log.debug("Cannot add thread since max threads reached", e);
+            }
+        }
 
     }
 
@@ -480,7 +401,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         
-        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
 
         util.addShutdownHook(executor);
 
@@ -491,9 +412,6 @@ public class DevMojo extends StartDebugMojoSupport {
         // collect artifacts absolute paths in order to build classpath
         List<String> artifactPaths = new ArrayList<String>();
         util.getArtifacts(artifactPaths);
-        
-        // pom.xml dependencies
-        List<Dependency> existingDependencies = project.getDependencies();
         
         // run tests at startup
         runTestThread(executor, null, null, -1);
@@ -535,95 +453,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return updatedArtifacts;
-    }
-    
-    private void deleteJavaFile(File fileChanged, File classesDir, File compileSourceRoot){
-        if (fileChanged.getName().endsWith(".java")){
-            String fileName = fileChanged.getName().substring(0, fileChanged.getName().indexOf(".java"));
-            File parentFile = fileChanged.getParentFile();
-            String relPath = parentFile.getAbsolutePath()
-                    .substring(parentFile.getAbsolutePath().indexOf(compileSourceRoot.getAbsolutePath())
-                            + compileSourceRoot.getAbsolutePath().length())
-                    + "/" + fileName + ".class";
-            File targetFile = new File(classesDir.getAbsolutePath() + relPath);
-
-            if (targetFile.exists()) {
-                targetFile.delete();
-                log.info("Java class deleted: " + targetFile.getAbsolutePath());
-            }
-        } else {
-            log.debug("File deleted but was not a java file: " + fileChanged.getName());
-        }
-    }
-    
-    private void recompileJavaSource(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, false);
-    }
-
-    private void recompileJavaTest(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor) throws Exception {
-        recompileJava(javaFilesChanged, artifactPaths, executor, true);
-    }
-    
-    private void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor, boolean tests) throws Exception {
-        File logFile = null;
-        String regexp = null;
-        int messageOccurrences = -1;
-        if (!(skipTests || skipITs)) {
-            // before compiling source and running tests, check number of
-            // "application updated" messages
-            logFile = serverTask.getLogFile();
-            regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-            messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-            log.debug("Message occurrences before compile: " + messageOccurrences);
-        }
-
-        // source root is src/main/java or src/test/java
-        File classesDir = tests ? testOutputDirectory : outputDirectory;
-
-        List<String> optionList = new ArrayList<>();
-        List<File> outputDirs = new ArrayList<File>();
-        
-        if (tests){
-            outputDirs.add(outputDirectory);
-            outputDirs.add(testOutputDirectory);
-        } else {
-            outputDirs.add(outputDirectory);
-        }
-        Set<File> classPathElems = getClassPath(artifactPaths, outputDirs);
-
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
-        fileManager.setLocation(StandardLocation.CLASS_PATH, classPathElems);
-        fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(classesDir));
-
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager
-                .getJavaFileObjectsFromFiles(javaFilesChanged);
-
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null,
-                compilationUnits);
-        boolean didCompile = task.call();
-        if (didCompile) {
-            if (tests) {
-                log.info("Tests compilation was successful.");
-            } else {
-                log.info("Source compilation was successful.");
-            }
-
-            // run tests after successful compile
-            if (tests) {
-                // if only tests were compiled, don't need to wait for app to update
-                runTestThread(executor, null, null, -1);
-            } else {
-                runTestThread(executor, regexp, logFile, messageOccurrences);
-            }
-        } else {
-            if (tests) {
-                log.info("Tests compilation had errors.");
-            } else {
-                log.info("Source compilation had errors.");
-            }
-        }
     }
 
     private void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
@@ -838,66 +667,6 @@ public class DevMojo extends StartDebugMojoSupport {
         log.info("plugin version: " + mavenPlugin.getVersion());
         executeMojo(mavenPlugin, goal(goal), configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
                 executionEnvironment(project, session, pluginManager));
-    }
-    
-    private Set<File> getClassPath(List<String> artifactPaths, List<File> outputDirs) {
-        List<URL> urls = new ArrayList<>();
-        ClassLoader c = Thread.currentThread().getContextClassLoader();
-        while (c != null) {
-            if (c instanceof URLClassLoader) {
-                urls.addAll(Arrays.asList(((URLClassLoader) c).getURLs()));
-            }
-            c = c.getParent();
-        }
-
-        Set<String> parsedFiles = new HashSet<>();
-        Deque<String> toParse = new ArrayDeque<>();
-        for (URL url : urls) {
-            toParse.add(new File(url.getPath()).getAbsolutePath());
-        }
-
-        for (String artifactPath : artifactPaths) {
-            toParse.add(new File(artifactPath).getAbsolutePath());
-        }
-
-        Set<File> classPathElements = new HashSet<>();
-        classPathElements.addAll(outputDirs);
-        while (!toParse.isEmpty()) {
-            String s = toParse.poll();
-            if (!parsedFiles.contains(s)) {
-                parsedFiles.add(s);
-                File file = new File(s);
-                if (file.exists() && file.getName().endsWith(".jar")) {
-                    classPathElements.add(file);
-                    if (!file.isDirectory() && file.getName().endsWith(".jar")) {
-                        try (JarFile jar = new JarFile(file)) {
-                            Manifest mf = jar.getManifest();
-                            if (mf == null || mf.getMainAttributes() == null) {
-                                continue;
-                            }
-                            Object classPath = mf.getMainAttributes().get(Attributes.Name.CLASS_PATH);
-                            if (classPath != null) {
-                                for (String i : classPath.toString().split(" ")) {
-                                    File f;
-                                    try {
-                                        URL u = new URL(i);
-                                        f = new File(u.getPath());
-                                    } catch (MalformedURLException e) {
-                                        f = new File(file.getParentFile(), i);
-                                    }
-                                    if (f.exists()) {
-                                        toParse.add(f.getAbsolutePath());
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException("Failed to open class path file " + file, e);
-                        }
-                    }
-                }
-            }
-        }
-        return classPathElements;
     }
     
     private static MavenProject loadProject(File pomFile) throws IOException, XmlPullParserException {
