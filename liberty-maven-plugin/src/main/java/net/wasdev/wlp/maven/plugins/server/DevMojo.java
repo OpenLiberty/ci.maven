@@ -319,6 +319,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         
+        @Override
         public int getMessageOccurrences(String regexp, File logFile) {
             int messageOccurrences = -1;
             try {
@@ -333,6 +334,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         }
         
+        @Override
         public void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
             try {
                 executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
