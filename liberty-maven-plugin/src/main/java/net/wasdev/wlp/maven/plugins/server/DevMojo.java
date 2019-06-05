@@ -35,11 +35,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -172,8 +170,14 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private class DevMojoUtil extends DevUtil {
 
-        public DevMojoUtil(List<String> jvmOptions, File serverDirectory) {
-            super(jvmOptions, serverDirectory);
+        List<Dependency> existingDependencies;
+        String existingPom; 
+        
+        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs) throws IOException {
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+            this.existingDependencies = project.getDependencies();
+            File pom = project.getFile();
+            this.existingPom = readFile(pom);
         }
 
         @Override
@@ -223,19 +227,205 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         
+        @Override
+        public void startServer() {
+            try {
+                if (serverTask == null) {
+                    serverTask = initializeJava();
+                }
+                copyConfigFiles();
+                serverTask.setClean(clean);
+                serverTask.setOperation("start");
+                // Set server start timeout
+                if (serverStartTimeout < 0) {
+                    serverStartTimeout = 30;
+                }
+                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
+                serverTask.execute();
+
+                if (verifyTimeout < 0) {
+                    verifyTimeout = 30;
+                }
+                long timeout = verifyTimeout * 1000;
+                long endTime = System.currentTimeMillis() + timeout;
+                if (applications != null) {
+                    String[] apps = applications.split("[,\\s]+");
+                    for (String archiveName : apps) {
+                        String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName,
+                                timeout, serverTask.getLogFile());
+                        if (startMessage == null) {
+                            stopServer();
+                            throw new MojoExecutionException(MessageFormat
+                                    .format(messages.getString("error.server.start.verify"), verifyTimeout));
+                        }
+                        timeout = endTime - System.currentTimeMillis();
+                    }
+                }
+            } catch (Exception e) {
+                log.debug("Error starting server", e);
+            }
+        }
+        
+        @Override
+        public void getArtifacts(List<String> artifactPaths){
+            Set<Artifact> artifacts = project.getArtifacts();
+            for (Artifact artifact : artifacts) {
+                artifactPaths.add(artifact.getFile().getAbsolutePath());
+            }
+        }
+
+        @Override
+        public void recompileJava(List<File> javaFilesChanged, List<String> artifactPaths, ThreadPoolExecutor executor,
+                boolean tests) {
+            try {
+                File logFile = null;
+                String regexp = null;
+                int messageOccurrences = -1;
+                if (!(skipTests || skipITs)) {
+                    // before compiling source and running tests, check number
+                    // of "application updated" messages
+                    logFile = serverTask.getLogFile();
+                    regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+                    messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
+                    log.debug("Message occurrences before compile: " + messageOccurrences);
+                }
+
+                // source root is src/main/java or src/test/java
+                File classesDir = tests ? testOutputDirectory : outputDirectory;
+
+                List<String> optionList = new ArrayList<>();
+                List<File> outputDirs = new ArrayList<File>();
+
+                if (tests) {
+                    outputDirs.add(outputDirectory);
+                    outputDirs.add(testOutputDirectory);
+                } else {
+                    outputDirs.add(outputDirectory);
+                }
+                Set<File> classPathElems = getClassPath(artifactPaths, outputDirs);
+
+                JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+                StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+
+                fileManager.setLocation(StandardLocation.CLASS_PATH, classPathElems);
+                fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(classesDir));
+
+                Iterable<? extends JavaFileObject> compilationUnits = fileManager
+                        .getJavaFileObjectsFromFiles(javaFilesChanged);
+
+                JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null,
+                        compilationUnits);
+                boolean didCompile = task.call();
+                if (didCompile) {
+                    if (tests) {
+                        log.info("Tests compilation was successful.");
+                    } else {
+                        log.info("Source compilation was successful.");
+                    }
+
+                    // run tests after successful compile
+                    if (tests) {
+                        // if only tests were compiled, don't need to wait for
+                        // app to update
+                        runTestThread(executor, null, null, -1);
+                    } else {
+                        runTestThread(executor, regexp, logFile, messageOccurrences);
+                    }
+                } else {
+                    if (tests) {
+                        log.info("Tests compilation had errors.");
+                    } else {
+                        log.info("Source compilation had errors.");
+                    }
+                }
+            } catch (Exception e) {
+                log.debug("Error compiling java files", e);
+            }
+        }
+
+        @Override
+        public void recompileBuildFile(File buildFile, List<String> artifactPaths) {
+            try {
+                String modifiedPom = util.readFile(buildFile);
+                XMLUnit.setIgnoreWhitespace(true);
+                XMLUnit.setIgnoreAttributeOrder(true);
+                XMLUnit.setIgnoreComments(true);
+                DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(this.existingPom, modifiedPom));
+                List<?> allDifferences = diff.getAllDifferences();
+                log.debug("Number of differences in the pom: " + allDifferences.size());
+
+                if (!allDifferences.isEmpty()) {
+                    log.info("Pom has been modified");
+                    MavenProject updatedProject = loadProject(buildFile);
+                    List<Dependency> dependencies = updatedProject.getDependencies();
+                    log.debug("Dependencies size: " + dependencies.size());
+                    log.debug("Existing dependencies size: " + this.existingDependencies.size());
+
+                    List<String> dependencyIds = new ArrayList<String>();
+                    List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
+
+                    if (!updatedArtifacts.isEmpty()) {
+                        for (Artifact artifact : updatedArtifacts) {
+                            if (("esa").equals(artifact.getType())) {
+                                dependencyIds.add(artifact.getArtifactId());
+                            }
+
+                            org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
+                                    artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
+                                    artifact.getVersion());
+                            org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
+                                    aetherArtifact, null, true);
+
+                            CollectRequest collectRequest = new CollectRequest();
+                            collectRequest.setRoot(dependency);
+                            collectRequest.setRepositories(repositories);
+
+                            List<String> addToClassPath = new ArrayList<String>();
+                            DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
+                            try {
+                                DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession,
+                                        depRequest);
+                                org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
+                                List<File> artifactsList = new ArrayList<File>();
+                                addArtifacts(root, artifactsList);
+                                for (File a : artifactsList) {
+                                    log.debug("Artifact: " + a);
+                                    if (a.getAbsolutePath().endsWith(".jar")) {
+                                        addToClassPath.add(a.getAbsolutePath());
+                                    }
+                                }
+                            } catch (DependencyResolutionException e) {
+                                throw new MojoExecutionException(e.getMessage(), e);
+                            }
+                            artifactPaths.addAll(addToClassPath);
+                        }
+
+                        if (!dependencyIds.isEmpty()) {
+                            runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
+                                    dependencyIds);
+                            dependencyIds.clear();
+                        }
+
+                        // update dependencies
+                        this.existingDependencies = dependencies;
+                        this.existingPom = modifiedPom;
+                    } else {
+                        log.info("Unexpected change detected in pom.xml.  Please restart liberty:dev mode.");
+                    }
+                }
+
+            } catch (Exception e) {
+                log.debug("Could not recompile pom.xml", e);
+            }
+        }
+
+
     }
 
     DevMojoUtil util;
 
     @Override
     protected void doExecute() throws Exception {
-        // collect artifacts absolute paths in order to build classpath
-        Set<Artifact> artifacts = project.getArtifacts();
-        List<String> artifactPaths = new ArrayList<String>();
-        for (Artifact artifact : artifacts) {
-            artifactPaths.add(artifact.getFile().getAbsolutePath());
-        }
-        
         // create an executor for tests with an additional queue of size 1, so any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
@@ -268,14 +458,6 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
         log.info("Running goal: install-apps");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
-        
-        util = new DevMojoUtil(jvmOptions, serverDirectory);
-
-        util.addShutdownHook(executor);
-
-        util.enableServerDebug(libertyDebugPort);
-
-        startDefaultServer();
 
         boolean noConfigDir = false;
 
@@ -297,7 +479,19 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
+        
+        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
 
+        util.addShutdownHook(executor);
+
+        util.enableServerDebug(libertyDebugPort);
+
+        util.startServer();
+
+        // collect artifacts absolute paths in order to build classpath
+        List<String> artifactPaths = new ArrayList<String>();
+        util.getArtifacts(artifactPaths);
+        
         // pom.xml dependencies
         List<Dependency> existingDependencies = project.getDependencies();
         
@@ -308,164 +502,13 @@ public class DevMojo extends StartDebugMojoSupport {
         Path srcPath = sourceDirectory.getAbsoluteFile().toPath(); 
         Path testSrcPath = testSourceDirectory.getAbsoluteFile().toPath();  
         Path configPath = configDirectory.getAbsoluteFile().toPath(); 
-        
+             
         // pom.xml
         File pom = project.getFile();
-        String existingPom = readFile(pom);
         
-        // start watching files
-        try (WatchService watcher = FileSystems.getDefault().newWatchService();) {
-            registerAll(sourceDirectory.toPath(), srcPath, watcher);
-            registerAll(testSourceDirectory.toPath(), testSrcPath, watcher);
-            registerAll(configDirectory.toPath(), configPath, watcher);
-            for (File resourceDir : resourceDirs) {
-                registerAll(resourceDir.toPath(), resourceDir.getAbsoluteFile().toPath(), watcher);
-            }
-            
-            pom.getParentFile().toPath().register(watcher, new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_CREATE}, SensitivityWatchEventModifier.HIGH);
-            log.debug("Registering watchservice directory: " + pom.getParentFile().toPath());
-            
-            while (true) {
-                final WatchKey wk = watcher.take();
-                for (WatchEvent<?> event : wk.pollEvents()) {
-                    final Path changed = (Path) event.context();
-
-                    final Watchable watchable = wk.watchable();
-                    final Path directory = (Path) watchable;
-                    log.debug("Processing events for watched directory: " + directory);
-                    
-                    File fileChanged = new File(directory.toString(), changed.toString());
-                    log.debug("Changed: " + changed + "; " + event.kind());
-                    
-                    // resource file check
-                    File resourceParent = null;
-                    for (File resourceDir : resourceDirs){
-                        if (directory.startsWith(resourceDir.toPath())){
-                            resourceParent = resourceDir;
-                        }
-                    }
-                    
-                    // src/main/java directory 
-                    if (directory.startsWith(sourceDirectory.toPath())) {
-                        ArrayList<File> javaFilesChanged = new ArrayList<File>();
-                        javaFilesChanged.add(fileChanged);
-                        if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            log.debug("Java source file modified: " + fileChanged.getName());
-                            recompileJavaSource(javaFilesChanged, artifactPaths, executor);
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE){
-                            log.debug("Java file deleted: " + fileChanged.getName());
-                            deleteJavaFile(fileChanged, outputDirectory, sourceDirectory);
-                           
-                        }
-                    } else if (directory.startsWith(testSourceDirectory.toPath())) { // src/main/test
-                        ArrayList<File> javaFilesChanged = new ArrayList<File>();
-                        javaFilesChanged.add(fileChanged);
-                        if (fileChanged.exists() && fileChanged.getName().endsWith(".java") && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            recompileJavaTest(javaFilesChanged, artifactPaths, executor);
-                            
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) { 
-                            log.debug("Java file deleted: " + fileChanged.getName());
-                            deleteJavaFile(fileChanged, testOutputDirectory, testSourceDirectory);
-                        }
-                    } else if (directory.startsWith(configDirectory.toPath())) { // config files
-                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY
-                                || event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            if (!noConfigDir || fileChanged.getAbsolutePath().endsWith(configFile.getName())) {
-                                copyFile(fileChanged, configDirectory, serverDirectory);
-                            }
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                            if (!noConfigDir || fileChanged.getAbsolutePath().endsWith(configFile.getName())) {
-                                log.info("Config file deleted: " + fileChanged.getName());
-                                deleteFile(fileChanged, configDirectory, serverDirectory);
-                            }
-                        }
-                    } else if (resourceParent != null && directory.startsWith(resourceParent.toPath())){ // resources
-                        log.debug("Resource dir: " + resourceParent.toString());
-                        log.debug("File within resource directory");
-                        if (fileChanged.exists() && (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY ||  event.kind() == StandardWatchEventKinds.ENTRY_CREATE)) {
-                            copyFile(fileChanged, resourceParent, outputDirectory);  
-                        } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                            log.debug("Resource file deleted: " + fileChanged.getName());
-                            deleteFile(fileChanged, resourceParent, outputDirectory);
-                        }
-                    } else if (fileChanged.equals(pom) && directory.startsWith(pom.getParentFile().toPath()) && event.kind() == StandardWatchEventKinds.ENTRY_MODIFY){ // pom.xml
-                        String modifiedPom = readFile(pom);
-                        XMLUnit.setIgnoreWhitespace(true);
-                        XMLUnit.setIgnoreAttributeOrder(true);
-                        XMLUnit.setIgnoreComments(true);
-                        DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(existingPom, modifiedPom));
-                        List<?> allDifferences = diff.getAllDifferences();
-                        log.debug("Number of differences in the pom: " + allDifferences.size());
-                        
-                        if (!allDifferences.isEmpty()){
-                            log.info("Pom has been modified");
-                            MavenProject updatedProject = loadProject(pom);
-                            List<Dependency> dependencies = updatedProject.getDependencies();
-                            log.debug("Dependencies size: " + dependencies.size());
-                            log.debug("Existing dependencies size: " + existingDependencies.size());
-      
-                            List<String> dependencyIds = new ArrayList<String>();          
-                            List<Artifact> updatedArtifacts = getNewDependencies(dependencies, existingDependencies);
-
-                            if (!updatedArtifacts.isEmpty()){
-                                for (Artifact artifact : updatedArtifacts){
-                                    if (("esa").equals(artifact.getType())) {
-                                        dependencyIds.add(artifact.getArtifactId());
-                                    }
-                                    
-                                    org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(artifact.getGroupId(),  artifact.getArtifactId(), artifact.getType(), artifact.getVersion());
-                                    org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(aetherArtifact, null, true);
-                                    
-                                    CollectRequest collectRequest = new CollectRequest();
-                                    collectRequest.setRoot(dependency);
-                                    collectRequest.setRepositories(repositories);
-                                    
-                                    List<String> addToClassPath = new ArrayList<String>();
-                                    DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-                                    try {
-                                        DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession, depRequest);
-                                        org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                                        List<File> artifactsList = new ArrayList<File>();
-                                        addArtifacts(root, artifactsList);
-                                        for (File a : artifactsList) {
-                                           log.debug("Artifact: " + a);
-                                           if (a.getAbsolutePath().endsWith(".jar")){
-                                               addToClassPath.add(a.getAbsolutePath());
-                                           }
-                                        }
-                                    } catch (DependencyResolutionException e) {
-                                        throw new MojoExecutionException(e.getMessage(), e);
-                                    }
-                                    artifactPaths.addAll(addToClassPath);
-                                }
-                                
-                                if (!dependencyIds.isEmpty()){
-                                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, dependencyIds);
-                                    dependencyIds.clear();
-                                }
-                                
-                                // update dependencies  
-                                existingDependencies = dependencies;
-                                existingPom = modifiedPom;
-                            } else {
-                                log.info("Unexpected change detected in pom.xml.  Please restart liberty:dev mode.");
-                            }
-                        }
-                    }
-                }
-                // reset the key
-                boolean valid = wk.reset();
-                if (!valid) {
-                    log.info("WatchService key has been unregistered");
-                }
-            }
-        }
+        util.watchFiles(srcPath, testSrcPath, configPath, pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
     
-    private String readFile(File file) throws IOException {
-        return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-
-    }
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
         if (root.getArtifact() != null) {
             artifacts.add(root.getArtifact().getFile());
@@ -492,21 +535,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return updatedArtifacts;
-    }
-        
-    private void copyFile(File fileChanged, File srcDir, File targetDir){
-        try{
-            String relPath = fileChanged.getAbsolutePath()
-                    .substring(fileChanged.getAbsolutePath().indexOf(srcDir.getAbsolutePath())
-                            + srcDir.getAbsolutePath().length());
-
-            File targetResource = new File(targetDir.getAbsolutePath() + relPath);
-            log.info("Copying file: " + fileChanged.getAbsolutePath() + " to: "
-                    + targetResource.getAbsolutePath());
-            FileUtils.copyFile(fileChanged, targetResource);
-        } catch (IOException e) {
-            log.error("Failed to copy file: " + e.toString());
-        }
     }
     
     private void deleteJavaFile(File fileChanged, File classesDir, File compileSourceRoot){
@@ -812,52 +840,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 executionEnvironment(project, session, pluginManager));
     }
     
-    private void startDefaultServer() throws Exception {
-        if (serverTask == null) {
-            serverTask = initializeJava();
-        }
-        copyConfigFiles();
-        serverTask.setClean(clean);
-        serverTask.setOperation("start");
-        // Set server start timeout
-        if (serverStartTimeout < 0) {
-            serverStartTimeout = 30;
-        }
-        serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-        serverTask.execute();
-
-        if (verifyTimeout < 0) {
-            verifyTimeout = 30;
-        }
-        long timeout = verifyTimeout * 1000;
-        long endTime = System.currentTimeMillis() + timeout;
-        if (applications != null) {
-            String[] apps = applications.split("[,\\s]+");
-            for (String archiveName : apps) {
-                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName, timeout,
-                        serverTask.getLogFile());
-                if (startMessage == null) {
-                    util.stopServer();
-                    throw new MojoExecutionException(
-                            MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
-                }
-                timeout = endTime - System.currentTimeMillis();
-            }
-        }
-    }
-
-    private void deleteFile (File deletedFile, File dir, File targetDir){
-        log.debug("File that was deleted: " + deletedFile.getAbsolutePath());
-        String relPath = deletedFile.getAbsolutePath().substring(
-                deletedFile.getAbsolutePath().indexOf(dir.getAbsolutePath()) + dir.getAbsolutePath().length());
-        File targetFile = new File(targetDir.getAbsolutePath() + relPath);
-        log.debug("Target file exists: " + targetFile.exists());
-        if (targetFile.exists()) {
-            targetFile.delete();
-            log.info("Deleted file: " + targetFile.getAbsolutePath());
-        }
-    }
-    
     private Set<File> getClassPath(List<String> artifactPaths, List<File> outputDirs) {
         List<URL> urls = new ArrayList<>();
         ClassLoader c = Thread.currentThread().getContextClassLoader();
@@ -935,21 +917,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return ret;
-    }
-    
-    private void registerAll(final Path start, final Path dir, final WatchService watcher) throws IOException {
-        // register directory and sub-directories
-        Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-                    log.debug("Registering watchservice directory: " + dir.toString());
-                    dir.register(watcher, new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_CREATE}, SensitivityWatchEventModifier.HIGH);
-                    return FileVisitResult.CONTINUE;
-            }
-
-        });
-
     }
     
     private void listFiles(File directory, List<File> files, String suffix) {
