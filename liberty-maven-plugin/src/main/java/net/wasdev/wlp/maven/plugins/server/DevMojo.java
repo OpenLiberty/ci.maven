@@ -65,6 +65,7 @@ import org.apache.maven.model.Resource;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -457,7 +458,7 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
         log.info("Running goal: install-apps");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
-        
+
         boolean noConfigDir = false;
 
         // config files
@@ -627,7 +628,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
         try {
-            executor.execute(new TestJob(regexp, logFile, messageOccurrences));
+            executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
         } catch (RejectedExecutionException e) {
             log.debug("Cannot add thread since max threads reached", e);
         }
@@ -637,21 +638,35 @@ public class DevMojo extends StartDebugMojoSupport {
         private String regexp;
         private File logFile;
         private int messageOccurrences;
+        private ThreadPoolExecutor executor;
 
-        public TestJob(String regexp, File logFile, int messageOccurrences) {
+        public TestJob(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
             this.regexp = regexp;
             this.logFile = logFile;
             this.messageOccurrences = messageOccurrences;
+            this.executor = executor;
         }
 
         @Override
         public void run() {
-            runTests(regexp, logFile, messageOccurrences);
+            runTests(regexp, logFile, messageOccurrences, executor);
         }
     }
 
-    private void runTests(String regexp, File logFile, int messageOccurrences) {
+    private void runTests(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
         if (skipTests) {
+            return;
+        }
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            log.debug("Thread interrupted while waiting to start unit tests.", e);
+        }
+
+        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+        if (executor.getQueue().size() >= 1) {
+            log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
             return;
         }
 
@@ -661,8 +676,22 @@ public class DevMojo extends StartDebugMojoSupport {
                 runUnitTests();
                 log.info("Unit tests finished.");
             } catch (MojoExecutionException e) {
-                log.error("Failed to run unit tests", e);
-            }    
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    log.debug(e);
+                    log.error("Unit tests failed: " + cause.getLocalizedMessage());
+                    // if unit tests failed, don't run integration tests
+                    return;
+                } else {
+                    log.error("Failed to run unit tests", e);
+                }
+            }
+        }
+        
+        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+        if (executor.getQueue().size() >= 1) {
+            log.info("Changes were detected while tests were running. Restarting tests.");
+            return;
         }
         
         if (!skipITs) {
@@ -680,7 +709,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 runIntegrationTests();
                 log.info("Integration tests finished.");
             } catch (MojoExecutionException e) {
-                log.error("Failed to run integration tests", e);
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    log.debug(e);
+                    log.error("Integration tests failed: " + cause.getLocalizedMessage());
+                } else {
+                    log.error("Failed to run integration tests", e);
+                }
             }
         }
     }
@@ -717,7 +752,26 @@ public class DevMojo extends StartDebugMojoSupport {
             config = configuration();
         }
 
-        injectTestId(config);
+        if (phase.equals("test")) {
+            injectTestId(config);
+        } else if (phase.equals("integration-test")) {
+            injectTestId(config);
+            // clean up previous summary file
+            File summaryFile = null;
+            Xpp3Dom summaryFileElement = config.getChild("summaryFile");
+            if (summaryFileElement != null) {
+                summaryFile = new File(summaryFileElement.getValue());
+            } else {
+                summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
+            }
+            log.debug("Looking for summary file at " + summaryFile.getAbsolutePath());
+            if (summaryFile.exists()) {
+                boolean deleteResult = summaryFile.delete();
+                log.debug("Summary file deleted? " + deleteResult);
+            } else {
+                log.debug("Summary file doesn't exist");
+            }
+        }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 
         executeMojo(plugin, goal(phase), config, executionEnvironment(project, session.clone(), pluginManager));
@@ -745,6 +799,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runIntegrationTests() throws MojoExecutionException {
         runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
+        runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
     }
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
