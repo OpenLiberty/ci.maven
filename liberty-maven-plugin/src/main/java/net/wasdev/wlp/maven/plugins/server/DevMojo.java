@@ -149,8 +149,8 @@ public class DevMojo extends StartDebugMojoSupport {
         String existingPom;
         List<String> existingConfigFeatures;
         
-        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs, boolean skipTests, boolean skipITs) throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
+        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs) throws IOException {
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -328,26 +328,90 @@ public class DevMojo extends StartDebugMojoSupport {
         }
         
         @Override
-        public int getMessageOccurrences(String regexp, File logFile) {
+        public int countApplicationUpdatedMessages() {
             int messageOccurrences = -1;
-            try {
-                logFile = serverTask.getLogFile();
-                regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-                messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-                log.debug("Message occurrences before compile: " + messageOccurrences);
-            } catch (Exception e) {
-                log.debug("Failed to get message occurrences before compile", e);
+            if (!(skipTests || skipITs)) {
+                try {
+                    File logFile = serverTask.getLogFile();
+                    String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+                    messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
+                    log.debug("Message occurrences before compile: " + messageOccurrences);
+                } catch (Exception e) {
+                    log.debug("Failed to get message occurrences before compile", e);
+                }
             }
             return messageOccurrences;
 
         }
-        
+
         @Override
-        public void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
+        public void runTests(boolean waitForApplicationUpdate, int messageOccurrences, ThreadPoolExecutor executor, boolean forceSkipUTs) {
+            File logFile = serverTask.getLogFile();
+            String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+
+            if (skipTests) {
+                return;
+            }
+    
             try {
-                executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
-            } catch (RejectedExecutionException e) {
-                log.debug("Cannot add thread since max threads reached", e);
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                log.debug("Thread interrupted while waiting to start unit tests.", e);
+            }
+    
+            // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+            if (executor.getQueue().size() >= 1) {
+                log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
+                return;
+            }
+    
+            if (!(skipUTs || forceSkipUTs)) {
+                log.info("Running unit tests...");
+                try {
+                    runUnitTests();
+                    log.info("Unit tests finished.");
+                } catch (MojoExecutionException e) {
+                    Throwable cause = e.getCause();
+                    if (cause != null && cause instanceof MojoFailureException) {
+                        log.debug(e);
+                        log.error("Unit tests failed: " + cause.getLocalizedMessage());
+                        // if unit tests failed, don't run integration tests
+                        return;
+                    } else {
+                        log.error("Failed to run unit tests", e);
+                    }
+                }
+            }
+            
+            // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+            if (executor.getQueue().size() >= 1) {
+                log.info("Changes were detected while tests were running. Restarting tests.");
+                return;
+            }
+            
+            if (!skipITs) {
+                if (waitForApplicationUpdate) {
+                    // wait until application has been updated
+                    if (appUpdateTimeout < 0) {
+                        appUpdateTimeout = 5;
+                    }
+                    long timeout = appUpdateTimeout * 1000;
+                    serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
+                }
+    
+                log.info("Running integration tests...");
+                try {
+                    runIntegrationTests();
+                    log.info("Integration tests finished.");
+                } catch (MojoExecutionException e) {
+                    Throwable cause = e.getCause();
+                    if (cause != null && cause instanceof MojoFailureException) {
+                        log.debug(e);
+                        log.error("Integration tests failed: " + cause.getLocalizedMessage());
+                    } else {
+                        log.error("Failed to run integration tests", e);
+                    }
+                }
             }
         }
         
@@ -448,7 +512,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         
-        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
+        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
 
         util.addShutdownHook(executor);
 
@@ -461,7 +525,7 @@ public class DevMojo extends StartDebugMojoSupport {
         util.getArtifacts(artifactPaths);
         
         // run tests at startup
-        runTestThread(executor, null, null, -1);
+        util.runTestThread(false, executor, -1, false);
                 
         // src/main/java files
         Path srcPath = sourceDirectory.getAbsoluteFile().toPath(); 
@@ -500,100 +564,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return updatedArtifacts;
-    }
-
-    private void runTestThread(ThreadPoolExecutor executor, String regexp, File logFile, int messageOccurrences) {
-        try {
-            executor.execute(new TestJob(regexp, logFile, messageOccurrences, executor));
-        } catch (RejectedExecutionException e) {
-            log.debug("Cannot add thread since max threads reached", e);
-        }
-    }
-
-    private class TestJob implements Runnable {
-        private String regexp;
-        private File logFile;
-        private int messageOccurrences;
-        private ThreadPoolExecutor executor;
-
-        public TestJob(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
-            this.regexp = regexp;
-            this.logFile = logFile;
-            this.messageOccurrences = messageOccurrences;
-            this.executor = executor;
-        }
-
-        @Override
-        public void run() {
-            runTests(regexp, logFile, messageOccurrences, executor);
-        }
-    }
-
-    private void runTests(String regexp, File logFile, int messageOccurrences, ThreadPoolExecutor executor) {
-        if (skipTests) {
-            return;
-        }
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            log.debug("Thread interrupted while waiting to start unit tests.", e);
-        }
-
-        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
-        if (executor.getQueue().size() >= 1) {
-            log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
-            return;
-        }
-
-        if (!skipUTs) {
-            log.info("Running unit tests...");
-            try {
-                runUnitTests();
-                log.info("Unit tests finished.");
-            } catch (MojoExecutionException e) {
-                Throwable cause = e.getCause();
-                if (cause != null && cause instanceof MojoFailureException) {
-                    log.debug(e);
-                    log.error("Unit tests failed: " + cause.getLocalizedMessage());
-                    // if unit tests failed, don't run integration tests
-                    return;
-                } else {
-                    log.error("Failed to run unit tests", e);
-                }
-            }
-        }
-        
-        // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
-        if (executor.getQueue().size() >= 1) {
-            log.info("Changes were detected while tests were running. Restarting tests.");
-            return;
-        }
-        
-        if (!skipITs) {
-            if (regexp != null) {
-                // wait until application has been updated
-                if (appUpdateTimeout < 0) {
-                    appUpdateTimeout = 5;
-                }
-                long timeout = appUpdateTimeout * 1000;
-                serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
-            }
-
-            log.info("Running integration tests...");
-            try {
-                runIntegrationTests();
-                log.info("Integration tests finished.");
-            } catch (MojoExecutionException e) {
-                Throwable cause = e.getCause();
-                if (cause != null && cause instanceof MojoFailureException) {
-                    log.debug(e);
-                    log.error("Integration tests failed: " + cause.getLocalizedMessage());
-                } else {
-                    log.error("Failed to run integration tests", e);
-                }
-            }
-        }
     }
 
     private void runTests(String groupId, String artifactId, String phase) throws MojoExecutionException {
@@ -679,7 +649,7 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
-        List elements = new ArrayList<Element>();
+        List<Element> elements = new ArrayList<Element>();
         if (testServerName != null){
             elements.add(element(name("serverName"), testServerName));
             elements.add(element(name("configDirectory"), configDirectory.getAbsolutePath()));
@@ -706,7 +676,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 }  
             }
         }
-        return (Element[]) elements.toArray(new Element[elements.size()]);
+        return elements.toArray(new Element[elements.size()]);
     }
 
     private void runMojo(String plugin, String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
