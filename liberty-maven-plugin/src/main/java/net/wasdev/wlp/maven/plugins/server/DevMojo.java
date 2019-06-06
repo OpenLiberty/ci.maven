@@ -25,6 +25,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -49,6 +52,9 @@ import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
@@ -140,13 +146,15 @@ public class DevMojo extends StartDebugMojoSupport {
     private class DevMojoUtil extends DevUtil {
 
         List<Dependency> existingDependencies;
-        String existingPom; 
+        String existingPom;
+        List<String> existingConfigFeatures;
         
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs, boolean skipTests, boolean skipITs) throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
+            this.existingConfigFeatures = getConfigFeatures(configFile);
         }
 
         @Override
@@ -342,6 +350,47 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Cannot add thread since max threads reached", e);
             }
         }
+        
+        @Override
+        public void checkConfigFile(File configFile){
+            try {
+                List<String> configFeatures = getConfigFeatures(configFile);
+                configFeatures.removeAll(this.existingConfigFeatures);
+                if (!configFeatures.isEmpty()) {
+                    log.info("Configuration features have been added");
+                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
+                            configFeatures);
+                    this.existingConfigFeatures.addAll(configFeatures);
+                }
+            } catch (Exception e) {
+                log.debug("Failed to read configuration file", e);
+            }   
+        }
+        
+        private List<String> getConfigFeatures(File configFile) {
+            List<String> features = new ArrayList<String>();
+            try {
+                // String configString = readFile(configFile);
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(configFile);
+                doc.getDocumentElement().normalize();
+                // log.info("root: " + doc.getDocumentElement().getNodeName());
+                NodeList nList = doc.getElementsByTagName("*");
+                for (int temp = 0; temp < nList.getLength(); temp++) {
+                    Node nNode = nList.item(temp);
+                    // log.info("node: " + nNode.getNodeName());
+                    if (nNode.getNodeName().equals("feature")) {
+                        // log.info("Feature detected");
+                        features.add(nNode.getTextContent());
+                    }
+                }
+            } catch (Exception e) {
+                log.debug("Failed to get features", e);
+            }
+            return features;
+        }
+        
 
     }
 
