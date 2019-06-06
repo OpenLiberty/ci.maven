@@ -98,7 +98,7 @@ The Liberty Maven Plugin provides the following goals.
 | [test-stop-server](docs/test-stop-server.md#stop-server) | Allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument. |
 | [debug](docs/debug-server.md#debug-server) | Start a Liberty server in debug mode. |
 | [debug-server](docs/debug-server.md#debug-server) | Alias of the `debug` goal. |
-| dev | Start a Liberty server in dev mode. |
+| [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
 | [package-server](docs/package-server.md#package-server) | Package a Liberty server. |
 | [clean-server](docs/clean-server.md#clean-server) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
 | [dump-server](docs/dump-server.md#dump-server) | Dump diagnostic information from the server into an archive. |
