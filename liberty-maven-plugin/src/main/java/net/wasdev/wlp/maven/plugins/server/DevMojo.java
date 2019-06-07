@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -58,6 +60,7 @@ import org.w3c.dom.NodeList;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
+import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for
@@ -339,7 +342,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Failed to get message occurrences before compile", e);
             }
             return messageOccurrences;
-
         }
         
         @Override
@@ -354,13 +356,27 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void checkConfigFile(File configFile){
             try {
-                List<String> configFeatures = getConfigFeatures(configFile);
-                configFeatures.removeAll(this.existingConfigFeatures);
-                if (!configFeatures.isEmpty()) {
+                ServerFeature servUtil = new ServerFeature();
+                log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
+                Set<String> features = servUtil.getServerFeatures(serverDirectory);
+                log.info("features: " + features.size());
+                if (!features.isEmpty()){
+                    List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
                     runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
                             configFeatures);
                     this.existingConfigFeatures.addAll(configFeatures);
+                    ListIterator<String> iterator = this.existingConfigFeatures.listIterator();
+                    while (iterator.hasNext()) {
+                        iterator.set(iterator.next().toLowerCase());
+                    }
+                    // convert to set to remove duplicate features
+                    Set<String> set = new HashSet<String>(this.existingConfigFeatures);
+                    this.existingConfigFeatures.clear();
+                    this.existingConfigFeatures.addAll(set);
+                    for (String test : this.existingConfigFeatures){
+                        log.info("existing: " + test);
+                    }
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
@@ -461,7 +477,8 @@ public class DevMojo extends StartDebugMojoSupport {
         util.getArtifacts(artifactPaths);
         
         // run tests at startup
-        runTestThread(executor, null, null, -1);
+        if (testSourceDirectory.exists())
+            runTestThread(executor, null, null, -1);
                 
         // src/main/java files
         Path srcPath = sourceDirectory.getAbsoluteFile().toPath(); 
@@ -749,6 +766,35 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
+    }
+    
+    private class ServerFeature extends ServerFeatureUtil{
+
+        @Override
+        public void debug(String msg) {
+            log.debug(msg);
+        }
+
+        @Override
+        public void debug(String msg, Throwable e) {
+            log.debug(msg, e);
+        }
+
+        @Override
+        public void debug(Throwable e) {
+            log.debug(e);
+        }
+
+        @Override
+        public void warn(String msg) {
+            log.warn(msg);
+        }
+
+        @Override
+        public void info(String msg) {
+            log.info(msg);
+        }
+        
     }
    
 }
