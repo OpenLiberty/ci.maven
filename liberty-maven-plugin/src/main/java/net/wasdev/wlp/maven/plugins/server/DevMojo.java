@@ -383,6 +383,33 @@ public class DevMojo extends StartDebugMojoSupport {
             }   
         }
         
+        public boolean initialCompile(File dir) {
+            try {
+                if (dir.equals(sourceDirectory)) {
+                    log.info("Running maven-compiler-plugin:compile");
+                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
+                    log.info("Running maven-compiler-plugin:resources");
+                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
+                }
+                if (dir.equals(sourceDirectory) || dir.equals(configDirectory)) {
+                    log.info("Running goal: install-feature");
+                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
+                    log.info("Running goal: install-apps");
+                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
+                }
+                if (dir.equals(testSourceDirectory)) {
+                    log.info("Running maven-compiler-plugin:testCompile");
+                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "testCompile", null, null);
+                    log.info("Running maven-compiler-plugin:testResources");
+                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
+                }
+                return true;
+            } catch (Exception e) {
+                log.debug("Unable to run an initial compile");
+                return false;
+            }
+        }
+
         private List<String> getConfigFeatures(File configFile) {
             List<String> features = new ArrayList<String>();
             try {
@@ -402,8 +429,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             return features;
         }
-        
-
+       
     }
 
     DevMojoUtil util;
@@ -463,7 +489,12 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
-        
+        if (resourceDirs.isEmpty()){
+            File defaultResourceDir = new File (project.getBasedir() + "/src/main/resources");
+            log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
+            resourceDirs.add(defaultResourceDir);
+        }
+               
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
 
         util.addShutdownHook(executor);
@@ -477,18 +508,14 @@ public class DevMojo extends StartDebugMojoSupport {
         util.getArtifacts(artifactPaths);
         
         // run tests at startup
-        if (testSourceDirectory.exists())
+        if (testSourceDirectory.exists()) {
             runTestThread(executor, null, null, -1);
+        }
                 
-        // src/main/java files
-        Path srcPath = sourceDirectory.getAbsoluteFile().toPath(); 
-        Path testSrcPath = testSourceDirectory.getAbsoluteFile().toPath();  
-        Path configPath = configDirectory.getAbsoluteFile().toPath(); 
-             
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(srcPath, testSrcPath, configPath, pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
     
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
