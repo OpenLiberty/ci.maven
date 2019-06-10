@@ -460,7 +460,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.error("Unable to compile", e);
                 return false;
             }
-
         }
        
     }
@@ -547,7 +546,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 
         // pom.xml
         File pom = project.getFile();
-       
         util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
     
