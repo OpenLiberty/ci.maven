@@ -252,7 +252,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void recompileBuildFile(File buildFile, List<String> artifactPaths) {
+        public boolean recompileBuildFile(File buildFile, List<String> artifactPaths) {
             try {
                 String modifiedPom = util.readFile(buildFile);
                 XMLUnit.setIgnoreWhitespace(true);
@@ -317,6 +317,8 @@ public class DevMojo extends StartDebugMojoSupport {
                         // update dependencies
                         this.existingDependencies = dependencies;
                         this.existingPom = modifiedPom;
+
+                        return true;
                     } else {
                         log.info("Unexpected change detected in pom.xml.  Please restart liberty:dev mode.");
                     }
@@ -325,6 +327,7 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (Exception e) {
                 log.debug("Could not recompile pom.xml", e);
             }
+            return false;
         }
         
         @Override
