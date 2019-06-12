@@ -14,7 +14,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -383,19 +382,13 @@ public class DevMojo extends StartDebugMojoSupport {
             }   
         }
         
-        public boolean initialCompile(File dir) {
+        public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
                     log.info("Running maven-compiler-plugin:compile");
                     runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
                     log.info("Running maven-compiler-plugin:resources");
                     runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
-                }
-                if (dir.equals(sourceDirectory) || dir.equals(configDirectory)) {
-                    log.info("Running goal: install-feature");
-                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
-                    log.info("Running goal: install-apps");
-                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
                 }
                 if (dir.equals(testSourceDirectory)) {
                     log.info("Running maven-compiler-plugin:testCompile");
@@ -405,7 +398,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
                 return true;
             } catch (Exception e) {
-                log.debug("Unable to run an initial compile");
+                log.debug("Unable to compile", e);
                 return false;
             }
         }
