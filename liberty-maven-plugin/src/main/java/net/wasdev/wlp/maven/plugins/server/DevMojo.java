@@ -149,14 +149,16 @@ public class DevMojo extends StartDebugMojoSupport {
 
         List<Dependency> existingDependencies;
         String existingPom;
-        List<String> existingConfigFeatures;
-        
+        Set<String> existingFeatures; 
+
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs, boolean skipTests, boolean skipITs) throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
-            this.existingConfigFeatures = getConfigFeatures(configFile);
+            ServerFeature servUtil = new ServerFeature();
+            log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
+            this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
 
         @Override
@@ -356,37 +358,27 @@ public class DevMojo extends StartDebugMojoSupport {
         public void checkConfigFile(File configFile){
             try {
                 ServerFeature servUtil = new ServerFeature();
-                log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
                 Set<String> features = servUtil.getServerFeatures(serverDirectory);
-                log.info("features: " + features.size());
+                features.removeAll(existingFeatures);
                 if (!features.isEmpty()){
                     List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
                     runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
                             configFeatures);
-                    this.existingConfigFeatures.addAll(configFeatures);
-                    ListIterator<String> iterator = this.existingConfigFeatures.listIterator();
-                    while (iterator.hasNext()) {
-                        iterator.set(iterator.next().toLowerCase());
-                    }
-                    // convert to set to remove duplicate features
-                    Set<String> set = new HashSet<String>(this.existingConfigFeatures);
-                    this.existingConfigFeatures.clear();
-                    this.existingConfigFeatures.addAll(set);
-                    for (String test : this.existingConfigFeatures){
-                        log.info("existing: " + test);
-                    }
+                    this.existingFeatures.addAll(features);
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
             }   
         }
         
+        @Override
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
                     log.info("Running maven-compiler-plugin:compile");
                     runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
+
                     log.info("Running maven-compiler-plugin:resources");
                     runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
                 }
@@ -397,10 +389,11 @@ public class DevMojo extends StartDebugMojoSupport {
                     runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
                 }
                 return true;
-            } catch (Exception e) {
-                log.debug("Unable to compile", e);
+            } catch (MojoExecutionException e) {
+                log.error("Unable to compile", e);
                 return false;
             }
+
         }
 
         private List<String> getConfigFeatures(File configFile) {
@@ -507,7 +500,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 
         // pom.xml
         File pom = project.getFile();
-        
+       
         util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
     
