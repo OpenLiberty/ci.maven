@@ -395,26 +395,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
 
         }
-
-        private List<String> getConfigFeatures(File configFile) {
-            List<String> features = new ArrayList<String>();
-            try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(configFile);
-                doc.getDocumentElement().normalize();
-                NodeList nList = doc.getElementsByTagName("*");
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-                    Node nNode = nList.item(temp);
-                    if (nNode.getNodeName().equals("feature")) {
-                        features.add(nNode.getTextContent());
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Failed to get features", e);
-            }
-            return features;
-        }
        
     }
 
