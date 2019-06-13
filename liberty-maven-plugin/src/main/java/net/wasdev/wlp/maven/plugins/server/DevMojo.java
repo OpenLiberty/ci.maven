@@ -14,10 +14,11 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -58,6 +59,7 @@ import org.w3c.dom.NodeList;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
+import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for
@@ -147,14 +149,16 @@ public class DevMojo extends StartDebugMojoSupport {
 
         List<Dependency> existingDependencies;
         String existingPom;
-        List<String> existingConfigFeatures;
-        
+        Set<String> existingFeatures; 
+
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs, boolean skipTests, boolean skipITs) throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
-            this.existingConfigFeatures = getConfigFeatures(configFile);
+            ServerFeature servUtil = new ServerFeature();
+            log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
+            this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
 
         @Override
@@ -339,7 +343,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Failed to get message occurrences before compile", e);
             }
             return messageOccurrences;
-
         }
         
         @Override
@@ -354,40 +357,45 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void checkConfigFile(File configFile){
             try {
-                List<String> configFeatures = getConfigFeatures(configFile);
-                configFeatures.removeAll(this.existingConfigFeatures);
-                if (!configFeatures.isEmpty()) {
+                ServerFeature servUtil = new ServerFeature();
+                Set<String> features = servUtil.getServerFeatures(serverDirectory);
+                features.removeAll(existingFeatures);
+                if (!features.isEmpty()){
+                    List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
                     runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
                             configFeatures);
-                    this.existingConfigFeatures.addAll(configFeatures);
+                    this.existingFeatures.addAll(features);
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
             }   
         }
         
-        private List<String> getConfigFeatures(File configFile) {
-            List<String> features = new ArrayList<String>();
+        @Override
+        public boolean compile(File dir) {
             try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(configFile);
-                doc.getDocumentElement().normalize();
-                NodeList nList = doc.getElementsByTagName("*");
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-                    Node nNode = nList.item(temp);
-                    if (nNode.getNodeName().equals("feature")) {
-                        features.add(nNode.getTextContent());
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Failed to get features", e);
-            }
-            return features;
-        }
-        
+                if (dir.equals(sourceDirectory)) {
+                    log.info("Running maven-compiler-plugin:compile");
+                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
 
+                    log.info("Running maven-compiler-plugin:resources");
+                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
+                }
+                if (dir.equals(testSourceDirectory)) {
+                    log.info("Running maven-compiler-plugin:testCompile");
+                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "testCompile", null, null);
+                    log.info("Running maven-compiler-plugin:testResources");
+                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
+                }
+                return true;
+            } catch (MojoExecutionException e) {
+                log.error("Unable to compile", e);
+                return false;
+            }
+
+        }
+       
     }
 
     DevMojoUtil util;
@@ -447,7 +455,12 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
-        
+        if (resourceDirs.isEmpty()){
+            File defaultResourceDir = new File (project.getBasedir() + "/src/main/resources");
+            log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
+            resourceDirs.add(defaultResourceDir);
+        }
+               
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, skipTests, skipITs);
 
         util.addShutdownHook(executor);
@@ -461,17 +474,14 @@ public class DevMojo extends StartDebugMojoSupport {
         util.getArtifacts(artifactPaths);
         
         // run tests at startup
-        runTestThread(executor, null, null, -1);
+        if (testSourceDirectory.exists()) {
+            runTestThread(executor, null, null, -1);
+        }
                 
-        // src/main/java files
-        Path srcPath = sourceDirectory.getAbsoluteFile().toPath(); 
-        Path testSrcPath = testSourceDirectory.getAbsoluteFile().toPath();  
-        Path configPath = configDirectory.getAbsoluteFile().toPath(); 
-             
         // pom.xml
         File pom = project.getFile();
-        
-        util.watchFiles(srcPath, testSrcPath, configPath, pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
+       
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
     
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
@@ -749,6 +759,35 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
+    }
+    
+    private class ServerFeature extends ServerFeatureUtil{
+
+        @Override
+        public void debug(String msg) {
+            log.debug(msg);
+        }
+
+        @Override
+        public void debug(String msg, Throwable e) {
+            log.debug(msg, e);
+        }
+
+        @Override
+        public void debug(Throwable e) {
+            log.debug(e);
+        }
+
+        @Override
+        public void warn(String msg) {
+            log.warn(msg);
+        }
+
+        @Override
+        public void info(String msg) {
+            log.info(msg);
+        }
+        
     }
    
 }
