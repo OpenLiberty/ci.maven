@@ -14,6 +14,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -256,7 +257,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public boolean recompileBuildFile(File buildFile, List<String> artifactPaths) {
+        public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
             try {
                 String modifiedPom = util.readFile(buildFile);
                 XMLUnit.setIgnoreWhitespace(true);
@@ -324,7 +325,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         return true;
                     } else {
-                        log.info("Unexpected change detected in pom.xml.  Please restart liberty:dev mode.");
+                        log.info("Unhandled change detected in pom.xml. Restarting liberty:dev mode.");
+                        restartDevMode(executor);
                     }
                 }
 
@@ -460,9 +462,32 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.error("Unable to compile", e);
                 return false;
             }
-
         }
-       
+        
+        @Override
+        public void restartDevMode(final ThreadPoolExecutor executor) {
+            // shutdown tests
+            executor.shutdown();
+            // stopping server
+            stopServer();
+            
+            log.info("Restarting liberty:dev mode");
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            String processCommand = "mvn liberty:dev";
+            String os = System.getProperty("os.name");
+            if (os != null && os.toLowerCase().startsWith("windows")) {
+                processBuilder.command("CMD", "/C", processCommand);
+            } else {
+                processBuilder.command("bash", "-c", processCommand);
+            }
+            try {
+                processBuilder.redirectOutput(Redirect.INHERIT);
+                processBuilder.redirectError(Redirect.INHERIT);
+                processBuilder.start();
+            } catch (IOException e) {
+                log.error("Could not restart liberty:dev mode", e);
+            }
+        }
     }
 
     DevMojoUtil util;
