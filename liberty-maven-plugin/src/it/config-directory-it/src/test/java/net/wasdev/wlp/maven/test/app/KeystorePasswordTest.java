@@ -30,7 +30,6 @@ public class KeystorePasswordTest {
         FileInputStream input = new FileInputStream(in);
         
         Properties prop = new Properties();
-        // InputStream stream = getClass().getResourceAsStream( "liberty/usr/servers/test/server.env" );
         prop.load( input );
         String value = prop.getProperty("keystore_password");
         assertTrue("keystore_password property unexpectedly found", value == null);
