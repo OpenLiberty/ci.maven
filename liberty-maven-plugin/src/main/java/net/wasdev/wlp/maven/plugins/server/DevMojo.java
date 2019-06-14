@@ -657,6 +657,7 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private void runIntegrationTests() throws MojoExecutionException {
+        runTests("org.apache.maven.plugins", "maven-war-plugin", "war");
         runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
         runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
     }
