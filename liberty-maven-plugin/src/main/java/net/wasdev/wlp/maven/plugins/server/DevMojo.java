@@ -17,18 +17,13 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -54,9 +49,6 @@ import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
@@ -478,10 +470,17 @@ public class DevMojo extends StartDebugMojoSupport {
             cleanUpJVMOptions();
             // stopping server
             stopServer();
-
-            log.info("Restarting liberty:dev mode");
+            
+            log.info("Restarting liberty:dev mode ");
             ProcessBuilder processBuilder = new ProcessBuilder();
             String processCommand = "mvn liberty:dev";
+            
+            Properties props = System.getProperties();
+            Set<Object> keys = props.keySet();
+            for(Object key: keys){
+                processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
+            }
+                        
             String os = System.getProperty("os.name");
             if (os != null && os.toLowerCase().startsWith("windows")) {
                 processBuilder.command("CMD", "/C", processCommand);
@@ -584,7 +583,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // pom.xml
         File pom = project.getFile();
-
+        
         util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
 
