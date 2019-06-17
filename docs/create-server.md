@@ -12,6 +12,7 @@ If the server has already been created, the create-server goal will update the [
 | --------  | ----------- | -------  |
 | template | Name of the template to use when creating a new server. | No |
 | libertySettingsFolder | Path to directory containing liberty configuration files. | No |
+| noPassword | If true, disable generation of default keystore password by specifying the --no-password option when creating a new server. This option was added in 18.0.0.3. The default value is false. | No |
 
 Example:
 ```xml
