@@ -63,8 +63,8 @@ import net.wasdev.wlp.common.plugins.util.DevUtil;
 import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 
 /**
- * Start a liberty server in dev mode import to set ResolutionScope for
- * TEST as it helps build full transitive dependency classpath
+ * Start a liberty server in dev mode import to set ResolutionScope for TEST as
+ * it helps build full transitive dependency classpath
  */
 @Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 public class DevMojo extends StartDebugMojoSupport {
@@ -84,7 +84,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private int libertyDebugPort;
 
     private int runId = 0;
-    
+
     private ServerTask serverTask = null;
 
     @Component
@@ -119,7 +119,7 @@ public class DevMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
-    
+
     /**
      * The directory for source files.
      */
@@ -150,10 +150,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
         List<Dependency> existingDependencies;
         String existingPom;
-        Set<String> existingFeatures; 
+        Set<String> existingFeatures;
 
-        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs) throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
+                File testSourceDirectory, File configDirectory, File defaultConfigDirectory, List<File> resourceDirs)
+                throws IOException {
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
+                    defaultConfigDirectory, resourceDirs);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -166,17 +169,17 @@ public class DevMojo extends StartDebugMojoSupport {
         public void debug(String msg) {
             log.debug(msg);
         }
-        
+
         @Override
         public void debug(String msg, Throwable e) {
             log.debug(msg, e);
         }
-        
+
         @Override
         public void debug(Throwable e) {
             log.debug(e);
         }
-        
+
         @Override
         public void warn(String msg) {
             log.warn(msg);
@@ -186,7 +189,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public void info(String msg) {
             log.info(msg);
         }
-        
+
         @Override
         public void error(String msg) {
             log.error(msg);
@@ -208,7 +211,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Error stopping server", e);
             }
         }
-        
+
         @Override
         public void startServer() {
             try {
@@ -247,9 +250,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Error starting server", e);
             }
         }
-        
+
         @Override
-        public void getArtifacts(List<String> artifactPaths){
+        public void getArtifacts(List<String> artifactPaths) {
             Set<Artifact> artifacts = project.getArtifacts();
             for (Artifact artifact : artifacts) {
                 artifactPaths.add(artifact.getFile().getAbsolutePath());
@@ -335,7 +338,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             return false;
         }
-        
+
         @Override
         public int countApplicationUpdatedMessages() {
             int messageOccurrences = -1;
@@ -353,26 +356,28 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runTests(boolean waitForApplicationUpdate, int messageOccurrences, ThreadPoolExecutor executor, boolean forceSkipUTs) {
+        public void runTests(boolean waitForApplicationUpdate, int messageOccurrences, ThreadPoolExecutor executor,
+                boolean forceSkipUTs) {
             File logFile = serverTask.getLogFile();
             String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
 
             if (skipTests) {
                 return;
             }
-    
+
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 log.debug("Thread interrupted while waiting to start unit tests.", e);
             }
-    
-            // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+
+            // if queue size >= 1, it means a newer test has been queued so we
+            // should skip this and let that run instead
             if (executor.getQueue().size() >= 1) {
                 log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
                 return;
             }
-    
+
             if (!(skipUTs || forceSkipUTs)) {
                 log.info("Running unit tests...");
                 try {
@@ -390,13 +395,14 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
             }
-            
-            // if queue size >= 1, it means a newer test has been queued so we should skip this and let that run instead
+
+            // if queue size >= 1, it means a newer test has been queued so we
+            // should skip this and let that run instead
             if (executor.getQueue().size() >= 1) {
                 log.info("Changes were detected while tests were running. Restarting tests.");
                 return;
             }
-            
+
             if (!skipITs) {
                 if (waitForApplicationUpdate) {
                     // wait until application has been updated
@@ -406,7 +412,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     long timeout = appUpdateTimeout * 1000;
                     serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
                 }
-    
+
                 log.info("Running integration tests...");
                 try {
                     runIntegrationTests();
@@ -422,14 +428,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
-        
+
         @Override
-        public void checkConfigFile(File configFile){
+        public void checkConfigFile(File configFile) {
             try {
                 ServerFeature servUtil = new ServerFeature();
                 Set<String> features = servUtil.getServerFeatures(serverDirectory);
                 features.removeAll(existingFeatures);
-                if (!features.isEmpty()){
+                if (!features.isEmpty()) {
                     List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
                     runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
@@ -438,9 +444,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
-            }   
+            }
         }
-        
+
         @Override
         public boolean compile(File dir) {
             try {
@@ -463,14 +469,16 @@ public class DevMojo extends StartDebugMojoSupport {
                 return false;
             }
         }
-        
+
         @Override
         public void restartDevMode(final ThreadPoolExecutor executor) {
             // shutdown tests
             executor.shutdown();
+            // cleaning up jvm options
+            cleanUpJVMOptions();
             // stopping server
             stopServer();
-            
+
             log.info("Restarting liberty:dev mode");
             ProcessBuilder processBuilder = new ProcessBuilder();
             String processCommand = "mvn liberty:dev";
@@ -494,10 +502,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
-        // create an executor for tests with an additional queue of size 1, so any further changes detected mid-test will be in the following run
+        // create an executor for tests with an additional queue of size 1, so
+        // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
-        
+
         log.info("Running maven-compiler-plugin:compile");
         runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
         log.info("Running maven-compiler-plugin:resources");
@@ -508,10 +517,10 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
-        
+
         ArrayList<File> javaFiles = new ArrayList<File>();
         listFiles(sourceDirectory, javaFiles, ".java");
-        
+
         ArrayList<File> javaTestFiles = new ArrayList<File>();
         listFiles(testSourceDirectory, javaTestFiles, ".java");
 
@@ -530,7 +539,9 @@ public class DevMojo extends StartDebugMojoSupport {
         boolean noConfigDir = false;
 
         // config files
+        File defaultConfigDirectory = null;
         if (configDirectory == null || !configDirectory.exists()) {
+            defaultConfigDirectory = configDirectory;
             configDirectory = configFile.getParentFile();
             noConfigDir = true;
             log.debug("configDirectory set to: " + configDirectory.getAbsolutePath());
@@ -547,13 +558,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
-        if (resourceDirs.isEmpty()){
-            File defaultResourceDir = new File (project.getBasedir() + "/src/main/resources");
+        if (resourceDirs.isEmpty()) {
+            File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
             log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
             resourceDirs.add(defaultResourceDir);
         }
-               
-        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+
+        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
+                defaultConfigDirectory, resourceDirs);
 
         util.addShutdownHook(executor);
 
@@ -564,29 +576,30 @@ public class DevMojo extends StartDebugMojoSupport {
         // collect artifacts absolute paths in order to build classpath
         List<String> artifactPaths = new ArrayList<String>();
         util.getArtifacts(artifactPaths);
-        
+
         // run tests at startup
         if (testSourceDirectory.exists()) {
             util.runTestThread(false, executor, -1, false);
         }
-                
+
         // pom.xml
         File pom = project.getFile();
 
         util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
     }
-    
+
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
         if (root.getArtifact() != null) {
             artifacts.add(root.getArtifact().getFile());
         }
-      
-        for (org.eclipse.aether.graph.DependencyNode node : root.getChildren()){
+
+        for (org.eclipse.aether.graph.DependencyNode node : root.getChildren()) {
             addArtifacts(node, artifacts);
         }
     }
-    
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) throws MojoExecutionException{
+
+    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies)
+            throws MojoExecutionException {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
@@ -595,7 +608,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     newDependency = false;
                 }
             }
-            if (newDependency){
+            if (newDependency) {
                 log.debug("New dependency found: " + dep.getArtifactId());
                 Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
                 updatedArtifacts.add(artifact);
@@ -608,11 +621,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
-            plugin = plugin(
-                groupId(groupId),
-                artifactId(artifactId),
-                version("RELEASE")
-            );
+            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         Xpp3Dom config = null;
 
@@ -623,7 +632,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 PluginExecution pe;
                 Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
-                if ((pe = peMap.get("default-" + phase)) != null || (pe = peMap.get(phase)) != null || (pe = peMap.get("default")) != null) {
+                if ((pe = peMap.get("default-" + phase)) != null || (pe = peMap.get(phase)) != null
+                        || (pe = peMap.get("default")) != null) {
                     Xpp3Dom executionConfig = (Xpp3Dom) pe.getConfiguration();
                     config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
                 }
@@ -632,7 +642,8 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         if (config == null) {
-            log.debug("Could not find " + artifactId + " configuration for " + phase + " phase. Creating new configuration.");
+            log.debug("Could not find " + artifactId + " configuration for " + phase
+                    + " phase. Creating new configuration.");
             config = configuration();
         }
 
@@ -662,9 +673,11 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Force change a property so that the checksum calculated by AbstractSurefireMojo is different every time.
+     * Force change a property so that the checksum calculated by
+     * AbstractSurefireMojo is different every time.
      *
-     * @param config The configuration element
+     * @param config
+     *            The configuration element
      */
     private void injectTestId(Xpp3Dom config) {
         Xpp3Dom properties = config.getChild("properties");
@@ -688,42 +701,44 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
         List<Element> elements = new ArrayList<Element>();
-        if (testServerName != null){
+        if (testServerName != null) {
             elements.add(element(name("serverName"), testServerName));
             elements.add(element(name("configDirectory"), configDirectory.getAbsolutePath()));
             if (goal.equals("install-feature") && (dependencies != null)) {
                 Element[] featureElems = new Element[dependencies.size()];
-                for (int i = 0; i < featureElems.length; i++){
-                    featureElems[i] =  element(name("feature"), dependencies.get(i));
+                for (int i = 0; i < featureElems.length; i++) {
+                    featureElems[i] = element(name("feature"), dependencies.get(i));
                 }
-                elements.add(element(name("features"),featureElems));
-            } else if (goal.equals("install-apps")){
+                elements.add(element(name("features"), featureElems));
+            } else if (goal.equals("install-apps")) {
                 elements.add(element(name("looseApplication"), "true"));
                 elements.add(element(name("stripVersion"), "true"));
                 elements.add(element(name("installAppPackages"), "project"));
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
-            } else if (goal.equals("create-server")){
+            } else if (goal.equals("create-server")) {
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
-                if (assemblyArtifact != null){
+                if (assemblyArtifact != null) {
                     Element[] featureElems = new Element[4];
                     featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
                     featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
                     featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
                     featureElems[3] = element(name("type"), assemblyArtifact.getType());
                     elements.add(element(name("assemblyArtifact"), featureElems));
-                }  
+                }
             }
         }
         return elements.toArray(new Element[elements.size()]);
     }
 
-    private void runMojo(String plugin, String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
+    private void runMojo(String plugin, String goal, String serverName, List<String> dependencies)
+            throws MojoExecutionException {
         Plugin mavenPlugin = project.getPlugin(plugin);
         log.info("plugin version: " + mavenPlugin.getVersion());
-        executeMojo(mavenPlugin, goal(goal), configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
+        executeMojo(mavenPlugin, goal(goal),
+                configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
                 executionEnvironment(project, session, pluginManager));
     }
-    
+
     private static MavenProject loadProject(File pomFile) throws IOException, XmlPullParserException {
         MavenProject ret = null;
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
@@ -735,14 +750,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 Model model = mavenReader.read(reader);
                 model.setPomFile(pomFile);
                 ret = new MavenProject(model);
-            }
-            finally {
-              reader.close();
+            } finally {
+                reader.close();
             }
         }
         return ret;
     }
-    
+
     private void listFiles(File directory, List<File> files, String suffix) {
         if (directory != null) {
             // Get all files from a directory.
@@ -758,8 +772,8 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
     }
-    
-    private class ServerFeature extends ServerFeatureUtil{
+
+    private class ServerFeature extends ServerFeatureUtil {
 
         @Override
         public void debug(String msg) {
@@ -785,7 +799,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public void info(String msg) {
             log.info(msg);
         }
-        
+
     }
-   
+
 }
