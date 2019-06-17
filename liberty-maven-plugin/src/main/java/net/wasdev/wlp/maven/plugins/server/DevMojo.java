@@ -471,7 +471,7 @@ public class DevMojo extends StartDebugMojoSupport {
             // stopping server
             stopServer();
             
-            log.info("Restarting liberty:dev mode ");
+            log.info("Restarting liberty:dev mode");
             ProcessBuilder processBuilder = new ProcessBuilder();
             String processCommand = "mvn liberty:dev";
             
