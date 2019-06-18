@@ -63,6 +63,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private static final String UPDATED_APP_MESSAGE_REGEXP = "CWWKZ0003I.*";
 
+    @Parameter(property = "hotTests", defaultValue = "false")
+    private boolean hotTests;
+
     @Parameter(property = "skipTests", defaultValue = "false")
     private boolean skipTests;
 
@@ -148,7 +151,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 File testSourceDirectory, File configDirectory, File defaultConfigDirectory, List<File> resourceDirs)
                 throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                    defaultConfigDirectory, resourceDirs);
+                    defaultConfigDirectory, resourceDirs, hotTests);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -400,7 +403,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (executor.getQueue().size() >= 1) {
                 Runnable head = executor.getQueue().peek();
                 boolean manualInvocation = ((TestJob) head).isManualInvocation();
-                
+
                 if (manualInvocation) {
                     log.info("Tests were invoked while previous tests were running. Restarting tests.");
                 } else {
@@ -594,7 +597,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // run tests at startup
         if (testSourceDirectory.exists()) {
-            util.runTestThread(false, executor, -1, false, false);
+            // treat startup tests as a manual invocation so they run regardless of whether hot testing is enabled
+            util.runTestThread(false, executor, -1, false, true);
         }
 
         // pom.xml
