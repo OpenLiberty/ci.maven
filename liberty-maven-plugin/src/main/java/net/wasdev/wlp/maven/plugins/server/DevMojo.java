@@ -366,7 +366,14 @@ public class DevMojo extends StartDebugMojoSupport {
             // if queue size >= 1, it means a newer test has been queued so we
             // should skip this and let that run instead
             if (executor.getQueue().size() >= 1) {
-                log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
+                Runnable head = executor.getQueue().peek();
+                boolean manualInvocation = ((TestJob) head).isManualInvocation();
+
+                if (manualInvocation) {
+                    log.debug("Tests were re-invoked before previous tests began. Cancelling previous tests and resubmitting them.");
+                } else {
+                    log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
+                }
                 return;
             }
 
@@ -391,7 +398,14 @@ public class DevMojo extends StartDebugMojoSupport {
             // if queue size >= 1, it means a newer test has been queued so we
             // should skip this and let that run instead
             if (executor.getQueue().size() >= 1) {
-                log.info("Changes were detected while tests were running. Restarting tests.");
+                Runnable head = executor.getQueue().peek();
+                boolean manualInvocation = ((TestJob) head).isManualInvocation();
+                
+                if (manualInvocation) {
+                    log.info("Tests were invoked while previous tests were running. Restarting tests.");
+                } else {
+                    log.info("Changes were detected while tests were running. Restarting tests.");
+                }
                 return;
             }
 
@@ -419,6 +433,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
             }
+
+            util.runHotkeyReaderThread(executor);
         }
 
         @Override
@@ -578,7 +594,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // run tests at startup
         if (testSourceDirectory.exists()) {
-            util.runTestThread(false, executor, -1, false);
+            util.runTestThread(false, executor, -1, false, false);
         }
 
         // pom.xml
