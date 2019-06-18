@@ -151,6 +151,8 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Dependency> existingDependencies;
         String existingPom;
         Set<String> existingFeatures; 
+        
+        private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, List<File> resourceDirs) throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
@@ -217,11 +219,19 @@ public class DevMojo extends StartDebugMojoSupport {
 
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
 					try {
 		                if (serverTask == null) {
 		                    serverTask = initializeJava();
 		                }
+		                
+		                messagesLogFile = new File(serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log");
+		                
+		                if (messagesLogFile.exists()) {
+		            		// Delete previous log file so it doesn't interfere with
+		            		// the waitForStringInLog method.
+		            		messagesLogFile.delete();
+		            	}
+		                
 		                serverTaskInitialized.release();
 		                
 		                copyConfigFiles();
@@ -256,7 +266,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 
                 String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP,
                         timeout,
-                        new File(serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log"));
+                        messagesLogFile);
                 if (startMessage == null) {
                     stopServer();
                     throw new MojoExecutionException(MessageFormat
