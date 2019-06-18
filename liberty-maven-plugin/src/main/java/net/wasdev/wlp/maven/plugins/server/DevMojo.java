@@ -210,70 +210,68 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void startServer() {
-        	final Semaphore serverTaskInitialized = new Semaphore(0);
-        	
+            final Semaphore serverTaskInitialized = new Semaphore(0);
+
             Thread serverThread = new Thread(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-		                if (serverTask == null) {
-		                    serverTask = initializeJava();
-		                }
-		                
-		                messagesLogFile = new File(serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log");
-		                
-		                if (messagesLogFile.exists()) {
-		            		// Delete previous log file so it doesn't interfere with
-		            		// the waitForStringInLog method.
-		            		messagesLogFile.delete();
-		            	}
-		                
-		                serverTaskInitialized.release();
-		                
-		                copyConfigFiles();
-		                serverTask.setClean(clean);
-		                serverTask.setOperation("debug");
-		                // Set server start timeout
-		                if (serverStartTimeout < 0) {
-		                    serverStartTimeout = 30;
-		                }
-		                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-		                serverTask.execute();
-		            } catch (Exception e) {
-		                log.debug("Error starting server", e);
-		            }
-				}
-            	
+                @Override
+                public void run() {
+                    try {
+                        if (serverTask == null) {
+                            serverTask = initializeJava();
+                        }
+
+                        messagesLogFile = new File(
+                                serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log");
+
+                        if (messagesLogFile.exists()) {
+                            // Delete previous log file so it doesn't interfere with
+                            // the waitForStringInLog method.
+                            messagesLogFile.delete();
+                        }
+
+                        serverTaskInitialized.release();
+
+                        copyConfigFiles();
+                        serverTask.setClean(clean);
+                        serverTask.setOperation("debug");
+                        // Set server start timeout
+                        if (serverStartTimeout < 0) {
+                            serverStartTimeout = 30;
+                        }
+                        serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
+                        serverTask.execute();
+                    } catch (Exception e) {
+                        log.debug("Error starting server", e);
+                    }
+                }
+
             });
-            
-            
-        	// Start server
-        	serverThread.start();
-        	
-        	try {
-        		// Block until serverTask has been initialized
-        		serverTaskInitialized.acquire();
-        		
-        		if (verifyTimeout < 0) {
+
+            // Start server
+            serverThread.start();
+
+            try {
+                // Block until serverTask has been initialized
+                serverTaskInitialized.acquire();
+
+                if (verifyTimeout < 0) {
                     verifyTimeout = 30;
                 }
                 long timeout = verifyTimeout * 1000;
                 long endTime = System.currentTimeMillis() + timeout;
-                
-                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP,
-                        timeout,
-                        messagesLogFile);
+
+                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP, timeout, messagesLogFile);
                 if (startMessage == null) {
                     stopServer();
-                    throw new MojoExecutionException(MessageFormat
-                            .format(messages.getString("error.server.start.verify"), verifyTimeout));
+                    throw new MojoExecutionException(
+                            MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
                 }
-                
+
                 timeout = endTime - System.currentTimeMillis();
-        	} catch (Exception e) {
-        		log.debug("Error waiting for server to start ", e);
-        	}
+            } catch (Exception e) {
+                log.debug("Error waiting for server to start ", e);
+            }
         }
 
         @Override
