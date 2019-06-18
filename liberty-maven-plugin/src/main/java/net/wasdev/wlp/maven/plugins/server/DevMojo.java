@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -210,41 +211,62 @@ public class DevMojo extends StartDebugMojoSupport {
         
         @Override
         public void startServer() {
-            try {
-                if (serverTask == null) {
-                    serverTask = initializeJava();
-                }
-                copyConfigFiles();
-                serverTask.setClean(clean);
-                serverTask.setOperation("start");
-                // Set server start timeout
-                if (serverStartTimeout < 0) {
-                    serverStartTimeout = 30;
-                }
-                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-                serverTask.execute();
+        	final Semaphore serverTaskInitialized = new Semaphore(0);
+        	
+            Thread serverThread = new Thread(new Runnable() {
 
-                if (verifyTimeout < 0) {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+		                if (serverTask == null) {
+		                    serverTask = initializeJava();
+		                }
+		                serverTaskInitialized.release();
+		                
+		                copyConfigFiles();
+		                serverTask.setClean(clean);
+		                serverTask.setOperation("debug");
+		                // Set server start timeout
+		                if (serverStartTimeout < 0) {
+		                    serverStartTimeout = 30;
+		                }
+		                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
+		                serverTask.execute();
+		            } catch (Exception e) {
+		                log.debug("Error starting server", e);
+		            }
+				}
+            	
+            });
+            
+            
+        	// Start server
+        	serverThread.start();
+        	
+        	try {
+        		// Block until serverTask has been initialized
+        		serverTaskInitialized.acquire();
+        		
+        		if (verifyTimeout < 0) {
                     verifyTimeout = 30;
                 }
                 long timeout = verifyTimeout * 1000;
                 long endTime = System.currentTimeMillis() + timeout;
-                if (applications != null) {
-                    String[] apps = applications.split("[,\\s]+");
-                    for (String archiveName : apps) {
-                        String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName,
-                                timeout, serverTask.getLogFile());
-                        if (startMessage == null) {
-                            stopServer();
-                            throw new MojoExecutionException(MessageFormat
-                                    .format(messages.getString("error.server.start.verify"), verifyTimeout));
-                        }
-                        timeout = endTime - System.currentTimeMillis();
-                    }
+                
+                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP,
+                        timeout,
+                        new File(serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log"));
+                if (startMessage == null) {
+                    stopServer();
+                    throw new MojoExecutionException(MessageFormat
+                            .format(messages.getString("error.server.start.verify"), verifyTimeout));
                 }
-            } catch (Exception e) {
-                log.debug("Error starting server", e);
-            }
+                
+                timeout = endTime - System.currentTimeMillis();
+        	} catch (Exception e) {
+        		log.debug("Error waiting for server to start ", e);
+        	}
         }
         
         @Override
@@ -532,7 +554,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util.addShutdownHook(executor);
 
-        util.enableServerDebug(libertyDebugPort);
+//        util.enableServerDebug(libertyDebugPort);
+        util.enableServerDebug2(libertyDebugPort);
 
         util.startServer();
 
