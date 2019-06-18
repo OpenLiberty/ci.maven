@@ -554,8 +554,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util.addShutdownHook(executor);
 
-//        util.enableServerDebug(libertyDebugPort);
-        util.enableServerDebug2(libertyDebugPort);
+        util.enableServerDebug(libertyDebugPort);
 
         util.startServer();
 
