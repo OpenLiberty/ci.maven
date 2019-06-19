@@ -15,6 +15,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -210,50 +214,71 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void startServer() {
-            final Semaphore serverTaskInitialized = new Semaphore(0);
-
-            Thread serverThread = new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        if (serverTask == null) {
-                            serverTask = initializeJava();
-                        }
-
-                        messagesLogFile = new File(
-                                serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs/messages.log");
-
-                        if (messagesLogFile.exists()) {
-                            // Delete previous log file so it doesn't interfere with
-                            // the waitForStringInLog method.
-                            messagesLogFile.delete();
-                        }
-
-                        serverTaskInitialized.release();
-
-                        copyConfigFiles();
-                        serverTask.setClean(clean);
-                        serverTask.setOperation("debug");
-                        // Set server start timeout
-                        if (serverStartTimeout < 0) {
-                            serverStartTimeout = 30;
-                        }
-                        serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-                        serverTask.execute();
-                    } catch (Exception e) {
-                        log.debug("Error starting server", e);
-                    }
-                }
-
-            });
-
-            // Start server
-            serverThread.start();
 
             try {
-                // Block until serverTask has been initialized
-                serverTaskInitialized.acquire();
+                // Setup server task
+                if (serverTask == null) {
+                    serverTask = initializeJava();
+                }
+
+                String logsDirectory = serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs";
+                messagesLogFile = new File(logsDirectory + "/messages.log");
+
+                copyConfigFiles();
+                serverTask.setClean(clean);
+                serverTask.setOperation("debug");
+
+
+                // Set server start timeout
+                if (serverStartTimeout < 0) {
+                    serverStartTimeout = 30;
+                }
+                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
+
+
+                // Watch logs directory if it already exists
+                WatchService watchService = FileSystems.getDefault().newWatchService();
+                boolean logsExist = new File(logsDirectory).isDirectory();
+
+                if (logsExist) {
+                    // If the logs directory already exists, then
+                    // setup a watch service to monitor the directory.
+                    Paths
+                        .get(logsDirectory)
+                        .register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+                }
+
+
+                // Start server
+                Thread serverThread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            serverTask.execute();
+                        } catch (Exception e) {
+                            log.debug("Error starting server", e);
+                        }
+                    }
+
+                });
+
+                serverThread.start();
+
+                if (logsExist) {
+                    // If logs already exist, then watch the directory to ensure
+                    // messages.log is modified before continuing.
+                    boolean messagesModified = false;
+                    WatchKey key;
+                    while (!messagesModified && (key = watchService.take()) != null) {
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            if (event.context().toString().equals("messages.log")) {
+                                messagesModified = true;
+                                debug("messages.log has been changed");
+                            }
+                        }
+                    }
+                }
 
                 if (verifyTimeout < 0) {
                     verifyTimeout = 30;
@@ -261,6 +286,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 long timeout = verifyTimeout * 1000;
                 long endTime = System.currentTimeMillis() + timeout;
 
+                // Wait for the app started message in messages.log
                 String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP, timeout, messagesLogFile);
                 if (startMessage == null) {
                     stopServer();
@@ -270,7 +296,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 timeout = endTime - System.currentTimeMillis();
             } catch (Exception e) {
-                log.debug("Error waiting for server to start ", e);
+                log.debug("Error starting server", e);
             }
         }
 
