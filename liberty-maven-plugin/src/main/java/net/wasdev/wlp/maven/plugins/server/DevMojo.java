@@ -494,6 +494,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
 
+            // start watching for hotkey presses if not already started
             util.runHotkeyReaderThread(executor);
         }
 
@@ -654,8 +655,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // run tests at startup
         if (testSourceDirectory.exists()) {
-            // treat startup tests as a manual invocation so they run regardless of whether hot testing is enabled
-            util.runTestThread(false, executor, -1, false, true);
+            if (hotTests) {
+                // if hot testing, run tests and watch for keypresses
+                util.runTestThread(false, executor, -1, false, false);
+            } else {
+                // else watch for key presses here
+                util.runHotkeyReaderThread(executor);
+            }
         }
 
         // pom.xml
