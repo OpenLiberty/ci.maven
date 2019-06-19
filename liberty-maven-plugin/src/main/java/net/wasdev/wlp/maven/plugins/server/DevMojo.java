@@ -15,6 +15,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +151,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
         List<Dependency> existingDependencies;
         String existingPom;
-        Set<String> existingFeatures;
+        Set<String> existingFeatures; 
+        
+        private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File defaultConfigDirectory, List<File> resourceDirs)
@@ -209,38 +217,87 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void startServer() {
+
             try {
+                // Setup server task
                 if (serverTask == null) {
                     serverTask = initializeJava();
                 }
+
+                String logsDirectory = serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs";
+                messagesLogFile = new File(logsDirectory + "/messages.log");
+
                 copyConfigFiles();
                 serverTask.setClean(clean);
-                serverTask.setOperation("start");
+                serverTask.setOperation("debug");
+
+
                 // Set server start timeout
                 if (serverStartTimeout < 0) {
                     serverStartTimeout = 30;
                 }
                 serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-                serverTask.execute();
+
+
+                // Watch logs directory if it already exists
+                WatchService watchService = FileSystems.getDefault().newWatchService();
+                boolean logsExist = new File(logsDirectory).isDirectory();
+
+                if (logsExist) {
+                    // If the logs directory already exists, then
+                    // setup a watch service to monitor the directory.
+                    Paths
+                        .get(logsDirectory)
+                        .register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+                }
+
+
+                // Start server
+                Thread serverThread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            serverTask.execute();
+                        } catch (Exception e) {
+                            log.debug("Error starting server", e);
+                        }
+                    }
+
+                });
+
+                serverThread.start();
+
+                if (logsExist) {
+                    // If logs already exist, then watch the directory to ensure
+                    // messages.log is modified before continuing.
+                    boolean messagesModified = false;
+                    WatchKey key;
+                    while (!messagesModified && (key = watchService.take()) != null) {
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            if (event.context().toString().equals("messages.log")) {
+                                messagesModified = true;
+                                debug("messages.log has been changed");
+                            }
+                        }
+                    }
+                }
 
                 if (verifyTimeout < 0) {
                     verifyTimeout = 30;
                 }
                 long timeout = verifyTimeout * 1000;
                 long endTime = System.currentTimeMillis() + timeout;
-                if (applications != null) {
-                    String[] apps = applications.split("[,\\s]+");
-                    for (String archiveName : apps) {
-                        String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + archiveName,
-                                timeout, serverTask.getLogFile());
-                        if (startMessage == null) {
-                            stopServer();
-                            throw new MojoExecutionException(MessageFormat
-                                    .format(messages.getString("error.server.start.verify"), verifyTimeout));
-                        }
-                        timeout = endTime - System.currentTimeMillis();
-                    }
+
+                // Wait for the app started message in messages.log
+                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP, timeout, messagesLogFile);
+                if (startMessage == null) {
+                    stopServer();
+                    throw new MojoExecutionException(
+                            MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
                 }
+
+                timeout = endTime - System.currentTimeMillis();
             } catch (Exception e) {
                 log.debug("Error starting server", e);
             }
