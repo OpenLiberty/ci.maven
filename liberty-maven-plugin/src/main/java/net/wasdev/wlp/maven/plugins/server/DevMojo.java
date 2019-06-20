@@ -544,8 +544,7 @@ public class DevMojo extends StartDebugMojoSupport {
             // stopping server
             stopServer();
             
-            util.cleanUpJVMOptions();
-            util.cleanUpServerEnv();
+            cleanUpServerEnv();
             
             log.info("Restarting liberty:dev mode");
             ProcessBuilder processBuilder = new ProcessBuilder();
@@ -872,7 +871,5 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
     }
-    
-
 
 }
