@@ -164,7 +164,6 @@ public class DevMojo extends StartDebugMojoSupport {
             File pom = project.getFile();
             this.existingPom = readFile(pom);
             ServerFeature servUtil = new ServerFeature();
-            log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
 
@@ -499,17 +498,19 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void checkConfigFile(File configFile) {
+        public void checkConfigFile(File configFile, ThreadPoolExecutor executor) {
             try {
                 ServerFeature servUtil = new ServerFeature();
                 Set<String> features = servUtil.getServerFeatures(serverDirectory);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
-                    List<String> configFeatures = new ArrayList<String>(features);
+                    /*List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
                     runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
                             configFeatures);
+                    this.existingFeatures.addAll(features);*/
                     this.existingFeatures.addAll(features);
+                    restartDevMode(executor);
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
@@ -547,6 +548,9 @@ public class DevMojo extends StartDebugMojoSupport {
             cleanUpJVMOptions();
             // stopping server
             stopServer();
+            
+            util.cleanUpJVMOptions();
+            util.cleanUpServerEnv();
             
             log.info("Restarting liberty:dev mode");
             ProcessBuilder processBuilder = new ProcessBuilder();
@@ -613,16 +617,14 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
 
         boolean noConfigDir = false;
-
+        
         // config files
         File defaultConfigDirectory = null;
         if (configDirectory == null || !configDirectory.exists()) {
             defaultConfigDirectory = configDirectory;
-            configDirectory = configFile.getParentFile();
             noConfigDir = true;
-            log.debug("configDirectory set to: " + configDirectory.getAbsolutePath());
         }
-
+        
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {
@@ -642,7 +644,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
                 defaultConfigDirectory, resourceDirs);
-
+        
         util.addShutdownHook(executor);
 
         util.enableServerDebug(libertyDebugPort);
@@ -797,7 +799,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 elements.add(element(name("looseApplication"), "true"));
                 elements.add(element(name("stripVersion"), "true"));
                 elements.add(element(name("installAppPackages"), "project"));
-                elements.add(element(name("configFile"), configFile.getAbsolutePath()));
+                elements.add(element(name("configFile"), configFile.getAbsolutePath()));               
             } else if (goal.equals("create-server")) {
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
                 if (assemblyArtifact != null) {
@@ -884,5 +886,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
     }
+    
+
 
 }
