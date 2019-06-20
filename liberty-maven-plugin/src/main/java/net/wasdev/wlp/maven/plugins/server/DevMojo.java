@@ -156,10 +156,10 @@ public class DevMojo extends StartDebugMojoSupport {
         private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File defaultConfigDirectory, List<File> resourceDirs)
+                File testSourceDirectory, File configDirectory, List<File> resourceDirs)
                 throws IOException {
             super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                    defaultConfigDirectory, resourceDirs, hotTests);
+                    resourceDirs, hotTests);
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -610,15 +610,6 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
         log.info("Running goal: install-apps");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
-
-        boolean noConfigDir = false;
-        
-        // config files
-        File defaultConfigDirectory = null;
-        if (configDirectory == null || !configDirectory.exists()) {
-            defaultConfigDirectory = configDirectory;
-            noConfigDir = true;
-        }
         
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
@@ -638,7 +629,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                defaultConfigDirectory, resourceDirs);
+                 resourceDirs);
         
         util.addShutdownHook(executor);
 
@@ -664,7 +655,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
