@@ -379,8 +379,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         return true;
                     } else {
-                        log.info("Unhandled change detected in pom.xml. Restarting liberty:dev mode.");
-                        restartDevMode(executor);
+                        log.info("Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
 
@@ -504,8 +503,11 @@ public class DevMojo extends StartDebugMojoSupport {
                 Set<String> features = servUtil.getServerFeatures(serverDirectory);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
+                    List<String> configFeatures = new ArrayList<String>(features);
+                    log.info("Configuration features have been added");
+                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
+                            configFeatures);
                     this.existingFeatures.addAll(features);
-                    restartDevMode(executor);
                 }
             } catch (Exception e) {
                 log.debug("Failed to read configuration file", e);
@@ -532,42 +534,6 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (MojoExecutionException e) {
                 log.error("Unable to compile", e);
                 return false;
-            }
-        }
-
-        @Override
-        public void restartDevMode(final ThreadPoolExecutor executor) {
-            // shutdown tests
-            executor.shutdown();
-            // cleaning up jvm options
-            cleanUpJVMOptions();
-            // stopping server
-            stopServer();
-            
-            cleanUpServerEnv();
-            
-            log.info("Restarting liberty:dev mode");
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            String processCommand = "mvn liberty:dev";
-            
-            Properties props = System.getProperties();
-            Set<Object> keys = props.keySet();
-            for(Object key: keys){
-                processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
-            }
-                        
-            String os = System.getProperty("os.name");
-            if (os != null && os.toLowerCase().startsWith("windows")) {
-                processBuilder.command("CMD", "/C", processCommand);
-            } else {
-                processBuilder.command("bash", "-c", processCommand);
-            }
-            try {
-                processBuilder.redirectOutput(Redirect.INHERIT);
-                processBuilder.redirectError(Redirect.INHERIT);
-                processBuilder.start();
-            } catch (IOException e) {
-                log.error("Could not restart liberty:dev mode", e);
             }
         }
     }
