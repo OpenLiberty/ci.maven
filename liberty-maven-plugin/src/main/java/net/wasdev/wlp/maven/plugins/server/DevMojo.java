@@ -504,11 +504,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 Set<String> features = servUtil.getServerFeatures(serverDirectory);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
-                    /*List<String> configFeatures = new ArrayList<String>(features);
-                    log.info("Configuration features have been added");
-                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
-                            configFeatures);
-                    this.existingFeatures.addAll(features);*/
                     this.existingFeatures.addAll(features);
                     restartDevMode(executor);
                 }
