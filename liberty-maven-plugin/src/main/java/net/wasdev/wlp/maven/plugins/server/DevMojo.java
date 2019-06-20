@@ -380,8 +380,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         return true;
                     } else {
-                        log.info("Unhandled change detected in pom.xml. Restarting liberty:dev mode.");
-                        restartDevMode(executor);
+                        log.info("Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
 
@@ -539,39 +538,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
 
-        @Override
-        public void restartDevMode(final ThreadPoolExecutor executor) {
-            // shutdown tests
-            executor.shutdown();
-            // cleaning up jvm options
-            cleanUpJVMOptions();
-            // stopping server
-            stopServer();
-            
-            log.info("Restarting liberty:dev mode");
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            String processCommand = "mvn liberty:dev";
-            
-            Properties props = System.getProperties();
-            Set<Object> keys = props.keySet();
-            for(Object key: keys){
-                processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
-            }
-                        
-            String os = System.getProperty("os.name");
-            if (os != null && os.toLowerCase().startsWith("windows")) {
-                processBuilder.command("CMD", "/C", processCommand);
-            } else {
-                processBuilder.command("bash", "-c", processCommand);
-            }
-            try {
-                processBuilder.redirectOutput(Redirect.INHERIT);
-                processBuilder.redirectError(Redirect.INHERIT);
-                processBuilder.start();
-            } catch (IOException e) {
-                log.error("Could not restart liberty:dev mode", e);
-            }
-        }
     }
 
     DevMojoUtil util;
