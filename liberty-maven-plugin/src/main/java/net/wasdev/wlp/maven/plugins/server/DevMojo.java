@@ -156,10 +156,10 @@ public class DevMojo extends StartDebugMojoSupport {
         private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, List<File> resourceDirs)
+                File testSourceDirectory, File configDirectory, File outputDirectory, List<File> resourceDirs)
                 throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                    resourceDirs, hotTests);
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, outputDirectory, resourceDirs, hotTests);
+            
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -497,10 +497,10 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void checkConfigFile(File configFile, ThreadPoolExecutor executor) {
+        public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = new ServerFeature();
-                Set<String> features = servUtil.getServerFeatures(serverDirectory);
+                Set<String> features = servUtil.getServerFeatures(serverDir);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
                     List<String> configFeatures = new ArrayList<String>(features);
@@ -594,7 +594,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                 resourceDirs);
+                outputDirectory, resourceDirs);
         
         util.addShutdownHook(executor);
 
@@ -620,7 +620,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
+        util.watchFiles(pom, testOutputDirectory, executor, artifactPaths, configFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
