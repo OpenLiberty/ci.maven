@@ -156,9 +156,9 @@ public class DevMojo extends StartDebugMojoSupport {
         private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File outputDirectory, List<File> resourceDirs)
+                File testSourceDirectory, File configDirectory, List<File> resourceDirs)
                 throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, outputDirectory, resourceDirs, hotTests);
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests);
             
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -594,7 +594,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                outputDirectory, resourceDirs);
+                resourceDirs);
         
         util.addShutdownHook(executor);
 
@@ -620,7 +620,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, testOutputDirectory, executor, artifactPaths, configFile);
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
