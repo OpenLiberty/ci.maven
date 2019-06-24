@@ -156,15 +156,14 @@ public class DevMojo extends StartDebugMojoSupport {
         private File messagesLogFile = null;
 
         public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File defaultConfigDirectory, List<File> resourceDirs)
+                File testSourceDirectory, File configDirectory, List<File> resourceDirs)
                 throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                    defaultConfigDirectory, resourceDirs, hotTests);
+            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests);
+            
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
             ServerFeature servUtil = new ServerFeature();
-            log.info("serverDirectory: " + serverDirectory + "; exists: " + serverDirectory.exists());
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
 
@@ -380,8 +379,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         return true;
                     } else {
-                        log.info("Unhandled change detected in pom.xml. Restarting liberty:dev mode.");
-                        restartDevMode(executor);
+                        log.info("Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
 
@@ -499,10 +497,10 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void checkConfigFile(File configFile) {
+        public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = new ServerFeature();
-                Set<String> features = servUtil.getServerFeatures(serverDirectory);
+                Set<String> features = servUtil.getServerFeatures(serverDir);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
                     List<String> configFeatures = new ArrayList<String>(features);
@@ -536,40 +534,6 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (MojoExecutionException e) {
                 log.error("Unable to compile", e);
                 return false;
-            }
-        }
-
-        @Override
-        public void restartDevMode(final ThreadPoolExecutor executor) {
-            // shutdown tests
-            executor.shutdown();
-            // cleaning up jvm options
-            cleanUpJVMOptions();
-            // stopping server
-            stopServer();
-            
-            log.info("Restarting liberty:dev mode");
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            String processCommand = "mvn liberty:dev";
-            
-            Properties props = System.getProperties();
-            Set<Object> keys = props.keySet();
-            for(Object key: keys){
-                processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
-            }
-                        
-            String os = System.getProperty("os.name");
-            if (os != null && os.toLowerCase().startsWith("windows")) {
-                processBuilder.command("CMD", "/C", processCommand);
-            } else {
-                processBuilder.command("bash", "-c", processCommand);
-            }
-            try {
-                processBuilder.redirectOutput(Redirect.INHERIT);
-                processBuilder.redirectError(Redirect.INHERIT);
-                processBuilder.start();
-            } catch (IOException e) {
-                log.error("Could not restart liberty:dev mode", e);
             }
         }
     }
@@ -611,18 +575,7 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
         log.info("Running goal: install-apps");
         runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
-
-        boolean noConfigDir = false;
-
-        // config files
-        File defaultConfigDirectory = null;
-        if (configDirectory == null || !configDirectory.exists()) {
-            defaultConfigDirectory = configDirectory;
-            configDirectory = configFile.getParentFile();
-            noConfigDir = true;
-            log.debug("configDirectory set to: " + configDirectory.getAbsolutePath());
-        }
-
+        
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {
@@ -641,8 +594,8 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                defaultConfigDirectory, resourceDirs);
-
+                resourceDirs);
+        
         util.addShutdownHook(executor);
 
         util.enableServerDebug(libertyDebugPort);
@@ -667,7 +620,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, noConfigDir, configFile);
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
@@ -797,7 +750,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 elements.add(element(name("looseApplication"), "true"));
                 elements.add(element(name("stripVersion"), "true"));
                 elements.add(element(name("installAppPackages"), "project"));
-                elements.add(element(name("configFile"), configFile.getAbsolutePath()));
+                elements.add(element(name("configFile"), configFile.getAbsolutePath()));               
             } else if (goal.equals("create-server")) {
                 elements.add(element(name("configFile"), configFile.getAbsolutePath()));
                 if (assemblyArtifact != null) {
