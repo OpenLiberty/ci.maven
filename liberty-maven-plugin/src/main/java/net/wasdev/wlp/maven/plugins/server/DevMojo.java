@@ -155,10 +155,10 @@ public class DevMojo extends StartDebugMojoSupport {
         
         private File messagesLogFile = null;
 
-        public DevMojoUtil(List<String> jvmOptions, File serverDirectory, File sourceDirectory,
+        public DevMojoUtil(File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, List<File> resourceDirs)
                 throws IOException {
-            super(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests);
+            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests);
             
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -593,8 +593,7 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        util = new DevMojoUtil(jvmOptions, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory,
-                resourceDirs);
+        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         
         util.addShutdownHook(executor);
 
