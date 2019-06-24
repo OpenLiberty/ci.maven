@@ -12,6 +12,7 @@ The run-server goal will propagate changes from source to the [server configurat
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | clean | Clean all cached information on server start up. The default value is `false`. | No |
+| embedded | Whether the server is [embedded](https://www.ibm.com/support/knowledgecenter/SSD28V_9.0.0/com.ibm.websphere.wlp.core.doc/ae/twlp_extend_embed.html) in the Maven JVM. If not, the server will run as a separate process. The default value is `false`. | No |
 
 Example:
 ```xml
