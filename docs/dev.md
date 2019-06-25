@@ -11,7 +11,7 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| hotTests | Run unit and integration tests automatically after every change. The default value is `false`. | No |
+| hotTests | If set to `true`, run unit and integration tests automatically after every change. The default value is `false`. | No |
 | skipTests | Skip all tests. | No |
 | skipUTs | Skip unit tests. | No |
 | skipITs | Skip integration tests. | No |
