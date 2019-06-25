@@ -542,6 +542,10 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            return;
+        }
+
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
