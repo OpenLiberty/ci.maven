@@ -8,18 +8,18 @@
       <version>RELEASE</version>
   </parent>
 
-  <groupId>dev-it</groupId>
-  <artifactId>basic-dev-project</artifactId>
+  <groupId>io.openliberty.guides</groupId>
+  <artifactId>microprofile-health</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-<!--     <app.name>Project</app.name>
- -->    <!-- tag::ports[] -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <app.name>LibertyProject</app.name>
+    <!-- tag::ports[] -->
     <testServerHttpPort>9080</testServerHttpPort>
     <testServerHttpsPort>9443</testServerHttpsPort>
     <!-- end::ports[] -->
@@ -48,10 +48,80 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>jsonp-1.1</artifactId>
+        <type>esa</type>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>cdi-2.0</artifactId>
+        <type>esa</type>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>mpConfig-1.3</artifactId>
+        <type>esa</type>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>mpRestClient-1.2</artifactId>
+        <type>esa</type>
+        <scope>provided</scope>
+    </dependency>
+    <!-- For tests -->
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-client</artifactId>
+      <version>3.2.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-extension-providers</artifactId>
+      <version>3.2.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>1.0.4</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Java utility classes -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <!-- Support for JDK 9 and above-->
+    <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.3.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>2.3.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.3.2</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>1.1.1</version>
     </dependency>
   </dependencies>
 
@@ -96,13 +166,48 @@
             <version>RELEASE</version>
             <type>zip</type>
           </assemblyArtifact>
-          <configFile>src/main/liberty/testing.xml</configFile>
+          <configFile>src/main/liberty/config/server.xml</configFile>
           <packageFile>${package.file}</packageFile>
           <include>${packaging.type}</include>
           <bootstrapProperties>
             <default.http.port>${testServerHttpPort}</default.http.port>
             <default.https.port>${testServerHttpsPort}</default.https.port>
           </bootstrapProperties>
+        </configuration>
+      </plugin>
+      <!-- Plugin to run functional tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <executions>
+          <execution>
+            <phase>integration-test</phase>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/it/**/*.java</include>
+              </includes>
+              <!-- tag::system-props[] -->
+              <systemPropertyVariables>
+                <liberty.test.port>${testServerHttpPort}</liberty.test.port>
+              </systemPropertyVariables>
+              <!-- end::system-props[] -->
+            </configuration>
+          </execution>
+          <execution>
+            <id>verify-results</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <summaryFile>${project.build.directory}/test-reports/it/failsafe-summary.xml</summaryFile>
+          <reportsDirectory>${project.build.directory}/test-reports/it</reportsDirectory>
         </configuration>
       </plugin>
     </plugins>

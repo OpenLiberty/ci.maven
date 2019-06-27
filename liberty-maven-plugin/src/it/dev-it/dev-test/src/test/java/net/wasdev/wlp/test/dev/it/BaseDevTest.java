@@ -17,10 +17,12 @@ package net.wasdev.wlp.test.dev.it;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -30,31 +32,43 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.apache.maven.shared.utils.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class BaseDevTest {
 
-    @Test
-    public void basicTest() throws Exception {
-        // set up project
-        File basicProj = Files.createTempDirectory("test").toFile();
-        assertTrue(basicProj.exists());
+   File tempProj;
+   File basicDevProj;
 
-        File basicDevProj = new File("resources/basic-dev-project");
+	@Before
+   public void setUp() throws Exception {
+		// set up project
+        tempProj = Files.createTempDirectory("temp").toFile();
+        assertTrue(tempProj.exists());
+
+        basicDevProj = new File("resources/basic-dev-project");
         assertTrue(basicDevProj.exists());
         
-        FileUtils.copyDirectoryStructure(basicDevProj, basicProj);
-        assertTrue(basicProj.listFiles().length > 0);
+        FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
+        assertTrue(tempProj.listFiles().length > 0);
 
+	}
+
+	@After
+	public void cleanUp() throws Exception {
+		if (tempProj != null && tempProj.exists()) {
+			FileUtils.deleteDirectory(tempProj);
+		}
+	}
+
+    @Test
+    public void basicTest() throws Exception {
+        
 		// run dev mode on project
 		ProcessBuilder builder = new ProcessBuilder();
-		builder.directory(basicProj);
+		builder.directory(tempProj);
 		String processCommand = "mvn liberty:dev";
-		Properties props = System.getProperties();
-		Set<Object> keys = props.keySet();
-		for (Object key : keys) {
-			processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
-		}
 
 		String os = System.getProperty("os.name");
 		if (os != null && os.toLowerCase().startsWith("windows")) {
@@ -63,33 +77,55 @@ public class BaseDevTest {
 			builder.command("bash", "-c", processCommand);
 		}
 
-        try {
-            File logFile = new File(basicDevProj, "/logFile.txt");
-            Files.write(logFile.toPath(), "".getBytes());
-            
-            builder.redirectOutput(logFile);
-            builder.redirectError(logFile);
-            Process process = builder.start();
-            assertTrue(process.isAlive());
-            
-            OutputStream stdin = process.getOutputStream();
-            
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
-            Thread.sleep(50000); // wait for dev mode to start up
-                 
-            // shut down dev mode
-            writer.write("exit"); // trigger dev mode to shut down
-            writer.flush();
-            writer.close();
-            Thread.sleep(1000); // wait for dev mode to shut down
-            
-            // test that dev mode has stopped running
-            assertTrue(readFile("Server defaultServer stopped.", logFile));
-            assertFalse(readFile("Error", logFile));
+		File logFile = new File(basicDevProj, "/logFile.txt");
+		Files.write(logFile.toPath(), "".getBytes());
 
-        } catch (IOException e) {
-            assertFalse(true);
-        }
+		builder.redirectOutput(logFile);
+		builder.redirectError(logFile);
+		Process process = builder.start();
+		assertTrue(process.isAlive());
+
+		OutputStream stdin = process.getOutputStream();
+
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+		Thread.sleep(40000); // wait for dev mode to start up
+
+		// check that the server has started
+		assertTrue(readFile("The defaultServer server is ready to run a smarter planet.", logFile));
+		
+		// verify that the target directory was created
+		File targetDir = new File(tempProj, "/target");
+		assertTrue(targetDir.exists());
+		
+		// modify a java file
+		File srcHelloWorld = new File(tempProj, "/src/main/java/com/demo/HelloWorld.java");
+		File targetHelloWorld = new File(targetDir, "/classes/com/demo/HelloWorld.class");
+		assertTrue(srcHelloWorld.exists());
+		assertTrue(targetHelloWorld.exists());
+		
+      long lastModified = targetHelloWorld.lastModified();
+      String str = "// testing";
+      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
+      javaWriter.append(' ');
+      javaWriter.append(str);
+
+      javaWriter.close();
+		
+      Thread.sleep(2000); // wait for compilation
+      boolean wasModified = targetHelloWorld.lastModified() > lastModified;
+      assertTrue(wasModified);
+      
+		// shut down dev mode
+		writer.write("exit"); // trigger dev mode to shut down
+		writer.flush();
+		writer.close();
+		Thread.sleep(2000); // wait for dev mode to shut down
+
+		process.waitFor();
+		
+		// test that dev mode has stopped running
+		assertTrue(readFile("Server defaultServer stopped.", logFile));
+		assertFalse(readFile("Error", logFile));	
     }
 
 
