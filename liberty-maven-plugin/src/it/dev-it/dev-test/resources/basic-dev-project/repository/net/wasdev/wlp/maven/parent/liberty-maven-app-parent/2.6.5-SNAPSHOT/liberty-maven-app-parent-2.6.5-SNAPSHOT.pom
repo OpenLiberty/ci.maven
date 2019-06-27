@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ (C) Copyright IBM Corporation 2017.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>net.wasdev.wlp.maven</groupId>
+        <artifactId>liberty-maven</artifactId>
+        <version>2.6.5-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>net.wasdev.wlp.maven.parent</groupId>
+    <artifactId>liberty-maven-app-parent</artifactId>
+    <packaging>pom</packaging>
+    
+    <name>Liberty Maven Plugin Parent</name>
+    <description>Liberty Maven Plugin Parent</description>
+    <url>https://github.com/WASdev/ci.maven</url>
+    
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://raw.github.com/WASdev/ci.maven/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId>
+                    <version>2.6.5-SNAPSHOT</version>
+                    <configuration>
+                        <!-- set install-apps goal parameters -->
+                        <looseApplication>true</looseApplication>
+                        <installAppPackages>project</installAppPackages>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>stop-server-before-clean</id>
+                            <phase>pre-clean</phase>
+                            <goals>
+                                <goal>stop-server</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>create-server</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>install-server</goal>
+                                <goal>create-server</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>install-feature</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                              <goal>install-feature</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>install-apps</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>install-apps</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>package-server</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>package-server</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>test-start-server</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>test-start-server</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>test-stop-server</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>test-stop-server</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
