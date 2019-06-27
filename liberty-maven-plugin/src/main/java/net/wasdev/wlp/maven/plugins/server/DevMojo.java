@@ -408,92 +408,90 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void runTests(boolean waitForApplicationUpdate, int messageOccurrences, ThreadPoolExecutor executor,
                 boolean forceSkipUTs) {
-            File logFile = serverTask.getLogFile();
-            String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
+            if (!skipTests) {
+                File logFile = serverTask.getLogFile();
+                String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();    
 
-            if (skipTests) {
-                return;
-            }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                log.debug("Thread interrupted while waiting to start unit tests.", e);
-            }
-
-            // if queue size >= 1, it means a newer test has been queued so we
-            // should skip this and let that run instead
-            if (executor.getQueue().size() >= 1) {
-                Runnable head = executor.getQueue().peek();
-                boolean manualInvocation = ((TestJob) head).isManualInvocation();
-
-                if (manualInvocation) {
-                    log.debug("Tests were re-invoked before previous tests began. Cancelling previous tests and resubmitting them.");
-                } else {
-                    log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
-                }
-                return;
-            }
-
-            if (!(skipUTs || forceSkipUTs)) {
-                log.info("Running unit tests...");
                 try {
-                    runUnitTests();
-                    log.info("Unit tests finished.");
-                } catch (MojoExecutionException e) {
-                    Throwable cause = e.getCause();
-                    if (cause != null && cause instanceof MojoFailureException) {
-                        log.debug(e);
-                        log.error("Unit tests failed: " + cause.getLocalizedMessage());
-                        // if unit tests failed, don't run integration tests
-                        return;
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    log.debug("Thread interrupted while waiting to start unit tests.", e);
+                }
+
+                // if queue size >= 1, it means a newer test has been queued so we
+                // should skip this and let that run instead
+                if (executor.getQueue().size() >= 1) {
+                    Runnable head = executor.getQueue().peek();
+                    boolean manualInvocation = ((TestJob) head).isManualInvocation();
+
+                    if (manualInvocation) {
+                        log.debug("Tests were re-invoked before previous tests began. Cancelling previous tests and resubmitting them.");
                     } else {
-                        log.error("Failed to run unit tests", e);
+                        log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
+                    }
+                    return;
+                }
+
+                if (!(skipUTs || forceSkipUTs)) {
+                    log.info("Running unit tests...");
+                    try {
+                        runUnitTests();
+                        log.info("Unit tests finished.");
+                    } catch (MojoExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause != null && cause instanceof MojoFailureException) {
+                            log.debug(e);
+                            log.error("Unit tests failed: " + cause.getLocalizedMessage());
+                            // if unit tests failed, don't run integration tests
+                            return;
+                        } else {
+                            log.error("Failed to run unit tests", e);
+                        }
                     }
                 }
-            }
 
-            // if queue size >= 1, it means a newer test has been queued so we
-            // should skip this and let that run instead
-            if (executor.getQueue().size() >= 1) {
-                Runnable head = executor.getQueue().peek();
-                boolean manualInvocation = ((TestJob) head).isManualInvocation();
+                // if queue size >= 1, it means a newer test has been queued so we
+                // should skip this and let that run instead
+                if (executor.getQueue().size() >= 1) {
+                    Runnable head = executor.getQueue().peek();
+                    boolean manualInvocation = ((TestJob) head).isManualInvocation();
 
-                if (manualInvocation) {
-                    log.info("Tests were invoked while previous tests were running. Restarting tests.");
-                } else {
-                    log.info("Changes were detected while tests were running. Restarting tests.");
-                }
-                return;
-            }
-
-            if (!skipITs) {
-                if (waitForApplicationUpdate) {
-                    // wait until application has been updated
-                    if (appUpdateTimeout < 0) {
-                        appUpdateTimeout = 5;
-                    }
-                    long timeout = appUpdateTimeout * 1000;
-                    serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
-                }
-
-                log.info("Running integration tests...");
-                try {
-                    runIntegrationTests();
-                    log.info("Integration tests finished.");
-                } catch (MojoExecutionException e) {
-                    Throwable cause = e.getCause();
-                    if (cause != null && cause instanceof MojoFailureException) {
-                        log.debug(e);
-                        log.error("Integration tests failed: " + cause.getLocalizedMessage());
+                    if (manualInvocation) {
+                        log.info("Tests were invoked while previous tests were running. Restarting tests.");
                     } else {
-                        log.error("Failed to run integration tests", e);
+                        log.info("Changes were detected while tests were running. Restarting tests.");
+                    }
+                    return;
+                }
+
+                if (!skipITs) {
+                    if (waitForApplicationUpdate) {
+                        // wait until application has been updated
+                        if (appUpdateTimeout < 0) {
+                            appUpdateTimeout = 5;
+                        }
+                        long timeout = appUpdateTimeout * 1000;
+                        serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
+                    }
+
+                    log.info("Running integration tests...");
+                    try {
+                        runIntegrationTests();
+                        log.info("Integration tests finished.");
+                    } catch (MojoExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause != null && cause instanceof MojoFailureException) {
+                            log.debug(e);
+                            log.error("Integration tests failed: " + cause.getLocalizedMessage());
+                        } else {
+                            log.error("Failed to run integration tests", e);
+                        }
                     }
                 }
             }
 
-            // start watching for hotkey presses if not already started
-            util.runHotkeyReaderThread(executor);
+            // finally, start watching for hotkey presses if not already started
+            util.runHotkeyReaderThread(executor, skipTests);
         }
 
         @Override
@@ -609,15 +607,12 @@ public class DevMojo extends StartDebugMojoSupport {
         List<String> artifactPaths = new ArrayList<String>();
         util.getArtifacts(artifactPaths);
 
-        // run tests at startup
-        if (testSourceDirectory.exists()) {
-            if (hotTests) {
-                // if hot testing, run tests and watch for keypresses
-                util.runTestThread(false, executor, -1, false, false);
-            } else {
-                // else watch for key presses here
-                util.runHotkeyReaderThread(executor);
-            }
+        if (hotTests && testSourceDirectory.exists()) {
+            // if hot testing, run tests on startup and then watch for keypresses
+            util.runTestThread(false, executor, -1, false, false);
+        } else {
+            // else watch for keypresses immediately
+            util.runHotkeyReaderThread(executor, skipTests);
         }
 
         // pom.xml
