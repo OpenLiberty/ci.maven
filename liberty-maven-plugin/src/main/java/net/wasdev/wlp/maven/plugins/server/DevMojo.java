@@ -158,7 +158,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, List<File> resourceDirs)
                 throws IOException {
-            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests);
+            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests, skipTests);
             
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -491,7 +491,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
 
             // finally, start watching for hotkey presses if not already started
-            util.runHotkeyReaderThread(executor, skipTests);
+            util.runHotkeyReaderThread(executor);
         }
 
         @Override
@@ -612,7 +612,7 @@ public class DevMojo extends StartDebugMojoSupport {
             util.runTestThread(false, executor, -1, false, false);
         } else {
             // else watch for keypresses immediately
-            util.runHotkeyReaderThread(executor, skipTests);
+            util.runHotkeyReaderThread(executor);
         }
 
         // pom.xml
