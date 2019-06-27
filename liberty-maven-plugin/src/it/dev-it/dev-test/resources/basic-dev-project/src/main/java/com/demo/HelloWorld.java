@@ -10,23 +10,26 @@
  *     IBM Corporation - Initial implementation
  *******************************************************************************/
 // end::copyright[]
-package io.openliberty.guides.inventory.model;
+package com.demo;
 
-import java.util.List;
+// import javax.enterprise.context.RequestScoped;
+// import javax.ws.rs.GET;
+// import javax.ws.rs.core.Response;
+// import javax.ws.rs.Path;
+// import javax.ws.rs.Produces;
+// import javax.ws.rs.core.MediaType;
 
-public class InventoryList {
+// @RequestScoped
+// @Path("properties")
+public class HelloWorld {
 
-  private List<SystemData> systems;
+	public String helloWorld() {
+		return "helloWorld";
+	}
 
-  public InventoryList(List<SystemData> systems) {
-    this.systems = systems;
-  }
-
-  public List<SystemData> getSystems() {
-    return systems;
-  }
-
-  public int getTotal() {
-    return systems.size();
-  }
+  // @GET
+  // @Produces(MediaType.APPLICATION_JSON)
+  // public Response getProperties() {
+  //   return Response.ok(System.getProperties()).build();
+  // }
 }

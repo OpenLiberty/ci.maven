@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.Test;
@@ -44,24 +46,22 @@ public class BaseDevTest {
         FileUtils.copyDirectoryStructure(basicDevProj, basicProj);
         assertTrue(basicProj.listFiles().length > 0);
 
-        // run dev mode on project
-        ProcessBuilder builder = new ProcessBuilder();
-        builder.directory(basicProj);
-        String processCommand = "mvn liberty:dev";
-        // String processCommand = "bash -c echo \"test\" > KathrynsTEST.xml";
-        // Properties props = System.getProperties();
-        // Set<Object> keys = props.keySet();
-        // for (Object key : keys) {
-        //     processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
-        // }
+		// run dev mode on project
+		ProcessBuilder builder = new ProcessBuilder();
+		builder.directory(basicProj);
+		String processCommand = "mvn liberty:dev";
+		Properties props = System.getProperties();
+		Set<Object> keys = props.keySet();
+		for (Object key : keys) {
+			processCommand += " -D" + key + "=\"" + props.get(key) + "\"";
+		}
 
-        // String os = System.getProperty("os.name");
-        // if (os != null && os.toLowerCase().startsWith("windows")) {
-        //     builder.command("CMD", "/C", processCommand);
-        // } else {
-        //     builder.command("bash", "-c", processCommand);
-        // }
-        builder.command("bash", "-c", processCommand);
+		String os = System.getProperty("os.name");
+		if (os != null && os.toLowerCase().startsWith("windows")) {
+			builder.command("CMD", "/C", processCommand);
+		} else {
+			builder.command("bash", "-c", processCommand);
+		}
 
         try {
             File logFile = new File(basicDevProj, "/logFile.txt");
@@ -82,8 +82,6 @@ public class BaseDevTest {
             writer.flush();
             writer.close();
             Thread.sleep(1000); // wait for dev mode to shut down
-            // process.destroy();
-            // assertFalse(process.isAlive()); 
             
             // test that dev mode has stopped running
             assertTrue(readFile("Server defaultServer stopped.", logFile));
