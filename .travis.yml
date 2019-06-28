@@ -7,9 +7,9 @@ jdk:
     - oraclejdk11
 env:
     - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
-    - RUNTIME=ol RUNTIME_VERSION=19.0.0.2
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.3
     - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
-    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.2
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.3
 matrix:
     exclude:
     - jdk: oraclejdk11

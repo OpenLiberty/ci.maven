@@ -32,7 +32,7 @@ Remove every app deployed to the `${userDirectory}/dropins` and every file in th
                             <goal>clean-server</goal>
                         </goals>
                         <configuration>
-                            <cleanDropins>true</dropins>
+                            <cleanDropins>true</cleanDropins>
                         </configuration>
                     </execution>
                     ...

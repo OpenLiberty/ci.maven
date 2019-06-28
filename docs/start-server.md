@@ -14,6 +14,7 @@ The start-server goal will propagate changes from source to the [server configur
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The default value is 30 seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the applications have started. This timeout only has effect if the `applications` parameter is set. The default value is 30 seconds. | No |
 | applications | A comma-separated list of application names to wait for during server start-up. | No |
+| embedded | Whether the server is [embedded](https://www.ibm.com/support/knowledgecenter/SSD28V_9.0.0/com.ibm.websphere.wlp.core.doc/ae/twlp_extend_embed.html) in the Maven JVM. If not, the server will run as a separate process. The default value is `false`. | No |
 
 Example:
 ```xml

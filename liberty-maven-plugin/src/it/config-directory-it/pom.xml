@@ -82,6 +82,7 @@
           <installAppPackages>project</installAppPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
           <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig</libertySettingsFolder>
+          <noPassword>true</noPassword>
         </configuration>
         <executions>
             <execution>
