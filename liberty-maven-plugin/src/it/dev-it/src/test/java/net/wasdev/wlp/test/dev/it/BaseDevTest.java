@@ -89,8 +89,6 @@ public class BaseDevTest {
       Thread.sleep(40000); // wait for dev mode to start up
 
       // check that the server has started
-//      assertEquals(0, util.counter);
-//      final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1, true));
       int startTimeout = 100000;
       int startWaited = 0;
       boolean startFlag = false;
@@ -103,8 +101,6 @@ public class BaseDevTest {
          }
      }
    
-//      assertTrue(readFile("The defaultServer server is ready to run a smarter planet.", logFile));
-
       // verify that the target directory was created
       File targetDir = new File(tempProj, "/target");
       assertTrue(targetDir.exists());
@@ -147,11 +143,9 @@ public class BaseDevTest {
             stopFlag = true;
          }
      }
-//      assertTrue(readFile("Server defaultServer stopped.", logFile));
-//      assertFalse(readFile("Error", logFile));
    }
 
-   public boolean readFile(String str, File file) throws FileNotFoundException {
+   private boolean readFile(String str, File file) throws FileNotFoundException {
       Scanner scanner = new Scanner(file);
 
       while (scanner.hasNextLine()) {

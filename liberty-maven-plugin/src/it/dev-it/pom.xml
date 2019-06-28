@@ -22,35 +22,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
- <!--    <modules>
-        <module>dev-test</module>
-    </modules>
-     -->
-  <!--   <profiles>   
-        <profile>
-            <id>ol-its</id>
-            <activation>
-                <property>
-                    <name>runtime</name>
-                    <value>ol</value>
-                </property>
-            </activation>
-            Tests that should only run on Open Liberty are here
-            <modules>
-             	<module>dev-test</module>
-            </modules>
-        </profile>
-    </profiles> -->
-
     <dependencies>
-        <!-- <dependency>
-            <groupId>net.wasdev.wlp.maven.it</groupId>
-            <artifactId>dev-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency> -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
