@@ -9,6 +9,7 @@ This goal supports [common server parameters](common-server-parameters.md#common
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | serverStopTimeout | Deprecated. This parameter is ignored. | No |
+| embedded | Whether the server is [embedded](https://www.ibm.com/support/knowledgecenter/SSD28V_9.0.0/com.ibm.websphere.wlp.core.doc/ae/twlp_extend_embed.html) in the Maven JVM. If the server is started in embedded mode, it must also be stopped in embedded mode. The default value is `false`. | No |
 
 Example:
 ```xml

@@ -24,31 +24,31 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 @Mojo(name = "clean-server")
 public class CleanServerMojo extends StartDebugMojoSupport {
-    
+
     /**
      * Clean the logs directory.
      */
-    @Parameter(property = "cleanLogs", defaultValue = "true")
-    private boolean logs = true;
-    
+    @Parameter(alias = "logs", property = "cleanLogs", defaultValue = "true")
+    private boolean cleanLogs = true;
+
     /**
      * Clean the workarea directory.
      */
-    @Parameter(property = "cleanWorkarea", defaultValue = "true")
-    private boolean workarea = true;
-    
+    @Parameter(alias = "workarea", property = "cleanWorkarea", defaultValue = "true")
+    private boolean cleanWorkarea = true;
+
     /**
      * Clean the dropins directory.
      */
-    @Parameter(property = "cleanDropins", defaultValue = "false")
-    private boolean dropins = false;
-    
+    @Parameter(alias = "dropins", property = "cleanDropins", defaultValue = "false")
+    private boolean cleanDropins = false;
+
     /**
      * Clean the apps directory.
      */
-    @Parameter(property = "cleanApps", defaultValue = "false")
-    private boolean apps = false;
-    
+    @Parameter(alias = "apps", property = "cleanApps", defaultValue = "false")
+    private boolean cleanApps = false;
+
     protected void doExecute() throws Exception {
         if (skip) {
             return;
@@ -59,10 +59,10 @@ public class CleanServerMojo extends StartDebugMojoSupport {
         cleanTask.setServerName(serverName);
         cleanTask.setUserDir(userDirectory);
         cleanTask.setOutputDir(outputDirectory);
-        cleanTask.setLogs(logs);
-        cleanTask.setWorkarea(workarea);
-        cleanTask.setDropins(dropins);
-        cleanTask.setApps(apps);
+        cleanTask.setLogs(cleanLogs);
+        cleanTask.setWorkarea(cleanWorkarea);
+        cleanTask.setDropins(cleanDropins);
+        cleanTask.setApps(cleanApps);
         cleanTask.execute();
     }
 }

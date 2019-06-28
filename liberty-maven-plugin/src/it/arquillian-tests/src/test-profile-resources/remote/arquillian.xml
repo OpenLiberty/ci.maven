@@ -9,7 +9,7 @@
 		<configuration>
 			<property name="wlpHome">target/wlp</property>
 			<property name="serverName">LibertyProjectServer</property>
-			<property name="httpPort">9080</property>
+            <property name="httpPort">9080</property>
 		</configuration>
 	</container>
 </arquillian>
