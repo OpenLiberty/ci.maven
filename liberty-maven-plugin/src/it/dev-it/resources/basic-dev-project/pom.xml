@@ -158,7 +158,7 @@
       <plugin>
         <groupId>net.wasdev.wlp.maven.plugins</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>2.6.5-SNAPSHOT</version>
+        <version>SUB_VERION</version>
         <configuration>
           <assemblyArtifact>
             <groupId>io.openliberty</groupId>

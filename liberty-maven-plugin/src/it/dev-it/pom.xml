@@ -14,6 +14,7 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../tests</relativePath>
     </parent>
+   
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,6 +51,9 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <systemPropertyVariables>
+                    	<testing>@pom.version@</testing>
+                	</systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
