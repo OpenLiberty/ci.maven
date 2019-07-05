@@ -31,9 +31,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -58,9 +55,6 @@ import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
@@ -158,7 +152,6 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Dependency> existingDependencies;
         String existingPom;
         Set<String> existingFeatures; 
-
         
         private File messagesLogFile = null;
 
@@ -170,7 +163,6 @@ public class DevMojo extends StartDebugMojoSupport {
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
-
             ServerFeature servUtil = new ServerFeature();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
@@ -519,31 +511,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Failed to read configuration file", e);
             }
         }
-        
-        private List<String> getConfigFeatures(File configFile) {
-            List<String> features = new ArrayList<String>();
-            try {
-                // String configString = readFile(configFile);
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(configFile);
-                doc.getDocumentElement().normalize();
-                // log.info("root: " + doc.getDocumentElement().getNodeName());
-                NodeList nList = doc.getElementsByTagName("*");
-                for (int temp = 0; temp < nList.getLength(); temp++) {
-                    Node nNode = nList.item(temp);
-                    // log.info("node: " + nNode.getNodeName());
-                    if (nNode.getNodeName().equals("feature")) {
-                        // log.info("Feature detected");
-                        features.add(nNode.getTextContent());
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Failed to get features", e);
-            }
-            return features;
-        }
-        
 
         @Override
         public boolean compile(File dir) {
