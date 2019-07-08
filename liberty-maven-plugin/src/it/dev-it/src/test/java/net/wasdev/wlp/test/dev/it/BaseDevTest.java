@@ -75,17 +75,7 @@ public class BaseDevTest {
          logFile = new File(basicDevProj, "/logFile.txt");
          logFile.createNewFile();
          
-         String pluginVersion = System.getProperty("testing");
-
-         File pomXML = new File(tempProj, "/pom.xml");
-         assertTrue(pomXML.exists());
-         
-         Path path = pomXML.toPath();
-         Charset charset = StandardCharsets.UTF_8;
-
-         String content = new String(Files.readAllBytes(path), charset);
-         content = content.replaceAll("SUB_VERION", pluginVersion);
-         Files.write(path, content.getBytes(charset));
+         replaceVersion();
       }
    }
 
@@ -93,17 +83,7 @@ public class BaseDevTest {
    public void cleanUp() throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
          
-         ProcessBuilder builder = new ProcessBuilder();
-         builder.directory(tempProj);
-         String processCommand = "mvn liberty:stop-server";
-
-         String os = System.getProperty("os.name");
-         if (os != null && os.toLowerCase().startsWith("windows")) {
-            builder.command("CMD", "/C", processCommand);
-         } else {
-            builder.command("bash", "-c", processCommand);
-         }
-
+         ProcessBuilder builder = buildProcess("mvn liberty:stop-server");
          Process process = builder.start();
 
          if (tempProj != null && tempProj.exists()) {
@@ -122,16 +102,7 @@ public class BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
      
          // run dev mode on project
-         ProcessBuilder builder = new ProcessBuilder();
-         builder.directory(tempProj);
-         String processCommand = "mvn liberty:dev";
-
-         String os = System.getProperty("os.name");
-         if (os != null && os.toLowerCase().startsWith("windows")) {
-            builder.command("CMD", "/C", processCommand);
-         } else {
-            builder.command("bash", "-c", processCommand);
-         }
+         ProcessBuilder builder = buildProcess("mvn liberty:dev");
 
          builder.redirectOutput(logFile);
          builder.redirectError(logFile);
@@ -143,7 +114,7 @@ public class BaseDevTest {
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
          // check that the server has started
-         int startTimeout = 1000000;
+         int startTimeout = 120000;
          int startWaited = 0;
          boolean startFlag = false;
          while (!startFlag && startWaited <= startTimeout) {
@@ -154,7 +125,8 @@ public class BaseDevTest {
                startFlag = true;
                Thread.sleep(1000);
             }
-        }
+         }
+         assertFalse(startWaited > startTimeout);
            
          // verify that the target directory was created
          File targetDir = new File(tempProj, "/target");
@@ -196,7 +168,10 @@ public class BaseDevTest {
             if (readFile("CWWKE0036I", logFile) == true) {
                stopFlag = true;
             }
-        }
+         }
+         
+         assertFalse(stopWaited > stopTimeout);
+         
       }
      
    }
@@ -211,5 +186,32 @@ public class BaseDevTest {
          }
       }
       return false;
+   }
+   
+   private ProcessBuilder buildProcess(String processCommand) {
+      ProcessBuilder builder = new ProcessBuilder();
+      builder.directory(tempProj);
+      
+      String os = System.getProperty("os.name");
+      if (os != null && os.toLowerCase().startsWith("windows")) {
+         builder.command("CMD", "/C", processCommand);
+      } else {
+         builder.command("bash", "-c", processCommand);
+      }
+      return builder;
+   }
+   
+   private void replaceVersion() throws IOException {
+      String pluginVersion = System.getProperty("mavenPluginVersion");
+
+      File pomXML = new File(tempProj, "/pom.xml");
+      assertTrue(pomXML.exists());
+      
+      Path path = pomXML.toPath();
+      Charset charset = StandardCharsets.UTF_8;
+
+      String content = new String(Files.readAllBytes(path), charset);
+      content = content.replaceAll("SUB_VERION", pluginVersion);
+      Files.write(path, content.getBytes(charset));
    }
 }
