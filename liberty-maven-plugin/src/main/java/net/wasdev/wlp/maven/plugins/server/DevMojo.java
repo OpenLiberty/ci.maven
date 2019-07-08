@@ -661,7 +661,6 @@ public class DevMojo extends StartDebugMojoSupport {
         for (Plugin p : buildPlugins) {
             if (p.equals(plugin)) {
                 config = (Xpp3Dom) p.getConfiguration();
-                log.info("config: " + config.toString());
                 
                 PluginExecution pe;
                 Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
@@ -669,10 +668,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 if ((pe = peMap.get(id)) != null ){
                     Xpp3Dom executionConfig = (Xpp3Dom) pe.getConfiguration();
                     config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
-                    log.info("install-apps config: " + config);
                     
                     for (Xpp3Dom elem : config.getChildren()){
-                        log.info("elem: " + elem.getName());
                         if (elem.getName().equals(attribute)) {
                             return elem.getValue();
                         }
@@ -683,6 +680,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 break;
             }
         }
+        log.debug(attribute + " could not be found in the configuration file.");
         return null;
         
     }
