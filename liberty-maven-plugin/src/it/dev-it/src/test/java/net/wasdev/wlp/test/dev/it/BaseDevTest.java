@@ -53,28 +53,28 @@ public class BaseDevTest {
    public void testing() throws Exception {
       assertTrue(true);
    }
-  
+
    @Before
    public void setUp() throws Exception {
       String os = System.getProperty("os.name");
       if (os != null && os.toLowerCase().startsWith("windows")) {
          isWindows = true;
       }
-      
+
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
-         
+
          tempProj = Files.createTempDirectory("temp").toFile();
          assertTrue(tempProj.exists());
-         
+
          basicDevProj = new File("../resources/basic-dev-project");
          assertTrue(basicDevProj.exists());
 
          FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
          assertTrue(tempProj.listFiles().length > 0);
-         
+
          logFile = new File(basicDevProj, "/logFile.txt");
          logFile.createNewFile();
-         
+
          replaceVersion();
       }
    }
@@ -82,7 +82,7 @@ public class BaseDevTest {
    @After
    public void cleanUp() throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
-         
+
          ProcessBuilder builder = buildProcess("mvn liberty:stop-server");
          Process process = builder.start();
 
@@ -98,9 +98,9 @@ public class BaseDevTest {
 
    @Test
    public void basicTest() throws Exception {
-      
+
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
-     
+
          // run dev mode on project
          ProcessBuilder builder = buildProcess("mvn liberty:dev");
 
@@ -114,20 +114,8 @@ public class BaseDevTest {
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
          // check that the server has started
-         int startTimeout = 120000;
-         int startWaited = 0;
-         boolean startFlag = false;
-         while (!startFlag && startWaited <= startTimeout) {
-            int sleep = 10;
-            Thread.sleep(sleep);
-            startWaited += sleep;
-            if (readFile("CWWKF0011I", logFile) == true) {
-               startFlag = true;
-               Thread.sleep(1000);
-            }
-         }
-         assertFalse(startWaited > startTimeout);
-           
+         assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+
          // verify that the target directory was created
          File targetDir = new File(tempProj, "/target");
          assertTrue(targetDir.exists());
@@ -158,22 +146,99 @@ public class BaseDevTest {
          process.waitFor(60, TimeUnit.SECONDS);
 
          // test that dev mode has stopped running
-         int stopTimeout = 100000;
-         int stopWaited = 0;
-         boolean stopFlag = false;
-         while (!stopFlag && stopWaited <= stopTimeout) {
-            int sleep = 10;
-            Thread.sleep(sleep);
-            stopWaited += sleep;
-            if (readFile("CWWKE0036I", logFile) == true) {
-               stopFlag = true;
-            }
-         }
-         
-         assertFalse(stopWaited > stopTimeout);
-         
+         assertFalse(checkLogMessage(100000, "CWWKE0036I"));
       }
-     
+
+   }
+
+   @Test
+   public void configChangeTest() throws Exception {
+      
+      // run dev mode on project
+      ProcessBuilder builder = buildProcess("mvn liberty:dev");
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      Process process = builder.start();
+      assertTrue(process.isAlive());
+
+      OutputStream stdin = process.getOutputStream();
+
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+
+      // check that the server has started
+      assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+
+      // verify that the target directory was created
+      File targetDir = new File(tempProj, "/target");
+      assertTrue(targetDir.exists());
+      
+      // configuration file change
+      File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
+      File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
+      assertTrue(srcServerXML.exists());
+      assertTrue(targetServerXML.exists());
+      
+      replaceString("</feature>", "</feature>\n" + 
+            "    <feature>mpHealth-1.0</feature>", srcServerXML);
+      
+      // check for application updated message
+      assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
+      assertTrue(readFile("<feature>mpHealth-1.0</feature>", targetServerXML));
+      
+      // shut down dev mode
+      writer.write("exit"); // trigger dev mode to shut down
+      writer.flush();
+      writer.close();
+
+      process.waitFor(60, TimeUnit.SECONDS);
+
+      // test that dev mode has stopped running
+      assertFalse(checkLogMessage(100000, "CWWKE0036I"));
+   }
+   
+   @Test
+   public void unhandledChangeTest() throws Exception {
+
+      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+
+         // run dev mode on project
+         ProcessBuilder builder = buildProcess("mvn liberty:dev");
+
+         builder.redirectOutput(logFile);
+         builder.redirectError(logFile);
+         Process process = builder.start();
+         assertTrue(process.isAlive());
+
+         OutputStream stdin = process.getOutputStream();
+
+         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+
+         // check that the server has started
+         assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+
+         // verify that the target directory was created
+         File targetDir = new File(tempProj, "/target");
+         assertTrue(targetDir.exists());
+
+         // make an unhandled change to the pom.xml
+         File pom = new File(tempProj, "/pom.xml");
+         assertTrue(pom.exists());
+
+         replaceString("dev-sample-proj", "dev-sample-project", pom);
+         assertFalse(checkLogMessage(100000, "Unhandled change detected in pom.xml"));
+
+         // shut down dev mode
+         writer.write("exit"); // trigger dev mode to shut down
+         writer.flush();
+         writer.close();
+
+         process.waitFor(60, TimeUnit.SECONDS);
+
+         // test that dev mode has stopped running
+         assertFalse(checkLogMessage(100000, "CWWKE0036I"));
+
+      }
    }
 
    private boolean readFile(String str, File file) throws FileNotFoundException {
@@ -187,11 +252,11 @@ public class BaseDevTest {
       }
       return false;
    }
-   
+
    private ProcessBuilder buildProcess(String processCommand) {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
-      
+
       String os = System.getProperty("os.name");
       if (os != null && os.toLowerCase().startsWith("windows")) {
          builder.command("CMD", "/C", processCommand);
@@ -200,18 +265,37 @@ public class BaseDevTest {
       }
       return builder;
    }
-   
+
    private void replaceVersion() throws IOException {
       String pluginVersion = System.getProperty("mavenPluginVersion");
 
-      File pomXML = new File(tempProj, "/pom.xml");
-      assertTrue(pomXML.exists());
-      
-      Path path = pomXML.toPath();
+      File pom = new File(tempProj, "/pom.xml");
+      assertTrue(pom.exists());
+      replaceString("SUB_VERSION", pluginVersion, pom);
+   }
+
+   private void replaceString(String str, String replacement, File file) throws IOException {
+      Path path = file.toPath();
       Charset charset = StandardCharsets.UTF_8;
 
       String content = new String(Files.readAllBytes(path), charset);
-      content = content.replaceAll("SUB_VERION", pluginVersion);
+
+      content = content.replaceAll(str, replacement);
       Files.write(path, content.getBytes(charset));
+   }
+
+   private boolean checkLogMessage(int timeout, String message) throws InterruptedException, FileNotFoundException {
+      int waited = 0;
+      boolean startFlag = false;
+      while (!startFlag && waited <= timeout) {
+         int sleep = 10;
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (readFile(message, logFile) == true) {
+            startFlag = true;
+            Thread.sleep(1000);
+         }
+      }
+      return (waited > timeout);
    }
 }
