@@ -68,7 +68,7 @@ import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 public class DevMojo extends StartDebugMojoSupport {
 
     private static final String UPDATED_APP_MESSAGE_REGEXP = "CWWKZ0003I.*";
-
+    
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
 
@@ -543,7 +543,7 @@ public class DevMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
-
+        
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
@@ -649,6 +649,41 @@ public class DevMojo extends StartDebugMojoSupport {
         }
         return updatedArtifacts;
     }
+    
+    private String readConfigurations(String groupId, String artifactId, String id, String attribute) {
+        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
+        if (plugin == null) {
+            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
+        }
+        Xpp3Dom config = null;
+
+        List<Plugin> buildPlugins = project.getBuildPlugins();
+        for (Plugin p : buildPlugins) {
+            if (p.equals(plugin)) {
+                config = (Xpp3Dom) p.getConfiguration();
+                
+                PluginExecution pe;
+                Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
+                
+                if ((pe = peMap.get(id)) != null ){
+                    Xpp3Dom executionConfig = (Xpp3Dom) pe.getConfiguration();
+                    config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
+                    
+                    for (Xpp3Dom elem : config.getChildren()){
+                        if (elem.getName().equals(attribute)) {
+                            return elem.getValue();
+                        }
+                    }
+                    String value = config.getAttribute(attribute);
+                }
+ 
+                break;
+            }
+        }
+        log.debug(attribute + " could not be found in the pom.");
+        return null;
+        
+    }
 
     private void runTests(String groupId, String artifactId, String phase) throws MojoExecutionException {
 
@@ -662,7 +697,7 @@ public class DevMojo extends StartDebugMojoSupport {
         for (Plugin p : buildPlugins) {
             if (p.equals(plugin)) {
                 config = (Xpp3Dom) p.getConfiguration();
-
+                
                 PluginExecution pe;
                 Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
                 if ((pe = peMap.get("default-" + phase)) != null || (pe = peMap.get(phase)) != null
@@ -745,6 +780,10 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
                 elements.add(element(name("features"), featureElems));
             } else if (goal.equals("install-apps")) {
+                String appsDirectory = readConfigurations("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-apps", "appsDirectory");
+                if (appsDirectory != null) {
+                    elements.add(element(name("appsDirectory"), appsDirectory));
+                }
                 elements.add(element(name("looseApplication"), "true"));
                 elements.add(element(name("stripVersion"), "true"));
                 elements.add(element(name("installAppPackages"), "project"));
