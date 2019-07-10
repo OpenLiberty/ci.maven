@@ -14,7 +14,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -25,7 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -306,7 +304,11 @@ public class DevMojo extends StartDebugMojoSupport {
         public void getArtifacts(List<String> artifactPaths) {
             Set<Artifact> artifacts = project.getArtifacts();
             for (Artifact artifact : artifacts) {
-                artifactPaths.add(artifact.getFile().getAbsolutePath());
+                try {
+                    artifactPaths.add(artifact.getFile().getCanonicalPath());
+                } catch (IOException e) {
+                    log.error("Unable to resolve project artifact " + e.getMessage());
+                }
             }
         }
 
@@ -357,8 +359,8 @@ public class DevMojo extends StartDebugMojoSupport {
                                 addArtifacts(root, artifactsList);
                                 for (File a : artifactsList) {
                                     log.debug("Artifact: " + a);
-                                    if (a.getAbsolutePath().endsWith(".jar")) {
-                                        addToClassPath.add(a.getAbsolutePath());
+                                    if (a.getCanonicalPath().endsWith(".jar")) {
+                                        addToClassPath.add(a.getCanonicalPath());
                                     }
                                 }
                             } catch (DependencyResolutionException e) {
@@ -603,7 +605,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util.startServer();
 
-        // collect artifacts absolute paths in order to build classpath
+        // collect artifacts canonical paths in order to build classpath
         List<String> artifactPaths = new ArrayList<String>();
         util.getArtifacts(artifactPaths);
 
@@ -727,7 +729,11 @@ public class DevMojo extends StartDebugMojoSupport {
             } else {
                 summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
             }
-            log.debug("Looking for summary file at " + summaryFile.getAbsolutePath());
+            try {
+                log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
+            } catch (IOException e) {
+                log.debug("Unable to resolve summary file " + e.getMessage());
+            }
             if (summaryFile.exists()) {
                 boolean deleteResult = summaryFile.delete();
                 log.debug("Summary file deleted? " + deleteResult);
@@ -770,35 +776,40 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
         List<Element> elements = new ArrayList<Element>();
-        if (testServerName != null) {
-            elements.add(element(name("serverName"), testServerName));
-            elements.add(element(name("configDirectory"), configDirectory.getAbsolutePath()));
-            if (goal.equals("install-feature") && (dependencies != null)) {
-                Element[] featureElems = new Element[dependencies.size()];
-                for (int i = 0; i < featureElems.length; i++) {
-                    featureElems[i] = element(name("feature"), dependencies.get(i));
-                }
-                elements.add(element(name("features"), featureElems));
-            } else if (goal.equals("install-apps")) {
-                String appsDirectory = readConfigurations("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-apps", "appsDirectory");
-                if (appsDirectory != null) {
-                    elements.add(element(name("appsDirectory"), appsDirectory));
-                }
-                elements.add(element(name("looseApplication"), "true"));
-                elements.add(element(name("stripVersion"), "true"));
-                elements.add(element(name("installAppPackages"), "project"));
-                elements.add(element(name("configFile"), configFile.getAbsolutePath()));               
-            } else if (goal.equals("create-server")) {
-                elements.add(element(name("configFile"), configFile.getAbsolutePath()));
-                if (assemblyArtifact != null) {
-                    Element[] featureElems = new Element[4];
-                    featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
-                    featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
-                    featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
-                    featureElems[3] = element(name("type"), assemblyArtifact.getType());
-                    elements.add(element(name("assemblyArtifact"), featureElems));
+        try {
+            if (testServerName != null) {
+                elements.add(element(name("serverName"), testServerName));
+                elements.add(element(name("configDirectory"), configDirectory.getCanonicalPath()));
+                if (goal.equals("install-feature") && (dependencies != null)) {
+                    Element[] featureElems = new Element[dependencies.size()];
+                    for (int i = 0; i < featureElems.length; i++) {
+                        featureElems[i] = element(name("feature"), dependencies.get(i));
+                    }
+                    elements.add(element(name("features"), featureElems));
+                } else if (goal.equals("install-apps")) {
+                    String appsDirectory = readConfigurations("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin",
+                            "install-apps", "appsDirectory");
+                    if (appsDirectory != null) {
+                        elements.add(element(name("appsDirectory"), appsDirectory));
+                    }
+                    elements.add(element(name("looseApplication"), "true"));
+                    elements.add(element(name("stripVersion"), "true"));
+                    elements.add(element(name("installAppPackages"), "project"));
+                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
+                } else if (goal.equals("create-server")) {
+                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
+                    if (assemblyArtifact != null) {
+                        Element[] featureElems = new Element[4];
+                        featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
+                        featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
+                        featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
+                        featureElems[3] = element(name("type"), assemblyArtifact.getType());
+                        elements.add(element(name("assemblyArtifact"), featureElems));
+                    }
                 }
             }
+        } catch (IOException e) {
+            log.error("Unable to resolve canonical paths " + e.getMessage());
         }
         return elements.toArray(new Element[elements.size()]);
     }
