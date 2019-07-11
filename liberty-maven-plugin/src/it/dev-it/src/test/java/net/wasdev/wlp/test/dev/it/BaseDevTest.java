@@ -50,6 +50,7 @@ public class BaseDevTest {
    static File basicDevProj;
    static File logFile;
    static File targetDir;
+   static File pom;
    static BufferedWriter writer;
    static boolean isWindows = false;
 
@@ -74,6 +75,9 @@ public class BaseDevTest {
          logFile = new File(basicDevProj, "/logFile.txt");
          logFile.createNewFile();
 
+         pom = new File(tempProj, "/pom.xml");
+         assertTrue(pom.exists());
+         
          replaceVersion();
 
          // run dev mode on project
@@ -109,7 +113,6 @@ public class BaseDevTest {
             writer.write("exit"); // trigger dev mode to shut down
             writer.flush();
             writer.close();
-            process.waitFor(60, TimeUnit.SECONDS);
 
             // test that dev mode has stopped running
             assertFalse(checkLogMessage(100000, "CWWKE0036I"));
@@ -186,9 +189,6 @@ public class BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          // make an unhandled change to the pom.xml
-         File pom = new File(tempProj, "/pom.xml");
-         assertTrue(pom.exists());
-
          replaceString("dev-sample-proj", "dev-sample-project", pom);
          assertFalse(checkLogMessage(100000, "Unhandled change detected in pom.xml"));
       }
@@ -214,6 +214,45 @@ public class BaseDevTest {
          assertTrue(propertiesFile.delete());
          Thread.sleep(2000);
          assertFalse(targetPropertiesFile.exists());
+      }
+   }
+   
+   @Test
+   public void testDirectoryTest() throws Exception {
+      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+
+         // create the test directory
+         File testDir = new File(tempProj, "src/test/java");
+         assertTrue(testDir.mkdirs());
+
+         // creates a java test file
+         File unitTestSrcFile = new File(testDir, "UnitTest.java");
+         String unitTest = "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n" + "\n"
+               + "public class UnitTest {\n" + "\n" + "    @Test\n" + "    public void testTrue() {\n"
+               + "        assertTrue(true);\n" + "\n" + "    }\n" + "}";
+         Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
+         assertTrue(unitTestSrcFile.exists());
+
+         Thread.sleep(2000); // wait for compilation
+         File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
+         assertTrue(unitTestTargetFile.exists());
+         long lastModified = unitTestTargetFile.lastModified();
+
+         // modify the test file
+         String str = "// testing";
+         BufferedWriter javaWriter = new BufferedWriter(new FileWriter(unitTestSrcFile, true));
+         javaWriter.append(' ');
+         javaWriter.append(str);
+
+         javaWriter.close();
+
+         Thread.sleep(5000); // wait for compilation
+         assertTrue(unitTestTargetFile.lastModified() > lastModified);
+
+         // delete the test file
+         assertTrue(unitTestSrcFile.delete());
+         Thread.sleep(2000);
+         assertFalse(unitTestTargetFile.exists());
       }
    }
 
@@ -245,8 +284,6 @@ public class BaseDevTest {
    private static void replaceVersion() throws IOException {
       String pluginVersion = System.getProperty("mavenPluginVersion");
 
-      File pom = new File(tempProj, "/pom.xml");
-      assertTrue(pom.exists());
       replaceString("SUB_VERSION", pluginVersion, pom);
    }
 
