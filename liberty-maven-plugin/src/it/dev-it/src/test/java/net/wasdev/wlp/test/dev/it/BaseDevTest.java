@@ -104,14 +104,6 @@ public class BaseDevTest {
          ProcessBuilder builder = buildProcess("mvn liberty:stop-server");
          Process process = builder.start();
 
-         if (tempProj != null && tempProj.exists()) {
-            FileUtils.deleteDirectory(tempProj);
-         }
-
-         if (logFile != null && logFile.exists()) {
-            logFile.delete();
-         }
-
          // shut down dev mode
          if (writer != null) {
             writer.write("exit"); // trigger dev mode to shut down
@@ -121,6 +113,14 @@ public class BaseDevTest {
 
             // test that dev mode has stopped running
             assertFalse(checkLogMessage(100000, "CWWKE0036I"));
+            
+            if (tempProj != null && tempProj.exists()) {
+               FileUtils.deleteDirectory(tempProj);
+            }
+
+            if (logFile != null && logFile.exists()) {
+               logFile.delete();
+            }
          } else {
             assertFalse(writer != null);
          }
