@@ -53,9 +53,9 @@ public class BaseDevTest {
    static File pom;
    static BufferedWriter writer;
    static boolean isWindows = false;
+   static Process process;
 
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
+   protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
       String os = System.getProperty("os.name");
       if (os != null && os.toLowerCase().startsWith("windows")) {
          isWindows = true;
@@ -73,187 +73,87 @@ public class BaseDevTest {
          assertTrue(tempProj.listFiles().length > 0);
 
          logFile = new File(basicDevProj, "/logFile.txt");
-         logFile.createNewFile();
+         assertTrue(logFile.createNewFile());
 
          pom = new File(tempProj, "/pom.xml");
          assertTrue(pom.exists());
-         
+
          replaceVersion();
 
-         // run dev mode on project
-         ProcessBuilder builder = buildProcess("mvn liberty:dev");
-
-         builder.redirectOutput(logFile);
-         builder.redirectError(logFile);
-         Process process = builder.start();
-         assertTrue(process.isAlive());
-
-         OutputStream stdin = process.getOutputStream();
-
-         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
-
-         // check that the server has started
-         assertFalse(checkLogMessage(120000, "CWWKF0011I"));
-
-         // verify that the target directory was created
-         targetDir = new File(tempProj, "/target");
-         assertTrue(targetDir.exists());
+         startDevMode(devModeParams);
       }
    }
 
-   @AfterClass
-   public static void cleanUpAfterClass() throws Exception {
+   private static void startDevMode(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
+      // run dev mode on project
+      StringBuilder command = new StringBuilder("mvn liberty:dev");
+      if (devModeParams != null) {
+         command.append(" " + devModeParams);
+      }
+      ProcessBuilder builder = buildProcess(command.toString());
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      process = builder.start();
+      assertTrue(process.isAlive());
+
+      OutputStream stdin = process.getOutputStream();
+
+      writer = new BufferedWriter(new OutputStreamWriter(stdin));
+
+      // check that the server has started
+      assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+
+      // verify that the target directory was created
+      targetDir = new File(tempProj, "/target");
+      assertTrue(targetDir.exists());
+   }
+
+   protected static void cleanUpAfterClass() throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
-         ProcessBuilder builder = buildProcess("mvn liberty:stop-server");
-         Process process = builder.start();
+         stopDevMode();
 
-         // shut down dev mode
-         if (writer != null) {
-            writer.write("exit"); // trigger dev mode to shut down
-            writer.flush();
-            writer.close();
+         if (tempProj != null && tempProj.exists()) {
+            FileUtils.deleteDirectory(tempProj);
+         }
 
-            // test that dev mode has stopped running
-            assertFalse(checkLogMessage(100000, "CWWKE0036I"));
-            
-            if (tempProj != null && tempProj.exists()) {
-               FileUtils.deleteDirectory(tempProj);
-            }
-
-            if (logFile != null && logFile.exists()) {
-               logFile.delete();
-            }
-         } else {
-            assertFalse(writer != null);
+         if (logFile != null && logFile.exists()) {
+            assertTrue(logFile.delete());
          }
       }
    }
 
-   @Test
-   public void basicTest() throws Exception {
+   protected static void stopDevMode() throws IOException, InterruptedException, FileNotFoundException {
+      // shut down dev mode
+      if (writer != null) {
+         writer.write("exit"); // trigger dev mode to shut down
+         writer.flush();
+         writer.close();
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         // modify a java file
-         File srcHelloWorld = new File(tempProj, "/src/main/java/com/demo/HelloWorld.java");
-         File targetHelloWorld = new File(targetDir, "/classes/com/demo/HelloWorld.class");
-         assertTrue(srcHelloWorld.exists());
-         assertTrue(targetHelloWorld.exists());
-
-         long lastModified = targetHelloWorld.lastModified();
-         String str = "// testing";
-         BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
-         javaWriter.append(' ');
-         javaWriter.append(str);
-
-         javaWriter.close();
-
-         Thread.sleep(2000); // wait for compilation
-         boolean wasModified = targetHelloWorld.lastModified() > lastModified;
-         assertTrue(wasModified);
+         // test that dev mode has stopped running
+         assertFalse(checkLogMessage(100000, "CWWKE0036I"));
       }
    }
 
-   @Test
-   public void configChangeTest() throws Exception {
+   protected static void testModifyJavaFile() throws IOException, InterruptedException {
+      // modify a java file
+      File srcHelloWorld = new File(tempProj, "/src/main/java/com/demo/HelloWorld.java");
+      File targetHelloWorld = new File(targetDir, "/classes/com/demo/HelloWorld.class");
+      assertTrue(srcHelloWorld.exists());
+      assertTrue(targetHelloWorld.exists());
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      long lastModified = targetHelloWorld.lastModified();
+      String str = "// testing";
+      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
+      javaWriter.append(' ');
+      javaWriter.append(str);
 
-         // configuration file change
-         File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
-         File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
-         assertTrue(srcServerXML.exists());
-         assertTrue(targetServerXML.exists());
+      javaWriter.close();
 
-         replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
-
-         // check for application updated message
-         assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
-         Thread.sleep(2000);
-         Scanner scanner = new Scanner(targetServerXML);
-
-         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.contains("<feature>mpHealth-1.0</feature>")) {
-               assertTrue(true);
-            }
-         }
-      }
-
-   }
-
-   @Test
-   public void unhandledChangeTest() throws Exception {
-
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         // make an unhandled change to the pom.xml
-         replaceString("dev-sample-proj", "dev-sample-project", pom);
-         assertFalse(checkLogMessage(100000, "Unhandled change detected in pom.xml"));
-      }
-   }
-
-   @Test
-   public void resourceFileChangeTest() throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         // make a resource file change
-         File resourceDir = new File(tempProj, "/src/main/resources");
-         assertTrue(resourceDir.exists());
-
-         File propertiesFile = new File(resourceDir, "/microprofile-config.properties");
-         assertTrue(propertiesFile.createNewFile());
-
-         Thread.sleep(2000); // wait for compilation
-         File targetPropertiesFile = new File(targetDir, "/classes/microprofile-config.properties");
-         assertTrue(targetPropertiesFile.exists());
-         assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
-
-         // delete a resource file
-         assertTrue(propertiesFile.delete());
-         Thread.sleep(2000);
-         assertFalse(targetPropertiesFile.exists());
-      }
-   }
-   
-   @Test
-   public void testDirectoryTest() throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         // create the test directory
-         File testDir = new File(tempProj, "src/test/java");
-         assertTrue(testDir.mkdirs());
-
-         // creates a java test file
-         File unitTestSrcFile = new File(testDir, "UnitTest.java");
-         String unitTest = "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n" + "\n"
-               + "public class UnitTest {\n" + "\n" + "    @Test\n" + "    public void testTrue() {\n"
-               + "        assertTrue(true);\n" + "\n" + "    }\n" + "}";
-         Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
-         assertTrue(unitTestSrcFile.exists());
-
-         Thread.sleep(2000); // wait for compilation
-         File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
-         assertTrue(unitTestTargetFile.exists());
-         long lastModified = unitTestTargetFile.lastModified();
-
-         // modify the test file
-         String str = "// testing";
-         BufferedWriter javaWriter = new BufferedWriter(new FileWriter(unitTestSrcFile, true));
-         javaWriter.append(' ');
-         javaWriter.append(str);
-
-         javaWriter.close();
-
-         Thread.sleep(5000); // wait for compilation
-         assertTrue(unitTestTargetFile.lastModified() > lastModified);
-
-         // delete the test file
-         assertTrue(unitTestSrcFile.delete());
-         Thread.sleep(2000);
-         assertFalse(unitTestTargetFile.exists());
-      }
+      Thread.sleep(2000); // wait for compilation
+      boolean wasModified = targetHelloWorld.lastModified() > lastModified;
+      assertTrue(wasModified);
    }
 
    private static boolean readFile(String str, File file) throws FileNotFoundException {
@@ -287,7 +187,7 @@ public class BaseDevTest {
       replaceString("SUB_VERSION", pluginVersion, pom);
    }
 
-   private static void replaceString(String str, String replacement, File file) throws IOException {
+   protected static void replaceString(String str, String replacement, File file) throws IOException {
       Path path = file.toPath();
       Charset charset = StandardCharsets.UTF_8;
 
@@ -297,7 +197,7 @@ public class BaseDevTest {
       Files.write(path, content.getBytes(charset));
    }
 
-   private static boolean checkLogMessage(int timeout, String message)
+   protected static boolean checkLogMessage(int timeout, String message)
          throws InterruptedException, FileNotFoundException {
       int waited = 0;
       boolean startFlag = false;
