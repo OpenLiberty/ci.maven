@@ -301,7 +301,8 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void getArtifacts(List<String> artifactPaths) {
+        public List<String> getArtifacts() {
+            List<String> artifactPaths = new ArrayList<String>();
             Set<Artifact> artifacts = project.getArtifacts();
             for (Artifact artifact : artifacts) {
                 try {
@@ -310,6 +311,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     log.error("Unable to resolve project artifact " + e.getMessage());
                 }
             }
+            return artifactPaths;
         }
 
         @Override
@@ -606,8 +608,7 @@ public class DevMojo extends StartDebugMojoSupport {
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> artifactPaths = new ArrayList<String>();
-        util.getArtifacts(artifactPaths);
+        List<String> artifactPaths = util.getArtifacts();
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for keypresses
