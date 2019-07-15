@@ -81,6 +81,7 @@ import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 public class DevMojo extends StartDebugMojoSupport {
 
     private static final String UPDATED_APP_MESSAGE_REGEXP = "CWWKZ0003I.*";
+    private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
     
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
@@ -769,12 +770,11 @@ public class DevMojo extends StartDebugMojoSupport {
      */
     private void injectTestId(Xpp3Dom config) {
         Xpp3Dom properties = config.getChild("properties");
-        String propertyName = "liberty.dev.test.run.id";
-        if (properties == null || properties.getChild(propertyName) == null) {
-            Element e = element(name("properties"), element(name(propertyName), String.valueOf(runId++)));
+        if (properties == null || properties.getChild(TEST_RUN_ID_PROPERTY_NAME) == null) {
+            Element e = element(name("properties"), element(name(TEST_RUN_ID_PROPERTY_NAME), String.valueOf(runId++)));
             config.addChild(e.toDom());
         } else {
-            properties.getChild(propertyName).setValue(String.valueOf(runId++));
+            properties.getChild(TEST_RUN_ID_PROPERTY_NAME).setValue(String.valueOf(runId++));
         }
     }
 
