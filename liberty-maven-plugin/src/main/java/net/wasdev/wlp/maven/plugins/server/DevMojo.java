@@ -511,8 +511,8 @@ public class DevMojo extends StartDebugMojoSupport {
                             configFeatures);
                     this.existingFeatures.addAll(features);
                 }
-            } catch (Exception e) {
-                log.debug("Failed to read configuration file", e);
+            } catch (MojoExecutionException e) {
+                log.error("Failed to install features from configuration file", e);
             }
         }
 
