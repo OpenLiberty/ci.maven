@@ -317,7 +317,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
             try {
-                String modifiedPom = util.readFile(buildFile);
+                String modifiedPom = readFile(buildFile);
                 XMLUnit.setIgnoreWhitespace(true);
                 XMLUnit.setIgnoreAttributeOrder(true);
                 XMLUnit.setIgnoreComments(true);
@@ -495,7 +495,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
 
             // finally, start watching for hotkey presses if not already started
-            util.runHotkeyReaderThread(executor);
+            runHotkeyReaderThread(executor);
         }
 
         @Override
@@ -540,7 +540,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    DevMojoUtil util;
+
 
     @Override
     protected void doExecute() throws Exception {
@@ -599,12 +599,9 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
-        
+        DevMojoUtil util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         util.addShutdownHook(executor);
-
         util.enableServerDebug(libertyDebugPort);
-
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
