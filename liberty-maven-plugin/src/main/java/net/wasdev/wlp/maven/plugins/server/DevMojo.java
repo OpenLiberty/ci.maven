@@ -161,7 +161,7 @@ public class DevMojo extends StartDebugMojoSupport {
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
-            ServerFeature servUtil = new ServerFeature();
+            ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
 
@@ -501,7 +501,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
-                ServerFeature servUtil = new ServerFeature();
+                ServerFeature servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir);
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
@@ -856,6 +856,15 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
+    }
+
+    private static ServerFeature serverFeatureUtil;
+
+    private ServerFeature getServerFeatureUtil() {
+        if (serverFeatureUtil == null) {
+            serverFeatureUtil = new ServerFeature();
+        }
+        return serverFeatureUtil;
     }
 
     private class ServerFeature extends ServerFeatureUtil {
