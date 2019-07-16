@@ -293,6 +293,10 @@ public class DevMojo extends StartDebugMojoSupport {
                                 debug("messages.log has been changed");
                             }
                         }
+
+                        if (!key.reset()) {
+                            break;
+                        }
                     }
                 }
 
