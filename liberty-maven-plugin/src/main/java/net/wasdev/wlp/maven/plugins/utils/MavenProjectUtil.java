@@ -30,14 +30,27 @@ public class MavenProjectUtil {
     
     /**
      * Get a configuration value from a plugin
-     * @param proj
-     * @param pluginGroupId
-     * @param pluginArtifactId
-     * @param key
-     * @return
+     * @param proj the Maven project
+     * @param pluginGroupId the plugin group id
+     * @param pluginArtifactId the plugin artifact id
+     * @param key the configuration key to get from
+     * @return the value corresponding to the configuration key
      */
     public static String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key) {
-        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+        return getPluginExecutionConfiguration(proj, pluginGroupId, pluginArtifactId, null, key);
+    }
+
+    /**
+     * Get a configuration value from an execution of a plugin
+     * @param proj the Maven project
+     * @param pluginGroupId the plugin group id
+     * @param pluginArtifactId the plugin artifact id
+     * @param executionId the plugin execution id
+     * @param key the configuration key to get from
+     * @return the value corresponding to the configuration key
+     */
+    public static String getPluginExecutionConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String executionId, String key) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, executionId, null);
         if (dom != null) {
             Xpp3Dom val = dom.getChild(key);
             if (val != null) {
@@ -45,7 +58,7 @@ public class MavenProjectUtil {
             }
         }
         return null;
-}
+    }
     
     /**
      * Get a configuration value from a goal from a plugin
