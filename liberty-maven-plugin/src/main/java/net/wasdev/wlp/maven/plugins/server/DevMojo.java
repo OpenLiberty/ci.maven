@@ -72,6 +72,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
 import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
+import net.wasdev.wlp.maven.plugins.utils.MavenProjectUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -670,41 +671,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
         return updatedArtifacts;
     }
-    
-    private String readConfigurations(String groupId, String artifactId, String id, String attribute) {
-        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
-        if (plugin == null) {
-            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
-        }
-        Xpp3Dom config = null;
-
-        List<Plugin> buildPlugins = project.getBuildPlugins();
-        for (Plugin p : buildPlugins) {
-            if (p.equals(plugin)) {
-                config = (Xpp3Dom) p.getConfiguration();
-                
-                PluginExecution pe;
-                Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
-                
-                if ((pe = peMap.get(id)) != null ){
-                    Xpp3Dom executionConfig = (Xpp3Dom) pe.getConfiguration();
-                    config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
-                    
-                    for (Xpp3Dom elem : config.getChildren()){
-                        if (elem.getName().equals(attribute)) {
-                            return elem.getValue();
-                        }
-                    }
-                    String value = config.getAttribute(attribute);
-                }
- 
-                break;
-            }
-        }
-        log.debug(attribute + " could not be found in the pom.");
-        return null;
-        
-    }
 
     private void runTests(String groupId, String artifactId, String phase) throws MojoExecutionException {
 
@@ -805,8 +771,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                     elements.add(element(name("features"), featureElems));
                 } else if (goal.equals("install-apps")) {
-                    String appsDirectory = readConfigurations("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin",
-                            "install-apps", "appsDirectory");
+                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
+                        "net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-apps", "appsDirectory");
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }
