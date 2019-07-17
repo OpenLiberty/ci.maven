@@ -151,7 +151,7 @@ public class BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(2000); // wait for compilation
+      Thread.sleep(5000); // wait for compilation
       boolean wasModified = targetHelloWorld.lastModified() > lastModified;
       assertTrue(wasModified);
    }
