@@ -685,11 +685,18 @@ public class DevMojo extends StartDebugMojoSupport {
             if (p.equals(plugin)) {
                 config = (Xpp3Dom) p.getConfiguration();
                 
-                PluginExecution pe;
+                PluginExecution pluginExecution = null;
                 Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
-                if ((pe = peMap.get("default-" + phase)) != null || (pe = peMap.get(phase)) != null
-                        || (pe = peMap.get("default")) != null) {
-                    Xpp3Dom executionConfig = (Xpp3Dom) pe.getConfiguration();
+
+                String[] defaultExecutionIds = new String[]{ "default-" + phase, phase, "default" };
+                for (String executionId : defaultExecutionIds) {
+                    pluginExecution = peMap.get(executionId);
+                    if (pluginExecution != null) {
+                        break;
+                    }
+                }
+                if (pluginExecution != null) {
+                    Xpp3Dom executionConfig = (Xpp3Dom) pluginExecution.getConfiguration();
                     config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
                 }
                 break;
