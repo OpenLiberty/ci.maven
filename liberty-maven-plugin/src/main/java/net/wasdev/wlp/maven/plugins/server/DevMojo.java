@@ -83,7 +83,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private static final String UPDATED_APP_MESSAGE_REGEXP = "CWWKZ0003I.*";
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
-    
+
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
 
@@ -166,15 +166,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
         List<Dependency> existingDependencies;
         String existingPom;
-        Set<String> existingFeatures; 
-        
-        private File messagesLogFile = null;
+        Set<String> existingFeatures;
 
-        public DevMojoUtil(File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, List<File> resourceDirs)
-                throws IOException {
-            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests, skipTests);
-            
+        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
+                List<File> resourceDirs) throws IOException {
+            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
+                    skipTests);
+
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
             this.existingPom = readFile(pom);
@@ -230,95 +228,16 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void startServer() {
-
-            try {
-                // Setup server task
-                if (serverTask == null) {
-                    serverTask = initializeJava();
-                }
-
-                String logsDirectory = serverTask.getOutputDir() + "/" + serverTask.getServerName() + "/logs";
-                messagesLogFile = new File(logsDirectory + "/messages.log");
-
-                copyConfigFiles();
-                serverTask.setClean(clean);
-                serverTask.setOperation("debug");
-
-
-                // Set server start timeout
-                if (serverStartTimeout < 0) {
-                    serverStartTimeout = 30;
-                }
-                serverTask.setTimeout(Long.toString(serverStartTimeout * 1000));
-
-
-                // Watch logs directory if it already exists
-                WatchService watchService = FileSystems.getDefault().newWatchService();
-                boolean logsExist = new File(logsDirectory).isDirectory();
-
-                if (logsExist) {
-                    // If the logs directory already exists, then
-                    // setup a watch service to monitor the directory.
-                    Paths
-                        .get(logsDirectory)
-                        .register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
-                }
-
-
-                // Start server
-                Thread serverThread = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            serverTask.execute();
-                        } catch (Exception e) {
-                            log.debug("Error starting server", e);
-                        }
-                    }
-
-                });
-
-                serverThread.start();
-
-                if (logsExist) {
-                    // If logs already exist, then watch the directory to ensure
-                    // messages.log is modified before continuing.
-                    boolean messagesModified = false;
-                    WatchKey key;
-                    while (!messagesModified && (key = watchService.take()) != null) {
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            if (event.context().toString().equals("messages.log")) {
-                                messagesModified = true;
-                                debug("messages.log has been changed");
-                            }
-                        }
-
-                        if (!key.reset()) {
-                            break;
-                        }
-                    }
-                }
-
-                if (verifyTimeout < 0) {
-                    verifyTimeout = 30;
-                }
-                long timeout = verifyTimeout * 1000;
-                long endTime = System.currentTimeMillis() + timeout;
-
-                // Wait for the app started message in messages.log
-                String startMessage = serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP, timeout, messagesLogFile);
-                if (startMessage == null) {
-                    stopServer();
-                    throw new MojoExecutionException(
-                            MessageFormat.format(messages.getString("error.server.start.verify"), verifyTimeout));
-                }
-
-                timeout = endTime - System.currentTimeMillis();
-            } catch (Exception e) {
-                log.debug("Error starting server", e);
+        public ServerTask getDebugServerTask() throws IOException {
+            // Setup server task
+            if (serverTask == null) {
+                serverTask = initializeJava();
             }
+
+            copyConfigFiles();
+            serverTask.setClean(clean);
+            serverTask.setOperation("debug");
+            return serverTask;
         }
 
         @Override
@@ -623,7 +542,7 @@ public class DevMojo extends StartDebugMojoSupport {
         DevMojoUtil util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         util.addShutdownHook(executor);
         util.enableServerDebug(libertyDebugPort);
-        util.startServer();
+        util.startServer(serverStartTimeout, verifyTimeout);
 
         // collect artifacts canonical paths in order to build classpath
         List<String> artifactPaths = util.getArtifacts();
