@@ -171,7 +171,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests);
+                    skipTests, skipITs, project.getArtifactId());
 
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -229,15 +229,16 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public ServerTask getDebugServerTask() throws IOException {
-            // Setup server task
-            if (serverTask == null) {
+            if (serverTask != null) {
+                return serverTask;
+            } else {
+                // Setup server task
                 serverTask = initializeJava();
+                copyConfigFiles();
+                serverTask.setClean(clean);
+                serverTask.setOperation("debug");
+                return serverTask;
             }
-
-            copyConfigFiles();
-            serverTask.setClean(clean);
-            serverTask.setOperation("debug");
-            return serverTask;
         }
 
         @Override
@@ -331,22 +332,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Could not recompile pom.xml", e);
             }
             return false;
-        }
-
-        @Override
-        public int countApplicationUpdatedMessages() {
-            int messageOccurrences = -1;
-            if (!(skipTests || skipITs)) {
-                try {
-                    File logFile = serverTask.getLogFile();
-                    String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();
-                    messageOccurrences = serverTask.countStringOccurrencesInFile(regexp, logFile);
-                    log.debug("Message occurrences before compile: " + messageOccurrences);
-                } catch (Exception e) {
-                    log.debug("Failed to get message occurrences before compile", e);
-                }
-            }
-            return messageOccurrences;
         }
 
         @Override
