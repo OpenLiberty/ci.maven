@@ -24,12 +24,12 @@ before_install:
     - rm -rf $HOME/.m2/repository/net/wasdev
     - rm -rf $HOME/.m2/repository/io/openliberty
     - echo 'Installing ci.ant lib...'
-    - git clone -b devMode https://github.com/wasdev/ci.ant.git ./ci.ant
+    - git clone https://github.com/wasdev/ci.ant.git ./ci.ant
     - cd ./ci.ant
     - mvn clean install
     - cd ..
     - echo 'Installing ci.common lib...'
-    - git clone -b devMode https://github.com/wasdev/ci.common.git ./ci.common
+    - git clone https://github.com/wasdev/ci.common.git ./ci.common
     - cd ./ci.common
     - mvn clean install
     - cd ..
