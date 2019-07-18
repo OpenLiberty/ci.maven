@@ -1,0 +1,11 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+
+    <variable name="first" value="appsdirectory-apps-configured"/>
+    <variable name="second" value="${appFolder}"/>
+    <variable name="appFolder" value="${first}-${second}"/>
+    <variable name="location" defaultValue="${appFolder}"/>
+    <webApplication location="${location}.${type}"/>
+</server>

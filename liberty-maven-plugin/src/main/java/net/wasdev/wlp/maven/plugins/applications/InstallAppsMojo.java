@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
 import net.wasdev.wlp.common.plugins.config.LooseConfigData;
-import net.wasdev.wlp.maven.plugins.ServerConfigDocument;
+import net.wasdev.wlp.common.plugins.config.ServerConfigDocument;
 import net.wasdev.wlp.maven.plugins.utils.SpringBootUtil;
 
 /**

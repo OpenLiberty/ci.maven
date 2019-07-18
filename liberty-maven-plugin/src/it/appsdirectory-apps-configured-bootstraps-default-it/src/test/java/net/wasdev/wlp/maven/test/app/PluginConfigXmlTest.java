@@ -22,13 +22,14 @@ import org.w3c.dom.NodeList;
  * Web application test case
  * 
  */
-// Test that the location variable in server.xml with a default value is not used for the 
-// location of the application when overridden by a bootstrapProperties property in the pom.xml.
+// Test that the location variable in server.xml with a default value is used for the location of the 
+// application when a value is not provided elsewhere (bootstrap props, server.xml, include file, etc).
+// Also tests that variable values referencing other variables works correctly.
 public class PluginConfigXmlTest {
 
     public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml";
 
-    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/appsdirectory-apps-configured-bootstraps-it.war";
+    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/appsdirectory-apps-configured-bootstraps-default-it.war";
 
     @Test
     public void testApplicationConfiguredInConfigDropins() throws Exception {
@@ -63,6 +64,5 @@ public class PluginConfigXmlTest {
         assertTrue("Application not found in apps folder at " + APP_IN_APPS_FOLDER,app.exists());
         
     }
-
 
 }

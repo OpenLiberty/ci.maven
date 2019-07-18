@@ -22,13 +22,18 @@ import org.w3c.dom.NodeList;
  * Web application test case
  * 
  */
-// Test that the location variable in server.xml with a default value is not used for the 
-// location of the application when overridden by a bootstrapProperties property in the pom.xml.
+// Test that the location variable in server.xml with a default value that has a recursive reference
+// does not cause an infinite loop. Verify that the application is added to configDropins since
+// the location could not be resolved.
+
 public class PluginConfigXmlTest {
 
     public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml";
 
-    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/appsdirectory-apps-configured-bootstraps-it.war";
+    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/appsdirectory-apps-configured-bootstraps-default-recursive-it.war";
+
+    public final String APP_TEST_WAR = "test-war.war";
+    public final String APP_BOOTSTRAPS = "appsdirectory-apps-configured-bootstraps-default-recursive-it.war";
 
     @Test
     public void testApplicationConfiguredInConfigDropins() throws Exception {
@@ -48,21 +53,23 @@ public class PluginConfigXmlTest {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/server/webApplication";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <webApplication/> element ==>", 1, nodes.getLength());
+        assertEquals("Number of <webApplication/> element ==>", 2, nodes.getLength());
 
         Node node = nodes.item(0);
         Element element = (Element)node;      
-        assertEquals("Value of the 1st <webApplication/> ==>", 
-                "test-war.war", element.getAttribute("location"));
+        assertTrue("Value of the 1st <webApplication/> ==>"+element.getAttribute("location"),  element.getAttribute("location").equals(APP_TEST_WAR) || element.getAttribute("location").equals(APP_BOOTSTRAPS));
+
+        node = nodes.item(1);
+        element = (Element)node;      
+        assertTrue("Value of the 2nd <webApplication/> ==>"+element.getAttribute("location"),  element.getAttribute("location").equals(APP_TEST_WAR) || element.getAttribute("location").equals(APP_BOOTSTRAPS));
      }
 
     @Test
     public void testApplicationLocatedInAppsFolder() throws Exception {
         File app = new File(APP_IN_APPS_FOLDER);
 
-        assertTrue("Application not found in apps folder at " + APP_IN_APPS_FOLDER,app.exists());
+        assertTrue("Application not found in apps folder at " + APP_IN_APPS_FOLDER, app.exists());
         
     }
-
 
 }
