@@ -23,7 +23,12 @@ install:
 
 before_build:
     - cmd: |
-        echo "Installing ci.common lib ...."
+        echo "Installing ci.ant lib..."
+        git clone https://github.com/wasdev/ci.ant.git ci.ant
+        cd ci.ant
+        mvn clean install
+        cd..
+        echo "Installing ci.common lib..."
         git clone https://github.com/wasdev/ci.common.git ci.common
         cd ci.common
         mvn clean install
