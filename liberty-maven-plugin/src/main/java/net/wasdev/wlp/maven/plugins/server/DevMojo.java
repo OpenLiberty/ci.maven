@@ -29,13 +29,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +64,8 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
+import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
+import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
 import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
 import net.wasdev.wlp.maven.plugins.utils.MavenProjectUtil;
 
@@ -81,7 +76,6 @@ import net.wasdev.wlp.maven.plugins.utils.MavenProjectUtil;
 @Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 public class DevMojo extends StartDebugMojoSupport {
 
-    private static final String UPDATED_APP_MESSAGE_REGEXP = "CWWKZ0003I.*";
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
 
     @Parameter(property = "hotTests", defaultValue = "false")
@@ -171,7 +165,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests, skipITs, project.getArtifactId());
+                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout);
 
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -208,6 +202,11 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void error(String msg) {
             log.error(msg);
+        }
+
+        @Override
+        public void error(String msg, Throwable e) {
+            log.error(msg, e);
         }
 
         @Override
@@ -335,95 +334,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runTests(boolean waitForApplicationUpdate, int messageOccurrences, ThreadPoolExecutor executor,
-                boolean forceSkipUTs) {
-            if (!skipTests) {
-                File logFile = serverTask.getLogFile();
-                String regexp = UPDATED_APP_MESSAGE_REGEXP + DevMojo.this.project.getArtifactId();    
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    log.debug("Thread interrupted while waiting to start unit tests.", e);
-                }
-
-                // if queue size >= 1, it means a newer test has been queued so we
-                // should skip this and let that run instead
-                if (executor.getQueue().size() >= 1) {
-                    Runnable head = executor.getQueue().peek();
-                    boolean manualInvocation = ((TestJob) head).isManualInvocation();
-
-                    if (manualInvocation) {
-                        log.debug("Tests were re-invoked before previous tests began. Cancelling previous tests and resubmitting them.");
-                    } else {
-                        log.debug("Changes were detected before tests began. Cancelling tests and resubmitting them.");
-                    }
-                    return;
-                }
-
-                if (!(skipUTs || forceSkipUTs)) {
-                    log.info("Running unit tests...");
-                    try {
-                        runUnitTests();
-                        log.info("Unit tests finished.");
-                    } catch (MojoExecutionException e) {
-                        Throwable cause = e.getCause();
-                        if (cause != null && cause instanceof MojoFailureException) {
-                            log.debug(e);
-                            log.error("Unit tests failed: " + cause.getLocalizedMessage());
-                            // if unit tests failed, don't run integration tests
-                            return;
-                        } else {
-                            log.error("Failed to run unit tests", e);
-                        }
-                    }
-                }
-
-                // if queue size >= 1, it means a newer test has been queued so we
-                // should skip this and let that run instead
-                if (executor.getQueue().size() >= 1) {
-                    Runnable head = executor.getQueue().peek();
-                    boolean manualInvocation = ((TestJob) head).isManualInvocation();
-
-                    if (manualInvocation) {
-                        log.info("Tests were invoked while previous tests were running. Restarting tests.");
-                    } else {
-                        log.info("Changes were detected while tests were running. Restarting tests.");
-                    }
-                    return;
-                }
-
-                if (!skipITs) {
-                    if (waitForApplicationUpdate) {
-                        // wait until application has been updated
-                        if (appUpdateTimeout < 0) {
-                            appUpdateTimeout = 5;
-                        }
-                        long timeout = appUpdateTimeout * 1000;
-                        serverTask.waitForUpdatedStringInLog(regexp, timeout, logFile, messageOccurrences);
-                    }
-
-                    log.info("Running integration tests...");
-                    try {
-                        runIntegrationTests();
-                        log.info("Integration tests finished.");
-                    } catch (MojoExecutionException e) {
-                        Throwable cause = e.getCause();
-                        if (cause != null && cause instanceof MojoFailureException) {
-                            log.debug(e);
-                            log.error("Integration tests failed: " + cause.getLocalizedMessage());
-                        } else {
-                            log.error("Failed to run integration tests", e);
-                        }
-                    }
-                }
-            }
-
-            // finally, start watching for hotkey presses if not already started
-            runHotkeyReaderThread(executor);
-        }
-
-        @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = getServerFeatureUtil();
@@ -463,9 +373,37 @@ public class DevMojo extends StartDebugMojoSupport {
                 return false;
             }
         }
+
+        @Override
+        public void runUnitTests() throws PluginExecutionException, PluginScenarioException {
+            try {
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test");
+            } catch (MojoExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    throw new PluginScenarioException("Unit tests failed: " + cause.getLocalizedMessage(), e);
+                } else {
+                    throw new PluginExecutionException("Failed to run unit tests", e);
+                }
+            }
+        }
+
+        @Override
+        public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
+            try {
+                runMojo("org.apache.maven.plugins:maven-war-plugin", "war", null, null);
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
+            } catch (MojoExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause != null && cause instanceof MojoFailureException) {
+                    throw new PluginScenarioException("Integration tests failed: " + cause.getLocalizedMessage(), e);
+                } else {
+                    throw new PluginExecutionException("Failed to run integration tests", e);
+                }
+            }
+        }
     }
-
-
 
     @Override
     protected void doExecute() throws Exception {
@@ -576,7 +514,7 @@ public class DevMojo extends StartDebugMojoSupport {
         return updatedArtifacts;
     }
 
-    private void runTests(String groupId, String artifactId, String phase) throws MojoExecutionException {
+    private void runTestMojo(String groupId, String artifactId, String phase) throws MojoExecutionException {
 
         Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
@@ -657,16 +595,6 @@ public class DevMojo extends StartDebugMojoSupport {
         } else {
             properties.getChild(TEST_RUN_ID_PROPERTY_NAME).setValue(String.valueOf(runId++));
         }
-    }
-
-    private void runUnitTests() throws MojoExecutionException {
-        runTests("org.apache.maven.plugins", "maven-surefire-plugin", "test");
-    }
-
-    private void runIntegrationTests() throws MojoExecutionException {
-        runTests("org.apache.maven.plugins", "maven-war-plugin", "war");
-        runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
-        runTests("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
     }
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
