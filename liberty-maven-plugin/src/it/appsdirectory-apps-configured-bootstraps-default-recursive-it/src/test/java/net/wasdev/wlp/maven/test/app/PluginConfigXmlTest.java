@@ -22,18 +22,17 @@ import org.w3c.dom.NodeList;
  * Web application test case
  * 
  */
-// Test that the location variable in server.xml with a default value that has a recursive reference
-// does not cause an infinite loop. Verify that the application is added to configDropins since
-// the location could not be resolved.
+// The test-war.war is pulled in as a dependency and installed in the apps folder.
+// Test that the location variable in server.xml with a default value that has a recursive reference does not cause an infinite loop. 
+// Verify that the application is added to configDropins since the location could not be resolved. 
 
 public class PluginConfigXmlTest {
 
     public final String CONFIG_DROPINS_XML="liberty/usr/servers/test/configDropins/defaults/install_apps_configuration_1491924271.xml";
 
-    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/appsdirectory-apps-configured-bootstraps-default-recursive-it.war";
+    public final String APP_IN_APPS_FOLDER="liberty/usr/servers/test/apps/test-war.war";
 
     public final String APP_TEST_WAR = "test-war.war";
-    public final String APP_BOOTSTRAPS = "appsdirectory-apps-configured-bootstraps-default-recursive-it.war";
 
     @Test
     public void testApplicationConfiguredInConfigDropins() throws Exception {
@@ -53,15 +52,12 @@ public class PluginConfigXmlTest {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/server/webApplication";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <webApplication/> element ==>", 2, nodes.getLength());
+        assertEquals("Number of <webApplication/> element ==>", 1, nodes.getLength());
 
         Node node = nodes.item(0);
         Element element = (Element)node;      
-        assertTrue("Value of the 1st <webApplication/> ==>"+element.getAttribute("location"),  element.getAttribute("location").equals(APP_TEST_WAR) || element.getAttribute("location").equals(APP_BOOTSTRAPS));
+        assertEquals("Value of the 1st <webApplication/> ==>"+element.getAttribute("location"), APP_TEST_WAR, element.getAttribute("location"));
 
-        node = nodes.item(1);
-        element = (Element)node;      
-        assertTrue("Value of the 2nd <webApplication/> ==>"+element.getAttribute("location"),  element.getAttribute("location").equals(APP_TEST_WAR) || element.getAttribute("location").equals(APP_BOOTSTRAPS));
      }
 
     @Test

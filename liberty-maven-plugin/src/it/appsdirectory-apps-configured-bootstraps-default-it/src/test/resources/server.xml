@@ -3,8 +3,8 @@
         <feature>jsp-2.3</feature>
     </featureManager>
 
-    <variable name="first" value="appsdirectory-apps-configured"/>
-    <variable name="second" value="bootstraps${dash}default${dash}it"/>
+    <variable name="first" value="test"/>
+    <variable name="second" value="war"/>
     <variable name="dash" value="-"/>
     <variable name="appName" value="${first}${dash}${second}"/>
     <variable name="location" defaultValue="${appName}"/>

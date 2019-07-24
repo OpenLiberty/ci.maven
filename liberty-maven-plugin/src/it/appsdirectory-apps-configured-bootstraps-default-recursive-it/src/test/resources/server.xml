@@ -3,7 +3,7 @@
         <feature>jsp-2.3</feature>
     </featureManager>
 
-    <variable name="first" value="appsdirectory-apps-configured"/>
+    <variable name="first" value="test"/>
     <variable name="second" value="${appFolder}"/>
     <variable name="appFolder" value="${first}-${second}"/>
     <variable name="location" defaultValue="${appFolder}"/>
