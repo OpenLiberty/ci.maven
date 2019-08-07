@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class DevTestingTest extends BaseDevTest {
+public class DevInvokeTestingTest extends BaseDevTest {
 
    static File testResources = new File("../resources");
 
