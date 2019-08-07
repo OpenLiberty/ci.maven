@@ -149,18 +149,4 @@ public class DevTest extends BaseDevTest {
       }
    }
 
-   @Test
-   public void manualTestsInvocationTest() throws Exception {
-
-      if (isWindows) return;
-
-      assertFalse(checkLogMessage(2000,  "Press the Enter key to run tests on demand."));
-
-      writer.write("\n");
-      writer.flush();
-
-      assertFalse(checkLogMessage(2000,  "Unit tests finished."));
-      assertFalse(checkLogMessage(2000,  "Integration tests finished."));
-   }
-
 }

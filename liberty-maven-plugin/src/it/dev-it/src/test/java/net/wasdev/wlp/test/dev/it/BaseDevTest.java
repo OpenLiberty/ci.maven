@@ -72,10 +72,10 @@ public class BaseDevTest {
          FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
          assertTrue(tempProj.listFiles().length > 0);
 
-         logFile = new File(basicDevProj, "/logFile.txt");
+         logFile = new File(basicDevProj, "logFile.txt");
          assertTrue(logFile.createNewFile());
 
-         pom = new File(tempProj, "/pom.xml");
+         pom = new File(tempProj, "pom.xml");
          assertTrue(pom.exists());
 
          replaceVersion();
