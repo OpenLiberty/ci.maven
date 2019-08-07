@@ -312,7 +312,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         }
 
                         if (!dependencyIds.isEmpty()) {
-                            runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
+                            runMojo("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-feature", serverName,
                                     dependencyIds);
                             dependencyIds.clear();
                         }
@@ -342,7 +342,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (!features.isEmpty()) {
                     List<String> configFeatures = new ArrayList<String>(features);
                     log.info("Configuration features have been added");
-                    runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName,
+                    runMojo("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-feature", serverName,
                             configFeatures);
                     this.existingFeatures.addAll(features);
                 }
@@ -356,16 +356,16 @@ public class DevMojo extends StartDebugMojoSupport {
             try {
                 if (dir.equals(sourceDirectory)) {
                     log.info("Running maven-compiler-plugin:compile");
-                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
 
                     log.info("Running maven-compiler-plugin:resources");
-                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
                 }
                 if (dir.equals(testSourceDirectory)) {
                     log.info("Running maven-compiler-plugin:testCompile");
-                    runMojo("org.apache.maven.plugins:maven-compiler-plugin", "testCompile", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
                     log.info("Running maven-compiler-plugin:testResources");
-                    runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -391,7 +391,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
             try {
-                runMojo("org.apache.maven.plugins:maven-war-plugin", "war", null, null);
+                runMojo("org.apache.maven.plugins", "maven-war-plugin", "war", null, null);
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
             } catch (MojoExecutionException e) {
@@ -417,13 +417,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 new ArrayBlockingQueue<Runnable>(1, true));
 
         log.info("Running maven-compiler-plugin:compile");
-        runMojo("org.apache.maven.plugins:maven-compiler-plugin", "compile", null, null);
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
         log.info("Running maven-compiler-plugin:resources");
-        runMojo("org.apache.maven.plugins:maven-resources-plugin", "resources", null, null);
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
         log.info("Running maven-compiler-plugin:testCompile");
-        runMojo("org.apache.maven.plugins:maven-compiler-plugin", "testCompile", null, null);
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
         log.info("Running maven-compiler-plugin:testResources");
-        runMojo("org.apache.maven.plugins:maven-resources-plugin", "testResources", null, null);
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
 
@@ -439,11 +439,11 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Output directory: " + testOutputDirectory);
 
         log.info("Running goal: create-server");
-        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "create-server", serverName, null);
+        runMojo("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "create-server", serverName, null);
         log.info("Running goal: install-feature");
-        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-feature", serverName, null);
+        runMojo("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-feature", serverName, null);
         log.info("Running goal: install-apps");
-        runMojo("net.wasdev.wlp.maven.plugins:liberty-maven-plugin", "install-apps", serverName, null);
+        runMojo("net.wasdev.wlp.maven.plugins", "liberty-maven-plugin", "install-apps", serverName, null);
         
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
@@ -637,9 +637,14 @@ public class DevMojo extends StartDebugMojoSupport {
         return elements.toArray(new Element[elements.size()]);
     }
 
-    private void runMojo(String plugin, String goal, String serverName, List<String> dependencies)
+    private void runMojo(String groupId, String artifactId, String goal, String serverName, List<String> dependencies)
             throws MojoExecutionException {
-        Plugin mavenPlugin = project.getPlugin(plugin);
+        Plugin mavenPlugin = project.getPlugin(Plugin.constructKey(groupId, artifactId));
+        if (mavenPlugin == null) {
+            mavenPlugin = new Plugin();
+            mavenPlugin.setGroupId(groupId);
+            mavenPlugin.setArtifactId(artifactId);
+        }
         log.info("plugin version: " + mavenPlugin.getVersion());
         executeMojo(mavenPlugin, goal(goal),
                 configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
