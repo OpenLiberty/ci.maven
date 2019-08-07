@@ -553,20 +553,22 @@ public class DevMojo extends StartDebugMojoSupport {
             Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
-                Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
-
-                reportDirectories.addChild(reportsDirectoryElement);
-                config.addChild(reportDirectories);
+                if (reportsDirectoryElement != null) {
+                    Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
+                    reportDirectories.addChild(reportsDirectoryElement);
+                    config.addChild(reportDirectories);
+                }
             }
         } else if (phase.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
             Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
-                Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
-
-                reportDirectories.addChild(reportsDirectoryElement);
-                config.addChild(reportDirectories);
+                if (reportsDirectoryElement != null) {
+                    Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
+                    reportDirectories.addChild(reportsDirectoryElement);
+                    config.addChild(reportDirectories);
+                }
             }
         }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
