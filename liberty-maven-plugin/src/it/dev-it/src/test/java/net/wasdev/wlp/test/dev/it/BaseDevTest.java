@@ -38,13 +38,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class BaseDevTest {
+public abstract class BaseDevTest {
 
    static File tempProj;
    static File basicDevProj;
@@ -55,7 +53,8 @@ public class BaseDevTest {
    static boolean isWindows = false;
    static Process process;
 
-   protected static void setUpBeforeClass() throws IOException, InterruptedException, FileNotFoundException {
+   @BeforeClass
+   public static void setUpBeforeClass() throws Exception {
       setUpBeforeClass(null);
    }
 
@@ -113,7 +112,8 @@ public class BaseDevTest {
       assertTrue(targetDir.exists());
    }
 
-   protected static void cleanUpAfterClass() throws Exception {
+   @AfterClass
+   public static void cleanUpAfterClass() throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          stopDevMode();

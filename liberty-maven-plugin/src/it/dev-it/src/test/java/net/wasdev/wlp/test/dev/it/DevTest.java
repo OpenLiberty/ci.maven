@@ -24,21 +24,9 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.Scanner;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DevTest extends BaseDevTest {
-
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
-      BaseDevTest.setUpBeforeClass();
-   }
-
-   @AfterClass
-   public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass();
-   }
 
    @Test
    public void basicTest() throws Exception {

@@ -16,7 +16,6 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static junit.framework.Assert.assertFalse;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,12 +23,7 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      BaseDevTest.setUpBeforeClass("-DhotTests=true");
-   }
-
-   @AfterClass
-   public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass();
+      setUpBeforeClass("-DhotTests=true");
    }
 
    @Test

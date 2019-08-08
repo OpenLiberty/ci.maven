@@ -21,25 +21,11 @@ import static junit.framework.Assert.assertFalse;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DevInvokeTestingTest extends BaseDevTest {
 
    static File testResources = new File("../resources");
-
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
-      BaseDevTest.setUpBeforeClass();
-   }
-
-   @AfterClass
-   public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass();
-   }
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
