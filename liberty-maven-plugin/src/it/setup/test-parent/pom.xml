@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.wasdev.wlp.maven.it</groupId>
+    <groupId>io.openliberty.tools.it</groupId>
     <artifactId>tests</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
