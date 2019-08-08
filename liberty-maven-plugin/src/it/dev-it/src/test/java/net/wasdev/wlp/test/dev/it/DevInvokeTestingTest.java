@@ -33,7 +33,7 @@ public class DevInvokeTestingTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null);
+      BaseDevTest.setUpBeforeClass();
    }
 
    @AfterClass

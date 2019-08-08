@@ -24,7 +24,7 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass("-DhotTests=true");
+      BaseDevTest.setUpBeforeClass("-DhotTests=true");
    }
 
    @AfterClass

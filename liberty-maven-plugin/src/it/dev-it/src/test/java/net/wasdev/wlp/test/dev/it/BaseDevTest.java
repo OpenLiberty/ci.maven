@@ -55,6 +55,10 @@ public class BaseDevTest {
    static boolean isWindows = false;
    static Process process;
 
+   protected static void setUpBeforeClass() throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(null);
+   }
+
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
       String os = System.getProperty("os.name");
       if (os != null && os.toLowerCase().startsWith("windows")) {
