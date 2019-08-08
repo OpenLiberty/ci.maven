@@ -21,7 +21,7 @@
                         <id>default</id>
                         <phases>
                             <pre-clean>
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:stop-server
+                                io.openliberty.tools:liberty-maven-plugin:stop-server
                             </pre-clean>
                             <process-resources>
                                 org.apache.maven.plugins:maven-resources-plugin:resources
@@ -39,22 +39,22 @@
                                 org.apache.maven.plugins:maven-surefire-plugin:test
                             </test>
                             <prepare-package>
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-server,
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:create-server,
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-feature,
+                                :liberty-maven-plugin:install-server,
+                                io.openliberty.tools:liberty-maven-plugin:create-server,
+                                io.openliberty.tools:liberty-maven-plugin:install-feature,
                             </prepare-package>
                             <package>
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:install-apps,
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:package-server
+                                io.openliberty.tools:liberty-maven-plugin:install-apps,
+                                io.openliberty.tools:liberty-maven-plugin:package-server
                             </package>
                             <pre-integration-test>
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:test-start-server
+                                io.openliberty.tools:liberty-maven-plugin:test-start-server
                             </pre-integration-test>
                             <integration-test>
                                 org.apache.maven.plugins:maven-failsafe-plugin:integration-test
                             </integration-test>
                             <post-integration-test>
-                                net.wasdev.wlp.maven.plugins:liberty-maven-plugin:test-stop-server
+                                io.openliberty.tools:liberty-maven-plugin:test-stop-server
                             </post-integration-test>
                             <verify>
                                org.apache.maven.plugins:maven-failsafe-plugin:verify
