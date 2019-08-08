@@ -641,9 +641,7 @@ public class DevMojo extends StartDebugMojoSupport {
             throws MojoExecutionException {
         Plugin mavenPlugin = project.getPlugin(Plugin.constructKey(groupId, artifactId));
         if (mavenPlugin == null) {
-            mavenPlugin = new Plugin();
-            mavenPlugin.setGroupId(groupId);
-            mavenPlugin.setArtifactId(artifactId);
+            mavenPlugin = plugin(groupId(groupId), artifactId(artifactId), version("LATEST"));
         }
         log.info("plugin version: " + mavenPlugin.getVersion());
         executeMojo(mavenPlugin, goal(goal),
