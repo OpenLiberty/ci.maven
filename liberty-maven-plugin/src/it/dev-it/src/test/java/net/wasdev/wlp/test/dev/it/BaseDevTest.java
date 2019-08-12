@@ -105,7 +105,7 @@ public class BaseDevTest {
       assertFalse(checkLogMessage(120000, "CWWKF0011I"));
 
       // verify that the target directory was created
-      targetDir = new File(tempProj, "/target");
+      targetDir = new File(tempProj, "target");
       assertTrue(targetDir.exists());
    }
 
@@ -138,8 +138,8 @@ public class BaseDevTest {
 
    protected static void testModifyJavaFile() throws IOException, InterruptedException {
       // modify a java file
-      File srcHelloWorld = new File(tempProj, "/src/main/java/com/demo/HelloWorld.java");
-      File targetHelloWorld = new File(targetDir, "/classes/com/demo/HelloWorld.class");
+      File srcHelloWorld = new File(tempProj, "src/main/java/com/demo/HelloWorld.java");
+      File targetHelloWorld = new File(targetDir, "classes/com/demo/HelloWorld.class");
       assertTrue(srcHelloWorld.exists());
       assertTrue(targetHelloWorld.exists());
 
