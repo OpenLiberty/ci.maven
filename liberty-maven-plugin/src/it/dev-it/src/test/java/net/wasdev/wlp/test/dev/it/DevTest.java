@@ -44,14 +44,14 @@ public class DevTest extends BaseDevTest {
    @Test
    public void basicTest() throws Exception {
 
-      if (!isWindows) return; 
+      if (isWindows) return; 
       testModifyJavaFile();
    }
 
    @Test
    public void configChangeTest() throws Exception {
 
-      if (!isWindows) return;
+      if (isWindows) return;
 
       // configuration file change
       File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
@@ -110,7 +110,7 @@ public class DevTest extends BaseDevTest {
    
    @Test
    public void testDirectoryTest() throws Exception {
-      if (!isWindows) return;
+      if (isWindows) return;
 
       // create the test directory
       File testDir = new File(tempProj, "src/test/java");
