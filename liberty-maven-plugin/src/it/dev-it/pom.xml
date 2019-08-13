@@ -8,13 +8,6 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
-        <artifactId>tests</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <relativePath>../tests</relativePath>
-    </parent>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
