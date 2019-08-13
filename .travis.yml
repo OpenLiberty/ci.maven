@@ -3,19 +3,12 @@ dist: trusty
 language: java
 jdk:
     - oraclejdk8
-    - oraclejdk9
     - oraclejdk11
 env:
-    - RUNTIME=ol RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.6
     - RUNTIME=ol RUNTIME_VERSION=19.0.0.3
-    - RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.6
     - RUNTIME=wlp RUNTIME_VERSION=19.0.0.3
-matrix:
-    exclude:
-    - jdk: oraclejdk11
-      env: RUNTIME=ol RUNTIME_VERSION=18.0.0.4
-    - jdk: oraclejdk11
-      env: RUNTIME=wlp RUNTIME_VERSION=18.0.0.4
 cache:
     directories:
         - $HOME/.m2
@@ -34,4 +27,4 @@ before_install:
     - mvn clean install
     - cd ..
 script:
-  - travis_wait 30 mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
+    - travis_wait 30 mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
