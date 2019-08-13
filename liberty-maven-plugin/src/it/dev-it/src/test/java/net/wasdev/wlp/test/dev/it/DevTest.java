@@ -54,8 +54,8 @@ public class DevTest extends BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          // configuration file change
-         File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
-         File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
+         File srcServerXML = new File(tempProj, "src/main/liberty/config/server.xml");
+         File targetServerXML = new File(targetDir, "liberty/wlp/usr/servers/defaultServer/server.xml");
          assertTrue(srcServerXML.exists());
          assertTrue(targetServerXML.exists());
 
@@ -92,14 +92,14 @@ public class DevTest extends BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          // make a resource file change
-         File resourceDir = new File(tempProj, "/src/main/resources");
+         File resourceDir = new File(tempProj, "src/main/resources");
          assertTrue(resourceDir.exists());
 
-         File propertiesFile = new File(resourceDir, "/microprofile-config.properties");
+         File propertiesFile = new File(resourceDir, "microprofile-config.properties");
          assertTrue(propertiesFile.createNewFile());
 
          Thread.sleep(2000); // wait for compilation
-         File targetPropertiesFile = new File(targetDir, "/classes/microprofile-config.properties");
+         File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
          assertTrue(targetPropertiesFile.exists());
          assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
 
@@ -127,7 +127,7 @@ public class DevTest extends BaseDevTest {
          assertTrue(unitTestSrcFile.exists());
 
          Thread.sleep(2000); // wait for compilation
-         File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
+         File unitTestTargetFile = new File(targetDir, "test-classes/UnitTest.class");
          assertTrue(unitTestTargetFile.exists());
          long lastModified = unitTestTargetFile.lastModified();
 
