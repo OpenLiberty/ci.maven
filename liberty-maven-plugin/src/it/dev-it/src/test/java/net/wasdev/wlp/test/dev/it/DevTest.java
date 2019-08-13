@@ -90,14 +90,14 @@ public class DevTest extends BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          // make a resource file change
-         File resourceDir = new File(tempProj, "/src/main/resources");
+         File resourceDir = new File(tempProj, "src/main/resources");
          assertTrue(resourceDir.exists());
 
-         File propertiesFile = new File(resourceDir, "/microprofile-config.properties");
+         File propertiesFile = new File(resourceDir, "microprofile-config.properties");
          assertTrue(propertiesFile.createNewFile());
 
          Thread.sleep(2000); // wait for compilation
-         File targetPropertiesFile = new File(targetDir, "/classes/microprofile-config.properties");
+         File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
          assertTrue(targetPropertiesFile.exists());
          assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
 
