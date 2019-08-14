@@ -378,6 +378,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public void runUnitTests() throws PluginExecutionException, PluginScenarioException {
             try {
                 runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test");
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "report-only");
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause != null && cause instanceof MojoFailureException) {
@@ -393,6 +394,7 @@ public class DevMojo extends StartDebugMojoSupport {
             try {
                 runMojo("org.apache.maven.plugins:maven-war-plugin", "war", null, null);
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only");
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
@@ -515,36 +517,8 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private void runTestMojo(String groupId, String artifactId, String phase) throws MojoExecutionException {
-
-        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
-        if (plugin == null) {
-            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
-        }
-        Xpp3Dom config = null;
-
-        List<Plugin> buildPlugins = project.getBuildPlugins();
-        for (Plugin p : buildPlugins) {
-            if (p.equals(plugin)) {
-                config = (Xpp3Dom) p.getConfiguration();
-                
-                PluginExecution pluginExecution = null;
-                Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
-
-                String[] defaultExecutionIds = new String[]{ "default-" + phase, phase, "default" };
-                for (String executionId : defaultExecutionIds) {
-                    pluginExecution = peMap.get(executionId);
-                    if (pluginExecution != null) {
-                        break;
-                    }
-                }
-                if (pluginExecution != null) {
-                    Xpp3Dom executionConfig = (Xpp3Dom) pluginExecution.getConfiguration();
-                    config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
-                }
-                break;
-            }
-        }
-
+        Plugin plugin = getPlugin(groupId, artifactId);
+        Xpp3Dom config = getPluginConfig(plugin, phase);
         if (config == null) {
             log.debug("Could not find " + artifactId + " configuration for " + phase
                     + " phase. Creating new configuration.");
@@ -574,10 +548,80 @@ public class DevMojo extends StartDebugMojoSupport {
             } else {
                 log.debug("Summary file doesn't exist");
             }
+        } else if (phase.equals("failsafe-report-only")) {
+            Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
+            Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
+            if (failsafeConfig != null) {
+                Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
+                if (reportsDirectoryElement != null) {
+                    Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
+                    reportDirectories.addChild(reportsDirectoryElement);
+                    config.addChild(reportDirectories);
+                }
+            }
+        } else if (phase.equals("report-only")) {
+            Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
+            Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
+            if (surefireConfig != null) {
+                Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
+                if (reportsDirectoryElement != null) {
+                    Xpp3Dom reportDirectories = new Xpp3Dom("reportsDirectories");
+                    reportDirectories.addChild(reportsDirectoryElement);
+                    config.addChild(reportDirectories);
+                }
+            }
         }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 
         executeMojo(plugin, goal(phase), config, executionEnvironment(project, session.clone(), pluginManager));
+    }
+    
+    /**
+     * Given the groupId and artifactId get the corresponding plugin
+     * @param groupId
+     * @param artifactId
+     * @return Plugin
+     */
+    private Plugin getPlugin(String groupId, String artifactId){
+        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
+        if (plugin == null) {
+            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
+        }
+        return plugin;
+    }
+    
+    /**
+     * Given the Plugin get the Xpp3Dom configuration
+     * @param plugin
+     * @param phase
+     * @return configuration specified in pom.xml
+     */
+    private Xpp3Dom getPluginConfig(Plugin plugin, String phase) {
+        Xpp3Dom config = null;
+
+        List<Plugin> buildPlugins = project.getBuildPlugins();
+        for (Plugin p : buildPlugins) {
+            if (p.equals(plugin)) {
+                config = (Xpp3Dom) p.getConfiguration();
+                
+                PluginExecution pluginExecution = null;
+                Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
+
+                String[] defaultExecutionIds = new String[]{ "default-" + phase, phase, "default" };
+                for (String executionId : defaultExecutionIds) {
+                    pluginExecution = peMap.get(executionId);
+                    if (pluginExecution != null) {
+                        break;
+                    }
+                }
+                if (pluginExecution != null) {
+                    Xpp3Dom executionConfig = (Xpp3Dom) pluginExecution.getConfiguration();
+                    config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
+                }
+                break;
+            }
+        }
+        return config;
     }
 
     /**
