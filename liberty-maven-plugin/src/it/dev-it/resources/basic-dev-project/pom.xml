@@ -5,7 +5,7 @@
   <parent>
       <groupId>io.openliberty.tools</groupId>
       <artifactId>liberty-maven-app-parent</artifactId>
-      <version>RELEASE</version>
+      <version>SUB_VERSION</version>
   </parent>
 
   <groupId>dev-it-tests</groupId>
@@ -32,7 +32,7 @@
           <dependency>
               <groupId>io.openliberty.features</groupId>
               <artifactId>features-bom</artifactId>
-              <version>RELEASE</version>
+              <version>RUNTIME_VERSION</version>
               <type>pom</type>
               <scope>import</scope>
           </dependency>
@@ -169,7 +169,7 @@
           <assemblyArtifact>
             <groupId>io.openliberty</groupId>
             <artifactId>openliberty-kernel</artifactId>
-            <version>RELEASE</version>
+            <version>RUNTIME_VERSION</version>
             <type>zip</type>
           </assemblyArtifact>
           <configFile>src/main/liberty/config/server.xml</configFile>
