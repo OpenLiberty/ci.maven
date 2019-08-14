@@ -14,7 +14,7 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../tests</relativePath>
     </parent>
-   
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +29,7 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-maven-plugin</artifactId>
             <version>@pom.version@</version>
@@ -52,8 +52,10 @@
                         <include>**/*Test.java</include>
                     </includes>
                     <systemPropertyVariables>
-                    	<mavenPluginVersion>@pom.version@</mavenPluginVersion>
-                	</systemPropertyVariables>
+                        <mavenPluginVersion>@pom.version@</mavenPluginVersion>
+                        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+                    </systemPropertyVariables>
+                    <trimStackTrace>false</trimStackTrace>
                 </configuration>
                 <executions>
                     <execution>
