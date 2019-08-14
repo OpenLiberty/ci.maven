@@ -20,6 +20,7 @@
         <module>test-eba</module>
         <module>test-war</module>
         <module>test-parent</module>
+        <module>loose-config-fragment-it</module>
     </modules>
 
 </project>
