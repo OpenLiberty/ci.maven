@@ -80,6 +80,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
 
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
+    private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
 
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
@@ -538,6 +539,7 @@ public class DevMojo extends StartDebugMojoSupport {
             injectTestId(config);
         } else if (phase.equals("integration-test")) {
             injectTestId(config);
+            injectLibertyProperties(config);
             // clean up previous summary file
             File summaryFile = null;
             Xpp3Dom summaryFileElement = config.getChild("summaryFile");
@@ -647,6 +649,30 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(e.toDom());
         } else {
             properties.getChild(TEST_RUN_ID_PROPERTY_NAME).setValue(String.valueOf(runId++));
+        }
+    }
+
+    /**
+     * Add Liberty system properties for tests to consume.
+     *
+     * @param config The configuration element
+     * @throws MojoExecutionException if the userDirectory canonical path cannot be resolved
+     */
+    private void injectLibertyProperties(Xpp3Dom config) throws MojoExecutionException {
+        Xpp3Dom sysProps = config.getChild("systemPropertyVariables");
+        if (sysProps == null) {
+            Element e = element(name("systemPropertyVariables"));
+            sysProps = e.toDom();
+            config.addChild(sysProps);
+        }
+        // don't overwrite existing properties if they are already defined
+        if (sysProps.getChild(WLP_USER_DIR_PROPERTY_NAME) == null) {
+            // pass in userDirectory parameter
+            try {
+                sysProps.addChild(element(name(WLP_USER_DIR_PROPERTY_NAME), userDirectory.getCanonicalPath()).toDom());
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not resolve canonical path of userDirectory parameter: " + userDirectory.getAbsolutePath(), e);
+            }
         }
     }
 

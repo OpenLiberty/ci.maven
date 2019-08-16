@@ -35,4 +35,10 @@ The following are the parameters supported by this goal in addition to the [comm
 | skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
 | liberty.debug.port | The debug port that you can attach a debugger to. The default value is `7777`. | No |
 
+###### System Properties for Integration Tests
 
+Integration tests can read the following system properties to obtain information about the Liberty server.
+
+| Property | Description |
+| --------  | ----------- |
+| wlp.user.dir | The user directory location that contains server definitions and shared resources. |
