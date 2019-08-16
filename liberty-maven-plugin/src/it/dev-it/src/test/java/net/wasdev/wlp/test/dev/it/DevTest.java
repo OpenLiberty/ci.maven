@@ -42,8 +42,8 @@ public class DevTest extends BaseDevTest {
       if (isWindows) return;
 
       // configuration file change
-      File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
-      File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
+      File srcServerXML = new File(tempProj, "src/main/liberty/config/server.xml");
+      File targetServerXML = new File(targetDir, "liberty/wlp/usr/servers/defaultServer/server.xml");
       assertTrue(srcServerXML.exists());
       assertTrue(targetServerXML.exists());
 
@@ -113,7 +113,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(unitTestSrcFile.exists());
 
       Thread.sleep(2000); // wait for compilation
-      File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
+      File unitTestTargetFile = new File(targetDir, "test-classes/UnitTest.class");
       assertTrue(unitTestTargetFile.exists());
       long lastModified = unitTestTargetFile.lastModified();
 
@@ -143,8 +143,8 @@ public class DevTest extends BaseDevTest {
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
-      File systemHealthSrc = new File(tempProj, "/src/main/java/com/demo/SystemHealth.java");
-      File systemHealthTarget = new File(targetDir, "/classes/com/demo/SystemHealth.class");
+      File systemHealthSrc = new File(tempProj, "src/main/java/com/demo/SystemHealth.java");
+      File systemHealthTarget = new File(targetDir, "classes/com/demo/SystemHealth.class");
 
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
