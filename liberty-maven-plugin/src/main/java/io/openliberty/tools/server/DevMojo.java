@@ -414,6 +414,14 @@ public class DevMojo extends StartDebugMojoSupport {
             return;
         }
         
+        // look for a .sRunning file to check if the server has already started
+        if (serverDirectory.exists()) {
+            File sRunning = new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning");
+            if (sRunning.exists()) {
+                throw new MojoExecutionException("The server " + serverName + " is already running. Terminate all instances of the server before starting dev mode.");
+            }
+        }
+        
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
