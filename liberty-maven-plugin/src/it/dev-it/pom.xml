@@ -37,11 +37,7 @@
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>once</forkMode>
-<<<<<<< HEAD
-                    <forkedProcessTimeoutInSeconds>600</forkedProcessTimeoutInSeconds>
-=======
                     <forkedProcessTimeoutInSeconds>1200</forkedProcessTimeoutInSeconds>
->>>>>>> upstream/master
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
