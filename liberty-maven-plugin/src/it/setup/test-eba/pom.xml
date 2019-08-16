@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
+        <groupId>io.openliberty.tools.it</groupId>
         <artifactId>setup</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>

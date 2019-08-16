@@ -187,8 +187,9 @@ public abstract class BaseDevTest {
 
    private static void replaceVersion() throws IOException {
       String pluginVersion = System.getProperty("mavenPluginVersion");
-
       replaceString("SUB_VERSION", pluginVersion, pom);
+      String runtimeVersion = System.getProperty("runtimeVersion");
+      replaceString("RUNTIME_VERSION", runtimeVersion, pom);
    }
 
    protected static void replaceString(String str, String replacement, File file) throws IOException {
