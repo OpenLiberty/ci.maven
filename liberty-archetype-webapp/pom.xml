@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.wasdev.wlp.maven</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
         <version>3.1.M1-SNAPSHOT</version>
     </parent>

@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.Scanner;
 
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,37 +44,34 @@ public class DevTest extends BaseDevTest {
    @Test
    public void basicTest() throws Exception {
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-         testModifyJavaFile();
-      }
+      if (isWindows) return; 
+      testModifyJavaFile();
    }
 
    @Test
    public void configChangeTest() throws Exception {
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      if (isWindows) return;
 
-         // configuration file change
-         File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
-         File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
-         assertTrue(srcServerXML.exists());
-         assertTrue(targetServerXML.exists());
+      // configuration file change
+      File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
+      File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
+      assertTrue(srcServerXML.exists());
+      assertTrue(targetServerXML.exists());
 
-         replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
+      replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
 
-         // check for application updated message
-         assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
-         Thread.sleep(2000);
-         Scanner scanner = new Scanner(targetServerXML);
+      // check for application updated message
+      assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
+      Thread.sleep(2000);
+      Scanner scanner = new Scanner(targetServerXML);
 
-         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.contains("<feature>mpHealth-1.0</feature>")) {
-               assertTrue(true);
-            }
+      while (scanner.hasNextLine()) {
+         String line = scanner.nextLine();
+         if (line.contains("<feature>mpHealth-1.0</feature>")) {
+            assertTrue(true);
          }
       }
-
    }
 
    @Test
@@ -92,14 +90,14 @@ public class DevTest extends BaseDevTest {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
          // make a resource file change
-         File resourceDir = new File(tempProj, "/src/main/resources");
+         File resourceDir = new File(tempProj, "src/main/resources");
          assertTrue(resourceDir.exists());
 
-         File propertiesFile = new File(resourceDir, "/microprofile-config.properties");
+         File propertiesFile = new File(resourceDir, "microprofile-config.properties");
          assertTrue(propertiesFile.createNewFile());
 
          Thread.sleep(2000); // wait for compilation
-         File targetPropertiesFile = new File(targetDir, "/classes/microprofile-config.properties");
+         File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
          assertTrue(targetPropertiesFile.exists());
          assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
 
@@ -112,41 +110,41 @@ public class DevTest extends BaseDevTest {
    
    @Test
    public void testDirectoryTest() throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      if (isWindows) return;
 
-         // create the test directory
-         File testDir = new File(tempProj, "src/test/java");
-         assertTrue(testDir.mkdirs());
+      // create the test directory
+      File testDir = new File(tempProj, "src/test/java");
+      assertTrue(testDir.mkdirs());
 
-         // creates a java test file
-         File unitTestSrcFile = new File(testDir, "UnitTest.java");
-         String unitTest = "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n" + "\n"
-               + "public class UnitTest {\n" + "\n" + "    @Test\n" + "    public void testTrue() {\n"
-               + "        assertTrue(true);\n" + "\n" + "    }\n" + "}";
-         Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
-         assertTrue(unitTestSrcFile.exists());
+      // creates a java test file
+      File unitTestSrcFile = new File(testDir, "UnitTest.java");
+      String unitTest = "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n" + "\n"
+            + "public class UnitTest {\n" + "\n" + "    @Test\n" + "    public void testTrue() {\n"
+            + "        assertTrue(true);\n" + "\n" + "    }\n" + "}";
+      Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
+      assertTrue(unitTestSrcFile.exists());
 
-         Thread.sleep(2000); // wait for compilation
-         File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
-         assertTrue(unitTestTargetFile.exists());
-         long lastModified = unitTestTargetFile.lastModified();
+      Thread.sleep(2000); // wait for compilation
+      File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
+      assertTrue(unitTestTargetFile.exists());
+      long lastModified = unitTestTargetFile.lastModified();
 
-         // modify the test file
-         String str = "// testing";
-         BufferedWriter javaWriter = new BufferedWriter(new FileWriter(unitTestSrcFile, true));
-         javaWriter.append(' ');
-         javaWriter.append(str);
+      // modify the test file
+      String str = "// testing";
+      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(unitTestSrcFile, true));
+      javaWriter.append(' ');
+      javaWriter.append(str);
 
-         javaWriter.close();
+      javaWriter.close();
 
-         Thread.sleep(5000); // wait for compilation
-         assertTrue(unitTestTargetFile.lastModified() > lastModified);
+      Thread.sleep(5000); // wait for compilation
+      assertTrue(unitTestTargetFile.lastModified() > lastModified);
 
-         // delete the test file
-         assertTrue(unitTestSrcFile.delete());
-         Thread.sleep(2000);
-         assertFalse(unitTestTargetFile.exists());
-      }
+      // delete the test file
+      assertTrue(unitTestSrcFile.delete());
+      Thread.sleep(2000);
+      assertFalse(unitTestTargetFile.exists());
+
    }
 
    @Test
@@ -161,6 +159,52 @@ public class DevTest extends BaseDevTest {
 
       assertFalse(checkLogMessage(2000,  "Unit tests finished."));
       assertFalse(checkLogMessage(2000,  "Integration tests finished."));
+   }
+   
+   @Test
+   public void resolveDependencyTest() throws Exception {
+
+      if (isWindows) return;
+      
+      // create the HealthCheck class, expect a compilation error
+      File systemHealthRes = new File("../resources/SystemHealth.java");
+      assertTrue(systemHealthRes.exists());
+      File systemHealthSrc = new File(tempProj, "/src/main/java/com/demo/SystemHealth.java");
+      File systemHealthTarget = new File(targetDir, "/classes/com/demo/SystemHealth.class");
+
+      FileUtils.copyFile(systemHealthRes, systemHealthSrc);
+      assertTrue(systemHealthSrc.exists());
+      
+      assertFalse(checkLogMessage(100000, "Source compilation had errors"));
+      assertFalse(systemHealthTarget.exists());
+      
+      // add mpHealth dependency to pom.xml
+      String mpHealthComment = "<!-- <dependency>\n" + 
+            "        <groupId>io.openliberty.features</groupId>\n" + 
+            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
+            "        <type>esa</type>\n" + 
+            "        <scope>provided</scope>\n" + 
+            "    </dependency> -->";
+      String mpHealth = "<dependency>\n" + 
+            "        <groupId>io.openliberty.features</groupId>\n" + 
+            "        <artifactId>mpHealth-1.0</artifactId>\n" + 
+            "        <type>esa</type>\n" + 
+            "        <scope>provided</scope>\n" + 
+            "    </dependency>";
+      replaceString(mpHealthComment, mpHealth, pom);
+      
+      assertFalse(checkLogMessage(100000,"The following features have been installed"));
+      
+      String str = "// testing";
+      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
+      javaWriter.append(' ');
+      javaWriter.append(str);
+
+      javaWriter.close();
+
+      Thread.sleep(2000); // wait for compilation
+      assertFalse(checkLogMessage(100000, "Source compilation was successful."));
+      assertTrue(systemHealthTarget.exists());
    }
 
 }

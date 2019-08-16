@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
+        <groupId>io.openliberty.tools.it</groupId>
         <artifactId>ear-project-it</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -17,19 +17,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.wasdev.wlp.maven.it</groupId>
+            <groupId>io.openliberty.tools.it</groupId>
             <artifactId>SampleEJB</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>net.wasdev.wlp.maven.it</groupId>
+            <groupId>io.openliberty.tools.it</groupId>
             <artifactId>SampleWAR</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>net.wasdev.wlp.maven.it</groupId>
+            <groupId>io.openliberty.tools.it</groupId>
             <artifactId>SampleWAR2</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>war</type>
@@ -62,12 +62,12 @@
                     <fileNameMapping>no-version</fileNameMapping>
                     <modules>
                         <webModule>
-                            <groupId>net.wasdev.wlp.maven.it</groupId>
+                            <groupId>io.openliberty.tools.it</groupId>
                             <artifactId>SampleWAR</artifactId>
                             <uri>/modules/web.war</uri>
                         </webModule>
                         <webModule>
-                            <groupId>net.wasdev.wlp.maven.it</groupId>
+                            <groupId>io.openliberty.tools.it</groupId>
                             <artifactId>SampleWAR2</artifactId>
                             <!-- uri and bundleDir elements not included to test issue 264 -->
                         </webModule>
@@ -75,7 +75,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>

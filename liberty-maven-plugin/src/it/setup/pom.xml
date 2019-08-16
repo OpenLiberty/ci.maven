@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.wasdev.wlp.maven.it</groupId>
+    <groupId>io.openliberty.tools.it</groupId>
     <artifactId>setup</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
@@ -20,6 +20,7 @@
         <module>test-eba</module>
         <module>test-war</module>
         <module>test-parent</module>
+        <module>loose-config-fragment-it</module>
     </modules>
 
 </project>
