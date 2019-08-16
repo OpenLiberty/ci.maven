@@ -417,8 +417,7 @@ public class DevMojo extends StartDebugMojoSupport {
         if (serverDirectory.exists()) {
             File sRunning = new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning");
             if (sRunning.exists()) {
-                log.error("The server " + serverName + " is already running. Terminate all instances of the server before starting dev mode.");
-                System.exit(0);
+                throw new MojoExecutionException("The server " + serverName + " is already running. Terminate all instances of the server before starting dev mode.");
             }
         }
         
