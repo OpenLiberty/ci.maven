@@ -3,18 +3,18 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.wasdev.wlp.maven.it</groupId>
+    <groupId>io.openliberty.tools.it</groupId>
     <artifactId>dev-it</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>net.wasdev.wlp.maven.it</groupId>
+        <groupId>io.openliberty.tools.it</groupId>
         <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../tests</relativePath>
     </parent>
-   
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,8 +29,8 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
-         <dependency>
-            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <dependency>
+            <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-maven-plugin</artifactId>
             <version>@pom.version@</version>
         </dependency>
@@ -45,15 +45,17 @@
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>once</forkMode>
-                    <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+                    <forkedProcessTimeoutInSeconds>1200</forkedProcessTimeoutInSeconds>
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
                     <systemPropertyVariables>
-                    	<mavenPluginVersion>@pom.version@</mavenPluginVersion>
-                	</systemPropertyVariables>
+                        <mavenPluginVersion>@pom.version@</mavenPluginVersion>
+                        <runtimeVersion>${runtimeVersion}</runtimeVersion>
+                    </systemPropertyVariables>
+                    <trimStackTrace>false</trimStackTrace>
                 </configuration>
                 <executions>
                     <execution>

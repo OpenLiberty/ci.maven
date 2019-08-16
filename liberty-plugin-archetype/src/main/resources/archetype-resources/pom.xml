@@ -97,7 +97,7 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                    <groupId>io.openliberty.tools</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
                     <version>${libertyPluginVersion}</version>
                 </plugin>
@@ -117,7 +117,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                        <groupId>io.openliberty.tools</groupId>
                         <artifactId>liberty-maven-plugin</artifactId>
                         <inherited>false</inherited>
                         <executions>
