@@ -36,6 +36,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
+                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                 </configuration>
                 <executions>
                     <execution>

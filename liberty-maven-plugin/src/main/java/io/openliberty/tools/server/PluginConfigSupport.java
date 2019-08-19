@@ -101,22 +101,22 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("serverName", serverName);
         configDocument.createElement("configDirectory", configDirectory);
 
-        if (getFileFromConfigDirectory("server.xml", configFile) != null) {
-            configDocument.createElement("configFile", getFileFromConfigDirectory("server.xml", configFile));
+        if (findConfigFile("server.xml", serverXmlFile) != null) {
+            configDocument.createElement("configFile", findConfigFile("server.xml", serverXmlFile));
         }
-        if (bootstrapProperties != null && getFileFromConfigDirectory("bootstrap.properties") == null) {
+        if (bootstrapProperties != null) {
             configDocument.createElement("bootstrapProperties", bootstrapProperties);
-        } else {
+        } else if (findConfigFile("bootstrap.properties", bootstrapPropertiesFile) != null) {
             configDocument.createElement("bootstrapPropertiesFile",
-                    getFileFromConfigDirectory("bootstrap.properties", bootstrapPropertiesFile));
+                    findConfigFile("bootstrap.properties", bootstrapPropertiesFile));
         }
-        if (jvmOptions != null && getFileFromConfigDirectory("jvm.options") == null) {
+        if (jvmOptions != null) {
             configDocument.createElement("jvmOptions", jvmOptions);
-        } else {
-            configDocument.createElement("jvmOptionsFile", getFileFromConfigDirectory("jvm.options", jvmOptionsFile));
+        } else if (findConfigFile("jvm.options", jvmOptionsFile) != null) {
+            configDocument.createElement("jvmOptionsFile", findConfigFile("jvm.options", jvmOptionsFile));
         }
-        if (getFileFromConfigDirectory("server.env", serverEnv) != null) {
-            configDocument.createElement("serverEnv", getFileFromConfigDirectory("server.env", serverEnv));
+        if (findConfigFile("server.env", serverEnvFile) != null) {
+            configDocument.createElement("serverEnv", findConfigFile("server.env", serverEnvFile));
         }
 
         configDocument.createElement("appsDirectory", getAppsDirectory());
@@ -156,6 +156,22 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
         configDocument.writeXMLDocument(f);
         return f;
+    }
+
+    /*
+     * Get the file from specificFile if it exists; otherwise return file from configDirectory only
+     * if it exists, or null if not
+     */
+    protected File findConfigFile(String fileName, File specificFile) {
+        if (specificFile != null && specificFile.exists()) {
+            return specificFile;
+        }
+
+        File f = new File(configDirectory, fileName);
+        if (configDirectory != null && f.exists()) {
+            return f;
+        }
+        return null;
     }
 
     /*
@@ -274,7 +290,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
                 scd = ServerConfigDocument.getInstance(log, serverXML, configDirectory,
-                        bootstrapPropertiesFile, bootstrapProperties, serverEnv);
+                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);
@@ -294,7 +310,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
         // default appsDirectory
         appsDirectory = "dropins";
-        File srcServerXML = getFileFromConfigDirectory("server.xml", configFile);
+        File srcServerXML = findConfigFile("server.xml", serverXmlFile);
         if (srcServerXML != null && srcServerXML.exists() && isAnyAppConfiguredInSourceServerXml()) {
             // overwrite default appsDirectory if application configuration is
             // found.

@@ -493,7 +493,9 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
+        // Note that serverXmlFile can be null. DevUtil will automatically watch all files in the configDirectory,
+        // which is where the server.xml is located if a specific serverXmlFile configuration parameter is not specified.
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
@@ -697,9 +699,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
                     elements.add(element(name("installAppPackages"), "project"));
-                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
+                    if (serverXmlFile != null) {
+                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                    }
                 } else if (goal.equals("create")) {
-                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
+                    if (serverXmlFile != null) {
+                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                    }
                     if (assemblyArtifact != null) {
                         Element[] featureElems = new Element[4];
                         featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());

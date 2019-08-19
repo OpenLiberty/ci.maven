@@ -170,7 +170,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-                    <configFile>src/main/resources/server.xml</configFile>
+                    <serverXmlFile>src/main/resources/server.xml</serverXmlFile>
                     <packageFile>${project.build.directory}/WebsocketServerPackage.jar</packageFile>
                     <bootstrapProperties>
                         <default.http.port>9080</default.http.port>

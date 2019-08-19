@@ -74,6 +74,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
+          <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <installAppPackages>project</installAppPackages>
         </configuration>
         <executions>

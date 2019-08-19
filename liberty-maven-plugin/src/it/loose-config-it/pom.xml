@@ -69,7 +69,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>

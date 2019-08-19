@@ -4,13 +4,13 @@ Additional parameters shared by all server-based goals.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| configFile | Location of a server configuration file to be used by the instance. The default value is `${basedir}/src/test/resources/server.xml`. | No |
-| configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to target server. configDirectory files will take precedence over other common server parameters. The default value is `${basedir}/src/main/liberty/config`. | No |
-| bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. | No |
-| bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance. The default value is `${basedir}/src/test/resources/bootstrap.properties`. | No |
-| jvmOptions | List of JVM options for the server instance. | No |
-| jvmOptionsFile | Location of a JVM options file to be used by the instance. The default value is `${basedir}/src/test/resources/jvm.options`. | No |
-| serverEnv | Location of a server environment file to be used by the instance. The default value is `${basedir}/src/test/resources/server.env` | No |
+| serverXmlFile | Location of a server configuration file to be used by the instance.| No |
+| configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to target server. Other common server parameters, if specified, will take precedence over files located in the configDirectory.| No |
+| bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. If specified, this takes precedence over `bootstrapPropertiesFile`.| No |
+| bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance.| No |
+| jvmOptions | List of JVM options for the server instance. If specified, this takes precedence over `jvmOptionsFile`.| No |
+| jvmOptionsFile | Location of a JVM options file to be used by the instance.| No |
+| serverEnvFile | Location of a server environment file to be used by the instance.| No |
 
 Example:
 ```xml
@@ -27,7 +27,7 @@ Example:
             </goals>
             <configuration>
                 <configDirectory>${project.build.testOutputDirectory}/wlp/configDir</configDirectory>
-                <configFile>${project.build.testOutputDirectory}/wlp/server.xml</configFile>
+                <serverXmlFile>${project.build.testOutputDirectory}/wlp/server.xml</serverXml>
                 <bootstrapProperties>
                     <httpPort>8080</httpPort>
                 </bootstrapProperties>

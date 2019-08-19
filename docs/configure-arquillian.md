@@ -50,7 +50,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 			<type>zip</type>
 		</assemblyArtifact>
 		<assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-		<configFile>src/main/liberty/config/server.xml</configFile>
+		<serverXml>src/main/liberty/config/server.xml</serverXml>
 		<packageFile>${project.build.directory}/package.jar</packageFile>
 		<bootstrapProperties>
 			<default.http.port>9080</default.http.port>

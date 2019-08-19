@@ -172,7 +172,6 @@
             <version>RUNTIME_VERSION</version>
             <type>zip</type>
           </assemblyArtifact>
-          <configFile>src/main/liberty/config/server.xml</configFile>
           <packageFile>${package.file}</packageFile>
           <include>${packaging.type}</include>
           <bootstrapProperties>

@@ -19,19 +19,48 @@ import static junit.framework.Assert.*;
 public class PluginConfigXmlIT {
     
     public final String CONFIG_XML = "target/liberty-plugin-config.xml";
-    public final String SOURCE_BOOTSTRAP_PROPERTIES = "src/main/liberty/config/bootstrap.properties";
+    public final String SOURCE_BOOTSTRAP_PROPERTIES = "src/test/resources/bootstrap.properties";
     public final String TARGET_BOOTSTRAP_PROPERTIES = "target/liberty/usr/servers/test/bootstrap.properties";
-    public final String SOURCE_JVM_OPTIONS = "src/main/liberty/config/jvm.options";
+    public final String SOURCE_JVM_OPTIONS = "src/test/resources/jvm.options";
     public final String TARGET_JVM_OPTIONS = "target/liberty/usr/servers/test/jvm.options";
-    public final String SOURCE_SERVER_ENV = "src/main/liberty/config/server.env";
+    public final String SOURCE_SERVER_ENV = "src/test/resources/server.env";
     public final String TARGET_SERVER_ENV = "target/liberty/usr/servers/test/server.env";
-    public final String SOURCE_CONFIG_FILE = "src/main/liberty/config/server.xml";
+    public final String SOURCE_CONFIG_FILE = "src/test/resources/server.xml";
     public final String TARGET_CONFIG_FILE = "target/liberty/usr/servers/test/server.xml";
     
     @Test
     public void testConfigPropFileExist() throws Exception {
         File f = new File(CONFIG_XML);
         assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+    }
+    
+    @Test
+    public void testServerXmlFileElements() throws Exception {
+        File in = new File(CONFIG_XML);
+        FileInputStream input = new FileInputStream(in);
+        
+        // get input XML Document
+        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+        inputBuilderFactory.setIgnoringComments(true);
+        inputBuilderFactory.setCoalescing(true);
+        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+        inputBuilderFactory.setValidating(false);
+        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+        Document inputDoc = inputBuilder.parse(input);
+
+        // parse input XML Document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/liberty-plugin-config/configFile";
+        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of configFile element ==>", 1, nodes.getLength());
+               
+        expression = "/liberty-plugin-config/configFile/text()";
+        String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+        File f1 = new File(SOURCE_CONFIG_FILE);
+        File f2 = new File(nodeValue);
+        assertEquals("configFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
+        assertEquals("verify target server.xml", FileUtils.fileRead(f2),
+                FileUtils.fileRead(TARGET_CONFIG_FILE));
     }
     
     @Test

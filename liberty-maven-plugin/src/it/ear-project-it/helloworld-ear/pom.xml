@@ -54,7 +54,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>jee7sampleServer</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <looseApplication>true</looseApplication>
                 </configuration>
