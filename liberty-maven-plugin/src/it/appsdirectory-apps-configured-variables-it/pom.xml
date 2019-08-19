@@ -94,7 +94,7 @@
                 <id>create-liberty-server</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>create-server</goal>
+                    <goal>create</goal>
                 </goals>
             </execution>
             <execution>
@@ -112,7 +112,7 @@
                 <id>clean-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>clean-server</goal>
+                    <goal>clean</goal>
                 </goals>
                 <configuration>
                     <cleanDropins>true</cleanDropins>

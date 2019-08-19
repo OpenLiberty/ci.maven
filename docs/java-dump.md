@@ -1,6 +1,6 @@
-#### dump-server
+#### java-dump
 ---
-Dump diagnostic information from the server into an archive.
+Dump diagnostic information from the server JVM.
 
 ###### Additional Parameters
 
@@ -8,10 +8,8 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| archive | Location of the target archive file. | No |
 | systemDump | Include system dump information. The default value is `false`. | No |
 | heapDump | Include heap dump information. The default value is `false`. | No |
-| threadDump | Include thread dump information. The default value is `false`. | No |
 
 Example:
 ```xml
@@ -21,14 +19,14 @@ Example:
     <executions>
         ...
         <execution>
-            <id>dump-server</id>
+            <id>java-dump-server</id>
             <phase>post-integration-test</phase>
             <goals>
-                <goal>dump-server</goal>
+                <goal>java-dump</goal>
             </goals>
             <configuration>
-                <archive>${project.build.directory}/dump.zip</archive>
                 <heapDump>true</heapDump>
+                <systemDump>true</systemDump>
             </configuration>
         </execution>
         ...

@@ -1,4 +1,4 @@
-#### debug-server
+#### debug
 
 ----
 Start a Liberty server in debug mode. The server will listen on a specified debug port or `port 7777` by default.

@@ -1,4 +1,4 @@
-#### create-server
+#### create
 ---
 Create a Liberty server.
 
@@ -25,7 +25,7 @@ Example:
             <id>create-server</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>create-server</goal>
+                <goal>create</goal>
             </goals>
         </execution>
         ...

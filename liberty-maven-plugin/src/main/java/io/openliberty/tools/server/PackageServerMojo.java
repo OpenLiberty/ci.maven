@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Package a liberty server
  */
-@Mojo(name = "package-server", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     /**

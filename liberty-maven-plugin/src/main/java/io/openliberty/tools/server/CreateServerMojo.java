@@ -29,7 +29,7 @@ import net.wasdev.wlp.ant.ServerTask;
 /**
  * Create a liberty server
   */
-@Mojo(name = "create-server")
+@Mojo(name = "create")
 public class CreateServerMojo extends PluginConfigSupport {
 
     /**

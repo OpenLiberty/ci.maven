@@ -450,8 +450,8 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        log.info("Running goal: create-server");
-        runLibertyMavenPlugin("create-server", serverName, null);
+        log.info("Running goal: create");
+        runLibertyMavenPlugin("create", serverName, null);
         log.info("Running goal: install-feature");
         runLibertyMavenPlugin("install-feature", serverName, null);
         log.info("Running goal: install-apps");
@@ -698,7 +698,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     elements.add(element(name("stripVersion"), "true"));
                     elements.add(element(name("installAppPackages"), "project"));
                     elements.add(element(name("configFile"), configFile.getCanonicalPath()));
-                } else if (goal.equals("create-server")) {
+                } else if (goal.equals("create")) {
                     elements.add(element(name("configFile"), configFile.getCanonicalPath()));
                     if (assemblyArtifact != null) {
                         Element[] featureElems = new Element[4];

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Stop a liberty server
  */
-@Mojo(name = "stop-server")
+@Mojo(name = "stop")
 public class StopServerMojo extends StartDebugMojoSupport {
     
     /**

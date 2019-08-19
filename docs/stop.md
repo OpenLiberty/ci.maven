@@ -1,4 +1,4 @@
-#### stop-server
+#### stop
 ---
 Stop a Liberty server. The server instance must exist and must be running.
 
@@ -22,7 +22,7 @@ Example:
             <id>stop-server</id>
             <phase>post-integration-test</phase>
             <goals>
-                <goal>stop-server</goal>
+                <goal>stop</goal>
             </goals>
         </execution>
         ...

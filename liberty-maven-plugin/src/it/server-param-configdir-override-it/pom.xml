@@ -95,7 +95,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>

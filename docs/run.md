@@ -1,4 +1,4 @@
-#### run-server
+#### run
 ---
 Start a Liberty server in foreground. The server instance will be automatically created if it does not exist.
 **Note:** This goal is designed to be executed directly from the Maven command line.
@@ -27,5 +27,5 @@ Example:
 ```
 
 ```bash
-$ mvn liberty:run-server
+$ mvn liberty:run
 ```

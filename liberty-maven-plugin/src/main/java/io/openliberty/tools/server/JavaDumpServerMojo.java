@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Dump diagnostic information from the server JVM.
  */
-@Mojo(name = "java-dump-server")
+@Mojo(name = "java-dump")
 public class JavaDumpServerMojo extends StartDebugMojoSupport {
 
     /**

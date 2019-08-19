@@ -70,7 +70,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -90,7 +90,7 @@
                         <id>start-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>start-server</goal>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
                             <background>true</background>
@@ -101,7 +101,7 @@
                         <id>check-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>server-status</goal>
+                            <goal>status</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -151,14 +151,14 @@
                         <id>stop-liberty-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>clean-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>clean-server</goal>
+                            <goal>clean</goal>
                         </goals>
                         <configuration>
                             <cleanDropins>true</cleanDropins>
@@ -170,7 +170,7 @@
                         <!-- phase must be after integration tests since they create the "test" server -->
                         <phase>install</phase>
                         <goals>
-                            <goal>package-server</goal>
+                            <goal>package</goal>
                         </goals>
                         <configuration>
                             <packageFile>${project.build.directory}</packageFile>

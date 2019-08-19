@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2017.
+ * (C) Copyright IBM Corporation 2016, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,31 +22,31 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Clean the logs, workarea, dropins and apps directories.
  */
-@Mojo(name = "clean-server")
+@Mojo(name = "clean")
 public class CleanServerMojo extends StartDebugMojoSupport {
 
     /**
      * Clean the logs directory.
      */
-    @Parameter(alias = "logs", property = "cleanLogs", defaultValue = "true")
+    @Parameter(property = "cleanLogs", defaultValue = "true")
     private boolean cleanLogs = true;
 
     /**
      * Clean the workarea directory.
      */
-    @Parameter(alias = "workarea", property = "cleanWorkarea", defaultValue = "true")
+    @Parameter(property = "cleanWorkarea", defaultValue = "true")
     private boolean cleanWorkarea = true;
 
     /**
      * Clean the dropins directory.
      */
-    @Parameter(alias = "dropins", property = "cleanDropins", defaultValue = "false")
+    @Parameter(property = "cleanDropins", defaultValue = "false")
     private boolean cleanDropins = false;
 
     /**
      * Clean the apps directory.
      */
-    @Parameter(alias = "apps", property = "cleanApps", defaultValue = "false")
+    @Parameter(property = "cleanApps", defaultValue = "false")
     private boolean cleanApps = false;
 
     protected void doExecute() throws Exception {
