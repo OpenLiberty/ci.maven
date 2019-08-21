@@ -38,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
@@ -52,6 +53,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.custommonkey.xmlunit.DetailedDiff;
@@ -118,8 +122,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private ServerTask serverTask = null;
 
+    private boolean usingBoost = false;
+
     @Component
     private BuildPluginManager pluginManager;
+
+    @Component
+    protected ProjectBuilder mavenProjectBuilder;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
@@ -292,62 +301,71 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
-                    MavenProject updatedProject = loadProject(buildFile);
-                    List<Dependency> dependencies = updatedProject.getDependencies();
-                    log.debug("Dependencies size: " + dependencies.size());
-                    log.debug("Existing dependencies size: " + this.existingDependencies.size());
-
-                    List<String> dependencyIds = new ArrayList<String>();
-                    List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
-
-                    if (!updatedArtifacts.isEmpty()) {
-                        for (Artifact artifact : updatedArtifacts) {
-                            if (("esa").equals(artifact.getType())) {
-                                dependencyIds.add(artifact.getArtifactId());
-                            }
-
-                            org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
-                                    artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
-                                    artifact.getVersion());
-                            org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
-                                    aetherArtifact, null, true);
-
-                            CollectRequest collectRequest = new CollectRequest();
-                            collectRequest.setRoot(dependency);
-                            collectRequest.setRepositories(repositories);
-
-                            List<String> addToClassPath = new ArrayList<String>();
-                            DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-                            try {
-                                DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession,
-                                        depRequest);
-                                org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                                List<File> artifactsList = new ArrayList<File>();
-                                addArtifacts(root, artifactsList);
-                                for (File a : artifactsList) {
-                                    log.debug("Artifact: " + a);
-                                    if (a.getCanonicalPath().endsWith(".jar")) {
-                                        addToClassPath.add(a.getCanonicalPath());
-                                    }
-                                }
-                            } catch (DependencyResolutionException e) {
-                                throw new MojoExecutionException(e.getMessage(), e);
-                            }
-                            artifactPaths.addAll(addToClassPath);
-                        }
-
-                        if (!dependencyIds.isEmpty()) {
-                            runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
-                            dependencyIds.clear();
-                        }
-
-                        // update dependencies
-                        this.existingDependencies = dependencies;
+                    if (usingBoost) {
+                        log.info("Running boost:package");
+                        runBoostMojo("package", true);
                         this.existingPom = modifiedPom;
-
                         return true;
                     } else {
-                        log.info("Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                        MavenProject updatedProject = loadProject(buildFile);
+                        List<Dependency> dependencies = updatedProject.getDependencies();
+                        log.debug("Dependencies size: " + dependencies.size());
+                        log.debug("Existing dependencies size: " + this.existingDependencies.size());
+
+                        List<String> dependencyIds = new ArrayList<String>();
+                        List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
+
+                        if (!updatedArtifacts.isEmpty()) {
+
+                            for (Artifact artifact : updatedArtifacts) {
+                                if (("esa").equals(artifact.getType())) {
+                                    dependencyIds.add(artifact.getArtifactId());
+                                }
+
+                                org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
+                                        artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
+                                        artifact.getVersion());
+                                org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
+                                        aetherArtifact, null, true);
+
+                                CollectRequest collectRequest = new CollectRequest();
+                                collectRequest.setRoot(dependency);
+                                collectRequest.setRepositories(repositories);
+
+                                List<String> addToClassPath = new ArrayList<String>();
+                                DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
+                                try {
+                                    DependencyResult dependencyResult = repositorySystem
+                                            .resolveDependencies(repoSession, depRequest);
+                                    org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
+                                    List<File> artifactsList = new ArrayList<File>();
+                                    addArtifacts(root, artifactsList);
+                                    for (File a : artifactsList) {
+                                        log.debug("Artifact: " + a);
+                                        if (a.getCanonicalPath().endsWith(".jar")) {
+                                            addToClassPath.add(a.getCanonicalPath());
+                                        }
+                                    }
+                                } catch (DependencyResolutionException e) {
+                                    throw new MojoExecutionException(e.getMessage(), e);
+                                }
+                                artifactPaths.addAll(addToClassPath);
+                            }
+
+                            if (!dependencyIds.isEmpty()) {
+                                runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
+                                dependencyIds.clear();
+                            }
+
+                            // update dependencies
+                            this.existingDependencies = dependencies;
+                            this.existingPom = modifiedPom;
+
+                            return true;
+                        } else {
+                            log.info(
+                                    "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                        }
                     }
                 }
 
@@ -439,15 +457,22 @@ public class DevMojo extends StartDebugMojoSupport {
         if (project.getPackaging().equals("ear")) {
             skipUTs = true;
         }
-        
+
+        // Check if this is a Boost application
+        Plugin boostPlugin = project.getPlugin("boost:boost-maven-plugin");
+        if (boostPlugin != null) {
+            usingBoost = true;
+        }
+
         // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
-            File sRunning = new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning");
+            File sRunning = new File(serverDirectory.getCanonicalPath() + "/workarea/.sRunning");
             if (sRunning.exists()) {
-                throw new MojoExecutionException("The server " + serverName + " is already running. Terminate all instances of the server before starting dev mode.");
+                throw new MojoExecutionException("The server " + serverName
+                        + " is already running. Terminate all instances of the server before starting dev mode.");
             }
         }
-        
+
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
@@ -475,13 +500,18 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        log.info("Running goal: create");
-        runLibertyMavenPlugin("create", serverName, null);
-        log.info("Running goal: install-feature");
-        runLibertyMavenPlugin("install-feature", serverName, null);
-        log.info("Running goal: install-apps");
-        runLibertyMavenPlugin("install-apps", serverName, null);
-        
+        if (usingBoost) {
+            log.info("Running boost:package");
+            runBoostMojo("package", false);
+        } else {
+            log.info("Running goal: create");
+            runLibertyMavenPlugin("create", serverName, null);
+            log.info("Running goal: install-feature");
+            runLibertyMavenPlugin("install-feature", serverName, null);
+            log.info("Running goal: install-apps");
+            runLibertyMavenPlugin("install-apps", serverName, null);
+        }
+
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {
@@ -508,7 +538,8 @@ public class DevMojo extends StartDebugMojoSupport {
         List<String> artifactPaths = util.getArtifacts();
 
         if (hotTests && testSourceDirectory.exists()) {
-            // if hot testing, run tests on startup and then watch for keypresses
+            // if hot testing, run tests on startup and then watch for
+            // keypresses
             util.runTestThread(false, executor, -1, false, false);
         } else {
             // else watch for keypresses immediately
@@ -517,9 +548,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // pom.xml
         File pom = project.getFile();
-        
-        // Note that serverXmlFile can be null. DevUtil will automatically watch all files in the configDirectory,
-        // which is where the server.xml is located if a specific serverXmlFile configuration parameter is not specified.
+
+        // Note that serverXmlFile can be null. DevUtil will automatically watch
+        // all files in the configDirectory,
+        // which is where the server.xml is located if a specific serverXmlFile
+        // configuration parameter is not specified.
         util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
     }
 
@@ -589,7 +622,7 @@ public class DevMojo extends StartDebugMojoSupport {
         } else if (phase.equals("failsafe-report-only")) {
             Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
             Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
-            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
+            Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -601,13 +634,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (linkXRef == null) {
                     linkXRef = new Xpp3Dom("linkXRef");
                 }
-            } 
+            }
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         } else if (phase.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
             Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
-            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
+            Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -627,23 +660,25 @@ public class DevMojo extends StartDebugMojoSupport {
 
         executeMojo(plugin, goal(phase), config, executionEnvironment(project, session.clone(), pluginManager));
     }
-    
+
     /**
      * Given the groupId and artifactId get the corresponding plugin
+     * 
      * @param groupId
      * @param artifactId
      * @return Plugin
      */
-    private Plugin getPlugin(String groupId, String artifactId){
+    private Plugin getPlugin(String groupId, String artifactId) {
         Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
     }
-    
+
     /**
      * Given the Plugin get the Xpp3Dom configuration
+     * 
      * @param plugin
      * @param phase
      * @return configuration specified in pom.xml
@@ -655,11 +690,11 @@ public class DevMojo extends StartDebugMojoSupport {
         for (Plugin p : buildPlugins) {
             if (p.equals(plugin)) {
                 config = (Xpp3Dom) p.getConfiguration();
-                
+
                 PluginExecution pluginExecution = null;
                 Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
 
-                String[] defaultExecutionIds = new String[]{ "default-" + phase, phase, "default" };
+                String[] defaultExecutionIds = new String[] { "default-" + phase, phase, "default" };
                 for (String executionId : defaultExecutionIds) {
                     pluginExecution = peMap.get(executionId);
                     if (pluginExecution != null) {
@@ -696,8 +731,10 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Add Liberty system properties for tests to consume.
      *
-     * @param config The configuration element
-     * @throws MojoExecutionException if the userDirectory canonical path cannot be resolved
+     * @param config
+     *            The configuration element
+     * @throws MojoExecutionException
+     *             if the userDirectory canonical path cannot be resolved
      */
     private void injectLibertyProperties(Xpp3Dom config) throws MojoExecutionException {
         Xpp3Dom sysProps = config.getChild("systemPropertyVariables");
@@ -716,7 +753,9 @@ public class DevMojo extends StartDebugMojoSupport {
         try {
             addDomPropertyIfNotFound(sysProps, WLP_USER_DIR_PROPERTY_NAME, userDirectory.getCanonicalPath());
         } catch (IOException e) {
-            throw new MojoExecutionException("Could not resolve canonical path of userDirectory parameter: " + userDirectory.getAbsolutePath(), e);
+            throw new MojoExecutionException(
+                    "Could not resolve canonical path of userDirectory parameter: " + userDirectory.getAbsolutePath(),
+                    e);
         }
     }
 
@@ -739,8 +778,9 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                     elements.add(element(name("features"), featureElems));
                 } else if (goal.equals("install-apps")) {
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
-                        LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "install-apps", "appsDirectory");
+                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project,
+                            LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "install-apps",
+                            "appsDirectory");
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }
@@ -770,17 +810,20 @@ public class DevMojo extends StartDebugMojoSupport {
         return elements.toArray(new Element[elements.size()]);
     }
 
-    private void runLibertyMavenPlugin(String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
+    private void runLibertyMavenPlugin(String goal, String serverName, List<String> dependencies)
+            throws MojoExecutionException {
         // use LATEST so that snapshot and milestones are included
-        runMojo(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST", goal, serverName, dependencies);
+        runMojo(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST", goal, serverName,
+                dependencies);
     }
 
-    private void runMojo(String groupId, String artifactId, String goal, String serverName, List<String> dependencies) throws MojoExecutionException {
+    private void runMojo(String groupId, String artifactId, String goal, String serverName, List<String> dependencies)
+            throws MojoExecutionException {
         runMojo(groupId, artifactId, "RELEASE", goal, serverName, dependencies);
     }
 
-    private void runMojo(String groupId, String artifactId, String defaultVersion, String goal, String serverName, List<String> dependencies)
-            throws MojoExecutionException {
+    private void runMojo(String groupId, String artifactId, String defaultVersion, String goal, String serverName,
+            List<String> dependencies) throws MojoExecutionException {
         Plugin mavenPlugin = project.getPlugin(Plugin.constructKey(groupId, artifactId));
         if (mavenPlugin == null) {
             mavenPlugin = plugin(groupId(groupId), artifactId(artifactId), version(defaultVersion));
@@ -789,6 +832,29 @@ public class DevMojo extends StartDebugMojoSupport {
         executeMojo(mavenPlugin, goal(goal),
                 configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
                 executionEnvironment(project, session, pluginManager));
+    }
+
+    private void runBoostMojo(String goal, boolean rebuildProject)
+            throws MojoExecutionException, ProjectBuildingException {
+
+        Plugin boostPlugin = project.getPlugin(Plugin.constructKey("boost", "boost-maven-plugin"));
+
+        MavenProject boostProject = this.project;
+        MavenSession boostSession = this.session;
+
+        if (rebuildProject) {
+            // Reload pom
+            File pomFile = new File(project.getFile().getAbsolutePath());
+            ProjectBuildingResult build = mavenProjectBuilder.build(pomFile,
+                    session.getProjectBuildingRequest().setResolveDependencies(true));
+            boostProject = build.getProject();
+            boostSession.setCurrentProject(boostProject);
+        }
+
+        log.debug("plugin version: " + boostPlugin.getVersion());
+        executeMojo(boostPlugin, goal(goal), configuration(),
+                executionEnvironment(boostProject, boostSession, pluginManager));
+
     }
 
     private static MavenProject loadProject(File pomFile) throws IOException, XmlPullParserException {
