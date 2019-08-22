@@ -80,7 +80,12 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
 
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
+    private static final String LIBERTY_HOSTNAME = "liberty.hostname";
+    private static final String LIBERTY_HTTP_PORT = "liberty.http.port";
+    private static final String LIBERTY_HTTPS_PORT = "liberty.https.port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
+
+    DevMojoUtil util = null;
 
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
@@ -474,7 +479,7 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        DevMojoUtil util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         util.addShutdownHook(executor);
         util.enableServerDebug(libertyDebugPort);
         util.startServer(serverStartTimeout, verifyTimeout);
@@ -666,13 +671,19 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(sysProps);
         }
         // don't overwrite existing properties if they are already defined
-        if (sysProps.getChild(WLP_USER_DIR_PROPERTY_NAME) == null) {
-            // pass in userDirectory parameter
-            try {
-                sysProps.addChild(element(name(WLP_USER_DIR_PROPERTY_NAME), userDirectory.getCanonicalPath()).toDom());
-            } catch (IOException e) {
-                throw new MojoExecutionException("Could not resolve canonical path of userDirectory parameter: " + userDirectory.getAbsolutePath(), e);
-            }
+        addDomPropertyIfNotFound(sysProps, LIBERTY_HOSTNAME, util.getHostName());
+        addDomPropertyIfNotFound(sysProps, LIBERTY_HTTP_PORT, util.getHttpPort());
+        addDomPropertyIfNotFound(sysProps, LIBERTY_HTTPS_PORT, util.getHttpsPort());
+        try {
+            addDomPropertyIfNotFound(sysProps, WLP_USER_DIR_PROPERTY_NAME, userDirectory.getCanonicalPath());
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not resolve canonical path of userDirectory parameter: " + userDirectory.getAbsolutePath(), e);
+        }
+    }
+
+    private void addDomPropertyIfNotFound(Xpp3Dom sysProps, String key, String value) {
+        if (sysProps.getChild(key) == null && value != null) {
+            sysProps.addChild(element(name(key), value).toDom());
         }
     }
 

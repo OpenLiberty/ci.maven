@@ -42,3 +42,6 @@ Integration tests can read the following system properties to obtain information
 | Property | Description |
 | --------  | ----------- |
 | wlp.user.dir | The user directory location that contains server definitions and shared resources. |
+| liberty.hostname | The host name of the Liberty server. |
+| liberty.http.port | The port used for client HTTP requests. |
+| liberty.https.port | The port used for client HTTP requests secured with SSL (https). |
