@@ -99,7 +99,10 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "skipITs", defaultValue = "false")
     private boolean skipITs;
 
-    @Parameter(property = "liberty.debug.port", defaultValue = "7777")
+    @Parameter(property = "debug", defaultValue = "true")
+    private boolean libertyDebug;
+
+    @Parameter(property = "debug.port", defaultValue = "7777")
     private int libertyDebugPort;
 
     private int runId = 0;
@@ -236,7 +239,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public ServerTask getDebugServerTask() throws IOException {
+        public ServerTask getServerTask() throws IOException {
             if (serverTask != null) {
                 return serverTask;
             } else {
@@ -244,7 +247,11 @@ public class DevMojo extends StartDebugMojoSupport {
                 serverTask = initializeJava();
                 copyConfigFiles();
                 serverTask.setClean(clean);
-                serverTask.setOperation("debug");
+                if (libertyDebug) {
+                    serverTask.setOperation("debug");
+                } else {
+                    serverTask.setOperation("run");
+                }
                 return serverTask;
             }
         }
