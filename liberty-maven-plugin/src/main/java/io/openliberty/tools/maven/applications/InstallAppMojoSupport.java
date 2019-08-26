@@ -27,9 +27,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.w3c.dom.Element;
 
+import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.ant.SpringBootUtilTask;
 import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
 import net.wasdev.wlp.common.plugins.config.LooseApplication;
 import net.wasdev.wlp.common.plugins.config.LooseConfigData;

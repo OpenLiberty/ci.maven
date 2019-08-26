@@ -17,9 +17,10 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
-import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Dump diagnostic information from the server JVM.

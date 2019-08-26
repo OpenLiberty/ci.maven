@@ -24,8 +24,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
+import io.openliberty.tools.ant.DeployTask;
 import io.openliberty.tools.maven.BasicSupport;
-import net.wasdev.wlp.ant.DeployTask;
 
 /**
  * Deploy application to liberty server

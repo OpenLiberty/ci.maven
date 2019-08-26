@@ -15,9 +15,10 @@
  */
 package io.openliberty.tools.maven.server;
 
-import net.wasdev.wlp.ant.CleanTask;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import io.openliberty.tools.ant.CleanTask;
 
 /**
  * Clean the logs, workarea, dropins and apps directories.

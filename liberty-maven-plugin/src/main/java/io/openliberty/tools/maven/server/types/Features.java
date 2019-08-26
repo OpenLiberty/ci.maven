@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
+import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 
 /**
  * A class to store a set of features and the install configuration.

@@ -15,8 +15,6 @@
  */
 package io.openliberty.tools.maven.server;
 
-import net.wasdev.wlp.ant.UninstallFeatureTask;
-
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,6 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import io.openliberty.tools.ant.UninstallFeatureTask;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.server.types.Features;
 

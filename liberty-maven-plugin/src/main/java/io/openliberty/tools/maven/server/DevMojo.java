@@ -62,8 +62,8 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
+import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
 import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
 import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
