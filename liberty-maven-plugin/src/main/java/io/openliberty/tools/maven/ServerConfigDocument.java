@@ -446,22 +446,11 @@ public class ServerConfigDocument {
         }
     }
 
-    /*
-     * Get the file from configDrectory if it exists; otherwise return def only
-     * if it exists, or null if not
-     */
-    private static File getFileFromConfigDirectory(String file, File def) {
+    private static File getFileFromConfigDirectory(String file) {
         File f = new File(configDirectory, file);
         if (configDirectory != null && f.exists()) {
             return f;
         }
-        if (def != null && def.exists()) {
-            return def;
-        }
         return null;
-    }
-
-    private static File getFileFromConfigDirectory(String file) {
-        return getFileFromConfigDirectory(file, null);
     }
 }

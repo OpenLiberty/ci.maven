@@ -42,7 +42,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of customized configuration file server.xml
      */
-    @Parameter(property = "serverXmlFile")
+    @Parameter(alias="configFile", property = "serverXmlFile")
     protected File serverXmlFile;
 
     /**

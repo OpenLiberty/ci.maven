@@ -101,22 +101,32 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("serverName", serverName);
         configDocument.createElement("configDirectory", configDirectory);
 
-        if (findConfigFile("server.xml", serverXmlFile) != null) {
-            configDocument.createElement("configFile", findConfigFile("server.xml", serverXmlFile));
+        File configFile = findConfigFile("server.xml", serverXmlFile);
+        if (configFile != null) {
+            configDocument.createElement("configFile", configFile);
         }
+
         if (bootstrapProperties != null) {
             configDocument.createElement("bootstrapProperties", bootstrapProperties);
-        } else if (findConfigFile("bootstrap.properties", bootstrapPropertiesFile) != null) {
-            configDocument.createElement("bootstrapPropertiesFile",
-                    findConfigFile("bootstrap.properties", bootstrapPropertiesFile));
+        } else {
+            configFile = findConfigFile("bootstrap.properties", bootstrapPropertiesFile);
+            if (configFile != null) {
+                configDocument.createElement("bootstrapPropertiesFile", configFile);
+            }
         }
+
         if (jvmOptions != null) {
             configDocument.createElement("jvmOptions", jvmOptions);
-        } else if (findConfigFile("jvm.options", jvmOptionsFile) != null) {
-            configDocument.createElement("jvmOptionsFile", findConfigFile("jvm.options", jvmOptionsFile));
+        } else {
+            configFile = findConfigFile("jvm.options", jvmOptionsFile);
+            if (configFile != null) {
+                configDocument.createElement("jvmOptionsFile", configFile);
+            }
         }
-        if (findConfigFile("server.env", serverEnvFile) != null) {
-            configDocument.createElement("serverEnv", findConfigFile("server.env", serverEnvFile));
+
+        configFile = findConfigFile("server.env", serverEnvFile);
+        if (configFile != null) {
+            configDocument.createElement("serverEnv", configFile);
         }
 
         configDocument.createElement("appsDirectory", getAppsDirectory());
@@ -159,8 +169,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     /*
-     * Get the file from specificFile if it exists; otherwise return file from configDirectory only
-     * if it exists, or null if not
+     * Return specificFile if it exists; otherwise return the file with the requested fileName from the 
+     * configDirectory, but only if it exists. Null is returned if the file does not exist in either location.
      */
     protected File findConfigFile(String fileName, File specificFile) {
         if (specificFile != null && specificFile.exists()) {
@@ -177,7 +187,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /*
      * Get the file from configDrectory if it exists; otherwise return def only
      * if it exists, or null if not
-     */
+     *
     protected File getFileFromConfigDirectory(String file, File def) {
         File f = new File(configDirectory, file);
         if (configDirectory != null && f.exists()) {
@@ -193,7 +203,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         return getFileFromConfigDirectory(file, null);
     }
 
-    /*
+    *
      * return the filename of the project artifact to be installed by
      * install-apps goal
      */

@@ -47,10 +47,10 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <configDirectory>src/main/liberty/config</configDirectory>
-                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
+                    <configFile>src/test/resources/server.xml</configFile>
                     <bootstrapPropertiesFile>src/test/resources/bootstrap.properties</bootstrapPropertiesFile>
                     <jvmOptionsFile>src/test/resources/jvm.options</jvmOptionsFile>
-                    <serverEnvFile>src/test/resources/server.env</serverEnvFile>
+                    <serverEnv>src/test/resources/server.env</serverEnv>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>

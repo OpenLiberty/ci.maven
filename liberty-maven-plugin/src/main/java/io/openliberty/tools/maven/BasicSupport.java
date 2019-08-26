@@ -160,7 +160,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Location of customized server environment file server.env
      */
-    @Parameter(property = "serverEnvFile")
+    @Parameter(alias="serverEnv", property = "serverEnvFile")
     protected File serverEnvFile;
 
     @Override
