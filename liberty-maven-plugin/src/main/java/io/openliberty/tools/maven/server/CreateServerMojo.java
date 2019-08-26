@@ -24,7 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 
-import net.wasdev.wlp.ant.ServerTask;
+import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Create a liberty server

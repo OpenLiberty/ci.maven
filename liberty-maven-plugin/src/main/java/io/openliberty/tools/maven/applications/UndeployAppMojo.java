@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import net.wasdev.wlp.ant.UndeployTask;
-
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.artifact.Artifact;
@@ -28,6 +26,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.tools.ant.types.PatternSet;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
+import io.openliberty.tools.ant.UndeployTask;
 import io.openliberty.tools.maven.BasicSupport;
 
 /**

@@ -23,11 +23,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
-import net.wasdev.wlp.ant.ServerTask;
-
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 
+import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.BasicSupport;
 
 import org.apache.maven.plugins.annotations.Parameter;

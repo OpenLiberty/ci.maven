@@ -27,8 +27,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import net.wasdev.wlp.ant.install.InstallLibertyTask;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -42,6 +40,8 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 
+import io.openliberty.tools.ant.install.InstallLibertyTask;
+
 /**
  * Basic Liberty Mojo Support
  * 
@@ -52,7 +52,7 @@ public class BasicSupport extends AbstractLibertySupport {
     //Note these next two are regular expressions, not just the code.
     protected static final String START_APP_MESSAGE_REGEXP = "CWWKZ0001I.*";
 
-    protected static final ResourceBundle messages = ResourceBundle.getBundle("io.openliberty.tools.MvnMessages");
+    protected static final ResourceBundle messages = ResourceBundle.getBundle("io.openliberty.tools.maven.MvnMessages");
 
     /**
      * Skips the specific goal
