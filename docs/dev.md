@@ -20,7 +20,12 @@ $ mvn liberty:dev -DhotTests=true
 
 Start dev mode and listen on a specific port for attaching a debugger (default is 7777).
 ```
-$ mvn liberty:dev -Dliberty.debug.port=8787
+$ mvn liberty:dev -Ddebug.port=8787
+```
+
+Start dev mode without allowing to attach a debugger.
+```
+$ mvn liberty:dev -Ddebug=false
 ```
 
 ###### Additional Parameters
@@ -33,7 +38,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | skipTests | If set to `true`, do not run any tests in dev mode. The default value is `false`. | No |
 | skipUTs | If set to `true`, skip unit tests. The default value is `false`. | No |
 | skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
-| liberty.debug.port | The debug port that you can attach a debugger to. The default value is `7777`. | No |
+| debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
+| debug.port | The debug port that you can attach a debugger to. The default value is `7777`. | No |
 
 ###### System Properties for Integration Tests
 
@@ -42,3 +48,6 @@ Integration tests can read the following system properties to obtain information
 | Property | Description |
 | --------  | ----------- |
 | wlp.user.dir | The user directory location that contains server definitions and shared resources. |
+| liberty.hostname | The host name of the Liberty server. |
+| liberty.http.port | The port used for client HTTP requests. |
+| liberty.https.port | The port used for client HTTP requests secured with SSL (https). |

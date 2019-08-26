@@ -12,12 +12,12 @@
 
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven</artifactId>
-    <version>3.1.M1-SNAPSHOT</version>
+    <version>3.0-M2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Liberty Tools for Maven</name>
     <description>
         Parent pom for Maven tools supporting development with 
-        Websphere and Open Liberty
+        Websphere Liberty and Open Liberty
     </description>
     <url>https://github.com/OpenLiberty/ci.maven</url>
 
