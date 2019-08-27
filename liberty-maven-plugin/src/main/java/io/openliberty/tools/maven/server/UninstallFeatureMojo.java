@@ -61,7 +61,7 @@ public class UninstallFeatureMojo extends BasicSupport {
         }
 
         UninstallFeatureTask uninstallFeatureTask = (UninstallFeatureTask) ant
-                .createTask("antlib:net/wasdev/wlp/ant:uninstall-feature");
+                .createTask("antlib:io/openliberty/tools/ant:uninstall-feature");
 
         if (uninstallFeatureTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "uninstall-feature"));

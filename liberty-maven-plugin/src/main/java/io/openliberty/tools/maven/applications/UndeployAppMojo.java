@@ -79,7 +79,7 @@ public class UndeployAppMojo extends BasicSupport {
         checkServerDirectoryExists();
         
         UndeployTask undeployTask = (UndeployTask) ant
-                .createTask("antlib:net/wasdev/wlp/ant:undeploy");
+                .createTask("antlib:io/openliberty/tools/ant:undeploy");
         
         if (undeployTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "undeploy"));

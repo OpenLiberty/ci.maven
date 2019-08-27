@@ -359,7 +359,7 @@ public class BasicSupport extends AbstractLibertySupport {
     }
 
     protected void installFromArchive() throws Exception {
-        InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:net/wasdev/wlp/ant:install-liberty");
+        InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:io/openliberty/tools/ant:install-liberty");
         if (installTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-liberty"));
         }
