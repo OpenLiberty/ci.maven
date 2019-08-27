@@ -406,7 +406,6 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
             try {
-                runMojo("org.apache.maven.plugins", "maven-war-plugin", "war", null, null);
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
                 runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only");
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
