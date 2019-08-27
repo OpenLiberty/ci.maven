@@ -581,12 +581,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = failsafeConfig.getChild("linkXRef");
-                if (linkXRef == null) {
-                    linkXRef = new Xpp3Dom("linkXRef");
-                }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
             }
         } else if (phase.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
@@ -598,12 +592,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = surefireConfig.getChild("linkXRef");
-                if (linkXRef == null) {
-                    linkXRef = new Xpp3Dom("linkXRef");
-                }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
             }
         }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
