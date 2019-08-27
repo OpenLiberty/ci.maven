@@ -63,7 +63,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected List<String> jvmOptions;
 
     protected ServerTask initializeJava() {
-        ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
+        ServerTask serverTask = (ServerTask) ant.createTask("antlib:io/openliberty/tools/ant:server");
         if (serverTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "server"));
         }

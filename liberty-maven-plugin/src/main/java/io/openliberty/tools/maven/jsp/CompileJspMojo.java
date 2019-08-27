@@ -41,7 +41,7 @@ public class CompileJspMojo extends BasicSupport {
 
     @Override
     protected void doExecute() throws Exception {
-        CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:net/wasdev/wlp/ant:compileJSPs");
+        CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:io/openliberty/tools/ant:compileJSPs");
         if (compile == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
         }

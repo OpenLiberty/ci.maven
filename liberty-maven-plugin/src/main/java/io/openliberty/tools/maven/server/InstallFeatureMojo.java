@@ -174,7 +174,7 @@ public class InstallFeatureMojo extends BasicSupport {
     @SuppressWarnings("deprecation")
     private void installFeaturesFromAnt(List<Feature> installFeatures) {
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
-                .createTask("antlib:net/wasdev/wlp/ant:install-feature");
+                .createTask("antlib:io/openliberty/tools/ant:install-feature");
 
         if (installFeatureTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-feature"));

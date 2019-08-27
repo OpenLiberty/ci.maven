@@ -272,7 +272,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     protected void invokeSpringBootUtilCommand(File installDirectory, String fatArchiveSrcLocation,
             String thinArchiveTargetLocation, String libIndexCacheTargetLocation) throws Exception {
         SpringBootUtilTask springBootUtilTask = (SpringBootUtilTask) ant
-                .createTask("antlib:net/wasdev/wlp/ant:springBootUtil");
+                .createTask("antlib:io/openliberty/tools/ant:springBootUtil");
         if (springBootUtilTask == null) {
             throw new IllegalStateException(
                     MessageFormat.format(messages.getString("error.dependencies.not.found"), "springBootUtil"));

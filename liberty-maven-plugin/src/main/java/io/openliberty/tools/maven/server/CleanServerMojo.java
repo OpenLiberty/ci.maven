@@ -55,7 +55,7 @@ public class CleanServerMojo extends StartDebugMojoSupport {
             return;
         }
         
-        CleanTask cleanTask = (CleanTask) ant.createTask("antlib:net/wasdev/wlp/ant:clean");
+        CleanTask cleanTask = (CleanTask) ant.createTask("antlib:io/openliberty/tools/ant:clean");
         cleanTask.setInstallDir(installDirectory);
         cleanTask.setServerName(serverName);
         cleanTask.setUserDir(userDirectory);
