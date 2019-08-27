@@ -16,8 +16,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.wasdev.wlp.ant</groupId>
-            <artifactId>wlp-anttasks</artifactId>
+            <groupId>io.openliberty.tools</groupId>
+            <artifactId>liberty-ant-tasks</artifactId>
             <version>1.9-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -62,7 +62,7 @@
             <version>0.0.7</version>
         </dependency>
         <dependency>
-            <groupId>net.wasdev.wlp.common</groupId>
+            <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
             <version>1.5-SNAPSHOT</version>
         </dependency>
