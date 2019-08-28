@@ -426,6 +426,11 @@ public class DevMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
+
+        // skip unit tests for ear packaging
+        if (project.getPackaging().equals("ear")) {
+            skipUTs = true;
+        }
         
         // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
