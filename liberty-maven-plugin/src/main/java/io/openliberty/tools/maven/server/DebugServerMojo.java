@@ -20,7 +20,7 @@ import java.text.MessageFormat;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import net.wasdev.wlp.ant.ServerTask;
+import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Start a liberty server in debug mode

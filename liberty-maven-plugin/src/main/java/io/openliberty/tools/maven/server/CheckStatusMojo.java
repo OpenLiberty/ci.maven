@@ -17,8 +17,9 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
-import net.wasdev.wlp.ant.ServerTask;
 import org.apache.maven.plugins.annotations.Mojo;
+
+import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Check a liberty server status

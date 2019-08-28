@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import net.wasdev.wlp.ant.ServerTask;
+import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Package a liberty server

@@ -26,10 +26,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import io.openliberty.tools.ant.InstallFeatureTask;
+import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.server.types.Features;
-import net.wasdev.wlp.ant.FeatureManagerTask.Feature;
-import net.wasdev.wlp.ant.InstallFeatureTask;
 import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
 import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
 import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
@@ -174,7 +174,7 @@ public class InstallFeatureMojo extends BasicSupport {
     @SuppressWarnings("deprecation")
     private void installFeaturesFromAnt(List<Feature> installFeatures) {
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
-                .createTask("antlib:net/wasdev/wlp/ant:install-feature");
+                .createTask("antlib:io/openliberty/tools/ant:install-feature");
 
         if (installFeatureTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-feature"));

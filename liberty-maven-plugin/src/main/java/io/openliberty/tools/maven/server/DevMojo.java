@@ -62,8 +62,8 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
+import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.ant.ServerTask;
 import net.wasdev.wlp.common.plugins.util.DevUtil;
 import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
 import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
@@ -426,6 +426,11 @@ public class DevMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
+
+        // skip unit tests for ear packaging
+        if (project.getPackaging().equals("ear")) {
+            skipUTs = true;
+        }
         
         // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
@@ -557,7 +562,7 @@ public class DevMojo extends StartDebugMojoSupport {
             // clean up previous summary file
             File summaryFile = null;
             Xpp3Dom summaryFileElement = config.getChild("summaryFile");
-            if (summaryFileElement != null) {
+            if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
                 summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
@@ -576,6 +581,7 @@ public class DevMojo extends StartDebugMojoSupport {
         } else if (phase.equals("failsafe-report-only")) {
             Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
             Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
+            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -583,16 +589,17 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = failsafeConfig.getChild("linkXRef");
+                linkXRef = failsafeConfig.getChild("linkXRef");
                 if (linkXRef == null) {
                     linkXRef = new Xpp3Dom("linkXRef");
                 }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
-            }
+            } 
+            linkXRef.setValue("false");
+            config.addChild(linkXRef);
         } else if (phase.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
             Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
+            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -600,13 +607,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = surefireConfig.getChild("linkXRef");
+                linkXRef = surefireConfig.getChild("linkXRef");
                 if (linkXRef == null) {
                     linkXRef = new Xpp3Dom("linkXRef");
                 }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
             }
+            linkXRef.setValue("false");
+            config.addChild(linkXRef);
         }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 

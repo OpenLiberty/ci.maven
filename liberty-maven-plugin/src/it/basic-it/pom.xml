@@ -58,6 +58,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
+                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <!--Testing to ensure passing an empty/null value does not fail-->
                     <bootstrapProperties>
                         <emptyVal_1></emptyVal_1>

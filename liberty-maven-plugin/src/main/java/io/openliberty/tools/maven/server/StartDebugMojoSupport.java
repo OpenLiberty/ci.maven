@@ -23,11 +23,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
-import net.wasdev.wlp.ant.ServerTask;
-
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 
+import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.BasicSupport;
 
 import org.apache.maven.plugins.annotations.Parameter;
@@ -64,7 +63,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected List<String> jvmOptions;
 
     protected ServerTask initializeJava() {
-        ServerTask serverTask = (ServerTask) ant.createTask("antlib:net/wasdev/wlp/ant:server");
+        ServerTask serverTask = (ServerTask) ant.createTask("antlib:io/openliberty/tools/ant:server");
         if (serverTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "server"));
         }

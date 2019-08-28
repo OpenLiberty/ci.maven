@@ -24,8 +24,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
+import io.openliberty.tools.ant.DeployTask;
 import io.openliberty.tools.maven.BasicSupport;
-import net.wasdev.wlp.ant.DeployTask;
 
 /**
  * Deploy application to liberty server
@@ -84,7 +84,7 @@ public class DeployAppMojo extends BasicSupport {
         }
 
         log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
-        DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
+        DeployTask deployTask = (DeployTask) ant.createTask("antlib:io/openliberty/tools/ant:deploy");
         if (deployTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
         }
