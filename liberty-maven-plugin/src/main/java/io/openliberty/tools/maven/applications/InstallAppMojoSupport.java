@@ -23,8 +23,10 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.SpringBootUtilTask;
@@ -34,10 +36,38 @@ import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
+import net.wasdev.wlp.ant.DeployTask;
+import net.wasdev.wlp.ant.SpringBootUtilTask;
+
 /**
  * Install artifact into Liberty server support.
  */
 public class InstallAppMojoSupport extends PluginConfigSupport {
+    /**
+     * A file which points to a specific module's war | ear | eba | zip archive location
+     */
+    @Parameter(property = "appArchive")
+    protected File appArchive;
+
+    /**
+     * Maven coordinates of an application to deploy. This is best listed as a dependency,
+     * in which case the version can be omitted.
+     */
+    @Parameter
+    protected ArtifactItem appArtifact;
+
+    /**
+     * Timeout to verify deploy successfully, in seconds.
+     */
+    @Parameter(property = "timeout", defaultValue = "40")
+    protected int timeout = 40;
+    
+    /**
+     *  The file name of the deployed application in the `dropins` directory.
+     */
+    @Parameter(property = "appDeployName")
+    protected String appDeployName;
+
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
@@ -77,6 +107,44 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         // autoExpand="true"/>
         deleteApplication(new File(serverDirectory, "apps/expanded"), artifact.getFile());
         copyFile.execute();
+    }
+
+    protected void deployApp() throws Exception {
+        if (appArchive != null && appArtifact != null) {
+            throw new MojoExecutionException(messages.getString("error.app.set.twice"));
+        }
+
+        if (appArtifact != null) {
+            Artifact artifact = getArtifact(appArtifact);
+            appArchive = artifact.getFile();
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
+        } else if (appArchive != null) {
+            log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
+        } else if (project.getArtifact() != null) {
+            appArchive = project.getArtifact().getFile();
+        } else {
+            throw new MojoExecutionException("Could not deploy application. No appArchive or appArtifact set. No project artifact found.");
+        }
+
+        if (!appArchive.exists() || appArchive.isDirectory()) {
+            throw new MojoExecutionException("Application file does not exist or is a directory: " + appArchive);
+        }
+
+        log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
+        DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
+        if (deployTask == null) {
+            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
+        }
+
+        deployTask.setInstallDir(installDirectory);
+        deployTask.setServerName(serverName);
+        deployTask.setUserDir(userDirectory);
+        deployTask.setOutputDir(outputDirectory);
+        deployTask.setFile(appArchive);
+        deployTask.setDeployName(appDeployName);
+        // Convert from seconds to milliseconds
+        deployTask.setTimeout(Long.toString(timeout*1000));
+        deployTask.execute();
     }
 
     // install war project artifact using loose application configuration file

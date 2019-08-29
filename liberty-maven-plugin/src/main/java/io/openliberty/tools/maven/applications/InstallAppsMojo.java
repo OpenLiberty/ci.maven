@@ -40,6 +40,8 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 @Mojo(name = "install-apps", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallAppsMojo extends InstallAppMojoSupport {
 
+    private boolean serverRunning;
+
     protected void doExecute() throws Exception {
         if (skip) {
             return;
@@ -53,6 +55,8 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         // update target server configuration
         copyConfigFiles();
         exportParametersToXml();
+
+        serverRunning = new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
         
         boolean installDependencies = false;
         boolean installProject = false;
@@ -167,7 +171,11 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             if (looseApplication) {
                 installLooseApplication(project);
             } else {
-                installApp(project.getArtifact());
+                if (doDeploy()) {
+                    deployApp();
+                } else {
+                    installApp(project.getArtifact());
+                }
             }
         } else {
             throw new MojoExecutionException(
@@ -179,8 +187,16 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         String looseConfigFileName = getLooseConfigFileName(proj);
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         File destDir = new File(serverDirectory, getAppsDirectory());
-        File looseConfigFile = new File(destDir, looseConfigFileName);
+        File looseConfigFile;
         LooseConfigData config = new LooseConfigData();
+
+        if (doDeploy()) {
+            looseConfigFile = new File(project.getBuild().getDirectory(), looseConfigFileName);
+        } else {
+            looseConfigFile = new File(destDir, looseConfigFileName);
+        }
+
+
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(application, proj.getArtifactId());
@@ -216,6 +232,11 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 installApp(proj.getArtifact());
                 break;
         }
+
+        if (doDeploy()) {
+            appArchive = looseConfigFile;
+            deployApp();
+        }
     }
     
     private void cleanupPreviousExecution() {
@@ -223,6 +244,15 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
             ServerConfigDocument.markInstanceStale();
         }
+    }
+
+    private boolean doDeploy() {
+        if (appArchive != null || appArtifact != null) {
+            return true;
+        } else if (serverRunning) {
+            return true;
+        }
+        return false;
     }
 
     private boolean mavenWarPluginExists(MavenProject proj) {
