@@ -105,7 +105,7 @@
                                 <id>downloading-wlp</id>
                                 <phase>generate-resources</phase>
                                 <goals>
-                                    <goal>server-status</goal>
+                                    <goal>status</goal>
                                 </goals>
                                 <configuration>
                                     <assemblyArtifact>

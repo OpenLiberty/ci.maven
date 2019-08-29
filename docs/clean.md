@@ -1,4 +1,4 @@
-#### clean-server
+#### clean
 ---
 Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`.
 
@@ -29,7 +29,7 @@ Remove every app deployed to the `${userDirectory}/dropins` and every file in th
                         <id>clean</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>clean-server</goal>
+                            <goal>clean</goal>
                         </goals>
                         <configuration>
                             <cleanDropins>true</cleanDropins>

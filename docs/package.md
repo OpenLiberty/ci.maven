@@ -1,4 +1,4 @@
-#### package-server
+#### package
 ---
 Package a Liberty server.
 
@@ -26,7 +26,7 @@ Examples:
             <id>package-server</id>
             <phase>package</phase>
             <goals>
-                <goal>package-server</goal>
+                <goal>package</goal>
             </goals>
             <configuration>
                 <packageFile>${project.build.directory}/test.zip</packageFile>
@@ -52,7 +52,7 @@ Examples:
             <id>package-server</id>
             <phase>package</phase>
             <goals>
-                <goal>package-server</goal>
+                <goal>package</goal>
             </goals>
             <configuration>
                 <packageFile>${project.build.directory}/test.jar</packageFile>

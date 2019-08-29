@@ -1,4 +1,4 @@
-#### start-server
+#### start
 ---
 Start a Liberty server in background. The server instance will be automatically created if it does not exist.
 
@@ -27,7 +27,7 @@ Example:
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>start-server</goal>
+                <goal>start</goal>
             </goals>
             <configuration>
                 <verifyTimeout>60</verifyTimeout>

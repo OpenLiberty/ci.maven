@@ -55,6 +55,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
+                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <features>
                         <acceptLicense>true</acceptLicense>
                         <feature>oauth-2.0</feature>

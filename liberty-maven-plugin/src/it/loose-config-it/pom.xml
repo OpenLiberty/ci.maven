@@ -69,7 +69,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>
@@ -82,7 +81,7 @@
                         <id>create-liberty-server</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -99,7 +98,7 @@
                         <id>start-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>start-server</goal>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
                             <background>true</background>
@@ -110,21 +109,21 @@
                         <id>check-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>server-status</goal>
+                            <goal>status</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>stop-liberty-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>clean-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>clean-server</goal>
+                            <goal>clean</goal>
                         </goals>
                         <configuration>
                             <cleanDropins>true</cleanDropins>

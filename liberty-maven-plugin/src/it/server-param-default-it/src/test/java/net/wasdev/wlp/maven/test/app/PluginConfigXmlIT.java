@@ -18,11 +18,11 @@ import static junit.framework.Assert.*;
 public class PluginConfigXmlIT {
     
     public final String CONFIG_XML = "target/liberty-plugin-config.xml";
-    public final String SOURCE_BOOTSTRAP_PROPERTIES = "src/test/resources/bootstrap.properties";
+    public final String SOURCE_BOOTSTRAP_PROPERTIES = "src/main/liberty/config/bootstrap.properties";
     public final String TARGET_BOOTSTRAP_PROPERTIES = "target/liberty/usr/servers/test/bootstrap.properties";
-    public final String SOURCE_JVM_OPTIONS = "src/test/resources/jvm.options";
+    public final String SOURCE_JVM_OPTIONS = "src/main/liberty/config/jvm.options";
     public final String TARGET_JVM_OPTIONS = "target/liberty/usr/servers/test/jvm.options";
-    public final String SOURCE_SERVER_ENV = "src/test/resources/server.env";
+    public final String SOURCE_SERVER_ENV = "src/main/liberty/config/server.env";
     public final String TARGET_SERVER_ENV = "target/liberty/usr/servers/test/server.env";
     
     @Test

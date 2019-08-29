@@ -49,7 +49,7 @@
                         <id>pre-integration</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>start-server</goal>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
                             <skip>true</skip>
@@ -59,7 +59,7 @@
                         <id>post-integration</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                         <configuration>
                             <skip>true</skip>

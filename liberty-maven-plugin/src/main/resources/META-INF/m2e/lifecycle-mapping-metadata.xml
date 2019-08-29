@@ -3,10 +3,10 @@
     <pluginExecution>
       <pluginExecutionFilter>
         <goals>
-          <goal>create-server</goal>
+          <goal>create</goal>
           <goal>install-apps</goal>
           <goal>install-feature</goal>
-          <goal>package-server</goal>
+          <goal>package</goal>
         </goals>
       </pluginExecutionFilter>
       <action>

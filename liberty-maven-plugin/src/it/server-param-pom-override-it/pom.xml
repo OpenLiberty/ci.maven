@@ -58,8 +58,8 @@
                         <param>-Xmx768m</param>
                     </jvmOptions>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
-                    <bootstrapPropertiesFile>src/main/liberty/config/jvm.options</bootstrapPropertiesFile>
+                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
+                    <bootstrapPropertiesFile>src/main/liberty/config/bootstrap.properties</bootstrapPropertiesFile>
                     <jvmOptionsFile>src/main/liberty/config/jvm.options</jvmOptionsFile>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
@@ -99,7 +99,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>

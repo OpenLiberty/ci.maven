@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (C) Copyright IBM Corporation 2017, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import io.openliberty.tools.ant.ServerTask;
 /**
  * Start a liberty server in debug mode
  */
-@Mojo(name = "debug-server")
+@Mojo(name = "debug")
 
 public class DebugServerMojo extends StartDebugMojoSupport {
 

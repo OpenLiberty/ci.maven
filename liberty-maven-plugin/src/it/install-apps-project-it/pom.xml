@@ -74,6 +74,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
+          <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <installAppPackages>project</installAppPackages>
         </configuration>
         <executions>
@@ -81,7 +82,7 @@
                 <id>create-liberty-server</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>create-server</goal>
+                    <goal>create</goal>
                 </goals>
             </execution>
             <execution>
@@ -98,7 +99,7 @@
                <id>start-liberty-server</id>
                <phase>pre-integration-test</phase>
                <goals>
-                   <goal>test-start-server</goal>
+                   <goal>test-start</goal>
                </goals>
                <configuration>
                    <background>true</background>
@@ -109,21 +110,21 @@
                <id>check-liberty-server</id>
                <phase>pre-integration-test</phase>
                <goals>
-                   <goal>server-status</goal>
+                   <goal>status</goal>
                </goals>
             </execution>
             <execution>
                 <id>stop-liberty-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>test-stop-server</goal>
+                    <goal>test-stop</goal>
                 </goals>
             </execution>
             <execution>
                 <id>clean-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>clean-server</goal>
+                    <goal>clean</goal>
                 </goals>
                 <configuration>
                     <cleanDropins>true</cleanDropins>

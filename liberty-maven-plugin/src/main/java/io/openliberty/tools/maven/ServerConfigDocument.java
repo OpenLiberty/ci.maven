@@ -158,25 +158,25 @@ public class ServerConfigDocument {
             // get variables from server.env
             File cfgDirFile = getFileFromConfigDirectory("server.env");
 
-            if (cfgDirFile != null) {
-                fProps = parseProperties(new FileInputStream(cfgDirFile));
-                props.putAll(fProps);
-            } else if (serverEnvFile.exists()) {
+            if (serverEnvFile != null && serverEnvFile.exists()) {
                 fProps = parseProperties(new FileInputStream(serverEnvFile));
+                props.putAll(fProps);
+            } else if (cfgDirFile != null) {
+                fProps = parseProperties(new FileInputStream(cfgDirFile));
                 props.putAll(fProps);
             }
 
             cfgDirFile = getFileFromConfigDirectory("bootstrap.properties");
 
-            if (cfgDirFile != null) {
-                fProps = parseProperties(new FileInputStream(cfgDirFile));
-                props.putAll(fProps);
-            } else if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
+            if (bootstrapProp != null && !bootstrapProp.isEmpty()) {
                  while (bootstrapProp.values().remove(null))
                      ;
                 props.putAll(bootstrapProp);
-            } else if (bootstrapFile.exists()) {
+            } else if (bootstrapFile != null && bootstrapFile.exists()) {
                 fProps = parseProperties(new FileInputStream(bootstrapFile));
+                props.putAll(fProps);
+            } else if (cfgDirFile != null) {
+                fProps = parseProperties(new FileInputStream(cfgDirFile));
                 props.putAll(fProps);
             }
 
@@ -446,22 +446,11 @@ public class ServerConfigDocument {
         }
     }
 
-    /*
-     * Get the file from configDrectory if it exists; otherwise return def only
-     * if it exists, or null if not
-     */
-    private static File getFileFromConfigDirectory(String file, File def) {
+    private static File getFileFromConfigDirectory(String file) {
         File f = new File(configDirectory, file);
         if (configDirectory != null && f.exists()) {
             return f;
         }
-        if (def != null && def.exists()) {
-            return def;
-        }
         return null;
-    }
-
-    private static File getFileFromConfigDirectory(String file) {
-        return getFileFromConfigDirectory(file, null);
     }
 }
