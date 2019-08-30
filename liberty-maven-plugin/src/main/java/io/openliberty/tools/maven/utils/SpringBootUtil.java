@@ -20,7 +20,7 @@ import java.io.File;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 public class SpringBootUtil {
 
@@ -57,7 +57,7 @@ public class SpringBootUtil {
 
         File fatArchive = getSpringBootUberJARLocation(project, log);
 
-        if (net.wasdev.wlp.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
+        if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
             log.info("Found Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
             return fatArchive;
         }

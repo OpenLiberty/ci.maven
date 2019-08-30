@@ -24,7 +24,7 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
-import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 public class MavenProjectUtil {
     

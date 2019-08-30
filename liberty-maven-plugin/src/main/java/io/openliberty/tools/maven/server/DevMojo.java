@@ -64,10 +64,10 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.common.plugins.util.DevUtil;
-import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
-import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
-import net.wasdev.wlp.common.plugins.util.ServerFeatureUtil;
+import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as

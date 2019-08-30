@@ -35,13 +35,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.xml.sax.SAXException;
 
 import io.openliberty.tools.maven.BasicSupport;
-import net.wasdev.wlp.common.arquillian.objects.LibertyManagedObject;
-import net.wasdev.wlp.common.arquillian.objects.LibertyProperty;
-import net.wasdev.wlp.common.arquillian.objects.LibertyRemoteObject;
-import net.wasdev.wlp.common.arquillian.util.ArquillianConfigurationException;
-import net.wasdev.wlp.common.arquillian.util.ArtifactCoordinates;
-import net.wasdev.wlp.common.arquillian.util.Constants;
-import net.wasdev.wlp.common.arquillian.util.HttpPortUtil;
+import io.openliberty.tools.common.arquillian.objects.LibertyManagedObject;
+import io.openliberty.tools.common.arquillian.objects.LibertyProperty;
+import io.openliberty.tools.common.arquillian.objects.LibertyRemoteObject;
+import io.openliberty.tools.common.arquillian.util.ArquillianConfigurationException;
+import io.openliberty.tools.common.arquillian.util.ArtifactCoordinates;
+import io.openliberty.tools.common.arquillian.util.Constants;
+import io.openliberty.tools.common.arquillian.util.HttpPortUtil;
 
 @Mojo(name = "configure-arquillian", requiresDependencyResolution = ResolutionScope.TEST)
 public class ConfigureArquillianMojo extends BasicSupport {

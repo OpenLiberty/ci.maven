@@ -2,5 +2,7 @@
     <featureManager>
         <feature>jsp-2.3</feature>
     </featureManager>
+
+    <variable name="location" defaultValue="abc"/>
     <webApplication location="${location}.${type}"/>
 </server>
