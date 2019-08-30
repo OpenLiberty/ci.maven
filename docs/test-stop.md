@@ -23,9 +23,9 @@ Example:
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.0</version>
+                <version>3.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <skipTestServer>true</skipTestServer>

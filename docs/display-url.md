@@ -16,7 +16,7 @@ Examples:
 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
         <applicationURL>http://localhost:8080/sample</applicationURL>
@@ -32,7 +32,7 @@ $ mvn liberty:display-url
 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>   
     <executions>
         <execution>

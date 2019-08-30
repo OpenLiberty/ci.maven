@@ -17,7 +17,7 @@ The run-server goal will propagate changes from source to the [server configurat
 Example:
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
        <installDirectory>/opt/ibm/wlp</installDirectory>
