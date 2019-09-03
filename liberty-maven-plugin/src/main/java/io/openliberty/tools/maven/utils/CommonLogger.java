@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.wasdev.wlp.maven.plugins.utils;
+package io.openliberty.tools.maven.utils;
 
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 

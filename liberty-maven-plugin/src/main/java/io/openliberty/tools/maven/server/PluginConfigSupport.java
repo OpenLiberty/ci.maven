@@ -30,8 +30,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import io.openliberty.tools.maven.PluginConfigXmlDocument;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
-import net.wasdev.wlp.maven.plugins.utils.CommonLogger;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
@@ -301,7 +301,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile);
+                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);
