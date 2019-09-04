@@ -15,7 +15,7 @@ Example:
 ```xml
 <pluginManagement>
   <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
      <executions>
           <execution>

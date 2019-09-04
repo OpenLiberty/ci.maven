@@ -28,7 +28,7 @@ To use the `liberty-maven-plugin` to install a Spring Boot application packaged 
     <plugins> 
         ...   	  
         <plugin>
-            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+            <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-maven-plugin</artifactId>
             <executions>
                ...

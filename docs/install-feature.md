@@ -27,7 +27,7 @@ Examples:
 1. Install specific features.
  ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -86,7 +86,7 @@ Examples:
 </dependencies>
 
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -136,7 +136,7 @@ Examples:
 </dependencies>
 
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -164,7 +164,7 @@ Examples:
 3. Check the server.xml file and install any required features that are missing from the runtime.
  ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...

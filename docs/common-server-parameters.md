@@ -15,7 +15,7 @@ Additional parameters shared by all server-based goals.
 Example:
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -23,7 +23,7 @@ Example:
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>start-server</goal>
+                <goal>start</goal>
             </goals>
             <configuration>
                 <configDirectory>${project.build.testOutputDirectory}/wlp/configDir</configDirectory>

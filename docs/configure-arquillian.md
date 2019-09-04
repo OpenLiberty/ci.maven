@@ -36,7 +36,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 
 ```
 <plugin>
-	<groupId>net.wasdev.wlp.maven.plugins</groupId>
+	<groupId>io.openliberty.tools</groupId>
 	<artifactId>liberty-maven-plugin</artifactId>
 	<version>2.2</version>
 	<extensions>true</extensions>
