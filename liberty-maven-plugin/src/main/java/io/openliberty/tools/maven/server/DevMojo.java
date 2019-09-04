@@ -111,8 +111,8 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait before processing Java changes and deletions.
      */
-    @Parameter(property = "compile.wait", defaultValue = "2")
-    private long compileWait;
+    @Parameter(property = "compile.wait", defaultValue = "0.5")
+    private double compileWait;
 
     private int runId = 0;
 
@@ -186,7 +186,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout, (compileWait * 1000L));
+                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout, ((long)(compileWait * 1000L)));
 
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();

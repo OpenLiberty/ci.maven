@@ -40,7 +40,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
 | debug.port | The debug port that you can attach a debugger to. The default value is `7777`. | No |
-| compile.wait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `2`. | No |
+| compile.wait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5`. | No |
 
 ###### System Properties for Integration Tests
 
