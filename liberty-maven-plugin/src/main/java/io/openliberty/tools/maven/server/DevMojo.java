@@ -83,6 +83,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final String LIBERTY_HOSTNAME = "liberty.hostname";
     private static final String LIBERTY_HTTP_PORT = "liberty.http.port";
     private static final String LIBERTY_HTTPS_PORT = "liberty.https.port";
+    private static final String MICROSHED_HOSTNAME = "microshed.hostname";
+    private static final String MICROSHED_HTTP_PORT = "microshed.http.port";
+    private static final String MICROSHED_HTTPS_PORT = "microshed.https.port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
 
     DevMojoUtil util = null;
@@ -702,6 +705,9 @@ public class DevMojo extends StartDebugMojoSupport {
         addDomPropertyIfNotFound(sysProps, LIBERTY_HOSTNAME, util.getHostName());
         addDomPropertyIfNotFound(sysProps, LIBERTY_HTTP_PORT, util.getHttpPort());
         addDomPropertyIfNotFound(sysProps, LIBERTY_HTTPS_PORT, util.getHttpsPort());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HOSTNAME, util.getHostName());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HTTP_PORT, util.getHttpPort());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HTTPS_PORT, util.getHttpsPort());
         try {
             addDomPropertyIfNotFound(sysProps, WLP_USER_DIR_PROPERTY_NAME, userDirectory.getCanonicalPath());
         } catch (IOException e) {
