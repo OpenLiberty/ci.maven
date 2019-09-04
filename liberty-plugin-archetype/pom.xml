@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>liberty-plugin-archetype</artifactId>
-    <name>Archetype - liberty-test-archetype</name>
+    <name>Archetype - liberty-plugin-archetype</name>
     <packaging>maven-archetype</packaging>
 
     <build>

@@ -33,7 +33,7 @@
                     <userDirectory>${project.build.directory}</userDirectory>
                     <serverName>production</serverName>
                     <!-- Use custom server.xml -->
-                    <configFile>${project.basedir}/src/test/resources/wlp/server.xml</configFile>
+                    <serverXmlFile>${project.basedir}/src/test/resources/wlp/server.xml</serverXmlFile>
                     <!-- Drop application into apps/ directory -->
                     <appsDirectory>apps</appsDirectory>
                 </configuration>
