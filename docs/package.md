@@ -10,8 +10,10 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| packageFile | Location of the target file or directory. If the target location is a file, the contents of the server instance will be compressed into the specified file. If the target location is a directory, the contents of the server instance will be compressed into `${packageFile}/${project.build.finalName}.zip`&#124;`jar` file. If the target location is not specified, it defaults to `${project.build.directory}/${project.build.finalName}.zip`&#124;`jar`. A jar file is created when the packaging type is `runnable`. A zip file is created for other packaging types.| No |
-| include | Packaging type. Can be used with values `all`, `usr`, `minify`, `wlp`, `runnable`, `all,runnable`, and `minify,runnable`. The default value is `all`. The `runnable` value is supported in Open Liberty and WebSphere Liberty versions since 8.5.5.9 and works with `jar` type archives only.  | Yes, only when the `os` option is set |
+| packageType | Type of package, `zip` or `jar`. Defaults to `zip`. | No
+| packageName | Name of the package. Defaults to `${project.build.finalName}` | No
+| packageDirectory | Directory of the packaged file. Defaults to `${project.build.directory}` | No
+| include | Packaging type. Can be used with values `all`, `usr`, `minify`, `wlp`. The default value is `all`. | Yes, only when the `os` option is set |
 | os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute __must__ be set to `minify`. | No |
 | skipLibertyPackage | If true, the `package-server` goal is bypassed entirely. The default value is false. | No |
 

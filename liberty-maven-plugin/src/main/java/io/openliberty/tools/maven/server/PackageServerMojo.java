@@ -17,8 +17,6 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -34,10 +32,6 @@ import io.openliberty.tools.ant.ServerTask;
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
-    /**
-     * Locate where server is packaged.
-     */
-    @Parameter(property = "packageFile")
     private File packageFile = null;
 
     /**
@@ -113,10 +107,13 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
-        if (attach || (project != null && "liberty-assembly".equals(project.getPackaging()))) {
-            if (project == null) {
-                throw new MojoFailureException(MessageFormat.format(messages.getString("error.server.package.no.project"), ""));
+        if ("liberty-assembly".equals(project.getPackaging())) {
+            project.getArtifact().setFile(packageFile);
+        } else if (attach) {
+            if (packageType != project.getPackaging()) {
+                throw new MojoFailureException("packageType must match project packaging type.");
             }
+
             project.getArtifact().setFile(packageFile);
         }
     }
@@ -128,16 +125,10 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @throws IOException
      */
     private void setPackageFilePath() throws MojoFailureException, IOException {
-        String fileType = getPackageFileType(packageType, include);
+        String projectFileType = getPackageFileType(packageType, include);
         String projectBuildDir = getPackageDirectory(packageDirectory);
         String projectBuildName = getPackageName(packageName);
-        if (packageFile != null) {
-            if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, projectBuildName + fileType);
-            }
-        } else {
-            packageFile = new File(projectBuildDir, projectBuildName + fileType);
-        }
+        packageFile = new File(projectBuildDir, projectBuildName + projectFileType);
     }
     
     /**
