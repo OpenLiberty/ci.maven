@@ -1,6 +1,6 @@
-#### test-stop-server
+#### test-stop
 ---
-Stop a Liberty server. `test-stop-server` honors the `skipTests`, `skipITs`, and `maven-test-skip` properties. It also allows you to bypass automatically stopping the server during the `post-integration-test` phase with pom configuration or a Liberty-specific command line argument.
+Stop a Liberty server. `test-stop` honors the `skipTests`, `skipITs`, and `maven-test-skip` properties. It also allows you to bypass automatically stopping the server during the `post-integration-test` phase with pom configuration or a Liberty-specific command line argument.
 
 ###### Additional Parameters
 
@@ -23,9 +23,9 @@ Example:
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.0</version>
+                <version>[3.0-M2,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <skipTestServer>true</skipTestServer>

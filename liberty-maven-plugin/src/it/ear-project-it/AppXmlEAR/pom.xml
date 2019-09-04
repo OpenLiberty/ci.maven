@@ -70,7 +70,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <looseApplication>true</looseApplication>
                     <include>usr</include>
@@ -88,7 +87,7 @@
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>install-server</goal>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -102,21 +101,21 @@
                         <id>package-server</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>package-server</goal>
+                            <goal>package</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>test-start-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>test-start-server</goal>
+                            <goal>test-start</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>test-stop-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>test-stop-server</goal>
+                            <goal>test-stop</goal>
                         </goals>
                     </execution>
                 </executions>

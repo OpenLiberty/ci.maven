@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>test-server-param-configdir-override</artifactId>
+    <artifactId>test-server-param-configdir-not-override</artifactId>
     <packaging>war</packaging>
 
     <dependencies>
@@ -45,16 +45,10 @@
                         <version>${project.version}</version>
                         <type>zip</type>
                     </assemblyArtifact>
-                    <bootstrapProperties>
-                        <location>pom.xml</location>
-                    </bootstrapProperties>
-                    <jvmOptions>
-                        <param>-Xmx768m</param>
-                    </jvmOptions>
                     <serverName>test</serverName>
                     <configDirectory>src/main/liberty/config</configDirectory>
-                    <configFile>src/test/resources/config/server.xml</configFile>
-                    <bootstrapPropertiesFile>src/test/resources/jvm.options</bootstrapPropertiesFile>
+                    <configFile>src/test/resources/server.xml</configFile>
+                    <bootstrapPropertiesFile>src/test/resources/bootstrap.properties</bootstrapPropertiesFile>
                     <jvmOptionsFile>src/test/resources/jvm.options</jvmOptionsFile>
                     <serverEnv>src/test/resources/server.env</serverEnv>
                     <appsDirectory>apps</appsDirectory>
@@ -95,7 +89,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>

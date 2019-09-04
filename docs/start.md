@@ -1,4 +1,4 @@
-#### start-server
+#### start
 ---
 Start a Liberty server in background. The server instance will be automatically created if it does not exist.
 
@@ -19,7 +19,7 @@ The start-server goal will propagate changes from source to the [server configur
 Example:
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -27,7 +27,7 @@ Example:
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>start-server</goal>
+                <goal>start</goal>
             </goals>
             <configuration>
                 <verifyTimeout>60</verifyTimeout>

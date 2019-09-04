@@ -9,14 +9,14 @@ The following is the mapping of liberty goals to the Maven default build lifecyc
 
 | Phase | Goal |
 | ----- | ---- | 
-| pre-clean | liberty:stop-server |
+| pre-clean | liberty:stop |
 | prepare-package | liberty:install-server |
-| prepare-package | liberty:create-server |
+| prepare-package | liberty:create |
 | prepare-package | liberty:install-feature |
 | package | liberty:install-apps |
-| package | liberty:package-server |
-| pre-integration-test | liberty:test-start-server |
-| post-integration-test | liberty:test-stop-server |
+| package | liberty:package |
+| pre-integration-test | liberty:test-start |
+| post-integration-test | liberty:test-stop |
 
 ######
 

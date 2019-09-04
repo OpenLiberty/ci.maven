@@ -69,7 +69,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <looseApplication>true</looseApplication>
                 </configuration>
@@ -79,7 +78,7 @@
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>install-server</goal>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                     <execution>

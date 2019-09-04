@@ -1,4 +1,4 @@
-#### stop-server
+#### stop
 ---
 Stop a Liberty server. The server instance must exist and must be running.
 
@@ -14,7 +14,7 @@ This goal supports [common server parameters](common-server-parameters.md#common
 Example:
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -22,7 +22,7 @@ Example:
             <id>stop-server</id>
             <phase>post-integration-test</phase>
             <goals>
-                <goal>stop-server</goal>
+                <goal>stop</goal>
             </goals>
         </execution>
         ...

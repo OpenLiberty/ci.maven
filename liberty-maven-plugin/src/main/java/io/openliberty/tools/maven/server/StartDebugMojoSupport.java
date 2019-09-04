@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,13 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of customized configuration file server.xml
      */
-    @Parameter(property = "configFile", defaultValue = "${basedir}/src/test/resources/server.xml")
-    protected File configFile;
+    @Parameter(alias="configFile", property = "serverXmlFile")
+    protected File serverXmlFile;
 
     /**
      * Location of bootstrap.properties file.
      */
-    @Parameter(property = "bootstrapPropertiesFile", defaultValue = "${basedir}/src/test/resources/bootstrap.properties")
+    @Parameter(property = "bootstrapPropertiesFile")
     protected File bootstrapPropertiesFile;
 
     @Parameter
@@ -56,7 +56,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     /**
      * Location of jvm.options file.
      */
-    @Parameter(property = "jvmOptionsFile", defaultValue = "${basedir}/src/test/resources/jvm.options")
+    @Parameter(property = "jvmOptionsFile")
     protected File jvmOptionsFile;
 
     @Parameter
@@ -80,10 +80,10 @@ public class StartDebugMojoSupport extends BasicSupport {
      */
     protected void copyConfigFiles() throws IOException {
 
-        String serverXMLPath = null;
         String jvmOptionsPath = null;
         String bootStrapPropertiesPath = null;
         String serverEnvPath = null;
+        String serverXMLPath = null;
 
         if (configDirectory != null && configDirectory.exists()) {
             // copy configuration files from configuration directory to server directory if end-user set it
@@ -116,61 +116,67 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
-        // handle server.xml if not overwritten by server.xml from configDirectory
-        if (serverXMLPath == null || serverXMLPath.isEmpty()) {
-            // copy configuration file to server directory if end-user set it.
-            if (configFile != null && configFile.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(configFile);
-                copy.setTofile(new File(serverDirectory, "server.xml"));
-                copy.setOverwrite(true);
-                copy.execute();
-                serverXMLPath = configFile.getCanonicalPath();
+        // copy server.xml file to server directory if end-user explicitly set it.
+        if (serverXmlFile != null && serverXmlFile.exists()) {
+            if (serverXMLPath != null) {
+                log.warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
+            Copy copy = (Copy) ant.createTask("copy");
+            copy.setFile(serverXmlFile);
+            copy.setTofile(new File(serverDirectory, "server.xml"));
+            copy.setOverwrite(true);
+            copy.execute();
+            serverXMLPath = serverXmlFile.getCanonicalPath();
         }
 
-        // handle jvm.options if not overwritten by jvm.options from configDirectory
-        if (jvmOptionsPath == null || jvmOptionsPath.isEmpty()) {
-            File optionsFile = new File(serverDirectory, "jvm.options");
-            if (jvmOptions != null) {
-                writeJvmOptions(optionsFile, jvmOptions);
-                jvmOptionsPath = "inlined configuration";
-            } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(jvmOptionsFile);
-                copy.setTofile(optionsFile);
-                copy.setOverwrite(true);
-                copy.execute();
-                jvmOptionsPath = jvmOptionsFile.getCanonicalPath();
+        // copy jvm.options to server directory if end-user explicitly set it
+        File optionsFile = new File(serverDirectory, "jvm.options");
+        if (jvmOptions != null) {
+            if (jvmOptionsPath != null) {
+                log.warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
             }
+            writeJvmOptions(optionsFile, jvmOptions);
+            jvmOptionsPath = "inlined configuration";
+        } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
+            if (jvmOptionsPath != null) {
+                log.warn("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
+            }
+            Copy copy = (Copy) ant.createTask("copy");
+            copy.setFile(jvmOptionsFile);
+            copy.setTofile(optionsFile);
+            copy.setOverwrite(true);
+            copy.execute();
+            jvmOptionsPath = jvmOptionsFile.getCanonicalPath();
         }
 
-        // handle bootstrap.properties if not overwritten by bootstrap.properties from configDirectory
-        if (bootStrapPropertiesPath == null || bootStrapPropertiesPath.isEmpty()) {
-            File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
-            if (bootstrapProperties != null) {
-                writeBootstrapProperties(bootstrapFile, bootstrapProperties);
-                bootStrapPropertiesPath = "inlined configuration";
-            } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(bootstrapPropertiesFile);
-                copy.setTofile(bootstrapFile);
-                copy.setOverwrite(true);
-                copy.execute();
-                bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
+        // copy bootstrap.properties to server directory if end-user explicitly set it
+        File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
+        if (bootstrapProperties != null) {
+            if (bootStrapPropertiesPath != null) {
+                log.warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
             }
+            writeBootstrapProperties(bootstrapFile, bootstrapProperties);
+            bootStrapPropertiesPath = "inlined configuration";
+        } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
+            if (bootStrapPropertiesPath != null) {
+                log.warn("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
+            }
+            Copy copy = (Copy) ant.createTask("copy");
+            copy.setFile(bootstrapPropertiesFile);
+            copy.setTofile(bootstrapFile);
+            copy.setOverwrite(true);
+            copy.execute();
+            bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
         }
 
-        // handle server.env if not overwritten by server.env from configDirectory
-        if (serverEnvPath == null || serverEnvPath.isEmpty()) {
-            if (serverEnv != null && serverEnv.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(serverEnv);
-                copy.setTofile(new File(serverDirectory, "server.env"));
-                copy.setOverwrite(true);
-                copy.execute();
-                serverEnvPath = serverEnv.getCanonicalPath();
-            }
+        // copy server.env to server directory if end-user explicitly set it
+        if (serverEnvFile != null && serverEnvFile.exists()) {
+            Copy copy = (Copy) ant.createTask("copy");
+            copy.setFile(serverEnvFile);
+            copy.setTofile(new File(serverDirectory, "server.env"));
+            copy.setOverwrite(true);
+            copy.execute();
+            serverEnvPath = serverEnvFile.getCanonicalPath();
         }
 
         // log info on the configuration files that get used

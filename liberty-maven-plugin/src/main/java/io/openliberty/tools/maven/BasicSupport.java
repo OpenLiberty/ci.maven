@@ -160,8 +160,8 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Location of customized server environment file server.env
      */
-    @Parameter(property = "serverEnv", defaultValue = "${basedir}/src/test/resources/server.env")
-    protected File serverEnv;
+    @Parameter(alias="serverEnv", property = "serverEnvFile")
+    protected File serverEnvFile;
 
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
@@ -482,18 +482,20 @@ public class BasicSupport extends AbstractLibertySupport {
     private String getWlpOutputDir() throws IOException {
         Properties envvars = new Properties();
         
-        File serverEnvFile = new File(installDirectory, "etc/server.env");
-        if (serverEnvFile.exists()) {
-            envvars.load(new FileInputStream(serverEnvFile));
+        File serverEnvInstallDir = new File(installDirectory, "etc/server.env");
+        if (serverEnvInstallDir.exists()) {
+            envvars.load(new FileInputStream(serverEnvInstallDir));
         }
-        
-        serverEnvFile = new File(configDirectory, "server.env");
-        if (configDirectory != null && serverEnvFile.exists()) {
+
+        if (serverEnvFile != null && serverEnvFile.exists()) {
             envvars.load(new FileInputStream(serverEnvFile));
-        } else if (serverEnv.exists()) {
-            envvars.load(new FileInputStream(serverEnv));
+        } else {
+            File serverEnvFileConfigDir = new File(configDirectory, "server.env");
+            if (serverEnvFileConfigDir.exists()) {
+                envvars.load(new FileInputStream(serverEnvFileConfigDir));
+            }    
         }
-        
+                
         return (String) envvars.get("WLP_OUTPUT_DIR");
     }
 }

@@ -1,4 +1,4 @@
-#### create-server
+#### create
 ---
 Create a Liberty server.
 
@@ -17,7 +17,7 @@ If the server has already been created, the create-server goal will update the [
 Example:
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -25,7 +25,7 @@ Example:
             <id>create-server</id>
             <phase>pre-integration-test</phase>
             <goals>
-                <goal>create-server</goal>
+                <goal>create</goal>
             </goals>
         </execution>
         ...

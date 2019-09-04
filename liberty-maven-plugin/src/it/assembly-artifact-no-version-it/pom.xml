@@ -48,9 +48,9 @@
                         <id>test</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>start-server</goal>
+                            <goal>start</goal>
                             <goal>deploy</goal>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>

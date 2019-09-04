@@ -170,7 +170,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-                    <configFile>src/main/resources/server.xml</configFile>
+                    <serverXmlFile>src/main/resources/server.xml</serverXmlFile>
                     <packageFile>${project.build.directory}/WebsocketServerPackage.jar</packageFile>
                     <bootstrapProperties>
                         <default.http.port>9080</default.http.port>
@@ -205,7 +205,7 @@
                         <id>stop-server-before-clean</id>
                         <phase>pre-clean</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -213,7 +213,7 @@
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>install-server</goal>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -237,7 +237,7 @@
                         <id>package-server</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>package-server</goal>
+                            <goal>package</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
@@ -247,14 +247,14 @@
                         <id>test-start-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>test-start-server</goal>
+                            <goal>test-start</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>test-stop-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>test-stop-server</goal>
+                            <goal>test-stop</goal>
                         </goals>
                     </execution>
                 </executions>

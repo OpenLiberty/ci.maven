@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (C) Copyright IBM Corporation 2017, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Start a liberty server if tests are not skipped
  */
-@Mojo(name = "test-start-server")
+@Mojo(name = "test-start")
 
 public class TestStartServerMojo extends StartServerMojo {
     

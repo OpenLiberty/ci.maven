@@ -40,9 +40,9 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.5</version>
+                <version>[3.0-M2,)</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -86,32 +86,27 @@ The Liberty Maven Plugin provides the following goals.
 
 | Goal | Description |
 | --------- | ------------ |
-| [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
-| [create-server](docs/create-server.md#create-server) | Create a Liberty server. |
-| [start](docs/start-server.md#start-server) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
-| [start-server](docs/start-server.md#start-server) | Alias of the `start` goal. |
-| [test-start-server](docs/test-start-server.md/#test-start-server) | Allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument. |
-| [run](docs/run-server.md#run-server) | Start a Liberty server in foreground. The server instance will be automatically created if it does not exist. |
-| [run-server](docs/run-server.md#run-server) | Alias of the `run` goal. |
-| [stop](docs/stop-server.md#stop-server) | Stop a Liberty server. The server instance must exist and must be running. |
-| [stop-server](docs/stop-server.md#stop-server) | Alias of the `stop` goal. |
-| [test-stop-server](docs/test-stop-server.md#stop-server) | Allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument. |
-| [debug](docs/debug-server.md#debug-server) | Start a Liberty server in debug mode. |
-| [debug-server](docs/debug-server.md#debug-server) | Alias of the `debug` goal. |
-| [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
-| [package-server](docs/package-server.md#package-server) | Package a Liberty server. |
-| [clean-server](docs/clean-server.md#clean-server) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
-| [dump-server](docs/dump-server.md#dump-server) | Dump diagnostic information from the server into an archive. |
-| [java-dump-server](docs/java-dump-server.md#java-dump-server) | Dump diagnostic information from the server JVM. |
-| [deploy](docs/deploy.md#deploy) | Deploy an application to a Liberty server. The server instance must exist and must be running. |
-| [undeploy](docs/undeploy.md#undeploy) | Undeploy an application to a Liberty server. The server instance must exist and must be running. |
-| [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
-| [uninstall-feature](docs/uninstall-feature.md#uninstall-feature) | Uninstall a feature from the Liberty runtime. |
-| [install-apps](docs/install-apps.md#install-apps) | Copy applications specified as Maven compile dependencies to Liberty server's `dropins` or `apps` directory. |
+| [clean](docs/clean.md#clean) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
 | [compile-jsp](docs/compile-jsp.md#compile-jsps) | Compile JSPs in the src/main/webapp into the target/classes directory |
+| [create](docs/create.md#create) | Create a Liberty server. |
+| [debug](docs/debug.md#debug) | Start a Liberty server in debug mode. |
+| [deploy](docs/deploy.md#deploy) | Deploy an application to a Liberty server. The server instance must exist and must be running. |
+| [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
+| [dump](docs/dump.md#dump) | Dump diagnostic information from the server into an archive. |
+| [install-apps](docs/install-apps.md#install-apps) | Copy applications specified as Maven compile dependencies to Liberty server's `dropins` or `apps` directory. |
+| [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
+| [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
+| [java-dump](docs/java-dump.md#java-dump) | Dump diagnostic information from the server JVM. |
+| [package](docs/package.md#package) | Package a Liberty server. |
+| [run](docs/run.md#run) | Start a Liberty server in foreground. The server instance will be automatically created if it does not exist. |
+| [start](docs/start.md#start) | Start a Liberty server in background. The server instance will be automatically created if it does not exist. |
 | status | Check a Liberty server status. |
-| server-status | Alias of the `status` goal. |
+| [stop](docs/stop.md#stop) | Stop a Liberty server. The server instance must exist and must be running. |
+| [test-start](docs/test-start.md/#test-start) | Allows you to bypass automatically starting the server during the pre-integration-test phase with pom configuration or a Liberty-specific command line argument. |
+| [test-stop](docs/test-stop.md#test-stop) | Allows you to bypass automatically stopping the server during the post-integration-test phase with pom configuration or a Liberty-specific command line argument. |
+| [undeploy](docs/undeploy.md#undeploy) | Undeploy an application to a Liberty server. The server instance must exist and must be running. |
+| [uninstall-feature](docs/uninstall-feature.md#uninstall-feature) | Uninstall a feature from the Liberty runtime. |
 
 
 ##### Common Parameters
@@ -141,17 +136,17 @@ The `liberty-assembly` default lifecycle includes:
 
 | Phase | Goal |
 | ----- | ---- |
-| pre-clean | liberty:stop-server |
+| pre-clean | liberty:stop |
 | process-resources | maven-resources-plugin:resources |
 | compile | maven-compiler-plugin:compile |
 | process-test-resources | maven-resources-plugin:testResources |
 | test-compile | maven-compiler-plugin:testCompile |
 | test | maven-surefire-plugin:test |
-| prepare-package | liberty:create-server, liberty:install-feature |
-| package | liberty:install-apps, liberty:package-server |
-| pre-integration-test | liberty:test-start-server |
+| prepare-package | liberty:create, liberty:install-feature |
+| package | liberty:install-apps, liberty:package|
+| pre-integration-test | liberty:test-start|
 | integration-test | maven-failsafe-plugin:integration-test |
-| post-integration-test | liberty:test-stop-server |
+| post-integration-test | liberty:test-stop|
 | verify | maven-failsafe-plugin:verify |
 | install | maven-install-plugin:install |
 | deploy | maven-deploy-plugin:deploy |
@@ -179,9 +174,9 @@ Example:
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.5</version>
+                <version>[3.0-M2,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -214,7 +209,7 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-plugin-archetype \
         -DarchetypeVersion=2.2 \
         -DlibertyPluginVersion=2.2 \
@@ -229,7 +224,7 @@ The `liberty-archetype-mp` is used to generate a basic single-module project tha
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-mp \
         -DarchetypeVersion=2.3-SNAPSHOT \
         -DgroupId=test \
@@ -245,7 +240,7 @@ The `liberty-archetype-webapp` is used to generate a basic single-module project
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-webapp \
         -DarchetypeVersion=2.2 \
         -DgroupId=test \
@@ -259,7 +254,7 @@ The `liberty-archetype-ear` is used to generate a multi-module project that incl
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-ear \
         -DarchetypeVersion=2.2 \
         -DgroupId=test \

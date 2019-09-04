@@ -52,7 +52,7 @@
                 <id>create-liberty-server</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>create-server</goal>
+                    <goal>create</goal>
                 </goals>
             </execution>
          </executions>

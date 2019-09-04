@@ -31,7 +31,7 @@
                         <id>create-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                     <!-- Install the features (mongodb-2.0, oauth-2.0 & openid-2.0) using only the server name -->

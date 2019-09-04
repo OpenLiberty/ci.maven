@@ -36,7 +36,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 
 ```
 <plugin>
-	<groupId>net.wasdev.wlp.maven.plugins</groupId>
+	<groupId>io.openliberty.tools</groupId>
 	<artifactId>liberty-maven-plugin</artifactId>
 	<version>2.2</version>
 	<extensions>true</extensions>
@@ -50,7 +50,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 			<type>zip</type>
 		</assemblyArtifact>
 		<assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-		<configFile>src/main/liberty/config/server.xml</configFile>
+		<serverXmlFile>src/main/liberty/config/server.xml</serverXmlFile>
 		<packageFile>${project.build.directory}/package.jar</packageFile>
 		<bootstrapProperties>
 			<default.http.port>9080</default.http.port>

@@ -1,4 +1,4 @@
-#### package-server
+#### package
 ---
 Package a Liberty server.
 
@@ -19,14 +19,14 @@ Examples:
 1. Package test server into a zip file.
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         <execution>
             <id>package-server</id>
             <phase>package</phase>
             <goals>
-                <goal>package-server</goal>
+                <goal>package</goal>
             </goals>
             <configuration>
                 <packageFile>${project.build.directory}/test.zip</packageFile>
@@ -44,7 +44,7 @@ Examples:
 2. Package test server into a runnable jar file. 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <executions>
         ...
@@ -52,7 +52,7 @@ Examples:
             <id>package-server</id>
             <phase>package</phase>
             <goals>
-                <goal>package-server</goal>
+                <goal>package</goal>
             </goals>
             <configuration>
                 <packageFile>${project.build.directory}/test.jar</packageFile>

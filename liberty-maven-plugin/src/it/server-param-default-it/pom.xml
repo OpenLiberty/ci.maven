@@ -71,7 +71,7 @@
                 -->
                 <configuration>
                     <target>
-                        <echo message="WLP_OUTPUT_DIR=${escapedBuildDirectory}/LibertyOutput" file="${project.basedir}/src/test/resources/server.env" />
+                        <echo message="WLP_OUTPUT_DIR=${escapedBuildDirectory}/LibertyOutput" file="${project.basedir}/src/main/liberty/config/server.env" />
                     </target>
                 </configuration>
                 <executions>
@@ -96,7 +96,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>
@@ -135,7 +134,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -149,8 +148,8 @@
                             <id>test-server</id>
                             <phase>pre-integration-test</phase>
                             <goals>
-                                <goal>test-start-server</goal>
-                                <goal>test-stop-server</goal>
+                                <goal>test-start</goal>
+                                <goal>test-stop</goal>
                             </goals>
                         </execution>
                     </executions>

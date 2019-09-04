@@ -83,6 +83,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final String LIBERTY_HOSTNAME = "liberty.hostname";
     private static final String LIBERTY_HTTP_PORT = "liberty.http.port";
     private static final String LIBERTY_HTTPS_PORT = "liberty.https.port";
+    private static final String MICROSHED_HOSTNAME = "microshed.hostname";
+    private static final String MICROSHED_HTTP_PORT = "microshed.http.port";
+    private static final String MICROSHED_HTTPS_PORT = "microshed.https.port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
 
     DevMojoUtil util = null;
@@ -412,7 +415,6 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
             try {
-                runMojo("org.apache.maven.plugins", "maven-war-plugin", "war", null, null);
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
                 runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only");
                 runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
@@ -473,8 +475,8 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        log.info("Running goal: create-server");
-        runLibertyMavenPlugin("create-server", serverName, null);
+        log.info("Running goal: create");
+        runLibertyMavenPlugin("create", serverName, null);
         log.info("Running goal: install-feature");
         runLibertyMavenPlugin("install-feature", serverName, null);
         log.info("Running goal: install-apps");
@@ -516,7 +518,9 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
         
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, configFile);
+        // Note that serverXmlFile can be null. DevUtil will automatically watch all files in the configDirectory,
+        // which is where the server.xml is located if a specific serverXmlFile configuration parameter is not specified.
+        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
@@ -566,7 +570,7 @@ public class DevMojo extends StartDebugMojoSupport {
             // clean up previous summary file
             File summaryFile = null;
             Xpp3Dom summaryFileElement = config.getChild("summaryFile");
-            if (summaryFileElement != null) {
+            if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
                 summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
@@ -585,6 +589,7 @@ public class DevMojo extends StartDebugMojoSupport {
         } else if (phase.equals("failsafe-report-only")) {
             Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
             Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
+            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -592,16 +597,17 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = failsafeConfig.getChild("linkXRef");
+                linkXRef = failsafeConfig.getChild("linkXRef");
                 if (linkXRef == null) {
                     linkXRef = new Xpp3Dom("linkXRef");
                 }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
-            }
+            } 
+            linkXRef.setValue("false");
+            config.addChild(linkXRef);
         } else if (phase.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
             Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
+            Xpp3Dom linkXRef  = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
                 if (reportsDirectoryElement != null) {
@@ -609,13 +615,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     reportDirectories.addChild(reportsDirectoryElement);
                     config.addChild(reportDirectories);
                 }
-                Xpp3Dom linkXRef = surefireConfig.getChild("linkXRef");
+                linkXRef = surefireConfig.getChild("linkXRef");
                 if (linkXRef == null) {
                     linkXRef = new Xpp3Dom("linkXRef");
                 }
-                linkXRef.setValue("false");
-                config.addChild(linkXRef);
             }
+            linkXRef.setValue("false");
+            config.addChild(linkXRef);
         }
         log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 
@@ -704,6 +710,9 @@ public class DevMojo extends StartDebugMojoSupport {
         addDomPropertyIfNotFound(sysProps, LIBERTY_HOSTNAME, util.getHostName());
         addDomPropertyIfNotFound(sysProps, LIBERTY_HTTP_PORT, util.getHttpPort());
         addDomPropertyIfNotFound(sysProps, LIBERTY_HTTPS_PORT, util.getHttpsPort());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HOSTNAME, util.getHostName());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HTTP_PORT, util.getHttpPort());
+        addDomPropertyIfNotFound(sysProps, MICROSHED_HTTPS_PORT, util.getHttpsPort());
         try {
             addDomPropertyIfNotFound(sysProps, WLP_USER_DIR_PROPERTY_NAME, userDirectory.getCanonicalPath());
         } catch (IOException e) {
@@ -738,9 +747,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
                     elements.add(element(name("installAppPackages"), "project"));
-                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
-                } else if (goal.equals("create-server")) {
-                    elements.add(element(name("configFile"), configFile.getCanonicalPath()));
+                    if (serverXmlFile != null) {
+                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                    }
+                } else if (goal.equals("create")) {
+                    if (serverXmlFile != null) {
+                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                    }
                     if (assemblyArtifact != null) {
                         Element[] featureElems = new Element[4];
                         featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
