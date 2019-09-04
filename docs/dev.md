@@ -6,6 +6,14 @@ Start a Liberty server in dev mode. This goal also invokes the `create-server`, 
 
 Dev mode provides three key features. Code changes are immediately detected, recompiled, and picked up by your running server. Unit and integration tests are run on demand when you press Enter in the command terminal where dev mode is running, or optionally on every code change to give you instant feedback on the status of your code. Finally, it allows you to attach a debugger to the running server at any time to step through your code.
 
+The following are dev mode supported code changes. Changes other than those listed below may require restarting dev mode to be detected.
+
+* Java source file changes and Java test file changes are immediately detected, recompiled, and picked up by your running server.  
+* Added dependencies to your `pom.xml` are immediately detected, added to your classpath, and installed via the `install-feature` goal. Any other changes to your `pom.xml` will require restarting dev mode to be detected.
+* Resource file changes are immediately detected and copied into your `target` directory. Changes to your server such as changes to the port, server name, hostname, etc. will require restarting dev mode to be detected.
+* Configuration directory and configuration file changes are immediately detected and copied into your `target` directory.  Changes to your server such as changes to the port, server name, hostname etc. will require restarting dev mode to be detected. Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
+
+
 ###### Examples
 
 Start dev mode.
