@@ -20,7 +20,7 @@ $ mvn liberty:dev -DhotTests=true
 
 Start dev mode and listen on a specific port for attaching a debugger (default is 7777).
 ```
-$ mvn liberty:dev -Ddebug.port=8787
+$ mvn liberty:dev -DdebugPort=8787
 ```
 
 Start dev mode without allowing to attach a debugger.
@@ -39,7 +39,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | skipUTs | If set to `true`, skip unit tests. The default value is `false`. If the project packaging type is `ear`, unit tests are always skipped. | No |
 | skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
-| debug.port | The debug port that you can attach a debugger to. The default value is `7777`. | No |
+| debugPort | The debug port that you can attach a debugger to. The default value is `7777`. | No |
+| compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5`. | No |
 
 ###### System Properties for Integration Tests
 

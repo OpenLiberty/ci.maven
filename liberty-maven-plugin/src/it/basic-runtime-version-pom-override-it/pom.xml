@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>basic-it-with-runtime-version-override</artifactId>
+    <artifactId>basic-runtime-version-pom-override-it</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -55,6 +55,7 @@
                         <version>19.0.0.6</version>
                         <type>zip</type>
                     </assemblyArtifact>
+                    <libertyRuntimeVersion>19.0.0.7</libertyRuntimeVersion>
                 </configuration>
                 <executions>
                      <execution>

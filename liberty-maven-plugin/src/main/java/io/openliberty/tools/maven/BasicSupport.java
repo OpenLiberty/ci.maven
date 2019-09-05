@@ -202,7 +202,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
                 if (libertyRuntimeVersion != null) {
                     if (assemblyArtifact.getVersion() != null) {
-                        log.warn("The assemblyArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
+                        log.info("The assemblyArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
                     } else {
                         log.info("The liberty.runtime.version value "+ libertyRuntimeVersion +" is used for the assemblyArtifact version.");
                     }
