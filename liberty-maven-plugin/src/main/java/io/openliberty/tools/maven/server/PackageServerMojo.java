@@ -122,11 +122,16 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     private void validateInclude() throws MojoFailureException {
         // if jar, validate include options, and add runnable
         if (packageType.equals("jar")) {
-            if (include.contains("usr") || include.contains("wlp")) {
-                throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
-            }
-            if (!include.contains("runnable")) {
-                include.concat(",runnable");
+            if (include == null) {
+                include = "runnable";
+            } else {
+                if (include.contains("usr") || include.contains("wlp")) {
+                    throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
+                }
+                
+                if (!include.contains("runnable")) {
+                    include.concat(",runnable");
+                }
             }
         }
     }
