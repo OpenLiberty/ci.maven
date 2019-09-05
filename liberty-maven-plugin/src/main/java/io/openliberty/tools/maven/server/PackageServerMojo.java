@@ -102,6 +102,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         setPackageFilePath();
 
         serverTask.setArchive(packageFile);
+        validateInclude();
         serverTask.setInclude(include);
         serverTask.setOs(os);
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
@@ -118,8 +119,21 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
     }
 
+    private void validateInclude() throws MojoFailureException {
+        // if jar, validate include options, and add runnable
+        if (packageType.equals("jar")) {
+            if (include.contains("usr") || include.contains("wlp")) {
+                throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
+            }
+            if (!include.contains("runnable")) {
+                include.concat(",runnable");
+            }
+        }
+    }
+
     /**
      * Sets `packageFile` based on specified file type, package dir, and package name
+     * Sets default values for unspecified file type, package dir, and package name
      * 
      * @throws MojoFailureException
      * @throws IOException
@@ -134,19 +148,23 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns file extension for specified package type
      * 
-     * @param packageType "jar" or "zip"
+     * @param pkgType "jar" or "zip"
      * @param include parameter, for checking if "jar" is valid for the include type
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
      */
-    private String getPackageFileType(String packageType, String include) throws MojoFailureException {
-    	if (packageType != null && packageType.equals("jar")) {
+    private String getPackageFileType(String pkgType, String include) throws MojoFailureException {
+    	if (pkgType != null && pkgType.equals("jar")) {
             if (include == null || include.equals("all") || include.equals("minify")) {
                 return ".jar";
             } else {
                 throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
             }
     	} else {
+            if (pkgType != null && !pkgType.equals("zip")) {
+                log.info(pkgType + " not supported. Defaulting to 'zip'");
+            }
+            packageType = "zip";
             return ".zip";
         }
     }
@@ -154,34 +172,36 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns package name
      * 
-     * @param packageName
+     * @param pkgName
      * @return specified package name, or default ${project.build.finalName} if unspecified
      */
-    private String getPackageName(String packageName) {
-        if (packageName != null && !packageName.isEmpty()) {
-            return packageName;
+    private String getPackageName(String pkgName) {
+        if (pkgName != null && !pkgName.isEmpty()) {
+            return pkgName;
         }
-        return project.getBuild().getFinalName();
+        packageName = project.getBuild().getFinalName();
+        return packageName;
     }
 
     /**
      * Returns canonical path to package directory
      * 
-     * @param packageDirectory
+     * @param pkgDirectory
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */
-    private String getPackageDirectory(String packageDirectory) throws IOException {
-        if (packageDirectory != null && !packageDirectory.isEmpty()) {
+    private String getPackageDirectory(String pkgDirectory) throws IOException {
+        if (pkgDirectory != null && !pkgDirectory.isEmpty()) {
             // done: check if path is relative or absolute, convert to canonical
-            File dir = new File(packageDirectory);
+            File dir = new File(pkgDirectory);
             if (dir.isAbsolute()) {
                 return dir.getCanonicalPath();
             } else { //relative path
-                return new File(project.getBuild().getDirectory(), packageDirectory).getCanonicalPath();
+                return new File(project.getBuild().getDirectory(), pkgDirectory).getCanonicalPath();
             }
         } else {
-            return project.getBuild().getDirectory();
+            packageDirectory = project.getBuild().getDirectory();
+            return packageDirectory;
         }
     }
 
