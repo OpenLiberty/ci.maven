@@ -106,7 +106,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
      */
-    @Parameter(property = "outputDirectory")
+    @Parameter(property = "outputDirectory", defaultValue = "target/liberty-alt-output-dir")
     protected File outputDirectory = null;
     
     @Parameter(property = "useOpenLiberty")
