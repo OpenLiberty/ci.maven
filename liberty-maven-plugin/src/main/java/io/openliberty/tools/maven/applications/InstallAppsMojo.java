@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
-import io.openliberty.tools.maven.ServerConfigDocument;
 import io.openliberty.tools.maven.utils.SpringBootUtil;
-import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
-import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
+import io.openliberty.tools.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
  * Copy applications to the specified directory of the Liberty server.
@@ -93,7 +93,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         File fatArchiveSrc = SpringBootUtil.getSpringBootUberJAR(project, getLog());
         
         // Check if the archiveSrc is executable and then invokeSpringUtilCommand. 
-        if(net.wasdev.wlp.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
+        if(io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
             

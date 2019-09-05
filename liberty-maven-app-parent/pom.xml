@@ -52,10 +52,10 @@
                     </configuration>
                     <executions>
                         <execution>
-                            <id>stop-server-before-clean</id>
+                            <id>stop-before-clean</id>
                             <phase>pre-clean</phase>
                             <goals>
-                                <goal>stop-server</goal>
+                                <goal>stop</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -63,7 +63,7 @@
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>install-server</goal>
-                                <goal>create-server</goal>
+                                <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -87,24 +87,24 @@
                             <id>package-server</id>
                             <phase>package</phase>
                             <goals>
-                                <goal>package-server</goal>
+                                <goal>package</goal>
                             </goals>
                             <configuration>
                                 <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
                             </configuration>
                         </execution>
                         <execution>
-                            <id>test-start-server</id>
+                            <id>test-start</id>
                             <phase>pre-integration-test</phase>
                             <goals>
-                                <goal>test-start-server</goal>
+                                <goal>test-start</goal>
                             </goals>
                         </execution>
                         <execution>
-                            <id>test-stop-server</id>
+                            <id>test-stop</id>
                             <phase>post-integration-test</phase>
                             <goals>
-                                <goal>test-stop-server</goal>
+                                <goal>test-stop</goal>
                             </goals>
                         </execution>
                     </executions>

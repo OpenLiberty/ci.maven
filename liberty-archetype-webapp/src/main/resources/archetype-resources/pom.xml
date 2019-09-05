@@ -72,7 +72,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>${project.artifactId}Server</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <include>${packaging.type}</include>
                 </configuration>
             </plugin>

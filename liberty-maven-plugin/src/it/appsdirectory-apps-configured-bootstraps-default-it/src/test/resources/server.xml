@@ -1,0 +1,12 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+
+    <variable name="first" value="test"/>
+    <variable name="second" value="war"/>
+    <variable name="dash" value="-"/>
+    <variable name="appName" value="${first}${dash}${second}"/>
+    <variable name="location" defaultValue="${appName}"/>
+    <webApplication location="${location}.${type}"/>
+</server>

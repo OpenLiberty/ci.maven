@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (C) Copyright IBM Corporation 2017, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,9 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import io.openliberty.tools.maven.PluginConfigXmlDocument;
-import io.openliberty.tools.maven.ServerConfigDocument;
-import net.wasdev.wlp.common.plugins.config.ApplicationXmlDocument;
+import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
+import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
  * Basic Liberty Mojo Support
@@ -299,8 +300,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
         if (serverXML != null && serverXML.exists()) {
             try {
-                scd = ServerConfigDocument.getInstance(log, serverXML, configDirectory,
-                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile);
+                scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
+                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);

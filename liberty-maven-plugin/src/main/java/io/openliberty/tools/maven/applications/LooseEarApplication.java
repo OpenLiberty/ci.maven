@@ -9,8 +9,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.common.plugins.config.LooseApplication;
-import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.common.plugins.config.LooseApplication;
+import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
 public class LooseEarApplication extends LooseApplication {
 

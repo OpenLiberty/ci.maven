@@ -71,11 +71,11 @@
                         <id>create-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>create-server</goal>
+                            <goal>create</goal>
                         </goals>
                         <configuration>
                             <!-- Use server.xml from target/ directory with variables replaced -->
-                            <configFile>${project.build.testOutputDirectory}/wlp/server.xml</configFile>
+                            <serverXmlFile>${project.build.testOutputDirectory}/wlp/server.xml</serverXmlFile>
                         </configuration>
                     </execution>
                     <!-- Install application in <dependencies/> into apps/ directory -->
@@ -95,7 +95,7 @@
                         <id>start-liberty-server</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>start-server</goal>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
                             <verifyTimeout>40</verifyTimeout>
@@ -106,7 +106,7 @@
                         <id>stop-liberty-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
