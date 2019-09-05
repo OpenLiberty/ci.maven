@@ -105,13 +105,13 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "debug", defaultValue = "true")
     private boolean libertyDebug;
 
-    @Parameter(property = "debug.port", defaultValue = "7777")
+    @Parameter(property = "debugPort", defaultValue = "7777")
     private int libertyDebugPort;
 
     /**
      * Time in seconds to wait before processing Java changes and deletions.
      */
-    @Parameter(property = "compile.wait", defaultValue = "0.5")
+    @Parameter(property = "compileWait", defaultValue = "0.5")
     private double compileWait;
 
     private int runId = 0;
