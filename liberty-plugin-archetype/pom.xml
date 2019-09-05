@@ -6,11 +6,11 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-M3-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-plugin-archetype</artifactId>
-    <name>Archetype - liberty-test-archetype</name>
+    <name>Archetype - liberty-plugin-archetype</name>
     <packaging>maven-archetype</packaging>
 
     <build>

@@ -16,7 +16,7 @@
             <defaultValue>[18.0.0.1,)</defaultValue>
         </requiredProperty>
         <requiredProperty key="libertyPluginVersion">
-            <defaultValue>3.0.M1-SNAPSHOT</defaultValue>
+            <defaultValue>3.0-M2</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <modules>

@@ -2,12 +2,11 @@ package io.openliberty.tools.maven.applications;
 
 import java.io.File;
 
-
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
-import net.wasdev.wlp.common.plugins.config.LooseApplication;
-import net.wasdev.wlp.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.common.plugins.config.LooseApplication;
+import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
 public class LooseWarApplication extends LooseApplication {
     

@@ -17,7 +17,7 @@ package net.wasdev.wlp.test.feature.it;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 
 import static junit.framework.Assert.*;
 import org.junit.Before;

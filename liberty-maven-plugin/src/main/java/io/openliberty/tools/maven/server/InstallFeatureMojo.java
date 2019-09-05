@@ -30,9 +30,9 @@ import io.openliberty.tools.ant.InstallFeatureTask;
 import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.server.types.Features;
-import net.wasdev.wlp.common.plugins.util.InstallFeatureUtil;
-import net.wasdev.wlp.common.plugins.util.PluginExecutionException;
-import net.wasdev.wlp.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the

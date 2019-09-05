@@ -67,7 +67,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>${rootArtifactId}Server</serverName>
-                    <configFile>src/main/liberty/config/server.xml</configFile>
                     <appsDirectory>apps</appsDirectory>
                 </configuration>
             </plugin>
