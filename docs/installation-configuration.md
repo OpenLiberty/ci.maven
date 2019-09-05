@@ -6,7 +6,7 @@ Use the `installDirectory` parameter to specify the directory of an existing Lib
 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
         <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -20,7 +20,7 @@ Use the `assemblyArchive` parameter to specify a packaged server archive (create
 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
         <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
@@ -52,7 +52,7 @@ Example for using the `assemblyArtifact` parameter:
 
 ```xml
 <plugin>
-    <groupId>net.wasdev.wlp.maven.plugins</groupId>
+    <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
         <assemblyArtifact>
@@ -77,7 +77,7 @@ For full documentation of the usage and parameters, please read the [install-lib
 
  ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
     </plugin>
  ```
@@ -86,7 +86,7 @@ For full documentation of the usage and parameters, please read the [install-lib
 
  ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
             <install>
@@ -101,7 +101,7 @@ For full documentation of the usage and parameters, please read the [install-lib
 
  ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
             <install>

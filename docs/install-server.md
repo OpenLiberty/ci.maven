@@ -12,7 +12,7 @@ Examples:
  
   ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <executions>
             ...
@@ -36,7 +36,7 @@ Examples:
  
   ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <executions>
             ...
@@ -68,7 +68,7 @@ Examples:
  
   ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <executions>
             ...
@@ -89,12 +89,12 @@ Examples:
         </executions>
     </plugin>
   ```
-4. This goal is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`,
-`start-server`, `test-start-server` and `debug-server` goals.
+4. This goal is implicitly invoked by `create`, `dump`, `java-dump`, `package`, `run`,
+`start`, `test-start` and `debug` goals.
 
   ```xml
     <plugin>
-        <groupId>net.wasdev.wlp.maven.plugins</groupId>
+        <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
             <assemblyArtifact>
@@ -114,7 +114,7 @@ Examples:
                 <id>start-server</id>
                 <phase>pre-integration-test</phase>
                 <goals>
-                    <goal>start-server</goal>
+                    <goal>start</goal>
                 </goals>
                 <configuration>
                     <serverName>test</serverName>

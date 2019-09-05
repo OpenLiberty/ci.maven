@@ -40,9 +40,9 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.5</version>
+                <version>[3.0-M2,)</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -174,9 +174,9 @@ Example:
         <plugins>
             <!-- Enable liberty-maven-plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>2.5</version>
+                <version>[3.0-M2,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -209,7 +209,7 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-plugin-archetype \
         -DarchetypeVersion=2.2 \
         -DlibertyPluginVersion=2.2 \
@@ -224,7 +224,7 @@ The `liberty-archetype-mp` is used to generate a basic single-module project tha
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-mp \
         -DarchetypeVersion=2.3-SNAPSHOT \
         -DgroupId=test \
@@ -240,7 +240,7 @@ The `liberty-archetype-webapp` is used to generate a basic single-module project
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-webapp \
         -DarchetypeVersion=2.2 \
         -DgroupId=test \
@@ -254,7 +254,7 @@ The `liberty-archetype-ear` is used to generate a multi-module project that incl
 #### Usage
 
     mvn archetype:generate \
-        -DarchetypeGroupId=net.wasdev.wlp.maven \
+        -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-ear \
         -DarchetypeVersion=2.2 \
         -DgroupId=test \
