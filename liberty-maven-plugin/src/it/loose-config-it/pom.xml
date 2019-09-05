@@ -15,8 +15,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <package.file>${project.build.directory}/${project.artifactId}.jar</package.file>
-        <packaging.type>minify,runnable</packaging.type>
+        <package.type>jar</package.type>
+        <include>minify</include>
     </properties>
 
     <dependencies>
@@ -73,8 +73,9 @@
                     <installAppPackages>project</installAppPackages>
                     <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
-                    <packageFile>${package.file}</packageFile>
-                    <include>${packaging.type}</include>
+                    <packageName>${project.artifactId}</packageName>
+                    <packageType>${package.type}</packageType>
+                    <include>${include}</include>
                 </configuration>
                 <executions>
                     <execution>

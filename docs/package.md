@@ -31,7 +31,7 @@ Examples:
                 <goal>package</goal>
             </goals>
             <configuration>
-                <packageFile>${project.build.directory}/test.zip</packageFile>
+                <packageName>test</packageName>
             </configuration>
         </execution>
         ...
@@ -57,8 +57,8 @@ Examples:
                 <goal>package</goal>
             </goals>
             <configuration>
-                <packageFile>${project.build.directory}/test.jar</packageFile>
-                <include>runnable</include>
+                <packageName>test</packageName>
+                <packageType>jar</packageType>
             </configuration>
         </execution>
         ...

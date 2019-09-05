@@ -174,7 +174,6 @@
                             <goal>package</goal>
                         </goals>
                         <configuration>
-                            <packageFile>${project.build.directory}</packageFile>
                             <include>minify</include>
                             <os>Windows7,Windows8</os>
                         </configuration>
