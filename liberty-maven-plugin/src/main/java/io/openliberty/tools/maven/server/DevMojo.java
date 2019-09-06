@@ -83,9 +83,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final String LIBERTY_HOSTNAME = "liberty.hostname";
     private static final String LIBERTY_HTTP_PORT = "liberty.http.port";
     private static final String LIBERTY_HTTPS_PORT = "liberty.https.port";
-    private static final String MICROSHED_HOSTNAME = "microshed.hostname";
-    private static final String MICROSHED_HTTP_PORT = "microshed.http.port";
-    private static final String MICROSHED_HTTPS_PORT = "microshed.https.port";
+    private static final String MICROSHED_HOSTNAME = "microshed_hostname";
+    private static final String MICROSHED_HTTP_PORT = "microshed_http_port";
+    private static final String MICROSHED_HTTPS_PORT = "microshed_https_port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
 
     DevMojoUtil util = null;
