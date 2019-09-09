@@ -157,7 +157,7 @@ public class DevTest extends BaseDevTest {
       writer.write("\n");
       writer.flush();
 
-      assertFalse(checkLogMessage(2000,  "Unit tests finished."));
+      assertFalse(checkLogMessage(10000,  "Unit tests finished."));
       assertFalse(checkLogMessage(2000,  "Integration tests finished."));
    }
    
