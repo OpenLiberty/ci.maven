@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,14 +32,28 @@ import io.openliberty.tools.ant.ServerTask;
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
-    /**
-     * Locate where server is packaged.
-     */
-    @Parameter(property = "packageFile")
     private File packageFile = null;
 
     /**
-     * Package type. One of "all", "usr", or "minify".
+     * Package type. "zip" or "jar"
+     */
+    @Parameter(property= "packageType")
+    private String packageType;
+
+    /**
+     * Package name. defaults to ${project.build.finalName}
+     */
+    @Parameter(property = "packageName")
+    private String packageName;
+
+    /**
+     * Package directory. defaults to target folder
+     */
+    @Parameter(property= "packageDirectory")
+    private String packageDirectory;
+
+    /**
+     * What to include. One of "all", "usr", "minify", or "wlp".
      */
     @Parameter(property = "include")
     private String include;
@@ -83,34 +98,116 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
-        String fileType = getPackageFileType(include);
-        String projectBuildDir = project.getBuild().getDirectory();
-        String projectBuildName = project.getBuild().getFinalName();
-        if (packageFile != null) {
-            if (packageFile.isDirectory()) {
-                packageFile = new File(packageFile, projectBuildName + fileType);
-            }
-        } else {
-            packageFile = new File(projectBuildDir, projectBuildName + fileType);
-        }
+
+        setPackageFilePath();
+
         serverTask.setArchive(packageFile);
+        validateInclude();
         serverTask.setInclude(include);
         serverTask.setOs(os);
         log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
-        if (attach || (project != null && "liberty-assembly".equals(project.getPackaging()))) {
-            if (project == null) {
-                throw new MojoFailureException(MessageFormat.format(messages.getString("error.server.package.no.project"), ""));
+        if ("liberty-assembly".equals(project.getPackaging())) {
+            project.getArtifact().setFile(packageFile);
+        } else if (attach) {
+            if (packageType != project.getPackaging()) {
+                throw new MojoFailureException("packageType must match project packaging type.");
             }
+
             project.getArtifact().setFile(packageFile);
         }
     }
-    
-    private String getPackageFileType(String include) {
-    	if(include != null && include.contains("runnable")) {
-    		return ".jar";
-    	}
-    	return ".zip";
+
+    private void validateInclude() throws MojoFailureException {
+        // if jar, validate include options, and add runnable
+        if (packageType.equals("jar")) {
+            if (include == null) {
+                include = "runnable";
+            } else {
+                if (include.contains("usr") || include.contains("wlp")) {
+                    throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
+                }
+                
+                if (!include.contains("runnable")) {
+                    include.concat(",runnable");
+                }
+            }
+        }
     }
+
+    /**
+     * Sets `packageFile` based on specified file type, package dir, and package name
+     * Sets default values for unspecified file type, package dir, and package name
+     * 
+     * @throws MojoFailureException
+     * @throws IOException
+     */
+    private void setPackageFilePath() throws MojoFailureException, IOException {
+        String projectFileType = getPackageFileType();
+        String projectBuildDir = getPackageDirectory();
+        String projectBuildName = getPackageName();
+        packageFile = new File(projectBuildDir, projectBuildName + projectFileType);
+    }
+    
+    /**
+     * Returns file extension for specified package type
+     * 
+     * @param packageType "jar" or "zip"
+     * @param include parameter, for checking if "jar" is valid for the include type
+     * @return package file extension, or default to "zip"
+     * @throws MojoFailureException
+     */
+    private String getPackageFileType() throws MojoFailureException {
+    	if (packageType != null && packageType.equals("jar")) {
+            if (include == null || include.equals("all") || include.equals("minify")) {
+                return ".jar";
+            } else {
+                throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
+            }
+    	} else {
+            if (packageType != null && !packageType.equals("zip")) {
+                log.info(packageType + " not supported. Defaulting to 'zip'");
+            }
+            packageType = "zip";
+            return ".zip";
+        }
+    }
+
+    /**
+     * Returns package name
+     * 
+     * @param packageName
+     * @return specified package name, or default ${project.build.finalName} if unspecified
+     */
+    private String getPackageName() {
+        if (packageName != null && !packageName.isEmpty()) {
+            return packageName;
+        }
+        packageName = project.getBuild().getFinalName();
+        return packageName;
+    }
+
+    /**
+     * Returns canonical path to package directory
+     * 
+     * @param packageDirectory
+     * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
+     * @throws IOException
+     */
+    private String getPackageDirectory() throws IOException {
+        if (packageDirectory != null && !packageDirectory.isEmpty()) {
+            // done: check if path is relative or absolute, convert to canonical
+            File dir = new File(packageDirectory);
+            if (dir.isAbsolute()) {
+                return dir.getCanonicalPath();
+            } else { //relative path
+                return new File(project.getBuild().getDirectory(), packageDirectory).getCanonicalPath();
+            }
+        } else {
+            packageDirectory = project.getBuild().getDirectory();
+            return packageDirectory;
+        }
+    }
+
 }

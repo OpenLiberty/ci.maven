@@ -23,7 +23,6 @@
     <testServerHttpPort>9080</testServerHttpPort>
     <testServerHttpsPort>9443</testServerHttpsPort>
     <!-- end::ports[] -->
-    <package.file>${project.build.directory}/${app.name}.zip</package.file>
     <packaging.type>usr</packaging.type>
   </properties>
 
@@ -172,7 +171,7 @@
             <version>RUNTIME_VERSION</version>
             <type>zip</type>
           </assemblyArtifact>
-          <packageFile>${package.file}</packageFile>
+          <packageName>${app.name}</packageName>
           <include>${packaging.type}</include>
           <bootstrapProperties>
             <default.http.port>${testServerHttpPort}</default.http.port>

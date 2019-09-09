@@ -51,7 +51,8 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 		</assemblyArtifact>
 		<assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
 		<serverXmlFile>src/main/liberty/config/server.xml</serverXmlFile>
-		<packageFile>${project.build.directory}/package.jar</packageFile>
+		<packageName>package</packageName>
+		<packageType>jar</packageType>
 		<bootstrapProperties>
 			<default.http.port>9080</default.http.port>
 			<default.https.port>9443</default.https.port>
@@ -60,7 +61,6 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 		<features>
 			<acceptLicense>true</acceptLicense>
 		</features>
-		<include>runnable</include>
 		<installAppPackages>all</installAppPackages>
 		<appsDirectory>apps</appsDirectory>
 		<stripVersion>true</stripVersion>
