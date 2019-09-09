@@ -163,6 +163,12 @@ public class BasicSupport extends AbstractLibertySupport {
     @Parameter(alias="serverEnv", property = "serverEnvFile")
     protected File serverEnvFile;
 
+    /**
+     * Version to override any specified in the assemblyArtifact
+     */
+    @Parameter(alias = "libertyRuntimeVersion", property = "liberty.runtime.version")
+    protected String libertyRuntimeVersion = null;
+    
     @Override
     protected void init() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -193,6 +199,15 @@ public class BasicSupport extends AbstractLibertySupport {
                 installDirectory = checkServerHome(assemblyArchive);
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             } else if (assemblyArtifact != null) {
+                // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
+                if (libertyRuntimeVersion != null) {
+                    if (assemblyArtifact.getVersion() != null) {
+                        log.info("The assemblyArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
+                    } else {
+                        log.info("The liberty.runtime.version value "+ libertyRuntimeVersion +" is used for the assemblyArtifact version.");
+                    }
+                    assemblyArtifact.setVersion(libertyRuntimeVersion);
+                }
                 Artifact artifact = getArtifact(assemblyArtifact);
                 assemblyArchive = artifact.getFile();
                 if (assemblyArchive == null) {
