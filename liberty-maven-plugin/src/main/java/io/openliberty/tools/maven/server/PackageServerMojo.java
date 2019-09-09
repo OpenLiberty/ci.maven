@@ -144,30 +144,30 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @throws IOException
      */
     private void setPackageFilePath() throws MojoFailureException, IOException {
-        String projectFileType = getPackageFileType(packageType, include);
-        String projectBuildDir = getPackageDirectory(packageDirectory);
-        String projectBuildName = getPackageName(packageName);
+        String projectFileType = getPackageFileType();
+        String projectBuildDir = getPackageDirectory();
+        String projectBuildName = getPackageName();
         packageFile = new File(projectBuildDir, projectBuildName + projectFileType);
     }
     
     /**
      * Returns file extension for specified package type
      * 
-     * @param pkgType "jar" or "zip"
+     * @param packageType "jar" or "zip"
      * @param include parameter, for checking if "jar" is valid for the include type
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
      */
-    private String getPackageFileType(String pkgType, String include) throws MojoFailureException {
-    	if (pkgType != null && pkgType.equals("jar")) {
+    private String getPackageFileType() throws MojoFailureException {
+    	if (packageType != null && packageType.equals("jar")) {
             if (include == null || include.equals("all") || include.equals("minify")) {
                 return ".jar";
             } else {
                 throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
             }
     	} else {
-            if (pkgType != null && !pkgType.equals("zip")) {
-                log.info(pkgType + " not supported. Defaulting to 'zip'");
+            if (packageType != null && !packageType.equals("zip")) {
+                log.info(packageType + " not supported. Defaulting to 'zip'");
             }
             packageType = "zip";
             return ".zip";
@@ -177,12 +177,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns package name
      * 
-     * @param pkgName
+     * @param packageName
      * @return specified package name, or default ${project.build.finalName} if unspecified
      */
-    private String getPackageName(String pkgName) {
-        if (pkgName != null && !pkgName.isEmpty()) {
-            return pkgName;
+    private String getPackageName() {
+        if (packageName != null && !packageName.isEmpty()) {
+            return packageName;
         }
         packageName = project.getBuild().getFinalName();
         return packageName;
@@ -191,18 +191,18 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns canonical path to package directory
      * 
-     * @param pkgDirectory
+     * @param packageDirectory
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */
-    private String getPackageDirectory(String pkgDirectory) throws IOException {
-        if (pkgDirectory != null && !pkgDirectory.isEmpty()) {
+    private String getPackageDirectory() throws IOException {
+        if (packageDirectory != null && !packageDirectory.isEmpty()) {
             // done: check if path is relative or absolute, convert to canonical
-            File dir = new File(pkgDirectory);
+            File dir = new File(packageDirectory);
             if (dir.isAbsolute()) {
                 return dir.getCanonicalPath();
             } else { //relative path
-                return new File(project.getBuild().getDirectory(), pkgDirectory).getCanonicalPath();
+                return new File(project.getBuild().getDirectory(), packageDirectory).getCanonicalPath();
             }
         } else {
             packageDirectory = project.getBuild().getDirectory();
