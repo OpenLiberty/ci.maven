@@ -781,14 +781,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                     elements.add(element(name("features"), featureElems));
                 } else if (goal.equals("install-apps")) {
-<<<<<<< HEAD
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project,
-                            LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "install-apps",
-                            "appsDirectory");
-=======
                     String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
                         LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
->>>>>>> Removing deploy and renaming installApps, changing goal names and parameters
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }

@@ -25,6 +25,18 @@
             <version>4.9</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>test-eba</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>eba</type>
+        </dependency>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>test-war</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -64,6 +76,7 @@
                         <emptyVal_1></emptyVal_1>
                         <emptyVal_2></emptyVal_2>
                     </bootstrapProperties>
+                    <stripVersion>true</stripVersion>
                 </configuration>
                 <executions>
                      <execution>
@@ -112,30 +125,7 @@
                             <goal>deploy</goal>
                         </goals>
                         <configuration>
-                            <appArchive>../setup/test-eba/target/test-eba.eba</appArchive>
                             <timeout>50</timeout>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>undeploy app</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy</goal>
-                        </goals>
-                        <configuration>
-                            <appArchive>test-eba.eba</appArchive>
-                            <timeout>50</timeout>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>deploy web application</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                        <configuration>
-                            <appArchive>../setup/test-war/target/test-war.war</appArchive>
-                            <appDeployName>my-test-war.war</appDeployName>
                         </configuration>
                     </execution>
                     <execution>
@@ -144,9 +134,6 @@
                         <goals>
                             <goal>undeploy</goal>
                         </goals>
-                        <configuration>
-                            <appArchive>my-test-war.war</appArchive>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-liberty-server</id>
@@ -155,7 +142,7 @@
                             <goal>stop</goal>
                         </goals>
                     </execution>
-                    <execution>
+                    <!-- <execution>
                         <id>clean-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
@@ -165,7 +152,7 @@
                             <cleanDropins>true</cleanDropins>
                             <cleanApps>true</cleanApps>
                         </configuration>
-                    </execution>
+                    </execution> -->
                     <execution>
                         <id>package-server</id>
                         <!-- phase must be after integration tests since they create the "test" server -->

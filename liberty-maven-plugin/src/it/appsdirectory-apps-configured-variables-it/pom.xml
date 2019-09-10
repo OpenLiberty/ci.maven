@@ -103,7 +103,7 @@
                 <id>install-artifact</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>install-apps</goal>
+                    <goal>deploy</goal>
                 </goals>
                 <configuration>
                     <appsDirectory>apps</appsDirectory>
