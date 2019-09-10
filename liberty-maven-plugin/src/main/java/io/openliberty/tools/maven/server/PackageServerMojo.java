@@ -170,7 +170,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             }
 
             // Check for `runnable` in `include` for deprecation before completely removing it in favor of `jar` `packageType`
-            if (include.contains("runnable")) {
+            if (include != null && include.contains("runnable")) {
                 if (packageType != null && packageType.equals("zip")) {
                     throw new MojoFailureException("The `include` parameter `runnable` cannot be used with the `zip` packageType");
                 }
