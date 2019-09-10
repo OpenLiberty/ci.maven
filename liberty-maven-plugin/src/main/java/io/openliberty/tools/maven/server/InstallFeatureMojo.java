@@ -49,6 +49,11 @@ public class InstallFeatureMojo extends BasicSupport {
     private Features features;
 
 
+    /**
+     * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
+     */
+    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/liberty-alt-output-dir")
+    protected File outputDirectory;
     
     private boolean noFeaturesSection;
 

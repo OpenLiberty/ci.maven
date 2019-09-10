@@ -106,8 +106,8 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
      */
-    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/liberty-alt-output-dir")
-    protected File outputDirectory;
+    @Parameter(property = "outputDirectory")
+    protected File outputDirectory = null;
     
     @Parameter(property = "useOpenLiberty")
     private boolean useOpenLiberty = true;
@@ -251,7 +251,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 outputDirectory = new File(getWlpOutputDir());
             } else if (outputDirectory == null) {
                 outputDirectory = serversDirectory;
-			}
+            }
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
