@@ -174,6 +174,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
                 if (packageType != null && packageType.equals("zip")) {
                     throw new MojoFailureException("The `include` parameter `runnable` cannot be used with the `zip` packageType");
                 }
+                log.warn("The `runnable` value for the include parameter is deprecated. Use packageType `jar` instead.");
                 packageType = "jar";
                 return ".jar";
             }
