@@ -16,21 +16,21 @@ Use the `installDirectory` parameter to specify the directory of an existing Lib
 
 ### Using a packaged server
 
-Use the `assemblyArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty server files. For example:
+Use the `runtimeArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty server files. For example:
 
 ```xml
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
-        <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
+        <runtimeArchive>/opt/ibm/wlp.zip</runtimeArchive>
     </configuration>
 </plugin>
 ```
 
 ### Using a Maven artifact
 
-Use the `assemblyArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). 
+Use the `runtimeArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). 
 
 The Maven Central repository includes the following Liberty runtime artifacts. Versions for each artifact can be found at the specified link.
 
@@ -48,19 +48,19 @@ The Maven Central repository includes the following Liberty runtime artifacts. V
 | [`com.ibm.websphere.appserver.runtime:wlp-osgi`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-osgi/) |  WebSphere Liberty runtime with features that support OSGi applications. |
 | [`com.ibm.websphere.appserver.runtime:wlp-microProfile1`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile1/) | WebSphere Liberty with features for a MicroProfile runtime. |
 
-Example for using the `assemblyArtifact` parameter:
+Example for using the `runtimeArtifact` parameter:
 
 ```xml
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
-        <assemblyArtifact>
+        <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile7</artifactId>
             <version>8.5.5.7</version>
             <type>zip</type>
-        </assemblyArtifact>
+        </runtimeArtifact>
     </configuration>
 </plugin>
 ```

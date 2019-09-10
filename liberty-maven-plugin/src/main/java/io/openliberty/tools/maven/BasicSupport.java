@@ -76,7 +76,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Server Install Directory
      */
-    @Parameter(property = "assemblyInstallDirectory", defaultValue = "${project.build.directory}/liberty")
+    @Parameter(alias = "runtimeInstallDirectory", property = "runtimeInstallDirectory", defaultValue = "${project.build.directory}/liberty")
     protected File assemblyInstallDirectory;
     
     /**

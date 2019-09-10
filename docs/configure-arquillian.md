@@ -43,14 +43,6 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 	<!-- Specify configuration, executions for liberty-maven-plugin -->
 	<configuration>
 		<serverName>LibertyProjectServer</serverName>
-		<assemblyArtifact>
-			<groupId>com.ibm.websphere.appserver.runtime</groupId>
-			<artifactId>wlp-webProfile7</artifactId>
-			<version>[17.0.0.4,)</version>
-			<type>zip</type>
-		</assemblyArtifact>
-		<assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
-		<serverXmlFile>src/main/liberty/config/server.xml</serverXmlFile>
 		<packageName>package</packageName>
 		<packageType>jar</packageType>
 		<bootstrapProperties>
