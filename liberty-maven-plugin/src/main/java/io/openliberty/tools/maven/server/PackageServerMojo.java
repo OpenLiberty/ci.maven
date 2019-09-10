@@ -151,10 +151,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
     
     /**
-     * Returns file extension for specified package type
+     * Returns file extension for specified package type.
+     * Deprecating `runnable` include parameter. Will use jar type instead of defaulting to zip if `runnable` is specified, for now.
      * 
-     * @param packageType "jar" or "zip"
-     * @param include parameter, for checking if "jar" is valid for the include type
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
      */
@@ -169,6 +168,17 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             if (packageType != null && !packageType.equals("zip")) {
                 log.info(packageType + " not supported. Defaulting to 'zip'");
             }
+
+            // Check for `runnable` in `include` for deprecation before completely removing it in favor of `jar` `packageType`
+            if (include != null && include.contains("runnable")) {
+                if (packageType != null && packageType.equals("zip")) {
+                    throw new MojoFailureException("The `include` parameter `runnable` cannot be used with the `zip` packageType");
+                }
+                log.warn("The `runnable` value for the include parameter is deprecated. Use packageType `jar` instead.");
+                packageType = "jar";
+                return ".jar";
+            }
+
             packageType = "zip";
             return ".zip";
         }
@@ -177,7 +187,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns package name
      * 
-     * @param packageName
      * @return specified package name, or default ${project.build.finalName} if unspecified
      */
     private String getPackageName() {
@@ -191,7 +200,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns canonical path to package directory
      * 
-     * @param packageDirectory
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */
