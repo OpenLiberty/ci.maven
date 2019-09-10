@@ -153,8 +153,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns file extension for specified package type
      * 
-     * @param packageType "jar" or "zip"
-     * @param include parameter, for checking if "jar" is valid for the include type
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
      */
@@ -177,7 +175,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns package name
      * 
-     * @param packageName
      * @return specified package name, or default ${project.build.finalName} if unspecified
      */
     private String getPackageName() {
@@ -191,7 +188,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns canonical path to package directory
      * 
-     * @param packageDirectory
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */
