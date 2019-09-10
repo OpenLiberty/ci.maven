@@ -732,6 +732,9 @@ public class DevMojo extends StartDebugMojoSupport {
             if (testServerName != null) {
                 elements.add(element(name("serverName"), testServerName));
                 elements.add(element(name("configDirectory"), configDirectory.getCanonicalPath()));
+                if (installDirectory != null && installDirectory.exists()) {
+                    elements.add(element(name("installDirectory"), installDirectory.getCanonicalPath()));
+                }
                 if (goal.equals("install-feature") && (dependencies != null)) {
                     Element[] featureElems = new Element[dependencies.size()];
                     for (int i = 0; i < featureElems.length; i++) {
