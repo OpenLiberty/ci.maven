@@ -5,6 +5,7 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 * [Build](#build)
 * [Plugins](#plugins)
 	* [Liberty Maven Plugin](#liberty-maven-plugin)
+                * [Release 3.0 differences](#release-3.0-differences)
 		* [Configuration](#configuration)
 		* [Goals](#goals)
 * [Packaging types](#packaging-types)
@@ -28,6 +29,10 @@ Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
 ### Liberty Maven Plugin
 
 The Liberty Maven Plugin provides a number of goals for managing a Liberty server and applications. Maven 3.5.0 or later is recommended to use the Liberty Maven Plugin. 
+
+#### Release 3.0 differences
+
+The new capabilities and behavior differences are summarized in the [Liberty Maven plug-in release 3.0 differences](version_3.0_differences.md) document.
 
 #### Configuration
 
