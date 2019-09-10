@@ -151,7 +151,8 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
     
     /**
-     * Returns file extension for specified package type
+     * Returns file extension for specified package type.
+     * Deprecating `runnable` include parameter. Will use jar type instead of defaulting to zip if `runnable` is specified, for now.
      * 
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
@@ -167,6 +168,16 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             if (packageType != null && !packageType.equals("zip")) {
                 log.info(packageType + " not supported. Defaulting to 'zip'");
             }
+
+            // Check for `runnable` in `include` for deprecation before completely removing it in favor of `jar` `packageType`
+            if (include.contains("runnable")) {
+                if (packageType != null && packageType.equals("zip")) {
+                    throw new MojoFailureException("The `include` parameter `runnable` cannot be used with the `zip` packageType");
+                }
+                packageType = "jar";
+                return ".jar";
+            }
+
             packageType = "zip";
             return ".zip";
         }
