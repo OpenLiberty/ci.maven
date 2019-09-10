@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -8,10 +9,10 @@
         <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>assembly-artifact-it</artifactId>
     <packaging>pom</packaging>
-    
+
     <dependencies>
         <dependency>
             <scope>provided</scope>
@@ -20,7 +21,7 @@
             <version>3.1.0</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -28,12 +29,6 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
-                    <assemblyArtifact>
-                        <groupId>${runtimeGroupId}</groupId>
-                        <artifactId>${runtimeArtifactId}</artifactId>
-                        <version>${runtimeVersion}</version>
-                        <type>zip</type>
-                    </assemblyArtifact>
                     <serverName>test</serverName>
                 </configuration>
                 <executions>
@@ -48,4 +43,28 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>with-runtime-artifact</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.openliberty.tools</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <version>@pom.version@</version>
+                        <configuration>
+                            <runtimeArtifact>
+                                <groupId>${runtimeGroupId}</groupId>
+                                <artifactId>${runtimeArtifactId}</artifactId>
+                                <version>${runtimeVersion}</version>
+                                <type>zip</type>
+                            </runtimeArtifact>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

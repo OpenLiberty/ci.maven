@@ -8,7 +8,7 @@ Advantage website, must be installed to Maven local repository or an internal cu
 This goal only supports the [common parameters](common-parameters.md#common-parameters), and is implicitly invoked by `create-server`, `dump-server`, `java-dump-server`, `package-server`, `run-server`, `start-server`, `test-start-server` and `debug-server` goals.
 
 Examples:
- 1. Install from a packaged server using `assemblyArchive` parameter.
+ 1. Install from a packaged server using `runtimeArchive` parameter.
  
   ```xml
     <plugin>
@@ -23,7 +23,7 @@ Examples:
                     <goal>install-server</goal>
                 </goals>
                 <configuration>
-                    <assemblyArchive>/opt/ibm/wlp.zip</assemblyArchive>
+                    <runtimeArchive>/opt/ibm/wlp.zip</runtimeArchive>
                 </configuration>
             </execution>
             ...
@@ -31,7 +31,7 @@ Examples:
     </plugin>
   ```
   
- 2. Install from a Maven artifact using `assemblyArtifact` parameter, and upgrade to production supported Core edition using the `licenseArtifact` parameter.
+ 2. Install from a Maven artifact using `runtimeArtifact` parameter, and upgrade to production supported Core edition using the `licenseArtifact` parameter.
  See [Using Maven artifact](installation-configuration.md#using-maven-artifact) for more information.
  
   ```xml
@@ -47,12 +47,12 @@ Examples:
                     <goal>install-server</goal>
                 </goals>
                 <configuration>
-                    <assemblyArtifact>
+                    <runtimeArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile7</artifactId>
                         <version>17.0.0.1</version>
                         <type>zip</type>
-                    </assemblyArtifact>
+                    </runtimeArtifact>
                     <licenseArtifact>
                         <groupId>com.ibm.websphere.appserver.license</groupId>
                         <artifactId>wlp-core-license</artifactId>
@@ -97,12 +97,12 @@ Examples:
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
         <configuration>
-            <assemblyArtifact>
+            <runtimeArtifact>
                 <groupId>com.ibm.websphere.appserver.runtime</groupId>
                 <artifactId>wlp-webProfile7</artifactId>
                 <version>17.0.0.1</version>
                 <type>zip</type>
-            </assemblyArtifact>
+            </runtimeArtifact>
             <licenseArtifact>
                 <groupId>com.ibm.websphere.appserver.license</groupId>
                  <artifactId>wlp-core-license</artifactId>

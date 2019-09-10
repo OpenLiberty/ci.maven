@@ -129,7 +129,10 @@
                             </execution>
                         </executions>
                         <configuration>
-                          <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
+                            <assemblyInstallDirectory>${project.build.directory}</assemblyInstallDirectory>
+                            <runtimeArtifact>
+                                <artifactId>openliberty-runtime</artifactId>
+                            </runtimeArtifact>
                         </configuration>
                     </plugin>
                 </plugins>

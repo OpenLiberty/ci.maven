@@ -76,7 +76,7 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Server Install Directory
      */
-    @Parameter(property = "assemblyInstallDirectory", defaultValue = "${project.build.directory}/liberty")
+    @Parameter(alias = "runtimeInstallDirectory", property = "runtimeInstallDirectory", defaultValue = "${project.build.directory}/liberty")
     protected File assemblyInstallDirectory;
     
     /**
@@ -84,12 +84,6 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(property = "installDirectory")
     protected File installDirectory;
-
-    /**
-     * @deprecated Use installDirectory parameter instead.
-     */
-    @Parameter(property = "serverHome")
-    private File serverHome;
 
     /**
      * Liberty server name, default is defaultServer
@@ -127,14 +121,14 @@ public class BasicSupport extends AbstractLibertySupport {
      * A file which points to a specific assembly ZIP archive. If this parameter
      * is set, then it will install server from archive
      */
-    @Parameter(property = "assemblyArchive")
+    @Parameter(alias="runtimeArchive", property = "runtimeArchive")
     protected File assemblyArchive;
 
     /**
      * Maven coordinates of a server assembly. This is best listed as a dependency, in which case the version can
      * be omitted.
      */
-    @Parameter
+    @Parameter(alias="runtimeArtifact", property="runtimeArtifact")
     protected ArtifactItem assemblyArtifact;
     
     /**
@@ -175,10 +169,7 @@ public class BasicSupport extends AbstractLibertySupport {
             return;
         }        
         super.init();
-        // for backwards compatibility
-        if (installDirectory == null) {
-            installDirectory = serverHome;
-        }
+
         try {
             // First check if installDirectory is set, if it is, then we can skip this
             if (installDirectory != null) {
@@ -198,17 +189,40 @@ public class BasicSupport extends AbstractLibertySupport {
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
-            } else if (assemblyArtifact != null) {
+            } else if(install != null) {
+                installType = InstallType.FROM_ARCHIVE;
+                installDirectory = new File(assemblyInstallDirectory, "wlp");
+                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+            }
+            else { // default to install from runtime artifact
+                assemblyArtifact.setType("zip");
+                if(assemblyArtifact.getGroupId() == null) {
+                    log.debug("Defaulting runtimeArtifact group id to 'io.openliberty'");
+                    assemblyArtifact.setGroupId("io.openliberty");
+                }
+                if(assemblyArtifact.getArtifactId() == null) {
+                    log.debug("Defaulting runtimeArtifact artifact id to 'openliberty-kernel'");
+                    assemblyArtifact.setArtifactId("openliberty-kernel");
+                }
+                
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
                 if (libertyRuntimeVersion != null) {
                     if (assemblyArtifact.getVersion() != null) {
-                        log.info("The assemblyArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
+                        log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
                     } else {
-                        log.info("The liberty.runtime.version value "+ libertyRuntimeVersion +" is used for the assemblyArtifact version.");
+                        log.info("The liberty.runtime.version property value "+ libertyRuntimeVersion +" is used for the runtimeArtifact version.");
                     }
                     assemblyArtifact.setVersion(libertyRuntimeVersion);
                 }
-                Artifact artifact = getArtifact(assemblyArtifact);
+                else {
+                    if(assemblyArtifact.getVersion() == null) {
+                        log.debug("Defaulting runtimeArtifact version to '[19.0.0.6,)'");
+                        assemblyArtifact.setVersion("[19.0.0.6,)");
+                    }
+                }
+                
+                Artifact artifact = getArtifact(assemblyArtifact);                
+                
                 assemblyArchive = artifact.getFile();
                 if (assemblyArchive == null) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.assembly.validate"), "artifact based assembly archive", ""));
@@ -217,13 +231,6 @@ public class BasicSupport extends AbstractLibertySupport {
                 assemblyArchive = assemblyArchive.getCanonicalFile();
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
-            } else {
-                if (install == null) {
-                    install = new Install();
-                }
-                installType = InstallType.FROM_ARCHIVE;
-                installDirectory = new File(assemblyInstallDirectory, "wlp");
                 log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             }
 
