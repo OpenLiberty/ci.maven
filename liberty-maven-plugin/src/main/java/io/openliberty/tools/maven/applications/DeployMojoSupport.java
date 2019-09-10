@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2017.
+ * (C) Copyright IBM Corporation 2016, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
+import io.openliberty.tools.ant.DeployTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
@@ -36,25 +37,26 @@ import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
-import net.wasdev.wlp.ant.DeployTask;
-import net.wasdev.wlp.ant.SpringBootUtilTask;
+import io.openliberty.tools.ant.DeployTask;
+import io.openliberty.tools.ant.SpringBootUtilTask;
+import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
+import io.openliberty.tools.common.plugins.config.LooseApplication;
+import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
 /**
- * Install artifact into Liberty server support.
+ * Support for installing and deploying applications to a Libert server.
  */
-public class InstallAppMojoSupport extends PluginConfigSupport {
+public class DeployMojoSupport extends PluginConfigSupport {
     /**
      * A file which points to a specific module's war | ear | eba | zip archive location
      */
-    @Parameter(property = "appArchive")
     protected File appArchive;
 
     /**
      * Maven coordinates of an application to deploy. This is best listed as a dependency,
      * in which case the version can be omitted.
      */
-    @Parameter
-    protected ArtifactItem appArtifact;
+    protected Artifact appArtifact;
 
     /**
      * Timeout to verify deploy successfully, in seconds.
@@ -72,11 +74,20 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
     protected void installApp(Artifact artifact) throws Exception {
-
+    
+        //The only time this would happen is if the project artifact is null.
+        //This method is called with reactor projects when dealing with dependency projects.
+        //Dependency projects will not pass artifacts with null files. See installDependencies()...
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getAppFileName(project);
-            File f = new File(project.getBuild().getDirectory() + "/" + warName);
-            artifact.setFile(f);
+            if (appArchive != null) {
+                artifact.setFile(appArchive);
+            } else if (appArtifact != null) {
+                artifact = appArtifact;
+            } else {
+                String warName = getAppFileName(project);
+                File f = new File(project.getBuild().getDirectory() + "/" + warName);
+                artifact.setFile(f);
+            }
         }
 
         if (!artifact.getFile().exists()) {
@@ -110,18 +121,19 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
     }
 
     protected void deployApp() throws Exception {
-        if (appArchive != null && appArtifact != null) {
-            throw new MojoExecutionException(messages.getString("error.app.set.twice"));
-        }
-
         if (appArtifact != null) {
-            Artifact artifact = getArtifact(appArtifact);
-            appArchive = artifact.getFile();
+            appArchive = appArtifact.getFile();
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
-        } else if (appArchive != null) {
+            if (stripVersion) { //Setting deploy name to stripped file name
+                appDeployName = stripVersionFromName(appArchive.getName(), appArtifact.getBaseVersion());
+            }
+        } else if (appArchive != null) { //Don't need to handle stripped version here. Will have been stripped as part of loose app generation
             log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
         } else if (project.getArtifact() != null) {
             appArchive = project.getArtifact().getFile();
+            if (stripVersion) {
+                appDeployName = stripVersionFromName(appArchive.getName(), project.getArtifact().getBaseVersion());
+            }
         } else {
             throw new MojoExecutionException("Could not deploy application. No appArchive or appArtifact set. No project artifact found.");
         }
@@ -131,7 +143,7 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         }
 
         log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
-        DeployTask deployTask = (DeployTask) ant.createTask("antlib:net/wasdev/wlp/ant:deploy");
+        DeployTask deployTask = (DeployTask) ant.createTask("antlib:io/openliberty/tools/ant:deploy");
         if (deployTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
         }
@@ -355,5 +367,28 @@ public class InstallAppMojoSupport extends PluginConfigSupport {
         springBootUtilTask.setSourceAppPath(fatArchiveSrcLocation);
         springBootUtilTask.setTargetLibCachePath(libIndexCacheTargetLocation);
         springBootUtilTask.execute();
+    }
+
+    protected boolean matches(Artifact artifact, ArtifactItem assemblyArtifact) {
+        return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
+                && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
+                && artifact.getType().equals(assemblyArtifact.getType());
+    }
+    
+    protected boolean isSupportedType(String type) {
+        boolean supported = false;
+        switch (type) {
+            case "ear":
+            case "war":
+            case "rar":
+            case "eba":
+            case "esa":
+            case "liberty-assembly":
+                supported = true;
+                break;
+            default:
+                break;
+        }
+        return supported;
     }
 }

@@ -4,7 +4,7 @@
       <pluginExecutionFilter>
         <goals>
           <goal>create</goal>
-          <goal>install-apps</goal>
+          <goal>deploy</goal>
           <goal>install-feature</goal>
           <goal>package</goal>
         </goals>

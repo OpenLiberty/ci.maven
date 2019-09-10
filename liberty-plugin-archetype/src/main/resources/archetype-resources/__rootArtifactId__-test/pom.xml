@@ -83,7 +83,7 @@
                         <id>install-apps</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
                         <configuration>
                             <!-- Drop application into apps/ directory -->
