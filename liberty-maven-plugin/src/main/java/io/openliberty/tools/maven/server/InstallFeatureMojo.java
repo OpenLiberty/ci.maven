@@ -48,12 +48,6 @@ public class InstallFeatureMojo extends BasicSupport {
     @Parameter
     private Features features;
 
-
-    /**
-     * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
-     */
-    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/liberty-alt-output-dir")
-    protected File outputDirectory;
     
     private boolean noFeaturesSection;
 
@@ -180,6 +174,11 @@ public class InstallFeatureMojo extends BasicSupport {
 
     @SuppressWarnings("deprecation")
     private void installFeaturesFromAnt(List<Feature> installFeatures) {
+        // Set default outputDirectory to liberty-alt-output-dir for install-feature goal.
+        if (defaultOutputDirSet) {
+            outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");
+        }
+
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
                 .createTask("antlib:io/openliberty/tools/ant:install-feature");
 

@@ -58,11 +58,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     @Parameter(property = "include")
     private String include;
 
-    /**
-     * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
-     */
-    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/liberty-alt-output-dir")
-    protected File outputDirectory;
 
     /**
      * Os supported. Specifies the operating systems that you want the packaged server to support. 
@@ -89,6 +84,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     
     @Override
     protected void doExecute() throws Exception {
+        // Set default outputDirectory to liberty-alt-output-dir for package goal.
+        if (defaultOutputDirSet) {
+            outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");
+        }
+
         if (skip || skipLibertyPackage) {
             return;
         }
