@@ -90,11 +90,10 @@ The Liberty Maven Plugin provides the following goals.
 | [compile-jsp](docs/compile-jsp.md#compile-jsps) | Compile JSPs in the src/main/webapp into the target/classes directory |
 | [create](docs/create.md#create) | Create a Liberty server. |
 | [debug](docs/debug.md#debug) | Start a Liberty server in debug mode. |
-| [deploy](docs/deploy.md#deploy) | Deploy an application to a Liberty server. The server instance must exist and must be running. |
 | [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
 | [dump](docs/dump.md#dump) | Dump diagnostic information from the server into an archive. |
-| [install-apps](docs/install-apps.md#install-apps) | Copy applications specified as Maven compile dependencies to Liberty server's `dropins` or `apps` directory. |
+| [deploy](docs/deploy.md#deploy) | Deploy or copy applications to Liberty server's `dropins` or `apps` directory. |
 | [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
 | [java-dump](docs/java-dump.md#java-dump) | Dump diagnostic information from the server JVM. |
@@ -130,7 +129,7 @@ Extensions improve the compatibility or user experience of third party libraries
 
 ### liberty-assembly
 
-The `liberty-assembly` Maven packaging type is used to create a packaged Liberty server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server. Any application or test code included in the project is automatically compiled and tests run at appropriate unit or integration test phase. Application code is installed as a loose application WAR file if `installAppPackages` is set to `all` or `project` and `looseApplication` is set to `true`.
+The `liberty-assembly` Maven packaging type is used to create a packaged Liberty server Maven artifact out of existing server installation, compressed archive, or another server Maven artifact. Any applications specified as Maven compile dependencies will be automatically packaged with the assembled server. [Liberty features](docs/install-feature.md) can also be installed and packaged with the assembled server. Any application or test code included in the project is automatically compiled and tests run at appropriate unit or integration test phase. Application code is installed as a loose application WAR file if `deployPackages` is set to `all` or `project` and `looseApplication` is set to `true`.
 
 The `liberty-assembly` default lifecycle includes:
 
@@ -143,7 +142,7 @@ The `liberty-assembly` default lifecycle includes:
 | test-compile | maven-compiler-plugin:testCompile |
 | test | maven-surefire-plugin:test |
 | prepare-package | liberty:create, liberty:install-feature |
-| package | liberty:install-apps, liberty:package|
+| package | liberty:deploy, liberty:package|
 | pre-integration-test | liberty:test-start|
 | integration-test | maven-failsafe-plugin:integration-test |
 | post-integration-test | liberty:test-stop|
@@ -186,7 +185,7 @@ Example:
                         <feature>mongodb-2.0</feature>
                     </features>
                     <looseApplication>true</looseApplication>
-                    <installAppPackages>all</installAppPackages>
+                    <deployPackages>all</deployPackages>
                 </configuration>
             </plugin>
         </plugins>

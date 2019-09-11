@@ -48,7 +48,7 @@
                     <configuration>
                         <!-- set install-apps goal parameters -->
                         <looseApplication>true</looseApplication>
-                        <installAppPackages>project</installAppPackages>
+                        <deployPackages>project</deployPackages>
                     </configuration>
                     <executions>
                         <execution>

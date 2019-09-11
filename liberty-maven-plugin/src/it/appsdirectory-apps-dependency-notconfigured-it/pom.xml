@@ -81,7 +81,7 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-          <installAppPackages>all</installAppPackages>
+          <deployPackages>all</deployPackages>
           <looseApplication>false</looseApplication>
         </configuration>
         <executions>

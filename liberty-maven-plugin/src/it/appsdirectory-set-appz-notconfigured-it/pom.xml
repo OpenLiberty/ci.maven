@@ -57,7 +57,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <installAppPackages>project</installAppPackages>
+                    <deployPackages>project</deployPackages>
                     <appsDirectory>appz</appsDirectory>
                     <looseApplication>false</looseApplication>
                 </configuration>

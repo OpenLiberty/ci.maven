@@ -76,7 +76,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
         boolean uninstallDependencies = false;
         boolean uninstallProject = false;
 
-        switch (getInstallAppPackages()) {
+        switch (getDeployPackages()) {
             case "all":
                 uninstallDependencies = true;
                 uninstallProject = true;

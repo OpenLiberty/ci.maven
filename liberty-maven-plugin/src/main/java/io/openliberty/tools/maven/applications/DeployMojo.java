@@ -57,7 +57,7 @@ public class DeployMojo extends DeployMojoSupport {
         boolean installDependencies = false;
         boolean installProject = false;
                 
-        switch (getInstallAppPackages()) {
+        switch (getDeployPackages()) {
             case "all":
                 installDependencies = true;
                 installProject = true;

@@ -82,7 +82,7 @@
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <bootstrapPropertiesFile>src/test/resources/bootstrap.properties</bootstrapPropertiesFile>
-          <installAppPackages>all</installAppPackages>
+          <deployPackages>all</deployPackages>
         </configuration>
         <executions>
             <execution>

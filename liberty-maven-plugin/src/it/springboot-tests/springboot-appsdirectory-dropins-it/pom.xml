@@ -56,7 +56,7 @@
                         <version>18.0.0.2</version>
 						<type>zip</type>
 					</assemblyArtifact>
-					<installAppPackages>spring-boot-project</installAppPackages>
+					<deployPackages>spring-boot-project</deployPackages>
 				</configuration>
 				
 				<executions>

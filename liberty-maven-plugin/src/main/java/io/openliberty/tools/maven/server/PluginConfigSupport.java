@@ -62,8 +62,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter(property = "installAppPackages", defaultValue = "dependencies")
-    private String installAppPackages;
+    @Parameter(property = "deployPackages", defaultValue = "dependencies")
+    private String deployPackages;
 
     @Component
     private BuildContext buildContext;
@@ -78,11 +78,11 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         this.buildContext.refresh(installDirectory);
     }
 
-    protected String getInstallAppPackages() {
+    protected String getDeployPackages() {
         if ("ear".equals(project.getPackaging())) {
-            installAppPackages = "project";
+            deployPackages = "project";
         }
-        return installAppPackages;
+        return deployPackages;
     }
 
     /*
@@ -133,7 +133,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
-        configDocument.createElement("installAppPackages", getInstallAppPackages());
+        configDocument.createElement("deployPackages", getDeployPackages());
         configDocument.createElement("applicationFilename", getApplicationFilename());
         configDocument.createElement("assemblyArtifact", assemblyArtifact);
         configDocument.createElement("assemblyArchive", assemblyArchive);
@@ -212,7 +212,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         // A project doesn't build a web application artifact but getting the
         // application artifacts from dependencies. e.g. liberty-assembly type
         // project.
-        if ("dependencies".equals(getInstallAppPackages())) {
+        if ("dependencies".equals(getDeployPackages())) {
             return null;
         }
 
@@ -334,7 +334,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected File getLibertyAssemblyWarSourceDirectory(MavenProject proj) {
         if ("liberty-assembly".equals(project.getPackaging())
                 && (looseApplication
-                        && (getInstallAppPackages().equals("all") || getInstallAppPackages().equals("project")))
+                        && (getDeployPackages().equals("all") || getDeployPackages().equals("project")))
                 || project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null) != null) {
             return getWarSourceDirectory(project);
         }

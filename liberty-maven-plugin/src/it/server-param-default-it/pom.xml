@@ -97,7 +97,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
-                    <installAppPackages>project</installAppPackages>
+                    <deployPackages>project</deployPackages>
                     <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
                 </configuration>

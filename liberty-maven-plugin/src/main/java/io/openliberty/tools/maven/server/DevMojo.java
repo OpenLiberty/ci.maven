@@ -788,7 +788,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
-                    elements.add(element(name("installAppPackages"), "project"));
+                    elements.add(element(name("deployPackages"), "project"));
                     if (serverXmlFile != null) {
                         elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
                     }

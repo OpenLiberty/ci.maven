@@ -75,7 +75,7 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
         </configuration>
         <executions>

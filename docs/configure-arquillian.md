@@ -53,7 +53,7 @@ Specify the following `liberty-maven-plugin` configuration in `pom.xml`:
 		<features>
 			<acceptLicense>true</acceptLicense>
 		</features>
-		<installAppPackages>all</installAppPackages>
+		<deployPackages>all</deployPackages>
 		<appsDirectory>apps</appsDirectory>
 		<stripVersion>true</stripVersion>
 		<looseApplication>true</looseApplication>
