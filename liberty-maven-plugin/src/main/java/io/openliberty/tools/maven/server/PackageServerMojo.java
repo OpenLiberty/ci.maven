@@ -149,7 +149,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             }
         }
 
-        include = String.join(",", includeValues);
+        if (includeValues.size() > 0) {
+            include = String.join(",", includeValues);
+        }
     }
 
     /**
@@ -176,7 +178,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     private String getPackageFileType() throws MojoFailureException {
     	if (packageType != null && packageType.equals("jar")) {
-            if (include == null || include.equals("all") || include.equals("minify")) {
+            if (include == null || include.isEmpty() || include.equals("all") || include.equals("minify")) {
                 return ".jar";
             } else {
                 throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
