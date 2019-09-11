@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2019. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     @Parameter(property = "include")
     private String include;
 
+
     /**
      * Os supported. Specifies the operating systems that you want the packaged server to support. 
      *     Supply a comma-separated list. The default value is any, indicating that the server is to 
@@ -86,6 +87,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     
     @Override
     protected void doExecute() throws Exception {
+        // Set default outputDirectory to liberty-alt-output-dir for package goal.
+        if (defaultOutputDirSet) {
+            outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");
+        }
+
         if (skip || skipLibertyPackage) {
             return;
         }

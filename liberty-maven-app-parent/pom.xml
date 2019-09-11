@@ -72,9 +72,6 @@
                             <goals>
                               <goal>install-feature</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
-                            </configuration>
                         </execution>
                         <execution>
                             <id>install-apps</id>
@@ -89,9 +86,6 @@
                             <goals>
                                 <goal>package</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
-                            </configuration>
                         </execution>
                         <execution>
                             <id>test-start</id>

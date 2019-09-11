@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2018.
+ * (C) Copyright IBM Corporation 2015, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -47,6 +47,7 @@ public class InstallFeatureMojo extends BasicSupport {
      */
     @Parameter
     private Features features;
+
     
     private boolean noFeaturesSection;
 
@@ -173,6 +174,11 @@ public class InstallFeatureMojo extends BasicSupport {
 
     @SuppressWarnings("deprecation")
     private void installFeaturesFromAnt(List<Feature> installFeatures) {
+        // Set default outputDirectory to liberty-alt-output-dir for install-feature goal.
+        if (defaultOutputDirSet) {
+            outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");
+        }
+
         InstallFeatureTask installFeatureTask = (InstallFeatureTask) ant
                 .createTask("antlib:io/openliberty/tools/ant:install-feature");
 
