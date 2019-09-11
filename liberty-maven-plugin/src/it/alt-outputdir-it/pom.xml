@@ -119,8 +119,6 @@
                         <id>test-start</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>install-feature</goal>
-                            <goal>package</goal>
                             <goal>test-start</goal>
                         </goals>
                     </execution>
