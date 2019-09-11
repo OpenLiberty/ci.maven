@@ -2,7 +2,7 @@
 ---
 Package a Liberty server.
 
-In Open Liberty and WebSphere Liberty versions since 8.5.5.9, it is possible to package a server into an executable jar file by setting the `include` parameter to `runnable`. The created jar file can be executed using the `java -jar` command.
+In Open Liberty and WebSphere Liberty versions since 8.5.5.9, it is possible to package a server into an executable jar file by setting the `packageType` parameter to `jar`. The created jar file can be executed using the `java -jar` command.
 
 ###### Additional Parameters
 
