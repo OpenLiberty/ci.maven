@@ -125,6 +125,14 @@
                         </goals>
                     </execution>
                     <execution>
+                        <id>test-start</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>install-feature</goal>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>test-stop</id>
                         <phase>post-integration-test</phase>
                         <goals>
