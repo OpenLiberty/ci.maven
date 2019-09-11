@@ -15,9 +15,12 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -120,19 +123,34 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
 
     private void validateInclude() throws MojoFailureException {
+        ArrayList<String> includeValues;
+        List<String> includeStrings;
+
+        if (include != null && !include.isEmpty()) {
+            include = include.trim();
+            includeStrings = Arrays.asList(include.split(","));
+            includeValues = new ArrayList<String>(includeStrings);
+            for (int i = 0; i < includeValues.size(); i++) {
+                String value = includeValues.get(i);
+                includeValues.set(i, value.trim());
+            }
+        } else {
+            includeValues = new ArrayList<String>();
+        }
+
         // if jar, validate include options, and add runnable
         if (packageType.equals("jar")) {
-            if (include == null) {
-                include = "runnable";
-            } else {
-                if (include.contains("usr") || include.contains("wlp")) {
-                    throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
-                }
-                
-                if (!include.contains("runnable")) {
-                    include.concat(",runnable");
-                }
+            if (includeValues.contains("usr") || includeValues.contains("wlp")) {
+                throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
             }
+
+            if (!includeValues.contains("runnable")) {
+                includeValues.add("runnable");
+            }
+        }
+
+        if (includeValues.size() > 0) {
+            include = String.join(",", includeValues);
         }
     }
 
@@ -159,7 +177,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     private String getPackageFileType() throws MojoFailureException {
     	if (packageType != null && packageType.equals("jar")) {
-            if (include == null || include.equals("all") || include.equals("minify")) {
+            if (include == null || include.isEmpty() || include.equals("all") || include.equals("minify")) {
                 return ".jar";
             } else {
                 throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
