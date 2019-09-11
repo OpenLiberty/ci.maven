@@ -93,7 +93,7 @@ The Liberty Maven Plugin provides the following goals.
 | [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
 | [dump](docs/dump.md#dump) | Dump diagnostic information from the server into an archive. |
-| [deploy](docs/deploy.md#deploy) | Deploy or copy applications to Liberty server's `dropins` or `apps` directory. |
+| [deploy](docs/deploy.md#deploy) | Copy applications to the Liberty server's dropins or apps directory. If the server instance is running, it will also verify the applications started successfully. |
 | [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
 | [java-dump](docs/java-dump.md#java-dump) | Dump diagnostic information from the server JVM. |

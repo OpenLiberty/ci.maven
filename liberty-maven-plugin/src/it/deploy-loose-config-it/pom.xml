@@ -61,16 +61,15 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
-                    <assemblyArtifact>
+                    <runtimeArtifact>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>assembly-server</artifactId>
                         <version>${project.version}</version>
                         <type>zip</type>
-                    </assemblyArtifact>
+                    </runtimeArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
                     <deployPackages>project</deployPackages>
-                    <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>
                     <packageType>${package.type}</packageType>

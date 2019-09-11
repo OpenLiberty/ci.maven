@@ -204,7 +204,7 @@ public class DeployMojo extends DeployMojoSupport {
     }
 
     private void installLooseApplication(MavenProject proj, File looseConfigFile) throws Exception {
-        String looseConfigFileName = getLooseConfigFileName(proj);
+        String looseConfigFileName = looseConfigFile.getName();
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         LooseConfigData config = new LooseConfigData();
 

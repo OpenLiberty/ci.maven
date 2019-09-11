@@ -44,7 +44,7 @@ import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 
 /**
- * Support for installing and deploying applications to a Libert server.
+ * Support for installing and deploying applications to a Liberty server.
  */
 public class DeployMojoSupport extends PluginConfigSupport {
     /**

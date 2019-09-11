@@ -142,7 +142,7 @@
                             <goal>stop</goal>
                         </goals>
                     </execution>
-                    <!-- <execution>
+                    <execution>
                         <id>clean-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
@@ -152,7 +152,7 @@
                             <cleanDropins>true</cleanDropins>
                             <cleanApps>true</cleanApps>
                         </configuration>
-                    </execution> -->
+                    </execution>
                     <execution>
                         <id>package-server</id>
                         <!-- phase must be after integration tests since they create the "test" server -->

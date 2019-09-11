@@ -19,6 +19,4 @@
     </featureManager>
     
     <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" />
-    
-    <!-- <webApplication id="loose-config-it" location="loose-config-it.war" name="loose-config-it"/> -->
 </server>
