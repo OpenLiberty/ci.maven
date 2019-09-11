@@ -62,7 +62,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter(property = "deployPackages", defaultValue = "dependencies")
+    @Parameter(property = "deployPackages", defaultValue = "dependencies", alias = "installAppPackages")
     private String deployPackages;
 
     @Component
@@ -133,7 +133,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         configDocument.createElement("appsDirectory", getAppsDirectory());
         configDocument.createElement("looseApplication", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
-        configDocument.createElement("deployPackages", getDeployPackages());
+        configDocument.createElement("installAppPackages", getDeployPackages());
         configDocument.createElement("applicationFilename", getApplicationFilename());
         configDocument.createElement("assemblyArtifact", assemblyArtifact);
         configDocument.createElement("assemblyArchive", assemblyArchive);

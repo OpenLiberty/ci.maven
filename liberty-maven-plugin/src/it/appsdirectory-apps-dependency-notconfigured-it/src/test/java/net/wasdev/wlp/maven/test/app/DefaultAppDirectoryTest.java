@@ -68,9 +68,9 @@ public class DefaultAppDirectoryTest {
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
         Assert.assertEquals("Value of <appsDirectory/> ==>", "apps", value);
         
-        expression = "/liberty-plugin-config/deployPackages/text()";
+        expression = "/liberty-plugin-config/installAppPackages/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <deployPackages/> ==>", "all", value);
+        Assert.assertEquals("Value of <installAppPackages/> ==>", "all", value);
         
         expression = "/liberty-plugin-config/applicationFilename/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);

@@ -40,9 +40,9 @@ public class PluginConfigXmlIT {
         
         // parse input XML Document
         XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/deployPackages/text()";
+        String expression = "/liberty-plugin-config/installAppPackages/text()";
         String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        assertEquals("Value of <deployPackages/> ==>", "dependencies", value);
+        assertEquals("Value of <installAppPackages/> ==>", "dependencies", value);
         
         expression = "/liberty-plugin-config/projectType/text()";
         value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
