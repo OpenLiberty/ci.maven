@@ -62,7 +62,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */
-    @Parameter(property = "deployPackages", defaultValue = "dependencies", alias = "installAppPackages")
+    @Parameter(property = "deployPackages", defaultValue = "project", alias = "installAppPackages")
     private String deployPackages;
 
     @Component

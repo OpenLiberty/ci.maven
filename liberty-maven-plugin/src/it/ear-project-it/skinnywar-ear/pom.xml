@@ -70,6 +70,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
+                    <deployPackages>dependencies</deployPackages>
                     <looseApplication>true</looseApplication>
                 </configuration>
                 <executions>
