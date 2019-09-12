@@ -37,12 +37,6 @@ import io.openliberty.tools.ant.UndeployTask;
 
 public class UndeployAppMojo extends DeployMojoSupport {
 
-    /**
-     * Timeout to verify undeploy successfully, in seconds.
-     */
-    @Parameter(property = "timeout", defaultValue = "40")
-    protected int timeout = 40;
-
     private UndeployTask undeployTask;
     
     /*
