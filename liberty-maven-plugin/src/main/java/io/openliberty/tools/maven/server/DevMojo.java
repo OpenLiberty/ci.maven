@@ -121,8 +121,8 @@ public class DevMojo extends StartDebugMojoSupport {
     private int runId = 0;
 
     private ServerTask serverTask = null;
-
-    private boolean usingBoost = false;
+    
+    private Plugin boostPlugin = null;
 
     @Component
     private BuildPluginManager pluginManager;
@@ -301,7 +301,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
-                    if (usingBoost) {
+                    if (isUsingBoost()) {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
                     }
@@ -361,7 +361,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         return true;
                     } else {
-                        if (usingBoost) {
+                        if (isUsingBoost()) {
                             this.existingPom = modifiedPom;
                             return true;
                         } else {
@@ -448,6 +448,10 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
+    private boolean isUsingBoost() {
+        return boostPlugin != null;
+    }
+    
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
@@ -460,10 +464,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         // Check if this is a Boost application
-        Plugin boostPlugin = project.getPlugin("boost:boost-maven-plugin");
-        if (boostPlugin != null) {
-            usingBoost = true;
-        }
+        boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
         // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
@@ -501,7 +502,7 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        if (usingBoost) {
+        if (isUsingBoost()) {
             log.info("Running boost:package");
             runBoostMojo("package", false);
         } else {
@@ -838,8 +839,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runBoostMojo(String goal, boolean rebuildProject)
             throws MojoExecutionException, ProjectBuildingException {
-
-        Plugin boostPlugin = project.getPlugin(Plugin.constructKey("boost", "boost-maven-plugin"));
 
         MavenProject boostProject = this.project;
         MavenSession boostSession = this.session;
