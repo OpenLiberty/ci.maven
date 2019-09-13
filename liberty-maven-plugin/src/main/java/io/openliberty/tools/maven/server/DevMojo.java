@@ -780,7 +780,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         featureElems[i] = element(name("feature"), dependencies.get(i));
                     }
                     elements.add(element(name("features"), featureElems));
-                } else if (goal.equals("install-apps")) {
+                } else if (goal.equals("deploy")) {
                     String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
                         LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
                     if (appsDirectory != null) {
