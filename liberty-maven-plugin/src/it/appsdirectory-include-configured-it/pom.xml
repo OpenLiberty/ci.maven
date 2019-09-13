@@ -74,8 +74,9 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
+          <looseApplication>false</looseApplication>
         </configuration>
         <executions>
             <execution>
@@ -96,7 +97,7 @@
                 <id>install-artifact</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>install-apps</goal>
+                    <goal>deploy</goal>
                 </goals>
                 <configuration>
                     <stripVersion>true</stripVersion>

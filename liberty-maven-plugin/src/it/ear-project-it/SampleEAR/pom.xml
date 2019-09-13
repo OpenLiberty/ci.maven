@@ -111,7 +111,7 @@
                         <id>install-apps</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                     <execution>

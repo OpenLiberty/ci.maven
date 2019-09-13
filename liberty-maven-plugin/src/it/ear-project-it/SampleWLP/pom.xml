@@ -52,6 +52,7 @@
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
                     <looseApplication>true</looseApplication>
+                    <deployPackages>dependencies</deployPackages>
                     <include>usr</include>
                 </configuration>
             </plugin>

@@ -50,7 +50,7 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
           <appsDirectory>appz</appsDirectory>
           <stripVersion>true</stripVersion>
           <skipTestServer>true</skipTestServer>

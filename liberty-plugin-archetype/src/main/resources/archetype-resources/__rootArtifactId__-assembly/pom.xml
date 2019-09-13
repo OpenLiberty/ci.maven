@@ -36,6 +36,7 @@
                     <serverXmlFile>${project.basedir}/src/test/resources/wlp/server.xml</serverXmlFile>
                     <!-- Drop application into apps/ directory -->
                     <appsDirectory>apps</appsDirectory>
+                    <deployPackages>dependencies</deployPackages>
                 </configuration>
             </plugin>
         </plugins>

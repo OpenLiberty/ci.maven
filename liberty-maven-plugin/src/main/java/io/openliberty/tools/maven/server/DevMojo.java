@@ -509,10 +509,9 @@ public class DevMojo extends StartDebugMojoSupport {
             runLibertyMavenPlugin("create", serverName, null);
             log.info("Running goal: install-feature");
             runLibertyMavenPlugin("install-feature", serverName, null);
-            log.info("Running goal: install-apps");
-            runLibertyMavenPlugin("install-apps", serverName, null);
+            log.info("Running goal: deploy");
+            runLibertyMavenPlugin("deploy", serverName, null);
         }
-
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {
@@ -782,15 +781,14 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                     elements.add(element(name("features"), featureElems));
                 } else if (goal.equals("install-apps")) {
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project,
-                            LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "install-apps",
-                            "appsDirectory");
+                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
+                        LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
-                    elements.add(element(name("installAppPackages"), "project"));
+                    elements.add(element(name("deployPackages"), "project"));
                     if (serverXmlFile != null) {
                         elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
                     }

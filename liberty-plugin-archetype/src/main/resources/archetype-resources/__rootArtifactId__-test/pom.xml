@@ -83,7 +83,7 @@
                         <id>install-apps</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
                         <configuration>
                             <!-- Drop application into apps/ directory -->
@@ -114,6 +114,7 @@
                     <installDirectory>${liberty.install.dir}</installDirectory>
                     <userDirectory>${project.build.directory}</userDirectory>
                     <serverName>test</serverName>
+                    <deployPackages>dependencies</deployPackages>
                 </configuration>
             </plugin>
         </plugins>

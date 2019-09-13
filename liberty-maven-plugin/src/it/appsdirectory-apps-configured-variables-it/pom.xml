@@ -82,7 +82,7 @@
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <bootstrapPropertiesFile>src/test/resources/bootstrap.properties</bootstrapPropertiesFile>
-          <installAppPackages>all</installAppPackages>
+          <deployPackages>all</deployPackages>
         </configuration>
         <executions>
             <execution>
@@ -103,7 +103,7 @@
                 <id>install-artifact</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>install-apps</goal>
+                    <goal>deploy</goal>
                 </goals>
                 <configuration>
                     <appsDirectory>apps</appsDirectory>

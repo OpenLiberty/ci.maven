@@ -43,7 +43,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
           <libertySettingsFolder>${project.basedir}/testLibertyConfig/repository.properties</libertySettingsFolder>
         </configuration>
