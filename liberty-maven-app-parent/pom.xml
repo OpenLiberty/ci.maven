@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.0-M3-SNAPSHOT</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
     
     <artifactId>liberty-maven-app-parent</artifactId>
@@ -44,12 +44,7 @@
                 <plugin>
                     <groupId>io.openliberty.tools</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
-                    <version>3.0-M3-SNAPSHOT</version>
-                    <configuration>
-                        <!-- set install-apps goal parameters -->
-                        <looseApplication>true</looseApplication>
-                        <installAppPackages>project</installAppPackages>
-                    </configuration>
+                    <version>3.0.2-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>stop-before-clean</id>
@@ -72,15 +67,12 @@
                             <goals>
                               <goal>install-feature</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
-                            </configuration>
                         </execution>
                         <execution>
                             <id>install-apps</id>
                             <phase>package</phase>
                             <goals>
-                                <goal>install-apps</goal>
+                                <goal>deploy</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -89,9 +81,6 @@
                             <goals>
                                 <goal>package</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>target/liberty-alt-output-dir</outputDirectory>
-                            </configuration>
                         </execution>
                         <execution>
                             <id>test-start</id>

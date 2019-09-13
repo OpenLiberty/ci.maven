@@ -62,7 +62,7 @@
                         <feature>osgiBundle-1.0</feature>
                     </features>
                     <looseApplication>true</looseApplication>
-                    <installAppPackages>all</installAppPackages>
+                    <deployPackages>all</deployPackages>
                 </configuration>
             </plugin>
         </plugins>

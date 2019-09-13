@@ -75,7 +75,8 @@
           </assemblyArtifact>
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
+          <looseApplication>false</looseApplication>
         </configuration>
         <executions>
             <execution>
@@ -96,7 +97,7 @@
                 <id>install-artifact</id>
                 <phase>package</phase>
                 <goals>
-                    <goal>install-apps</goal>
+                    <goal>deploy</goal>
                 </goals>
                 <configuration>
                     <appsDirectory>dropins</appsDirectory>

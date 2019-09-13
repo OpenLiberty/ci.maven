@@ -181,7 +181,7 @@
                     <features>
                         <acceptLicense>true</acceptLicense>
                     </features>
-                    <installAppPackages>all</installAppPackages>
+                    <deployPackages>all</deployPackages>
                     <appsDirectory>apps</appsDirectory>
                     <stripVersion>true</stripVersion>
                     <looseApplication>true</looseApplication>
@@ -230,7 +230,7 @@
                         <id>install-apps</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                     <execution>

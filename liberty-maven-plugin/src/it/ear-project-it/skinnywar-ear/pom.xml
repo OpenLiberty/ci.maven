@@ -70,6 +70,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
+                    <deployPackages>dependencies</deployPackages>
                     <looseApplication>true</looseApplication>
                 </configuration>
                 <executions>
@@ -85,7 +86,7 @@
                         <id>install-apps</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>

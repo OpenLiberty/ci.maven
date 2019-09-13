@@ -1,36 +1,8 @@
 ### Liberty installation configuration
 
-### Using an existing installation
-
-Use the `installDirectory` parameter to specify the directory of an existing Liberty server installation. For example:
-
-```xml
-<plugin>
-    <groupId>io.openliberty.tools</groupId>
-    <artifactId>liberty-maven-plugin</artifactId>
-    <configuration>
-        <installDirectory>/opt/ibm/wlp</installDirectory>
-    </configuration>
-</plugin>
-```
-
-### Using a packaged server
-
-Use the `runtimeArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty server files. For example:
-
-```xml
-<plugin>
-    <groupId>io.openliberty.tools</groupId>
-    <artifactId>liberty-maven-plugin</artifactId>
-    <configuration>
-        <runtimeArchive>/opt/ibm/wlp.zip</runtimeArchive>
-    </configuration>
-</plugin>
-```
-
 ### Using a Maven artifact
 
-Use the `runtimeArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). 
+Use the `runtimeArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). This is the default installation method. The default runtime artifact is the latest version of `io.openliberty:openliberty-kernel`. 
 
 The Maven Central repository includes the following Liberty runtime artifacts. Versions for each artifact can be found at the specified link.
 
@@ -61,6 +33,34 @@ Example for using the `runtimeArtifact` parameter:
             <version>8.5.5.7</version>
             <type>zip</type>
         </runtimeArtifact>
+    </configuration>
+</plugin>
+```
+
+### Using an existing installation
+
+Use the `installDirectory` parameter to specify the directory of an existing Liberty server installation. For example:
+
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <configuration>
+        <installDirectory>/opt/ibm/wlp</installDirectory>
+    </configuration>
+</plugin>
+```
+
+### Using a packaged server
+
+Use the `runtimeArchive` parameter to specify a packaged server archive (created using `server package` command) that contains Liberty server files. For example:
+
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <configuration>
+        <runtimeArchive>/opt/ibm/wlp.zip</runtimeArchive>
     </configuration>
 </plugin>
 ```

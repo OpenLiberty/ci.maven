@@ -44,7 +44,7 @@
                                 io.openliberty.tools:liberty-maven-plugin:install-feature,
                             </prepare-package>
                             <package>
-                                io.openliberty.tools:liberty-maven-plugin:install-apps,
+                                io.openliberty.tools:liberty-maven-plugin:deploy,
                                 io.openliberty.tools:liberty-maven-plugin:package
                             </package>
                             <pre-integration-test>

@@ -121,8 +121,8 @@ public class DevMojo extends StartDebugMojoSupport {
     private int runId = 0;
 
     private ServerTask serverTask = null;
-
-    private boolean usingBoost = false;
+    
+    private Plugin boostPlugin = null;
 
     @Component
     private BuildPluginManager pluginManager;
@@ -301,74 +301,75 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
-                    if (usingBoost) {
+                    if (isUsingBoost()) {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
+                    }
+                    MavenProject updatedProject = loadProject(buildFile);
+                    List<Dependency> dependencies = updatedProject.getDependencies();
+                    log.debug("Dependencies size: " + dependencies.size());
+                    log.debug("Existing dependencies size: " + this.existingDependencies.size());
+
+                    List<String> dependencyIds = new ArrayList<String>();
+                    List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
+
+                    if (!updatedArtifacts.isEmpty()) {
+
+                        for (Artifact artifact : updatedArtifacts) {
+                            if (("esa").equals(artifact.getType())) {
+                                dependencyIds.add(artifact.getArtifactId());
+                            }
+
+                            org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
+                                    artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
+                                    artifact.getVersion());
+                            org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
+                                    aetherArtifact, null, true);
+
+                            CollectRequest collectRequest = new CollectRequest();
+                            collectRequest.setRoot(dependency);
+                            collectRequest.setRepositories(repositories);
+
+                            List<String> addToClassPath = new ArrayList<String>();
+                            DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
+                            try {
+                                DependencyResult dependencyResult = repositorySystem
+                                        .resolveDependencies(repoSession, depRequest);
+                                org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
+                                List<File> artifactsList = new ArrayList<File>();
+                                addArtifacts(root, artifactsList);
+                                for (File a : artifactsList) {
+                                    log.debug("Artifact: " + a);
+                                    if (a.getCanonicalPath().endsWith(".jar")) {
+                                        addToClassPath.add(a.getCanonicalPath());
+                                    }
+                                }
+                            } catch (DependencyResolutionException e) {
+                                throw new MojoExecutionException(e.getMessage(), e);
+                            }
+                            artifactPaths.addAll(addToClassPath);
+                        }
+
+                        if (!dependencyIds.isEmpty()) {
+                            runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
+                            dependencyIds.clear();
+                        }
+
+                        // update dependencies
+                        this.existingDependencies = dependencies;
                         this.existingPom = modifiedPom;
+
                         return true;
                     } else {
-                        MavenProject updatedProject = loadProject(buildFile);
-                        List<Dependency> dependencies = updatedProject.getDependencies();
-                        log.debug("Dependencies size: " + dependencies.size());
-                        log.debug("Existing dependencies size: " + this.existingDependencies.size());
-
-                        List<String> dependencyIds = new ArrayList<String>();
-                        List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
-
-                        if (!updatedArtifacts.isEmpty()) {
-
-                            for (Artifact artifact : updatedArtifacts) {
-                                if (("esa").equals(artifact.getType())) {
-                                    dependencyIds.add(artifact.getArtifactId());
-                                }
-
-                                org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
-                                        artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
-                                        artifact.getVersion());
-                                org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
-                                        aetherArtifact, null, true);
-
-                                CollectRequest collectRequest = new CollectRequest();
-                                collectRequest.setRoot(dependency);
-                                collectRequest.setRepositories(repositories);
-
-                                List<String> addToClassPath = new ArrayList<String>();
-                                DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-                                try {
-                                    DependencyResult dependencyResult = repositorySystem
-                                            .resolveDependencies(repoSession, depRequest);
-                                    org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                                    List<File> artifactsList = new ArrayList<File>();
-                                    addArtifacts(root, artifactsList);
-                                    for (File a : artifactsList) {
-                                        log.debug("Artifact: " + a);
-                                        if (a.getCanonicalPath().endsWith(".jar")) {
-                                            addToClassPath.add(a.getCanonicalPath());
-                                        }
-                                    }
-                                } catch (DependencyResolutionException e) {
-                                    throw new MojoExecutionException(e.getMessage(), e);
-                                }
-                                artifactPaths.addAll(addToClassPath);
-                            }
-
-                            if (!dependencyIds.isEmpty()) {
-                                runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
-                                dependencyIds.clear();
-                            }
-
-                            // update dependencies
-                            this.existingDependencies = dependencies;
+                        if (isUsingBoost()) {
                             this.existingPom = modifiedPom;
-
                             return true;
                         } else {
                             log.info(
-                                    "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                         }
                     }
                 }
-
             } catch (Exception e) {
                 log.debug("Could not recompile pom.xml", e);
             }
@@ -447,6 +448,10 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
+    private boolean isUsingBoost() {
+        return boostPlugin != null;
+    }
+    
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
@@ -459,10 +464,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         // Check if this is a Boost application
-        Plugin boostPlugin = project.getPlugin("boost:boost-maven-plugin");
-        if (boostPlugin != null) {
-            usingBoost = true;
-        }
+        boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
         // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
@@ -500,7 +502,7 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        if (usingBoost) {
+        if (isUsingBoost()) {
             log.info("Running boost:package");
             runBoostMojo("package", false);
         } else {
@@ -508,10 +510,9 @@ public class DevMojo extends StartDebugMojoSupport {
             runLibertyMavenPlugin("create", serverName, null);
             log.info("Running goal: install-feature");
             runLibertyMavenPlugin("install-feature", serverName, null);
-            log.info("Running goal: install-apps");
-            runLibertyMavenPlugin("install-apps", serverName, null);
+            log.info("Running goal: deploy");
+            runLibertyMavenPlugin("deploy", serverName, null);
         }
-
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {
@@ -780,16 +781,15 @@ public class DevMojo extends StartDebugMojoSupport {
                         featureElems[i] = element(name("feature"), dependencies.get(i));
                     }
                     elements.add(element(name("features"), featureElems));
-                } else if (goal.equals("install-apps")) {
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project,
-                            LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "install-apps",
-                            "appsDirectory");
+                } else if (goal.equals("deploy")) {
+                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
+                        LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
-                    elements.add(element(name("installAppPackages"), "project"));
+                    elements.add(element(name("deployPackages"), "project"));
                     if (serverXmlFile != null) {
                         elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
                     }
@@ -839,8 +839,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runBoostMojo(String goal, boolean rebuildProject)
             throws MojoExecutionException, ProjectBuildingException {
-
-        Plugin boostPlugin = project.getPlugin(Plugin.constructKey("boost", "boost-maven-plugin"));
 
         MavenProject boostProject = this.project;
         MavenSession boostSession = this.session;

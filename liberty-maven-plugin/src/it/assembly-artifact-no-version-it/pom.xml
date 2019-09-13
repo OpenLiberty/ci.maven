@@ -41,6 +41,7 @@
                         <version>[0.0,)</version>
                         <type>war</type>
                     </appArtifact>
+                    <deployPackages>dependencies</deployPackages>
                     <serverName>test</serverName>
                 </configuration>
                 <executions>

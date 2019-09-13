@@ -56,6 +56,7 @@
                         <feature>oauth-2.0</feature>
                         <feature>couchdb-1.0</feature>
                     </features>
+                    <deployPackages>dependencies</deployPackages>
                 </configuration>
             </plugin>
         </plugins>

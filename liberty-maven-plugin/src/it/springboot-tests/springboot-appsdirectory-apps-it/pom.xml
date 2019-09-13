@@ -67,7 +67,7 @@
 						<type>zip</type>
 					</assemblyArtifact>
 					<appsDirectory>apps</appsDirectory>
-					<installAppPackages>spring-boot-project</installAppPackages>
+					<deployPackages>spring-boot-project</deployPackages>
 				</configuration>
 
 				<executions>
@@ -90,7 +90,7 @@
 						<id>install-apps</id>
 						<phase>package</phase>
 						<goals>
-							<goal>install-apps</goal>
+							<goal>deploy</goal>
 						</goals>
 					</execution>
 

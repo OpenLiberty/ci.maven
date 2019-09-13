@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
@@ -37,8 +37,8 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 /**
  * Copy applications to the specified directory of the Liberty server.
  */
-@Mojo(name = "install-apps", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class InstallAppsMojo extends InstallAppMojoSupport {
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+public class DeployMojo extends DeployMojoSupport {
 
     protected void doExecute() throws Exception {
         if (skip) {
@@ -57,7 +57,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         boolean installDependencies = false;
         boolean installProject = false;
                 
-        switch (getInstallAppPackages()) {
+        switch (getDeployPackages()) {
             case "all":
                 installDependencies = true;
                 installProject = true;
@@ -133,7 +133,7 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         return libIndexCacheTarget;
     }
 
-    private void installDependencies() throws Exception {
+    protected void installDependencies() throws Exception {
         Set<Artifact> artifacts = project.getArtifacts();
         log.debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
@@ -150,9 +150,23 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
                 if (isSupportedType(artifact.getType())) {
                     if (looseApplication && isReactorMavenProject(artifact)) {
                         MavenProject dependProj = getReactorMavenProject(artifact);
-                        installLooseApplication(dependProj);
-                    } else {
-                        installApp(resolveArtifact(artifact));
+                        if (shouldDeploy()) {
+                            appArchive = new File(project.getBuild().getDirectory(), getLooseConfigFileName(dependProj));
+                            //Generates looseAppFile in the project's buildDir
+                            installLooseApplication(dependProj, appArchive);
+                            //Loose app xml deployed to server
+                            deployApp();
+                        } else {
+                            //Writes loose app xml straight to serverDir
+                            installLooseApplication(dependProj, new File(new File(serverDirectory, getAppsDirectory()), getLooseConfigFileName(dependProj)));
+                        }
+                    } else { //Deploying or installing the reactor project artifacts
+                        if (shouldDeploy()) {
+                            appArtifact = artifact;
+                            deployApp();
+                        } else {
+                            installApp(resolveArtifact(artifact));
+                        }
                     }
                 } else {
                     log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
@@ -165,9 +179,23 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
     protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
-                installLooseApplication(project);
+                //Either write loose app xml file to buildDir and deploy, or install to serverDir
+                if (shouldDeploy()) {
+                    appArchive = new File(project.getBuild().getDirectory(), getLooseConfigFileName(project));
+                    //Generates looseAppFile in the project's buildDir
+                    installLooseApplication(project, appArchive);
+                    //Loose app xml deployed to server
+                    deployApp();
+                } else {
+                    //Writes loose app xml straight to serverDir
+                    installLooseApplication(project, new File(new File(serverDirectory, getAppsDirectory()), getLooseConfigFileName(project)));
+                }
             } else {
-                installApp(project.getArtifact());
+                if (shouldDeploy()) {
+                    deployApp();
+                } else {
+                    installApp(project.getArtifact());
+                }
             }
         } else {
             throw new MojoExecutionException(
@@ -175,12 +203,11 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         }
     }
 
-    private void installLooseApplication(MavenProject proj) throws Exception {
-        String looseConfigFileName = getLooseConfigFileName(proj);
+    private void installLooseApplication(MavenProject proj, File looseConfigFile) throws Exception {
+        String looseConfigFileName = looseConfigFile.getName();
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
-        File destDir = new File(serverDirectory, getAppsDirectory());
-        File looseConfigFile = new File(destDir, looseConfigFileName);
         LooseConfigData config = new LooseConfigData();
+
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(application, proj.getArtifactId());
@@ -225,6 +252,14 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
         }
     }
 
+    private boolean shouldDeploy() throws MojoExecutionException {
+        try {
+            return new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
+        } catch (IOException ioe) {
+            throw new MojoExecutionException("Could not get the server directory to determine the state of the server.");
+        }
+    }
+
     private boolean mavenWarPluginExists(MavenProject proj) {
         MavenProject currentProject = proj;
         while(currentProject != null) {
@@ -241,29 +276,6 @@ public class InstallAppsMojo extends InstallAppMojoSupport {
             currentProject = currentProject.getParent();
         }
         return false;
-    }
-    
-    private boolean matches(Artifact artifact, ArtifactItem assemblyArtifact) {
-        return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
-                && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
-                && artifact.getType().equals(assemblyArtifact.getType());
-    }
-    
-    private boolean isSupportedType(String type) {
-        boolean supported = false;
-        switch (type) {
-            case "ear":
-            case "war":
-            case "rar":
-            case "eba":
-            case "esa":
-            case "liberty-assembly":
-                supported = true;
-                break;
-            default:
-                break;
-        }
-        return supported;
     }
    
 }

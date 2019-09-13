@@ -1,6 +1,6 @@
 #### deploy
 ---
-Deploy an application to a Liberty server. The server instance must exist and must be running.
+Deploy or copy applications specified as either Maven compile dependencies or the Maven project package to Liberty server's `dropins` or `apps` directory. This goal can be used when the server is not running to copy applications onto the server, or when the server is running to deploy applications and verify that they have started. To install Spring Boot applications on Liberty see [Spring Boot Support](spring-boot-support.md#spring-boot-support).
 
 ###### Additional Parameters
 
@@ -8,45 +8,94 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| appArtifact | Maven coordinates of an application to be deployed. | Yes, if appArchive is not set. |
-| appArchive | Location of an application file to be deployed. The application type can be war, ear, rar, eba, zip, or jar. | Yes, if appArtifact is not set. |
+| appsDirectory | The server's `apps` or `dropins` directory where the application files should be copied. The default value is set to `apps` if the application is defined in the server configuration, otherwise it is set to `dropins`.  | No |
+| stripVersion | Strip artifact version when copying the application to Liberty runtime's application directory. The default value is `false`. | No |
+| deployPackages | The Maven packages to copy to Liberty runtime's application directory. One of `dependencies`, `project` or `all`. The default is `project`.<br>For an ear type project, this parameter is ignored and only the project package is installed. | No |
+| looseApplication | Generate a loose application configuration file representing the Maven project package and copy it to the Liberty server's `apps` or `dropins` directory. The default value is `true`. This parameter is ignored if `deployPackages` is set to `dependencies` or if the project packaging type is neither `war` nor `liberty-assembly`. When using the packaging type `liberty-assembly`, using a combination of `deployPackages` set to `all` or `project` and `looseApplication` set to `true` results in the installation of application code provided in the project without the need of adding additional goals to your POM file. | No |
 | timeout | Maximum time to wait (in seconds) to verify that the deployment has completed successfully. The default value is 40 seconds. | No |
-| appDeployName| The file name of the deployed application in the `dropins` directory. It is possible to use Maven properties to define it, for example `${project.artifactId}` or `${project.name}`. | No. By default, the `deployName` is the same as the original file name.|
 
-Examples:
-
- 1. Single deploy of an application with the path of a file.
-
-  ```xml
-    <execution>
-        <id>deploy-app</id>
-        <phase>pre-integration-test</phase>
-        <goals>
-            <goal>deploy</goal>
-        </goals>
-        <configuration>
-            <appArchive>HelloWorld.war</appArchive>
-        </configuration>
-    </execution>
-   ```
-
- 2. Single deploy of an application with Maven coordinates using the Maven property `${project.artifactId}` to change the name, this will be `webapp.war` instead of `webapp-1.0.war` .
-
-  ```xml
-    <execution>
-        <id>deploy-by-appArtifact</id>
-        <phase>pre-integration-test</phase>
-        <goals>
-            <goal>deploy</goal>
-        </goals>
-        <configuration>
-            <appArtifact>
-                <groupId>com.mycompany.webapp</groupId>
-                <artifactId>webapp</artifactId>
-                <version>1.0</version>
-                <type>war</type>
-            </appArtifact>
-            <appDeployName>${project.artifactId}.war</appDeployName>
-        </configuration>
-    </execution>
-  ```
+Example:
+Copy the Maven project dependencies.
+```xml
+<project>
+    ...
+    <dependencies>
+        <!-- SimpleServlet.war specified as a dependency -->
+        <dependency>
+            <groupId>wasdev</groupId>
+            <artifactId>SimpleServlet</artifactId>
+            <version>1.0</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+    ...
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <executions>
+                    ...
+                    <execution>
+                        <id>deploy</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <appsDirectory>apps</appsDirectory>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                    ...
+                </executions>
+                <configuration>
+                   <installDirectory>/opt/ibm/wlp</installDirectory>
+                   <serverName>test</serverName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    ...
+</project>
+```
+Copy the Maven project package.
+```xml
+<project>
+    <groupId>wasdev</groupId>
+    <artifactId>SimpleServlet</artifactId>
+    <version>1.0</version>
+    <packaging>war</packaging>
+    ...
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <executions>
+                    ...
+                    <execution>
+                        <id>deploy</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <configuration>
+                            <appsDirectory>apps</appsDirectory>
+                            <stripVersion>true</stripVersion>
+                            <deployPackages>project</deployPackages>
+                            <looseApplication>true</looseApplication>
+                        </configuration>
+                    </execution>
+                    ...
+                </executions>
+                <configuration>
+                   <installDirectory>/opt/ibm/wlp</installDirectory>
+                   <serverName>test</serverName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    ...
+</project>
+```

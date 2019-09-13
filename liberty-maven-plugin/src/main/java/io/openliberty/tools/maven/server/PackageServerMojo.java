@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2019. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -58,6 +61,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     @Parameter(property = "include")
     private String include;
 
+
     /**
      * Os supported. Specifies the operating systems that you want the packaged server to support. 
      *     Supply a comma-separated list. The default value is any, indicating that the server is to 
@@ -83,6 +87,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     
     @Override
     protected void doExecute() throws Exception {
+        // Set default outputDirectory to liberty-alt-output-dir for package goal.
+        if (defaultOutputDirSet) {
+            outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");
+        }
+
         if (skip || skipLibertyPackage) {
             return;
         }
@@ -120,19 +129,34 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
 
     private void validateInclude() throws MojoFailureException {
+        ArrayList<String> includeValues;
+        List<String> includeStrings;
+
+        if (include != null && !include.isEmpty()) {
+            include = include.trim();
+            includeStrings = Arrays.asList(include.split(","));
+            includeValues = new ArrayList<String>(includeStrings);
+            for (int i = 0; i < includeValues.size(); i++) {
+                String value = includeValues.get(i);
+                includeValues.set(i, value.trim());
+            }
+        } else {
+            includeValues = new ArrayList<String>();
+        }
+
         // if jar, validate include options, and add runnable
         if (packageType.equals("jar")) {
-            if (include == null) {
-                include = "runnable";
-            } else {
-                if (include.contains("usr") || include.contains("wlp")) {
-                    throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
-                }
-                
-                if (!include.contains("runnable")) {
-                    include.concat(",runnable");
-                }
+            if (includeValues.contains("usr") || includeValues.contains("wlp")) {
+                throw new MojoFailureException("Package type jar cannot be used with `usr` or `wlp`.");
             }
+
+            if (!includeValues.contains("runnable")) {
+                includeValues.add("runnable");
+            }
+        }
+
+        if (includeValues.size() > 0) {
+            include = String.join(",", includeValues);
         }
     }
 
@@ -151,16 +175,15 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
     
     /**
-     * Returns file extension for specified package type
+     * Returns file extension for specified package type.
+     * Deprecating `runnable` include parameter. Will use jar type instead of defaulting to zip if `runnable` is specified, for now.
      * 
-     * @param packageType "jar" or "zip"
-     * @param include parameter, for checking if "jar" is valid for the include type
      * @return package file extension, or default to "zip"
      * @throws MojoFailureException
      */
     private String getPackageFileType() throws MojoFailureException {
     	if (packageType != null && packageType.equals("jar")) {
-            if (include == null || include.equals("all") || include.equals("minify")) {
+            if (include == null || include.isEmpty() || include.equals("all") || include.equals("minify")) {
                 return ".jar";
             } else {
                 throw new MojoFailureException("The jar packageType requires `all` or `minify` in the `include` parameter");
@@ -169,6 +192,17 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             if (packageType != null && !packageType.equals("zip")) {
                 log.info(packageType + " not supported. Defaulting to 'zip'");
             }
+
+            // Check for `runnable` in `include` for deprecation before completely removing it in favor of `jar` `packageType`
+            if (include != null && include.contains("runnable")) {
+                if (packageType != null && packageType.equals("zip")) {
+                    throw new MojoFailureException("The `include` parameter `runnable` cannot be used with the `zip` packageType");
+                }
+                log.warn("The `runnable` value for the include parameter is deprecated. Use packageType `jar` instead.");
+                packageType = "jar";
+                return ".jar";
+            }
+
             packageType = "zip";
             return ".zip";
         }
@@ -177,7 +211,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns package name
      * 
-     * @param packageName
      * @return specified package name, or default ${project.build.finalName} if unspecified
      */
     private String getPackageName() {
@@ -191,7 +224,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     /**
      * Returns canonical path to package directory
      * 
-     * @param packageDirectory
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */

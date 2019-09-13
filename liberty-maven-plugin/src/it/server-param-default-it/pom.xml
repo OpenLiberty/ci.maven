@@ -97,7 +97,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
-                    <installAppPackages>project</installAppPackages>
+                    <deployPackages>project</deployPackages>
                     <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
                 </configuration>
@@ -141,7 +141,7 @@
                             <id>install-apps</id>
                             <phase>package</phase>
                             <goals>
-                                <goal>install-apps</goal>
+                                <goal>deploy</goal>
                             </goals>
                         </execution>
                         <execution>

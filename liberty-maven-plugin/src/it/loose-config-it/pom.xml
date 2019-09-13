@@ -61,7 +61,6 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
-                    <stripVersion>true</stripVersion>
                     <assemblyArtifact>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>assembly-server</artifactId>
@@ -70,7 +69,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
-                    <installAppPackages>project</installAppPackages>
+                    <deployPackages>project</deployPackages>
                     <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>
@@ -89,11 +88,8 @@
                         <id>install-artifact</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-apps</goal>
+                            <goal>deploy</goal>
                         </goals>
-                        <configuration>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>start-liberty-server</id>

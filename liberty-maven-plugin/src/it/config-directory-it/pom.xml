@@ -79,7 +79,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
-          <installAppPackages>project</installAppPackages>
+          <deployPackages>project</deployPackages>
           <configDirectory>src/test/resources/testConfig</configDirectory>
           <libertySettingsFolder>${project.basedir}/src/test/resources/testLibertyConfig</libertySettingsFolder>
           <noPassword>true</noPassword>

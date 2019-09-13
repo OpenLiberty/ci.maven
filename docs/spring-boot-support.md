@@ -8,7 +8,7 @@ When installing a Spring Boot application via the Spring Boot executable JAR, th
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | appsDirectory | The server's `apps` or `dropins` directory where the application files should be copied. The default value is set to `apps` if the application is defined in the server configuration, otherwise it is set to `dropins`.  | No |
-| installAppPackages | The Maven packages to copy to Liberty runtime's application directory. `spring-boot-project` should be configured to this parameter. | Yes |
+| deployPackages | The Maven packages to copy to Liberty runtime's application directory. `spring-boot-project` should be configured to this parameter. | Yes |
 
 The `server.xml` provided by the `serverXml` parameter should enable the one of the following Spring Boot features.
 
@@ -40,7 +40,7 @@ To use the `liberty-maven-plugin` to install a Spring Boot application packaged 
                     </goals>
                     <configuration>
                         <appsDirectory>apps</appsDirectory>
-                        <installAppPackages>spring-boot-project</installAppPackages>
+                        <deployPackages>spring-boot-project</deployPackages>
                     </configuration>
                 </execution>
                 ...

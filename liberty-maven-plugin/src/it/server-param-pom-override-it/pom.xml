@@ -62,7 +62,7 @@
                     <bootstrapPropertiesFile>src/main/liberty/config/bootstrap.properties</bootstrapPropertiesFile>
                     <jvmOptionsFile>src/main/liberty/config/jvm.options</jvmOptionsFile>
                     <appsDirectory>apps</appsDirectory>
-                    <installAppPackages>project</installAppPackages>
+                    <deployPackages>project</deployPackages>
                     <looseApplication>true</looseApplication>
                     <stripVersion>true</stripVersion>
                 </configuration>
@@ -106,7 +106,7 @@
                             <id>install-apps</id>
                             <phase>package</phase>
                             <goals>
-                                <goal>install-apps</goal>
+                                <goal>deploy</goal>
                             </goals>
                         </execution>
                     </executions>
