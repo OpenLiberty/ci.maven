@@ -460,7 +460,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         // Check if this is a Boost application
-        Plugin boostPlugin = project.getPlugin("boost:boost-maven-plugin");
+        Plugin boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
         if (boostPlugin != null) {
             usingBoost = true;
         }
@@ -839,7 +839,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private void runBoostMojo(String goal, boolean rebuildProject)
             throws MojoExecutionException, ProjectBuildingException {
 
-        Plugin boostPlugin = project.getPlugin(Plugin.constructKey("boost", "boost-maven-plugin"));
+        Plugin boostPlugin = project.getPlugin(Plugin.constructKey("org.microshed.boost", "boost-maven-plugin"));
 
         MavenProject boostProject = this.project;
         MavenSession boostSession = this.session;
