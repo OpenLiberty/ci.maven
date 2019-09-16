@@ -554,7 +554,12 @@ public class DevMojo extends StartDebugMojoSupport {
         // all files in the configDirectory,
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
-        util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
+        try {
+            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
+        } catch (PluginScenarioException e) { // this exception is caught when the server has been stopped by another process
+            log.info(e); 
+            System.exit(0); // enter shutdown hook 
+        }
     }
 
     private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
