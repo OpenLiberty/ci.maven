@@ -791,11 +791,11 @@ public class DevMojo extends StartDebugMojoSupport {
                     elements.add(element(name("stripVersion"), "true"));
                     elements.add(element(name("deployPackages"), "project"));
                     if (serverXmlFile != null) {
-                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
                     }
                 } else if (goal.equals("create")) {
                     if (serverXmlFile != null) {
-                        elements.add(element(name("configFile"), serverXmlFile.getCanonicalPath()));
+                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
                     }
                     if (assemblyArtifact != null) {
                         Element[] featureElems = new Element[4];
