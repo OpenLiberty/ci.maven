@@ -32,7 +32,7 @@ The Liberty Maven Plugin provides a number of goals for managing a Liberty serve
 
 #### Release 3.0 differences
 
-The new capabilities and behavior differences are summarized in the [Liberty Maven plug-in release 3.0 differences](version_3.0_differences.md) document.
+The new capabilities and behavior differences are summarized in the [Liberty Maven Plug-in 3.0](https://github.com/OpenLiberty/ci.maven/releases/tag/liberty-maven-3.0/) release notes.
 
 #### Configuration
 
