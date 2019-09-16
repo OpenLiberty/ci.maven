@@ -30,6 +30,7 @@ There is a new [`dev` goal](dev.md) that starts a Liberty server in dev mode. De
 The following goal names are simplified:
 
 | Previous goal name | New goal name |
+| ------------------ | ------------- |
 | clean-server | clean |
 | create-server | create |
 | debug-server | debug |
@@ -46,6 +47,7 @@ The following goal names are simplified:
 In the past, the `configFile`, `bootstrapPropertiesFile`, `jvmOptionsFile`, and `serverEnv` [common server parameters](common-server-parameters.md) had default values. If the file existed in the `configDirectory` though, that file took precedence. Now these common server parameters have no default values. If values are specified for these common server parameters, they will take precedence over files located in the `configDirectory`. The `configDirectory` defaults to `${based}/src/main/liberty/config`. Also, `bootstrapProperties` will take precedence over `bootstrapPropertiesFile`, and `jvmOptions` will take precedence over `jvmOptionsFile`. No merging is done.
 
 | Previous parameter name | Previous default value | New parameter name | New default value |
+| ----------------------- | ---------------------- | ------------------ | ----------------- |
 | configFile | `${basedir}/src/test/resources/server.xml`| serverXmlFile | None | 
 | bootstrapPropertiesFile | `${basedir}/src/test/resources/bootstrap.properties` | bootstrapPropertiesFile | None | 
 | jvmOptionsFile | `${basedir}/src/test/resources/jvm.options` | jvmOptionsFile | None | 
