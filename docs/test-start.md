@@ -25,7 +25,7 @@ Example:
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.0-M2,)</version>
+                <version>[3.0.1,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <skipTestServer>true</skipTestServer>
