@@ -5,7 +5,7 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 * [Build](#build)
 * [Plugins](#plugins)
 	* [Liberty Maven Plugin](#liberty-maven-plugin)
-                * [Release 3.0 differences](#release-3.0-differences)
+		* [Release 3.0 differences](#release-3.0-differences)
 		* [Configuration](#configuration)
 		* [Goals](#goals)
 * [Packaging types](#packaging-types)
