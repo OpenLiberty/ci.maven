@@ -381,12 +381,14 @@ public class DevMojo extends StartDebugMojoSupport {
             try {
                 ServerFeature servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir);
-                features.removeAll(existingFeatures);
-                if (!features.isEmpty()) {
-                    List<String> configFeatures = new ArrayList<String>(features);
-                    log.info("Configuration features have been added");
-                    runLibertyMavenPlugin("install-feature", serverName, configFeatures);
-                    this.existingFeatures.addAll(features);
+                if (features != null) {
+                    features.removeAll(existingFeatures);
+                    if (!features.isEmpty()) {
+                        List<String> configFeatures = new ArrayList<String>(features);
+                        log.info("Configuration features have been added");
+                        runLibertyMavenPlugin("install-feature", serverName, configFeatures);
+                        this.existingFeatures.addAll(features);
+                    }
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
