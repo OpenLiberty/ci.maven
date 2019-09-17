@@ -557,8 +557,8 @@ public class DevMojo extends StartDebugMojoSupport {
         try {
             util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile);
         } catch (PluginScenarioException e) { // this exception is caught when the server has been stopped by another process
-            log.info(e); 
-            System.exit(0); // enter shutdown hook 
+            log.info(e.toString()); 
+            return; // enter shutdown hook 
         }
     }
 
