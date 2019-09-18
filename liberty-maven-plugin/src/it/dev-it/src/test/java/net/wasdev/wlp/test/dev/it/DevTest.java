@@ -161,6 +161,21 @@ public class DevTest extends BaseDevTest {
       assertFalse(checkLogMessage(2000,  "Integration tests finished."));
    }
    
+    @Test
+    public void invalidDependencyTest() throws Exception {
+        if (isWindows)
+            return;
+
+        // add invalid dependency to pom.xml
+        String invalidDepComment = "<!-- <dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
+                + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n"
+                + "    </dependency> -->";
+        String invalidDep = "<dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
+                + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n" + "    </dependency>";
+        replaceString(invalidDepComment, invalidDep, pom);
+        assertFalse(checkLogMessage(10000, "Unable to resolve artifact: io.openliberty.features:abcd:1.0"));
+    }
+   
    @Test
    public void resolveDependencyTest() throws Exception {
 

@@ -76,6 +76,11 @@
         <type>esa</type>
         <scope>provided</scope>
     </dependency> -->
+    <!-- <dependency>
+        <groupId>io.openliberty.features</groupId>
+        <artifactId>abcd</artifactId>
+        <version>1.0</version>
+    </dependency> -->
     <!-- For tests -->
     <dependency>
       <groupId>junit</groupId>
