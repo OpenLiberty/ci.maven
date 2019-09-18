@@ -314,7 +314,11 @@ public class DevMojo extends StartDebugMojoSupport {
                     List<String> dependencyIds = new ArrayList<String>();
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
-                    if (!updatedArtifacts.isEmpty()) {
+                    // handle the case where an invalid dependency is added
+                    if (updatedArtifacts.isEmpty() && (this.existingDependencies.size() != dependencies.size())) {
+                        // make sure lists match so user does not see the invalid dependency error more than once
+                        this.existingDependencies = dependencies;
+                    } else if (!updatedArtifacts.isEmpty()) {
 
                         for (Artifact artifact : updatedArtifacts) {
                             if (("esa").equals(artifact.getType())) {
@@ -574,8 +578,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies)
-            throws MojoExecutionException {
+    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
@@ -587,8 +590,13 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             if (newDependency) {
                 log.debug("New dependency found: " + dep.getArtifactId());
-                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
-                updatedArtifacts.add(artifact);
+                try {
+                    Artifact artifact;
+                    artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+                    updatedArtifacts.add(artifact);
+                } catch (MojoExecutionException e) {
+                    log.info(e.getMessage());
+                }
             }
         }
         return updatedArtifacts;
