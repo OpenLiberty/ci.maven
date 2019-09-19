@@ -467,8 +467,8 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
+        	// passing liberty outputDirectory and serverName to determine server status
             if (ServerStatusUtil.isServerRunning(super.outputDirectory, serverName)) {
                 throw new MojoExecutionException("The server " + serverName
                         + " is already running. Terminate all instances of the server before starting dev mode.");
