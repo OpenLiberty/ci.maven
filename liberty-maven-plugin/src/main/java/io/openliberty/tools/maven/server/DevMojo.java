@@ -72,6 +72,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
+import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -453,7 +454,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private boolean isUsingBoost() {
         return boostPlugin != null;
     }
-    
+
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
@@ -468,10 +469,9 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        // look for a .sRunning file to check if the server has already started
         if (serverDirectory.exists()) {
-            File sRunning = new File(serverDirectory.getCanonicalPath() + "/workarea/.sRunning");
-            if (sRunning.exists()) {
+        	// passing liberty outputDirectory and serverName to determine server status
+            if (ServerStatusUtil.isServerRunning(super.outputDirectory, serverName)) {
                 throw new MojoExecutionException("The server " + serverName
                         + " is already running. Terminate all instances of the server before starting dev mode.");
             }
