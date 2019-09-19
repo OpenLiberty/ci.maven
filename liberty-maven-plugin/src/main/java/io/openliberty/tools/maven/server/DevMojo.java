@@ -375,7 +375,7 @@ public class DevMojo extends StartDebugMojoSupport {
                             this.existingPom = modifiedPom;
                             return true;
                         } else if (unhandledChange) {
-                            log.info(
+                            log.warn(
                                 "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                         }
                     }
