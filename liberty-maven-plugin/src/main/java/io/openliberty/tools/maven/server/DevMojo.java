@@ -324,7 +324,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
                     if (!updatedArtifacts.isEmpty()) {
-
                         for (Artifact artifact : updatedArtifacts) {
                             if (("esa").equals(artifact.getType())) {
                                 dependencyIds.add(artifact.getArtifactId());
@@ -362,11 +361,18 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         if (!dependencyIds.isEmpty()) {
                             runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
+                            // update dependencies
+                            for (String dependencyId : dependencyIds) {
+                                for (Dependency dependency : dependencies) {
+                                    if (dependencyId.equals(dependency.getArtifactId())) {
+                                        log.info("found match: " + dependencyId);
+                                        this.existingDependencies.add(dependency);
+                                    }
+                                }
+                            }
                             dependencyIds.clear();
                         }
 
-                        // update dependencies
-                        this.existingDependencies = dependencies;
                         this.existingPom = modifiedPom;
 
                         return true;
