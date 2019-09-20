@@ -42,7 +42,7 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <include>minify</include>
+                    <include>minify,runnable</include>
                     <packageType>jar</packageType>
                 </configuration>
                 <executions>

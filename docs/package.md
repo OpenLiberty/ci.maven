@@ -2,7 +2,7 @@
 ---
 Package a Liberty server.
 
-In Open Liberty and WebSphere Liberty versions since 8.5.5.9, it is possible to package a server into an executable jar file by setting the `packageType` parameter to `jar`. The created jar file can be executed using the `java -jar` command.
+In Open Liberty and WebSphere Liberty versions since 8.5.5.9, it is possible to package a server into an executable jar file by setting the `include` parameter to `runnable`. The created jar file can be executed using the `java -jar` command.
 
 ###### Additional Parameters
 
@@ -10,11 +10,12 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| packageType | Type of package, `zip` or `jar`. Defaults to `zip`. | No
+| packageType | Type of package. Can be used with values `zip`, `jar`, `tar`, or `tar.gz`. Defaults to `jar` if `runnable` is specified for the `include` parameter. Otherwise the default is `zip`. | No
 | packageName | Name of the package. Defaults to `${project.build.finalName}` | No
 | packageDirectory | Directory of the packaged file. Defaults to `${project.build.directory}` | No
-| include | Controls the package contents. Can be used with values `all`, `usr`, `minify`, `wlp`. The default value is `all`. | Yes, only when the `os` option is set |
+| include | Controls the package contents. Can be used with values `all`, `usr`, `minify`, `wlp`, `runnable`, `all,runnable`, and `minify,runnable`. The default value is `all`. | Yes, only when the `os` option is set |
 | os | A comma-delimited list of operating systems that you want the packaged server to support. To specify that an operating system is not to be supported, prefix it with a minus sign ("-"). The 'include' attribute __must__ be set to `minify`. | No |
+| serverRoot | Specifies the root server folder name in the archive file. | No |
 | skipLibertyPackage | If true, the `package-server` goal is bypassed entirely. The default value is false. | No |
 
 Examples:
@@ -59,6 +60,7 @@ Examples:
             <configuration>
                 <packageName>test</packageName>
                 <packageType>jar</packageType>
+                <include>runnable</include>
             </configuration>
         </execution>
         ...
