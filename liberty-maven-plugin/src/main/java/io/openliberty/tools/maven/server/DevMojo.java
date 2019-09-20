@@ -772,6 +772,23 @@ public class DevMojo extends StartDebugMojoSupport {
             sysProps.addChild(element(name(key), value).toDom());
         }
     }
+    
+    private Element getBoostrapProps () {
+        Element retVal = null;
+        Plugin plugin = getPlugin("io.openliberty.tools", "liberty-maven-plugin");
+        Xpp3Dom config = getPluginConfig(plugin, ""); // not tied to phase
+        if (config.getChild("bootstrapProperties") != null) {
+            Xpp3Dom bootstrapPropsConfig = config.getChildren("bootstrapProperties")[0];
+            if (bootstrapPropsConfig != null) {
+                List<Element> elements = new ArrayList<Element>();
+                for (Xpp3Dom child : bootstrapPropsConfig.getChildren()) {
+                    elements.add(new Element(child.getName(), child.getValue()));
+                }
+                retVal = new Element("bootstrapProperties", elements.toArray(new Element[elements.size()]));
+            }
+        }
+        return retVal;
+    }
 
     private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
         List<Element> elements = new ArrayList<Element>();
@@ -794,6 +811,11 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (appsDirectory != null) {
                         elements.add(element(name("appsDirectory"), appsDirectory));
                     }
+                    Element bootstrapProps = getBoostrapProps();
+                    if (bootstrapProps != null) {
+                        elements.add(bootstrapProps);
+                    }
+
                     elements.add(element(name("looseApplication"), "true"));
                     elements.add(element(name("stripVersion"), "true"));
                     elements.add(element(name("deployPackages"), "project"));
