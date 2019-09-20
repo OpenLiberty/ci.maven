@@ -369,6 +369,7 @@ public class DevMojo extends StartDebugMojoSupport {
                             for (Dependency dependency : dependencies) {
                                 if (artifact.getArtifactId().equals(dependency.getArtifactId())) {
                                     this.existingDependencies.add(dependency);
+                                    break;
                                 }
                             }
                         }
