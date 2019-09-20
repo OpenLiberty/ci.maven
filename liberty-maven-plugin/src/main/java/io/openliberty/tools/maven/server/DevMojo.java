@@ -361,16 +361,16 @@ public class DevMojo extends StartDebugMojoSupport {
 
                         if (!dependencyIds.isEmpty()) {
                             runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
-                            // update dependencies
-                            for (String dependencyId : dependencyIds) {
-                                for (Dependency dependency : dependencies) {
-                                    if (dependencyId.equals(dependency.getArtifactId())) {
-                                        log.info("found match: " + dependencyId);
-                                        this.existingDependencies.add(dependency);
-                                    }
+                            dependencyIds.clear();
+                        }
+
+                        // update dependencies
+                        for (Artifact artifact : updatedArtifacts) {
+                            for (Dependency dependency : dependencies) {
+                                if (artifact.getArtifactId().equals(dependency.getArtifactId())) {
+                                    this.existingDependencies.add(dependency);
                                 }
                             }
-                            dependencyIds.clear();
                         }
 
                         this.existingPom = modifiedPom;
