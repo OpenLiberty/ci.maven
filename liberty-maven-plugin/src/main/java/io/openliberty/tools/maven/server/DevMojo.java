@@ -59,12 +59,14 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.custommonkey.xmlunit.DetailedDiff;
+import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
+import org.w3c.dom.Node;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
@@ -292,14 +294,21 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
             try {
+                boolean unhandledChange = false;
                 String modifiedPom = readFile(buildFile);
                 XMLUnit.setIgnoreWhitespace(true);
                 XMLUnit.setIgnoreAttributeOrder(true);
                 XMLUnit.setIgnoreComments(true);
                 DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(this.existingPom, modifiedPom));
-                List<?> allDifferences = diff.getAllDifferences();
+                List<?> allDifferences = (List<?>)diff.getAllDifferences();
                 log.debug("Number of differences in the pom: " + allDifferences.size());
 
+                for (Object differenceObj : allDifferences) {
+                    Difference difference = (Difference)differenceObj;
+                    if (difference.getControlNodeDetail().getNode() != null && !dependencyChange(difference.getControlNodeDetail().getNode())) {
+                        unhandledChange = true;
+                    }
+                }
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
                     if (isUsingBoost()) {
@@ -315,7 +324,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
                     if (!updatedArtifacts.isEmpty()) {
-
                         for (Artifact artifact : updatedArtifacts) {
                             if (("esa").equals(artifact.getType())) {
                                 dependencyIds.add(artifact.getArtifactId());
@@ -357,7 +365,15 @@ public class DevMojo extends StartDebugMojoSupport {
                         }
 
                         // update dependencies
-                        this.existingDependencies = dependencies;
+                        for (Artifact artifact : updatedArtifacts) {
+                            for (Dependency dependency : dependencies) {
+                                if (artifact.getArtifactId().equals(dependency.getArtifactId())) {
+                                    this.existingDependencies.add(dependency);
+                                    break;
+                                }
+                            }
+                        }
+
                         this.existingPom = modifiedPom;
 
                         return true;
@@ -365,8 +381,8 @@ public class DevMojo extends StartDebugMojoSupport {
                         if (isUsingBoost()) {
                             this.existingPom = modifiedPom;
                             return true;
-                        } else {
-                            log.info(
+                        } else if (unhandledChange) {
+                            log.warn(
                                 "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                         }
                     }
@@ -574,8 +590,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies)
-            throws MojoExecutionException {
+    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
@@ -587,8 +602,12 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             if (newDependency) {
                 log.debug("New dependency found: " + dep.getArtifactId());
-                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
-                updatedArtifacts.add(artifact);
+                try {
+                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+                    updatedArtifacts.add(artifact);
+                } catch (MojoExecutionException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
         return updatedArtifacts;
@@ -903,6 +922,22 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return ret;
+    }
+
+    /**
+     * Check if the pom.xml has had a dependency change
+     * 
+     * @param node difference node in the pom.xml
+     * @return true if the change is related to a dependency change
+     */
+    private boolean dependencyChange(Node node) {
+        if (node.getNodeName().equals("dependency") || node.getNodeName().equals("dependencies")) {
+            return true;
+        } else if (node.getParentNode() == null) {
+            return false;
+        } else {
+            return dependencyChange(node.getParentNode());
+        }
     }
 
     private void listFiles(File directory, List<File> files, String suffix) {
