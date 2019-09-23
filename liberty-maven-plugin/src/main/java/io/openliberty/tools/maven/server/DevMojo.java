@@ -855,9 +855,9 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private Plugin getLibertyPlugin() {
-        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" +LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (plugin == null) {
-            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID,  "LATEST");
+            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
         }
         return plugin;
     }
@@ -899,7 +899,7 @@ public class DevMojo extends StartDebugMojoSupport {
     }
     
     private static ArrayList<String> deployParams;
-    {
+    static {
         deployParams = new ArrayList<>(Arrays.asList(
                 "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
                 ));
@@ -908,7 +908,7 @@ public class DevMojo extends StartDebugMojoSupport {
     }
     
     private static ArrayList<String> installFeatureParams;
-    {
+    static {
         installFeatureParams = new ArrayList<>(Arrays.asList("features"));
         installFeatureParams.addAll(commonParams);
     }
@@ -918,6 +918,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (!goalParams.contains(config.getChild(i).getName().trim())) {
                 config.removeChild(i);
                 stripConfigElements(config, goalParams);
+                return config;
             }
         }
         return config;
@@ -931,7 +932,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runLibertyMojoDeploy() throws MojoExecutionException {
         Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), deployParams);
-        stripConfigElements(config, deployParams);
         log.info("Running liberty:deploy goal");
         runLibertyMojo("deploy", config);
     }
@@ -951,12 +951,10 @@ public class DevMojo extends StartDebugMojoSupport {
     // call by compile:compile, 
     private void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
-
-        Xpp3Dom  config = (Xpp3Dom)plugin.getConfiguration();
+        Xpp3Dom config = (Xpp3Dom)plugin.getConfiguration();
         if (config == null) {
             config = configuration();
         }
-
         log.info("Running " + artifactId + ":" + goal);
         log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
         executeMojo(plugin, goal(goal), config,
