@@ -68,7 +68,6 @@ import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
@@ -400,17 +399,12 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    log.info("Running maven-compiler-plugin:compile");
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
-
-                    log.info("Running maven-compiler-plugin:resources");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    log.info("Running maven-compiler-plugin:testCompile");
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
-                    log.info("Running maven-compiler-plugin:testResources");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -482,14 +476,11 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        log.info("Running maven-compiler-plugin:compile");
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
-        log.info("Running maven-compiler-plugin:resources");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
-        log.info("Running maven-compiler-plugin:testCompile");
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
-        log.info("Running maven-compiler-plugin:testResources");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
 
@@ -769,92 +760,6 @@ public class DevMojo extends StartDebugMojoSupport {
             sysProps.addChild(element(name(key), value).toDom());
         }
     }
-    
-    private Element getBoostrapProps () {
-        Element retVal = null;
-        Plugin plugin = getPlugin("io.openliberty.tools", "liberty-maven-plugin");
-        Xpp3Dom config = getPluginConfig(plugin, ""); // not tied to phase
-        if (config.getChild("bootstrapProperties") != null) {
-            Xpp3Dom bootstrapPropsConfig = config.getChildren("bootstrapProperties")[0];
-            if (bootstrapPropsConfig != null) {
-                List<Element> elements = new ArrayList<Element>();
-                for (Xpp3Dom child : bootstrapPropsConfig.getChildren()) {
-                    elements.add(new Element(child.getName(), child.getValue()));
-                }
-                retVal = new Element("bootstrapProperties", elements.toArray(new Element[elements.size()]));
-            }
-        }
-        return retVal;
-    }
-
-    private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
-        List<Element> elements = new ArrayList<Element>();
-        try {
-            if (testServerName != null) {
-                elements.add(element(name("serverName"), testServerName));
-                elements.add(element(name("configDirectory"), configDirectory.getCanonicalPath()));
-                if (installDirectory != null && installDirectory.exists()) {
-                    elements.add(element(name("installDirectory"), installDirectory.getCanonicalPath()));
-                }
-                if (goal.equals("install-feature") && (dependencies != null)) {
-                    Element[] featureElems = new Element[dependencies.size()];
-                    for (int i = 0; i < featureElems.length; i++) {
-                        featureElems[i] = element(name("feature"), dependencies.get(i));
-                    }
-                    elements.add(element(name("features"), featureElems));
-                } else if (goal.equals("deploy")) {
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
-                        LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
-                    if (appsDirectory != null) {
-                        elements.add(element(name("appsDirectory"), appsDirectory));
-                    }
-                    Element bootstrapProps = getBoostrapProps();
-                    if (bootstrapProps != null) {
-                        elements.add(bootstrapProps);
-                    }
-
-                    elements.add(element(name("looseApplication"), "true"));
-                    elements.add(element(name("stripVersion"), "true"));
-                    elements.add(element(name("deployPackages"), "project"));
-                    if (serverXmlFile != null) {
-                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
-                    }
-                } else if (goal.equals("create")) {
-                    if (serverXmlFile != null) {
-                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
-                    }
-                    if (assemblyArtifact != null) {
-                        Element[] featureElems = new Element[4];
-                        featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
-                        featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
-                        featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
-                        featureElems[3] = element(name("type"), assemblyArtifact.getType());
-                        elements.add(element(name("assemblyArtifact"), featureElems));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            log.error("Unable to resolve canonical paths " + e.getMessage());
-        }
-        return elements.toArray(new Element[elements.size()]);
-    }
-
-    private void runMojo(String groupId, String artifactId, String goal, String serverName, List<String> dependencies)
-            throws MojoExecutionException {
-        runMojo(groupId, artifactId, "RELEASE", goal, serverName, dependencies);
-    }
-
-    private void runMojo(String groupId, String artifactId, String defaultVersion, String goal, String serverName,
-            List<String> dependencies) throws MojoExecutionException {
-        Plugin mavenPlugin = project.getPlugin(Plugin.constructKey(groupId, artifactId));
-        if (mavenPlugin == null) {
-            mavenPlugin = plugin(groupId(groupId), artifactId(artifactId), version(defaultVersion));
-        }
-        log.debug("plugin version: " + mavenPlugin.getVersion());
-        executeMojo(mavenPlugin, goal(goal),
-                configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
-                executionEnvironment(project, session, pluginManager));
-    }
 
     private void runBoostMojo(String goal, boolean rebuildProject)
             throws MojoExecutionException, ProjectBuildingException {
@@ -1030,6 +935,21 @@ public class DevMojo extends StartDebugMojoSupport {
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
         log.debug("LibertyMojo:" + goal + " configuration:\n" + config);
         executeMojo(getLibertyPluging(), goal(goal), config,
+                executionEnvironment(project, session, pluginManager));
+    }
+
+    // call by compile:compile, 
+    private void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
+        Plugin plugin = getPlugin(groupId, artifactId);
+
+        Xpp3Dom  config = (Xpp3Dom)plugin.getConfiguration();
+        if (config == null) {
+            config = configuration();
+        }
+
+        log.info("Running " + artifactId + ":" + goal);
+        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
 }
