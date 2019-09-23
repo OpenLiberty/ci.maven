@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -914,12 +915,15 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
+        List<Integer> removeChildren = new ArrayList<Integer>();
         for (int i=0; i<config.getChildCount(); i++) {
             if (!goalParams.contains(config.getChild(i).getName().trim())) {
-                config.removeChild(i);
-                stripConfigElements(config, goalParams);
-                return config;
+                removeChildren.add(i);
             }
+        }
+        Collections.reverse(removeChildren);
+        for (int child : removeChildren) {
+            config.removeChild(child);
         }
         return config;
     }
