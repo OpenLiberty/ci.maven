@@ -854,7 +854,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     }
 
-    private Plugin getLibertyPluging() {
+    private Plugin getLibertyPlugin() {
         Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" +LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (plugin == null) {
             plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID,  "LATEST");
@@ -865,38 +865,53 @@ public class DevMojo extends StartDebugMojoSupport {
     private Xpp3Dom getLibertyPluginConfig() {
         // get the Liberty plugin configuration from the pom and overrides looseApplication to true.
         // ignores the plugin execution configuration just like CLI invocation (e.g. mvn liberty:create) ignoring execution configuration.
-        Plugin libertyPlugin = getLibertyPluging();
+        Plugin libertyPlugin = getLibertyPlugin();
         Xpp3Dom overrides = configuration(element(name("looseApplication"), "true"));
         return getPluginConfig(libertyPlugin, overrides);
     }
 
     private Xpp3Dom getPluginConfig(Plugin plugin, Xpp3Dom overrides) {
         Xpp3Dom config = (overrides != null) ? overrides : configuration();
-        if (plugin.getConfiguration() == null) {
-            return config;
-        } else {
-            return Xpp3Dom.mergeXpp3Dom(config, (Xpp3Dom)plugin.getConfiguration());
+        Xpp3Dom pluginConfig = (Xpp3Dom)plugin.getConfiguration();
+        if (pluginConfig != null) {
+            config = Xpp3Dom.mergeXpp3Dom(config, pluginConfig);
         }
+        return config;
     }
 
-    private final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
             "installDirectory", "runtimeArchive", "runtimeArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
             "runtimeInstallDirectory", "refresh", "skip"
             ));
     
-    private final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
             "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
             "jvmOptions", "jvmOptionsFile", "serverEnvFile"));
-    private ArrayList<String> createParams = new ArrayList<>(Arrays.asList(
-            "template", "libertySettingsFolder", "noPassword"
-            ));
     
-    private ArrayList<String> deployParams = new ArrayList<>(Arrays.asList(
-            "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
-            ));
+    private static ArrayList<String> createParams;
+    static {
+        createParams = new ArrayList<>(Arrays.asList(
+                "template", "libertySettingsFolder", "noPassword"
+                ));
+        createParams.addAll(commonParams);
+        createParams.addAll(commonServerParams);
+    }
     
-    private ArrayList<String> installFeatureParams = new ArrayList<>(Arrays.asList("features"));    
+    private static ArrayList<String> deployParams;
+    {
+        deployParams = new ArrayList<>(Arrays.asList(
+                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
+                ));
+        deployParams.addAll(commonParams);
+        deployParams.addAll(commonServerParams);
+    }
+    
+    private static ArrayList<String> installFeatureParams;
+    {
+        installFeatureParams = new ArrayList<>(Arrays.asList("features"));
+        installFeatureParams.addAll(commonParams);
+    }
 
     private Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
         for (int i=0; i<config.getChildCount(); i++) {
@@ -909,16 +924,12 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private void runLibertyMojoCreate() throws MojoExecutionException {
-        createParams.addAll(commonParams);
-        createParams.addAll(commonServerParams);
         Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), createParams);
         log.info("Running liberty:create goal");
         runLibertyMojo("create", config);
     }
 
     private void runLibertyMojoDeploy() throws MojoExecutionException {
-        deployParams.addAll(commonParams);
-        deployParams.addAll(commonServerParams);
         Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), deployParams);
         stripConfigElements(config, deployParams);
         log.info("Running liberty:deploy goal");
@@ -926,7 +937,6 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private void runLibertyMojoInstallFeature() throws MojoExecutionException {
-        installFeatureParams.addAll(commonParams);
         Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), installFeatureParams);
         log.info("Running liberty:install-feature goal");
         runLibertyMojo("install-feature", config);
@@ -934,7 +944,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
         log.debug("LibertyMojo:" + goal + " configuration:\n" + config);
-        executeMojo(getLibertyPluging(), goal(goal), config,
+        executeMojo(getLibertyPlugin(), goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
 
