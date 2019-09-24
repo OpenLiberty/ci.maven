@@ -888,7 +888,10 @@ public class DevMojo extends StartDebugMojoSupport {
     
     private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
             "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-            "jvmOptions", "jvmOptionsFile", "serverEnvFile"));
+            "jvmOptions", "jvmOptionsFile", "serverEnvFile",
+            // alias parameters
+            "configFile"
+            ));
     
     private static ArrayList<String> createParams;
     static {
