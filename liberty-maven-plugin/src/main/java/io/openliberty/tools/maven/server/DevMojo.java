@@ -935,6 +935,11 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private void runLibertyMojoDeploy() throws MojoExecutionException {
+        Xpp3Dom pluginConfig = (Xpp3Dom)getLibertyPlugin().getConfiguration();
+        if (pluginConfig != null && pluginConfig.getChild("looseApplication") != null 
+                && "false".equals(pluginConfig.getChild("looseApplication").getValue())) {
+            log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+        }
         Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), deployParams);
         log.info("Running liberty:deploy goal");
         runLibertyMojo("deploy", config);
