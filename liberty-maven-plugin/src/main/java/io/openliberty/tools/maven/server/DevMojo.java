@@ -883,14 +883,16 @@ public class DevMojo extends StartDebugMojoSupport {
     private static final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
             "installDirectory", "runtimeArchive", "runtimeArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
-            "runtimeInstallDirectory", "refresh", "skip"
+            "runtimeInstallDirectory", "refresh", "skip",
+            // alias parameters
+            "assemblyArtifact", "assemblyArchive", "assemblyInstallDirectory"
             ));
     
     private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
             "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
             "jvmOptions", "jvmOptionsFile", "serverEnvFile",
             // alias parameters
-            "configFile"
+            "configFile", "serverEnv"
             ));
     
     private static ArrayList<String> createParams;
@@ -905,7 +907,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private static ArrayList<String> deployParams;
     static {
         deployParams = new ArrayList<>(Arrays.asList(
-                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
+                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout",
+                // alias parameters
+                "installAppPackages"
                 ));
         deployParams.addAll(commonParams);
         deployParams.addAll(commonServerParams);
