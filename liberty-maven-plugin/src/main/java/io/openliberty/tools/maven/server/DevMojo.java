@@ -136,8 +136,8 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
-    @Parameter(property = "verifyTimeout", defaultValue = "30")
-    private int verifyTimeout = 30;
+    @Parameter(property = "verifyTimeout", defaultValue = "60")
+    private int verifyTimeout = 60;
 
     /**
      * Time in seconds to wait while verifying that the application has updated.
