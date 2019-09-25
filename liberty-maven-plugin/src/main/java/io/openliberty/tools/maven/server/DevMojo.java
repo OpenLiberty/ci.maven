@@ -361,7 +361,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         }
 
                         if (!dependencyIds.isEmpty()) {
-                            runLibertyMojoInstallFeature();
+                            runLibertyMojoInstallFeature(null);
                             dependencyIds.clear();
                         }
 
@@ -403,7 +403,15 @@ public class DevMojo extends StartDebugMojoSupport {
                     features.removeAll(existingFeatures);
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added");
-                        runLibertyMojoInstallFeature();
+                        Element[] featureElems = new Element[features.size() + 1];
+                        int i = 0;
+                        for (String f : features) {
+                            featureElems[i] = element(name("feature"), f);
+                            i++;
+                        }
+                        featureElems[i] = element(name("acceptLicense"), "true");
+
+                        runLibertyMojoInstallFeature(element(name("features"), featureElems));
                         this.existingFeatures.addAll(features);
                     }
                 }
@@ -517,7 +525,7 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package", false);
         } else {
             runLibertyMojoCreate();
-            runLibertyMojoInstallFeature();
+            runLibertyMojoInstallFeature(null);
             runLibertyMojoDeploy();
         }
         // resource directories
@@ -987,8 +995,15 @@ public class DevMojo extends StartDebugMojoSupport {
         runLibertyMojo("deploy", config);
     }
 
-    private void runLibertyMojoInstallFeature() throws MojoExecutionException {
-        Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), installFeatureParams);
+    private void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
+        Xpp3Dom config;
+
+        if (features == null) {
+            config = stripConfigElements(getLibertyPluginConfig(), installFeatureParams);
+        } else {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(features), stripConfigElements(getLibertyPluginConfig(), installFeatureParams));
+        }
+
         log.info("Running liberty:install-feature goal");
         runLibertyMojo("install-feature", config);
     }
