@@ -38,6 +38,10 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerException;
+import javax.xml.parsers.ParserConfigurationException;
+
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -261,7 +265,8 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public ServerTask getServerTask() throws IOException {
+
+        public ServerTask getServerTask() throws IOException, TransformerException, ParserConfigurationException {
             if (serverTask != null) {
                 return serverTask;
             } else {
