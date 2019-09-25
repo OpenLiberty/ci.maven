@@ -594,18 +594,38 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
+
+            // match dependencies based on artifactId, groupId
             for (Dependency existingDep : existingDependencies) {
-                if (dep.getArtifactId().equals(existingDep.getArtifactId())) {
-                    newDependency = false;
-                    break;
+                if (dep.getArtifactId().equals(existingDep.getArtifactId())
+                        && dep.getGroupId().equals(existingDep.getGroupId())) {
+
+                    // check for matching version as long as version is not null in existing
+                    // dependency or new dependency
+                    if ((dep.getVersion() != null && dep.getVersion().equals(existingDep.getVersion()))
+                            || (dep.getVersion() == null)) {
+                        if ((dep.getType() != null && dep.getType().equals(existingDep.getType())
+                                || (dep.getType() == null && existingDep.getType() == null))) {
+
+                            // check for matching scope or default "compile" scope
+                            if ((dep.getScope() != null && dep.getScope().equals(existingDep.getScope())
+                                    || (dep.getScope() == null && (existingDep.getScope() == null
+                                            || existingDep.getScope().equals("compile"))))) {
+                                newDependency = false;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+
             if (newDependency) {
                 log.debug("New dependency found: " + dep.getArtifactId());
                 try {
-                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(),
+                            dep.getVersion());
                     updatedArtifacts.add(artifact);
-                } catch (MojoExecutionException e) {
+                } catch (MojoExecutionException | IllegalArgumentException e) {
                     log.warn(e.getMessage());
                 }
             }
