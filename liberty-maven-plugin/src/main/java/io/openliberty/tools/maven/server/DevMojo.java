@@ -405,9 +405,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         log.info("Configuration features have been added");
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
-                        Object[] values = features.toArray();
-                        for (int i=0; i<features.size(); i++) {
-                            featureElems[i+1] = element(name("feature"), (String)values[i]);
+                        String[] values = features.toArray(new String[features.size()]);
+                        for (int i = 0; i < features.size(); i++) {
+                            featureElems[i+1] = element(name("feature"), values[i]);
                         }
                         runLibertyMojoInstallFeature(element(name("features"), featureElems));
                         this.existingFeatures.addAll(features);
