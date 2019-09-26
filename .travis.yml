@@ -6,9 +6,9 @@ jdk:
     - openjdk11
 env:
     - RUNTIME=ol RUNTIME_VERSION=19.0.0.6
-    - RUNTIME=ol RUNTIME_VERSION=19.0.0.3
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.9
     - RUNTIME=wlp RUNTIME_VERSION=19.0.0.6
-    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.3
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.9
 cache:
     directories:
         - $HOME/.m2
