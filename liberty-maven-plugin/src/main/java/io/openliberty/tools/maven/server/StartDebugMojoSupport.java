@@ -75,10 +75,9 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     /**
-     * @throws IOException
-     * @throws FileNotFoundException
+     * @throws Exception
      */
-    protected void copyConfigFiles() throws IOException {
+    protected void copyConfigFiles() throws Exception {
 
         String jvmOptionsPath = null;
         String bootStrapPropertiesPath = null;

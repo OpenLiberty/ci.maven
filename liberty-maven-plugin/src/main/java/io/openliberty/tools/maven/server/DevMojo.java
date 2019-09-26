@@ -261,7 +261,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public ServerTask getServerTask() throws IOException {
+        public ServerTask getServerTask() throws Exception {
             if (serverTask != null) {
                 return serverTask;
             } else {
