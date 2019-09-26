@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,15 +61,16 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.custommonkey.xmlunit.DetailedDiff;
+import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
+import org.w3c.dom.Node;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
@@ -134,8 +137,8 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
-    @Parameter(property = "verifyTimeout", defaultValue = "30")
-    private int verifyTimeout = 30;
+    @Parameter(property = "verifyTimeout", defaultValue = "60")
+    private int verifyTimeout = 60;
 
     /**
      * Time in seconds to wait while verifying that the application has updated.
@@ -292,14 +295,21 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
             try {
+                boolean unhandledChange = false;
                 String modifiedPom = readFile(buildFile);
                 XMLUnit.setIgnoreWhitespace(true);
                 XMLUnit.setIgnoreAttributeOrder(true);
                 XMLUnit.setIgnoreComments(true);
                 DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(this.existingPom, modifiedPom));
-                List<?> allDifferences = diff.getAllDifferences();
+                List<?> allDifferences = (List<?>)diff.getAllDifferences();
                 log.debug("Number of differences in the pom: " + allDifferences.size());
 
+                for (Object differenceObj : allDifferences) {
+                    Difference difference = (Difference)differenceObj;
+                    if (difference.getControlNodeDetail().getNode() != null && !dependencyChange(difference.getControlNodeDetail().getNode())) {
+                        unhandledChange = true;
+                    }
+                }
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
                     if (isUsingBoost()) {
@@ -315,7 +325,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
                     if (!updatedArtifacts.isEmpty()) {
-
                         for (Artifact artifact : updatedArtifacts) {
                             if (("esa").equals(artifact.getType())) {
                                 dependencyIds.add(artifact.getArtifactId());
@@ -352,12 +361,20 @@ public class DevMojo extends StartDebugMojoSupport {
                         }
 
                         if (!dependencyIds.isEmpty()) {
-                            runLibertyMavenPlugin("install-feature", serverName, dependencyIds);
+                            runLibertyMojoInstallFeature(null);
                             dependencyIds.clear();
                         }
 
                         // update dependencies
-                        this.existingDependencies = dependencies;
+                        for (Artifact artifact : updatedArtifacts) {
+                            for (Dependency dependency : dependencies) {
+                                if (artifact.getArtifactId().equals(dependency.getArtifactId())) {
+                                    this.existingDependencies.add(dependency);
+                                    break;
+                                }
+                            }
+                        }
+
                         this.existingPom = modifiedPom;
 
                         return true;
@@ -365,8 +382,8 @@ public class DevMojo extends StartDebugMojoSupport {
                         if (isUsingBoost()) {
                             this.existingPom = modifiedPom;
                             return true;
-                        } else {
-                            log.info(
+                        } else if (unhandledChange) {
+                            log.warn(
                                 "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                         }
                     }
@@ -385,9 +402,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (features != null) {
                     features.removeAll(existingFeatures);
                     if (!features.isEmpty()) {
-                        List<String> configFeatures = new ArrayList<String>(features);
                         log.info("Configuration features have been added");
-                        runLibertyMavenPlugin("install-feature", serverName, configFeatures);
+                        Element[] featureElems = new Element[features.size() + 1];
+                        featureElems[0] = element(name("acceptLicense"), "true");
+                        String[] values = features.toArray(new String[features.size()]);
+                        for (int i = 0; i < features.size(); i++) {
+                            featureElems[i+1] = element(name("feature"), values[i]);
+                        }
+                        runLibertyMojoInstallFeature(element(name("features"), featureElems));
                         this.existingFeatures.addAll(features);
                     }
                 }
@@ -400,17 +422,12 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    log.info("Running maven-compiler-plugin:compile");
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
-
-                    log.info("Running maven-compiler-plugin:resources");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    log.info("Running maven-compiler-plugin:testCompile");
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
-                    log.info("Running maven-compiler-plugin:testResources");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -470,8 +487,8 @@ public class DevMojo extends StartDebugMojoSupport {
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
         if (serverDirectory.exists()) {
-        	// passing liberty outputDirectory and serverName to determine server status
-            if (ServerStatusUtil.isServerRunning(super.outputDirectory, serverName)) {
+            // passing liberty installDirectory, outputDirectory and serverName to determine server status
+            if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
                 throw new MojoExecutionException("The server " + serverName
                         + " is already running. Terminate all instances of the server before starting dev mode.");
             }
@@ -482,14 +499,11 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        log.info("Running maven-compiler-plugin:compile");
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile", null, null);
-        log.info("Running maven-compiler-plugin:resources");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources", null, null);
-        log.info("Running maven-compiler-plugin:testCompile");
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", null, null);
-        log.info("Running maven-compiler-plugin:testResources");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources", null, null);
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
 
@@ -508,12 +522,9 @@ public class DevMojo extends StartDebugMojoSupport {
             log.info("Running boost:package");
             runBoostMojo("package", false);
         } else {
-            log.info("Running goal: create");
-            runLibertyMavenPlugin("create", serverName, null);
-            log.info("Running goal: install-feature");
-            runLibertyMavenPlugin("install-feature", serverName, null);
-            log.info("Running goal: deploy");
-            runLibertyMavenPlugin("deploy", serverName, null);
+            runLibertyMojoCreate();
+            runLibertyMojoInstallFeature(null);
+            runLibertyMojoDeploy();
         }
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
@@ -574,8 +585,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies)
-            throws MojoExecutionException {
+    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
@@ -587,8 +597,12 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             if (newDependency) {
                 log.debug("New dependency found: " + dep.getArtifactId());
-                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
-                updatedArtifacts.add(artifact);
+                try {
+                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+                    updatedArtifacts.add(artifact);
+                } catch (MojoExecutionException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
         return updatedArtifacts;
@@ -773,77 +787,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private Element[] getPluginConfigurationElements(String goal, String testServerName, List<String> dependencies) {
-        List<Element> elements = new ArrayList<Element>();
-        try {
-            if (testServerName != null) {
-                elements.add(element(name("serverName"), testServerName));
-                elements.add(element(name("configDirectory"), configDirectory.getCanonicalPath()));
-                if (installDirectory != null && installDirectory.exists()) {
-                    elements.add(element(name("installDirectory"), installDirectory.getCanonicalPath()));
-                }
-                if (goal.equals("install-feature") && (dependencies != null)) {
-                    Element[] featureElems = new Element[dependencies.size()];
-                    for (int i = 0; i < featureElems.length; i++) {
-                        featureElems[i] = element(name("feature"), dependencies.get(i));
-                    }
-                    elements.add(element(name("features"), featureElems));
-                } else if (goal.equals("deploy")) {
-                    String appsDirectory = MavenProjectUtil.getPluginExecutionConfiguration(project, 
-                        LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "deploy", "appsDirectory");
-                    if (appsDirectory != null) {
-                        elements.add(element(name("appsDirectory"), appsDirectory));
-                    }
-                    elements.add(element(name("looseApplication"), "true"));
-                    elements.add(element(name("stripVersion"), "true"));
-                    elements.add(element(name("deployPackages"), "project"));
-                    if (serverXmlFile != null) {
-                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
-                    }
-                } else if (goal.equals("create")) {
-                    if (serverXmlFile != null) {
-                        elements.add(element(name("serverXmlFile"), serverXmlFile.getCanonicalPath()));
-                    }
-                    if (assemblyArtifact != null) {
-                        Element[] featureElems = new Element[4];
-                        featureElems[0] = element(name("groupId"), assemblyArtifact.getGroupId());
-                        featureElems[1] = element(name("artifactId"), assemblyArtifact.getArtifactId());
-                        featureElems[2] = element(name("version"), assemblyArtifact.getVersion());
-                        featureElems[3] = element(name("type"), assemblyArtifact.getType());
-                        elements.add(element(name("assemblyArtifact"), featureElems));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            log.error("Unable to resolve canonical paths " + e.getMessage());
-        }
-        return elements.toArray(new Element[elements.size()]);
-    }
-
-    private void runLibertyMavenPlugin(String goal, String serverName, List<String> dependencies)
-            throws MojoExecutionException {
-        // use LATEST so that snapshot and milestones are included
-        runMojo(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST", goal, serverName,
-                dependencies);
-    }
-
-    private void runMojo(String groupId, String artifactId, String goal, String serverName, List<String> dependencies)
-            throws MojoExecutionException {
-        runMojo(groupId, artifactId, "RELEASE", goal, serverName, dependencies);
-    }
-
-    private void runMojo(String groupId, String artifactId, String defaultVersion, String goal, String serverName,
-            List<String> dependencies) throws MojoExecutionException {
-        Plugin mavenPlugin = project.getPlugin(Plugin.constructKey(groupId, artifactId));
-        if (mavenPlugin == null) {
-            mavenPlugin = plugin(groupId(groupId), artifactId(artifactId), version(defaultVersion));
-        }
-        log.debug("plugin version: " + mavenPlugin.getVersion());
-        executeMojo(mavenPlugin, goal(goal),
-                configuration(getPluginConfigurationElements(goal, serverName, dependencies)),
-                executionEnvironment(project, session, pluginManager));
-    }
-
     private void runBoostMojo(String goal, boolean rebuildProject)
             throws MojoExecutionException, ProjectBuildingException {
 
@@ -881,6 +824,22 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         return ret;
+    }
+
+    /**
+     * Check if the pom.xml has had a dependency change
+     * 
+     * @param node difference node in the pom.xml
+     * @return true if the change is related to a dependency change
+     */
+    private boolean dependencyChange(Node node) {
+        if (node.getNodeName().equals("dependency") || node.getNodeName().equals("dependencies")) {
+            return true;
+        } else if (node.getParentNode() == null) {
+            return false;
+        } else {
+            return dependencyChange(node.getParentNode());
+        }
     }
 
     private void listFiles(File directory, List<File> files, String suffix) {
@@ -937,4 +896,132 @@ public class DevMojo extends StartDebugMojoSupport {
 
     }
 
+    private Plugin getLibertyPlugin() {
+        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        if (plugin == null) {
+            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
+        }
+        return plugin;
+    }
+
+    private Xpp3Dom getLibertyPluginConfig() {
+        // get the Liberty plugin configuration from the pom and overrides looseApplication to true.
+        // ignores the plugin execution configuration just like CLI invocation (e.g. mvn liberty:create) ignoring execution configuration.
+        Plugin libertyPlugin = getLibertyPlugin();
+        Xpp3Dom overrides = configuration(element(name("looseApplication"), "true"));
+        return getPluginConfig(libertyPlugin, overrides);
+    }
+
+    private Xpp3Dom getPluginConfig(Plugin plugin, Xpp3Dom overrides) {
+        Xpp3Dom config = (overrides != null) ? overrides : configuration();
+        Xpp3Dom pluginConfig = (Xpp3Dom)plugin.getConfiguration();
+        if (pluginConfig != null) {
+            config = Xpp3Dom.mergeXpp3Dom(config, pluginConfig);
+        }
+        return config;
+    }
+
+    private static final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
+            "installDirectory", "runtimeArchive", "runtimeArtifact", "libertyRuntimeVersion",
+            "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
+            "runtimeInstallDirectory", "refresh", "skip",
+            // alias parameters
+            "assemblyArtifact", "assemblyArchive", "assemblyInstallDirectory"
+            ));
+    
+    private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
+            "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
+            "jvmOptions", "jvmOptionsFile", "serverEnvFile",
+            // alias parameters
+            "configFile", "serverEnv"
+            ));
+    
+    private static ArrayList<String> createParams;
+    static {
+        createParams = new ArrayList<>(Arrays.asList(
+                "template", "libertySettingsFolder", "noPassword"
+                ));
+        createParams.addAll(commonParams);
+        createParams.addAll(commonServerParams);
+    }
+    
+    private static ArrayList<String> deployParams;
+    static {
+        deployParams = new ArrayList<>(Arrays.asList(
+                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout",
+                // alias parameters
+                "installAppPackages"
+                ));
+        deployParams.addAll(commonParams);
+        deployParams.addAll(commonServerParams);
+    }
+    
+    private static ArrayList<String> installFeatureParams;
+    static {
+        installFeatureParams = new ArrayList<>(Arrays.asList("features"));
+        installFeatureParams.addAll(commonParams);
+    }
+
+    private Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
+        List<Integer> removeChildren = new ArrayList<Integer>();
+        for (int i=0; i<config.getChildCount(); i++) {
+            if (!goalParams.contains(config.getChild(i).getName().trim())) {
+                removeChildren.add(i);
+            }
+        }
+        Collections.reverse(removeChildren);
+        for (int child : removeChildren) {
+            config.removeChild(child);
+        }
+        return config;
+    }
+
+    private void runLibertyMojoCreate() throws MojoExecutionException {
+        Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), createParams);
+        log.info("Running liberty:create goal");
+        runLibertyMojo("create", config);
+    }
+
+    private void runLibertyMojoDeploy() throws MojoExecutionException {
+        Xpp3Dom pluginConfig = (Xpp3Dom)getLibertyPlugin().getConfiguration();
+        if (pluginConfig != null && pluginConfig.getChild("looseApplication") != null 
+                && "false".equals(pluginConfig.getChild("looseApplication").getValue())) {
+            log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+        }
+        Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), deployParams);
+        log.info("Running liberty:deploy goal");
+        runLibertyMojo("deploy", config);
+    }
+
+    private void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
+        Xpp3Dom config;
+
+        if (features == null) {
+            config = stripConfigElements(getLibertyPluginConfig(), installFeatureParams);
+        } else {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(features), stripConfigElements(getLibertyPluginConfig(), installFeatureParams));
+        }
+
+        log.info("Running liberty:install-feature goal");
+        runLibertyMojo("install-feature", config);
+    }
+
+    private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
+        log.debug("LibertyMojo:" + goal + " configuration:\n" + config);
+        executeMojo(getLibertyPlugin(), goal(goal), config,
+                executionEnvironment(project, session, pluginManager));
+    }
+
+    // call by compile:compile, 
+    private void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
+        Plugin plugin = getPlugin(groupId, artifactId);
+        Xpp3Dom config = (Xpp3Dom)plugin.getConfiguration();
+        if (config == null) {
+            config = configuration();
+        }
+        log.info("Running " + artifactId + ":" + goal);
+        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config,
+                executionEnvironment(project, session, pluginManager));
+    }
 }
