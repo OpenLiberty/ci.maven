@@ -138,10 +138,9 @@ public enum PropertyType {
     }
 
     /**
-     * @throws IOException
-     * @throws TransformerException
+     * @throws Exception
      */
-    protected void copyConfigFiles() throws IOException, TransformerException, ParserConfigurationException {
+    protected void copyConfigFiles() throws Exception {
 
         String jvmOptionsPath = null;
         String bootStrapPropertiesPath = null;

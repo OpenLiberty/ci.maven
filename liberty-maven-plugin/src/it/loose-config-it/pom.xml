@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <package.type>jar</package.type>
-        <include>minify</include>
+        <include>minify,runnable</include>
     </properties>
 
     <dependencies>
