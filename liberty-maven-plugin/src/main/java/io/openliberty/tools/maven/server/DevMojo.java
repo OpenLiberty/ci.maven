@@ -601,14 +601,12 @@ public class DevMojo extends StartDebugMojoSupport {
                 // match dependencies based on artifactId, groupId
                 for (Dependency existingDep : existingDependencies) {
                     if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
-                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())) {
-                        if (Objects.equals(artifact.getVersion(), existingDep.getVersion())) {
-                            if (Objects.equals(artifact.getType(), existingDep.getType())) {
-                                newDependency = false;
-                                break;
-                            }
-                        }
+                            && Objects.equals(artifact.getVersion(), existingDep.getVersion())
+                            && Objects.equals(artifact.getType(), existingDep.getType())) {
+                        newDependency = false;
+                        break;
                     }
+
                 }
                 if (newDependency) {
                     log.debug("New dependency found: " + artifact.toString());
