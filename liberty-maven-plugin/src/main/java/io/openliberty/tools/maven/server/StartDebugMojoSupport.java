@@ -85,7 +85,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     @Parameter
     protected List<String> jvmOptions;
 
-public enum PropertyType {
+    private enum PropertyType {
         BOOTSTRAP("liberty.bootstrap."),
         ENV("liberty.env."),
         JVM("liberty.jvm."),
@@ -314,21 +314,25 @@ public enum PropertyType {
             writer = new PrintWriter(file, "UTF-8");
             writer.println(HEADER);
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                writer.print(entry.getKey());
+                String key = entry.getKey();
+                writer.print(key);
                 writer.print("=");
-                writer.println((entry.getValue() != null) ? entry.getValue().replace("\\", "/") : "");
-                if (entry.getValue() == null) {
-                    log.error("The value of the bootstrap property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
+                String value = entry.getValue();
+                writer.println((value != null) ? value.replace("\\", "/") : "");
+                if (value == null) {
+                    log.error("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
             for (Map.Entry<String, String> entry : mavenProperties.entrySet()) {
                 // only write the maven property if it is not a duplicate of one from above
-                if (!properties.containsKey(entry.getKey())) {
-                    writer.print(entry.getKey());
+                String key = entry.getKey();
+                if (!properties.containsKey(key)) {
+                    writer.print(key);
                     writer.print("=");
-                    writer.println((entry.getValue() != null) ? entry.getValue().replace("\\", "/") : "");
-                    if (entry.getValue() == null) {
-                        log.error("The value of the bootstrap property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
+                    String value = entry.getValue();
+                    writer.println((value != null) ? value.replace("\\", "/") : "");
+                    if (value == null) {
+                        log.error("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
                     }
                 }
             }
@@ -346,10 +350,12 @@ public enum PropertyType {
             writer = new PrintWriter(file, "UTF-8");
             writer.println(HEADER);
             for (Map.Entry<String, String> entry : mavenProperties.entrySet()) {
-                writer.print(entry.getKey());
+                String key = entry.getKey();
+                writer.print(key);
                 writer.print("=");
-                writer.println((entry.getValue() != null) ? entry.getValue().replace("\\", "/") : "");
-                if (entry.getValue() == null) {
+                String value = entry.getValue();
+                writer.println((value != null) ? value.replace("\\", "/") : "");
+                if (value == null) {
                     log.error("The value of the server.env property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
@@ -391,6 +397,7 @@ public enum PropertyType {
         }
 
         for (Map.Entry<String, String> entry : defaultVarMavenProps.entrySet()) {
+            // set boolean to true so the variable is created with a defaultValue instead of a value
             configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), true);
         }
 
