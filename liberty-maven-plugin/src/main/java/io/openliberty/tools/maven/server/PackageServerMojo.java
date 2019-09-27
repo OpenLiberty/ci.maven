@@ -38,18 +38,16 @@ import io.openliberty.tools.ant.ServerTask;
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
-    public enum PackageFileType {
-        JAR("jar",".jar"),
-        TAR("tar",".tar"),
-        TARGZ("tar.gz",".tar.gz"),
-        ZIP("zip",".zip");
+    private enum PackageFileType {
+        JAR("jar"),
+        TAR("tar"),
+        TARGZ("tar.gz"),
+        ZIP("zip");
 
         private final String value;
-        private final String fileExtension;
 
-        private PackageFileType(final String val, final String ext) {
+        private PackageFileType(final String val) {
             this.value = val;
-            this.fileExtension = ext;
         }
 
         private static final Map<String, PackageFileType> lookup = new HashMap<String, PackageFileType>();
@@ -63,10 +61,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         public static PackageFileType getPackageFileType(String input) {
             return lookup.get(input);
         } 
-
-        public String getFileExtension() {
-            return this.fileExtension;
-        }
 
         public String getValue() {
             return this.value;
@@ -194,27 +188,6 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Sets `packageFileType` based on include and packageType values. Validates the values specified are compatible.
-     * 
-     * @throws MojoFailureException
-     */
-    private void validateIncludeAndPackageType() throws MojoFailureException {
-        ArrayList<String> includeValues = parseInclude();
-
-        if (includeValues.size() > 1) {
-            if (includeValues.contains("runnable")) {
-                if (includeValues.contains("wlp") || includeValues.contains("usr")) {
-                    throw new MojoFailureException("The `include` parameter value `runnable` is not valid with `usr` or `wlp`.");
-                }
-            } else {
-                throw new MojoFailureException("The `include` parameter value `" + include + "` is not valid. The `include` parameter can be used with values `all`, `usr`, `minify`, `wlp`, `runnable`, `all,runnable`, and `minify,runnable`.");
-            }
-        }
-
-        setPackageFileType(includeValues);
-    }
-
-    /**
      * Sets `packageFile` and `packageFileType` based on specified/defaulted package type, package dir, and package name.
      * Validates the include and packageType values before setting the packageFile and packageFileType.
      * 
@@ -222,11 +195,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @throws IOException
      */
     private void setPackageFilePath() throws IOException, MojoFailureException {
-        validateIncludeAndPackageType();
+        setPackageFileType();
 
         String projectBuildDir = getPackageDirectory();
         String projectBuildName = getPackageName();
-        packageFile = new File(projectBuildDir, projectBuildName + packageFileType.getFileExtension());
+        packageFile = new File(projectBuildDir, projectBuildName + "." + packageFileType.getValue());
     }
     
     /**
@@ -236,9 +209,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * then packageType must be `jar`.
      * 
      * @throws MojoFailureException
-     * @return PackageFileType
      */
-    private void setPackageFileType(ArrayList<String> includeValues) throws MojoFailureException {
+    private void setPackageFileType() throws MojoFailureException {
+        ArrayList<String> includeValues = parseInclude();
         if (packageType == null) {
             if (includeValues.contains("runnable")) {
                 log.debug("Defaulting `packageType` to `jar` because the `include` value contains `runnable`.");
