@@ -272,6 +272,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 serverTask.setClean(clean);
                 if (libertyDebug) {
                     serverTask.setOperation("debug");
+                    serverTask.setEnvironmentVariables(getDebugEnvironmentVariables(libertyDebugPort));
                 } else {
                     serverTask.setOperation("run");
                 }
