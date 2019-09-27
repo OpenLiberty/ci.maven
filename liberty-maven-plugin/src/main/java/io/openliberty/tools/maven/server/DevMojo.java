@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -261,7 +262,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public ServerTask getServerTask() throws IOException {
+        public ServerTask getServerTask() throws Exception {
             if (serverTask != null) {
                 return serverTask;
             } else {
@@ -922,18 +923,18 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     private static final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
-            "installDirectory", "runtimeArchive", "runtimeArtifact", "libertyRuntimeVersion",
+            "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
-            "runtimeInstallDirectory", "refresh", "skip",
-            // alias parameters
-            "assemblyArtifact", "assemblyArchive", "assemblyInstallDirectory"
+            "assemblyInstallDirectory", "refresh", "skip"
+            // executeMojo can not use alias parameters:
+            // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory"
             ));
     
     private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
             "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-            "jvmOptions", "jvmOptionsFile", "serverEnvFile",
-            // alias parameters
-            "configFile", "serverEnv"
+            "jvmOptions", "jvmOptionsFile", "serverEnvFile"
+            // executeMojo can not use alias parameters:
+            // "configFile", "serverEnv"
             ));
     
     private static ArrayList<String> createParams;
@@ -948,9 +949,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private static ArrayList<String> deployParams;
     static {
         deployParams = new ArrayList<>(Arrays.asList(
-                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout",
-                // alias parameters
-                "installAppPackages"
+                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
+                // executeMojo can not use alias parameters:
+                // "installAppPackages"
                 ));
         deployParams.addAll(commonParams);
         deployParams.addAll(commonServerParams);
@@ -962,7 +963,38 @@ public class DevMojo extends StartDebugMojoSupport {
         installFeatureParams.addAll(commonParams);
     }
 
+    private static final Map<String, String> aliasMap;
+    static {
+        Map<String, String>tempMap = new HashMap<String, String>();
+        tempMap.put("runtimeArtifact", "assemblyArtifact");
+        tempMap.put("runtimeArchive", "assemblyArchive");
+        tempMap.put("runtimeInstallDirectory", "assemblyInstallDirectory");
+        tempMap.put("configFile", "serverXmlFile");
+        tempMap.put("serverEnv", "serverEnvFile");
+        tempMap.put("installAppPackages", "deployPackages");
+        aliasMap = Collections.unmodifiableMap(tempMap);
+    }
+
     private Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
+        // convert alias parameter key to actual parameter key
+        Xpp3Dom alias;
+        for (String key : aliasMap.keySet()) {
+            alias = config.getChild(key);
+            if (alias != null) {
+                if ("runtimeArtifact".contentEquals(key)) {
+                    Xpp3Dom artifact = new Xpp3Dom(aliasMap.get(key));
+                    for (Xpp3Dom child : alias.getChildren()) {
+                        artifact.addChild(child);
+                    }
+                    config.addChild(artifact);
+                } else {
+                    Element e = (element(name(aliasMap.get(key)), alias.getValue()));
+                    config.addChild(e.toDom());
+                }
+            }
+        }
+
+        // strip non applicable parameters
         List<Integer> removeChildren = new ArrayList<Integer>();
         for (int i=0; i<config.getChildCount(); i++) {
             if (!goalParams.contains(config.getChild(i).getName().trim())) {
@@ -1012,7 +1044,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 executionEnvironment(project, session, pluginManager));
     }
 
-    // call by compile:compile, 
     private void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
         Xpp3Dom config = (Xpp3Dom)plugin.getConfiguration();
