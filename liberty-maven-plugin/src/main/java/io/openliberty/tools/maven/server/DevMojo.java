@@ -598,9 +598,10 @@ public class DevMojo extends StartDebugMojoSupport {
                 // resolve new artifact
                 Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
 
-                // match dependencies based on artifactId, groupId
+                // match dependencies based on artifactId, groupId, version and type
                 for (Dependency existingDep : existingDependencies) {
                     if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
+                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())
                             && Objects.equals(artifact.getVersion(), existingDep.getVersion())
                             && Objects.equals(artifact.getType(), existingDep.getType())) {
                         newDependency = false;
@@ -614,7 +615,7 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (MojoExecutionException e) {
                 log.warn(e.getMessage());
             } catch (IllegalArgumentException e) {
-                log.warn("Illegal argument on " + dep.toString() + " " + e.getMessage());
+                log.warn(dep.toString() + " is not valid: " + e.getMessage());
             }
         }
         return updatedArtifacts;
