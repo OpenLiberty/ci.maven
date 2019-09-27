@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -319,7 +320,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     List<Dependency> dependencies = updatedProject.getDependencies();
                     log.debug("Dependencies size: " + dependencies.size());
                     log.debug("Existing dependencies size: " + this.existingDependencies.size());
-
                     List<String> dependencyIds = new ArrayList<String>();
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
@@ -594,41 +594,32 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
+            try {
+                // resolve new artifact
+                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
 
-            // match dependencies based on artifactId, groupId
-            for (Dependency existingDep : existingDependencies) {
-                if (dep.getArtifactId().equals(existingDep.getArtifactId())
-                        && dep.getGroupId().equals(existingDep.getGroupId())) {
-
-                    // check for matching version as long as version is not null in existing
-                    // dependency or new dependency
-                    if ((dep.getVersion() != null && dep.getVersion().equals(existingDep.getVersion()))
-                            || (dep.getVersion() == null)) {
-                        if ((dep.getType() != null && dep.getType().equals(existingDep.getType())
-                                || (dep.getType() == null && existingDep.getType() == null))) {
-
-                            // check for matching scope or default "compile" scope
-                            if ((dep.getScope() != null && dep.getScope().equals(existingDep.getScope())
-                                    || (dep.getScope() == null && (existingDep.getScope() == null
-                                            || existingDep.getScope().equals("compile"))))) {
+                // match dependencies based on artifactId, groupId
+                for (Dependency existingDep : existingDependencies) {
+                    if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
+                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())) {
+                        if (Objects.equals(artifact.getVersion(), existingDep.getVersion())) {
+                            if (Objects.equals(artifact.getType(), existingDep.getType())) {
                                 newDependency = false;
                                 break;
                             }
                         }
                     }
                 }
+                if (newDependency) {
+                    log.debug("New dependency found: " + artifact.toString());
+                    updatedArtifacts.add(artifact);
+                }
+            } catch (MojoExecutionException e) {
+                log.warn(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                log.warn("Illegal argument on " + dep.toString() + " " + e.getMessage());
             }
 
-            if (newDependency) {
-                log.debug("New dependency found: " + dep.getArtifactId());
-                try {
-                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(),
-                            dep.getVersion());
-                    updatedArtifacts.add(artifact);
-                } catch (MojoExecutionException | IllegalArgumentException e) {
-                    log.warn(e.getMessage());
-                }
-            }
         }
         return updatedArtifacts;
     }
