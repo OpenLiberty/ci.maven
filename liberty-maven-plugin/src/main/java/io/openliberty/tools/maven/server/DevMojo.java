@@ -606,7 +606,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         newDependency = false;
                         break;
                     }
-
                 }
                 if (newDependency) {
                     log.debug("New dependency found: " + artifact.toString());
@@ -617,7 +616,6 @@ public class DevMojo extends StartDebugMojoSupport {
             } catch (IllegalArgumentException e) {
                 log.warn("Illegal argument on " + dep.toString() + " " + e.getMessage());
             }
-
         }
         return updatedArtifacts;
     }
