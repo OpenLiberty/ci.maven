@@ -81,7 +81,7 @@ public class DevTest extends BaseDevTest {
 
          // make an unhandled change to the pom.xml
          replaceString("dev-sample-proj", "dev-sample-project", pom);
-         assertFalse(checkLogMessage(100000, "Unhandled change detected in pom.xml"));
+         assertFalse(checkLogMessage(200000, "Unhandled change detected in pom.xml"));
       }
    }
 
