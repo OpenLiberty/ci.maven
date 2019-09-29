@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -311,18 +312,22 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (difference.getControlNodeDetail().getNode() != null && !dependencyChange(difference.getControlNodeDetail().getNode())) {
                         unhandledChange = true;
                     }
-                }
+                }                
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
                     if (isUsingBoost()) {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
                     }
+                    else if (unhandledChange) {
+                        log.warn(
+                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                    }
+                    
                     MavenProject updatedProject = loadProject(buildFile);
                     List<Dependency> dependencies = updatedProject.getDependencies();
                     log.debug("Dependencies size: " + dependencies.size());
                     log.debug("Existing dependencies size: " + this.existingDependencies.size());
-
                     List<String> dependencyIds = new ArrayList<String>();
                     List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
 
@@ -380,14 +385,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         this.existingPom = modifiedPom;
 
                         return true;
-                    } else {
-                        if (isUsingBoost()) {
-                            this.existingPom = modifiedPom;
-                            return true;
-                        } else if (unhandledChange) {
-                            log.warn(
-                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
-                        }
+                    } else if (isUsingBoost()) {
+                        this.existingPom = modifiedPom;
+                        return true;
                     }
                 }
             } catch (Exception e) {
@@ -591,20 +591,28 @@ public class DevMojo extends StartDebugMojoSupport {
         List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
         for (Dependency dep : dependencies) {
             boolean newDependency = true;
-            for (Dependency existingDep : existingDependencies) {
-                if (dep.getArtifactId().equals(existingDep.getArtifactId())) {
-                    newDependency = false;
-                    break;
+            try {
+                // resolve new artifact
+                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+
+                // match dependencies based on artifactId, groupId, version and type
+                for (Dependency existingDep : existingDependencies) {
+                    if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
+                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())
+                            && Objects.equals(artifact.getVersion(), existingDep.getVersion())
+                            && Objects.equals(artifact.getType(), existingDep.getType())) {
+                        newDependency = false;
+                        break;
+                    }
                 }
-            }
-            if (newDependency) {
-                log.debug("New dependency found: " + dep.getArtifactId());
-                try {
-                    Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
+                if (newDependency) {
+                    log.debug("New dependency found: " + artifact.toString());
                     updatedArtifacts.add(artifact);
-                } catch (MojoExecutionException e) {
-                    log.warn(e.getMessage());
                 }
+            } catch (MojoExecutionException e) {
+                log.warn(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                log.warn(dep.toString() + " is not valid: " + e.getMessage());
             }
         }
         return updatedArtifacts;
