@@ -309,13 +309,18 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (difference.getControlNodeDetail().getNode() != null && !dependencyChange(difference.getControlNodeDetail().getNode())) {
                         unhandledChange = true;
                     }
-                }
+                }                
                 if (!allDifferences.isEmpty()) {
                     log.info("Pom has been modified");
                     if (isUsingBoost()) {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
                     }
+                    else if (unhandledChange) {
+                        log.warn(
+                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                    }
+                    
                     MavenProject updatedProject = loadProject(buildFile);
                     List<Dependency> dependencies = updatedProject.getDependencies();
                     log.debug("Dependencies size: " + dependencies.size());
@@ -377,14 +382,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         this.existingPom = modifiedPom;
 
                         return true;
-                    } else {
-                        if (isUsingBoost()) {
-                            this.existingPom = modifiedPom;
-                            return true;
-                        } else if (unhandledChange) {
-                            log.warn(
-                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
-                        }
+                    } else if (isUsingBoost()) {
+                        this.existingPom = modifiedPom;
+                        return true;
                     }
                 }
             } catch (Exception e) {
