@@ -107,7 +107,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             configDocument.createElement("configFile", configFile);
         }
 
-        if (bootstrapProperties != null) {
+        if (combinedBootstrapProperties != null) {
+            configDocument.createElement("bootstrapProperties", combinedBootstrapProperties);
+        } else if (bootstrapProperties != null) {
             configDocument.createElement("bootstrapProperties", bootstrapProperties);
         } else {
             configFile = findConfigFile("bootstrap.properties", bootstrapPropertiesFile);
@@ -116,7 +118,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
 
-        if (jvmOptions != null) {
+        if (combinedJvmOptions != null) {
+            configDocument.createElement("jvmOptions", combinedJvmOptions);
+        } else if (jvmOptions != null) {
             configDocument.createElement("jvmOptions", jvmOptions);
         } else {
             configFile = findConfigFile("jvm.options", jvmOptionsFile);
@@ -125,9 +129,12 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
 
-        configFile = findConfigFile("server.env", serverEnvFile);
-        if (configFile != null) {
-            configDocument.createElement("serverEnv", configFile);
+        // Only write the serverEnvFile path if it was not overridden by liberty.env.{var} Maven properties.
+        if (envMavenProps.isEmpty() && configFile != null) {
+            configFile = findConfigFile("server.env", serverEnvFile);
+            if (configFile != null) {
+                configDocument.createElement("serverEnv", configFile);
+            }
         }
 
         configDocument.createElement("appsDirectory", getAppsDirectory());
