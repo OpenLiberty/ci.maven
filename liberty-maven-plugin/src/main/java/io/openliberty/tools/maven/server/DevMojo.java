@@ -201,7 +201,8 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout, ((long)(compileWait * 1000L)));
+                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout,
+                    ((long) (compileWait * 1000L)), libertyDebug);
 
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -272,8 +273,15 @@ public class DevMojo extends StartDebugMojoSupport {
                 copyConfigFiles();
                 serverTask.setClean(clean);
                 if (libertyDebug) {
+                    setLibertyDebugPort(libertyDebugPort);
+
+                    // set environment variables for server start task
                     serverTask.setOperation("debug");
-                    serverTask.setEnvironmentVariables(getDebugEnvironmentVariables(libertyDebugPort));
+                    serverTask.setEnvironmentVariables(getDebugEnvironmentVariables());
+
+                    // set the same variables in server.env after it was written to the target
+                    // location by copyConfigFiles() above
+                    enableServerDebug();
                 } else {
                     serverTask.setOperation("run");
                 }
@@ -547,7 +555,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         util.addShutdownHook(executor);
-        util.enableServerDebug(libertyDebugPort);
         util.startServer(serverStartTimeout, verifyTimeout);
 
         // collect artifacts canonical paths in order to build classpath
