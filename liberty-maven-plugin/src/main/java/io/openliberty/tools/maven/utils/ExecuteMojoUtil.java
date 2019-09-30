@@ -149,13 +149,13 @@ public class ExecuteMojoUtil {
     
     private static final ArrayList<String> DEPLOY_PARAMS;
     static {
-        DEPLOTY_PARAMS = new ArrayList<>(Arrays.asList(
+        DEPLOY_PARAMS = new ArrayList<>(Arrays.asList(
                 "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication"
                 // executeMojo can not use alias parameters:
                 // "installAppPackages"
                 ));
-        DEPLOTY_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
-        DEPLOTY_PARAMS.addAll(LIBERTY_COMMON_SERVER_PARAMS);
+        DEPLOY_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
+        DEPLOY_PARAMS.addAll(LIBERTY_COMMON_SERVER_PARAMS);
     }
     
     private static final ArrayList<String> INSTALL_FEATURE_PARAMS;
