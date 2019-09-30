@@ -319,10 +319,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
                     }
-                    else if (unhandledChange) {
-                        log.warn(
-                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
-                    }
                     
                     MavenProject updatedProject = loadProject(buildFile);
                     List<Dependency> dependencies = updatedProject.getDependencies();
@@ -381,13 +377,19 @@ public class DevMojo extends StartDebugMojoSupport {
                                 }
                             }
                         }
-
-                        this.existingPom = modifiedPom;
-
+                        if (!isUsingBoost() && unhandledChange) {
+                            log.warn(
+                                    "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                        } else {
+                            this.existingPom = modifiedPom;
+                        }
                         return true;
                     } else if (isUsingBoost()) {
                         this.existingPom = modifiedPom;
                         return true;
+                    } else if (unhandledChange) {
+                        log.warn(
+                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
             } catch (Exception e) {
@@ -597,10 +599,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // match dependencies based on artifactId, groupId, version and type
                 for (Dependency existingDep : existingDependencies) {
-                    if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
-                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())
-                            && Objects.equals(artifact.getVersion(), existingDep.getVersion())
-                            && Objects.equals(artifact.getType(), existingDep.getType())) {
+                    Artifact existingArtifact = getArtifact(existingDep.getGroupId(), existingDep.getArtifactId(), existingDep.getType(), existingDep.getVersion());
+                    if (Objects.equals(artifact.getArtifactId(), existingArtifact.getArtifactId())
+                            && Objects.equals(artifact.getGroupId(), existingArtifact.getGroupId())
+                            && Objects.equals(artifact.getVersion(), existingArtifact.getVersion())
+                            && Objects.equals(artifact.getType(), existingArtifact.getType())) {
                         newDependency = false;
                         break;
                     }
