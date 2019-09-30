@@ -20,7 +20,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 public class ExecuteMojoUtil {
 
     // https://maven.apache.org/plugins/maven-compiler-plugin/compile-mojo.html
-    private static final ArrayList<String> compileParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> COMPILE_PARAMS = new ArrayList<>(Arrays.asList(
             "annotationProcessorPaths", "annotationProcessors", "compilerArgs", "compilerArgument",
             "compilerArguments", "compilerId", "compilerReuseStrategy", "compilerVersion", "debug",
             "debuglevel", "encoding", "excludes", "executable", "failOnError", "failOnWarning",
@@ -32,7 +32,7 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/plugins/maven-compiler-plugin/testCompile-mojo.html
-    private static final ArrayList<String> testCompileParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> TEST_COMPILE_PARAMS = new ArrayList<>(Arrays.asList(
             "annotationProcessorPaths", "annotationProcessors", "compilerArgs", "compilerArgument",
             "compilerArguments", "compilerId", "compilerReuseStrategy", "compilerVersion", "debug",
             "debuglevel", "encoding", "executable", "failOnError", "failOnWarning", 
@@ -45,7 +45,7 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/plugins/maven-resources-plugin/resources-mojo.html
-    private static final ArrayList<String> resourcesParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> RESOURCES_PARAMS = new ArrayList<>(Arrays.asList(
             "outputDirectory", "addDefaultExcludes", "delimiters", "encoding", "escapeString",
             "escapeWindowsPaths", "fileNameFiltering", "filters", "includeEmptyDirs", 
             "mavenFilteringHints", "nonFilteredFileExtensions", "overwrite", "skip",
@@ -53,7 +53,7 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/plugins/maven-resources-plugin/testResources-mojo.html
-    private static final ArrayList<String> testResourcesParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> TEST_RESOURCES_PARAMS = new ArrayList<>(Arrays.asList(
             "outputDirectory", "resources", "addDefaultExcludes", "delimiters", "encoding",
             "escapeString", "escapeWindowsPaths", "fileNameFiltering", "filters",
             "includeEmptyDirs", "mavenFilteringHints", "nonFilteredFileExtensions",
@@ -62,7 +62,7 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html
-    private static final ArrayList<String> testParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> TEST_PARAMS = new ArrayList<>(Arrays.asList(
             "testSourceDirectory", "additionalClasspathElements", "argLine", "basedir",
             "childDelegation", "classesDirectory", "classpathDependencyExcludes", 
             "classpathDependencyScopeExclude", "debugForkedProcess", "dependenciesToScan",
@@ -85,7 +85,7 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/surefire/maven-failsafe-plugin/integration-test-mojo.html
-    private static final ArrayList<String> integrationTestParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> INTEGRATION_TEST_PARAMS = new ArrayList<>(Arrays.asList(
             "summaryFile", "testSourceDirectory", "additionalClasspathElements", "argLine",
             "basedir", "childDelegation", "classesDirectory", "classpathDependencyExcludes",
             "classpathDependencyScopeExclude", "debugForkedProcess", "dependenciesToScan",
@@ -107,23 +107,23 @@ public class ExecuteMojoUtil {
     ));
 
     // https://maven.apache.org/surefire/maven-failsafe-plugin/verify-mojo.html
-    private static final ArrayList<String> verifyParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> VERIFY_PARAMS = new ArrayList<>(Arrays.asList(
             "summaryFile", "basedir", "encoding", "failIfNoTests", "reportsDirectory",
             "skip", "skipExec", "skipITs", "skipTests", "summaryFiles", 
             "testClassesDirectory", "testFailureIgnore"
     ));
 
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/report-only-mojo.html
-    private static final ArrayList<String> reportOnlyParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> REPORT_ONLY_PARAMS = new ArrayList<>(Arrays.asList(
             "outputName", "showSuccess", "aggregate", "alwaysGenerateSurefireReport",
             "description", "linkXRef", "reportsDirectories", "reportsDirectory",
             "skipSurefireReport", "title", "xrefLocation"
     ));
 
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/failsafe-report-only-mojo.html
-    private static final ArrayList<String> failsafeReportOnlyParams = reportOnlyParams;
+    private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
 
-    private static final ArrayList<String> libertyCommonParams = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> LIBERTY_COMMON_PARAMS = new ArrayList<>(Arrays.asList(
             "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
             "assemblyInstallDirectory", "refresh", "skip"
@@ -131,40 +131,40 @@ public class ExecuteMojoUtil {
     // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory"
     ));
 
-    private static final ArrayList<String> libertyCommonServerParams = new ArrayList<>(
+    private static final ArrayList<String> LIBERTY_COMMON_SERVER_PARAMS = new ArrayList<>(
             Arrays.asList("serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
                     "jvmOptions", "jvmOptionsFile", "serverEnvFile"
             // executeMojo can not use alias parameters:
             // "configFile", "serverEnv"
             ));
     
-    private static ArrayList<String> createParams;
+    private static final ArrayList<String> CREATE_PARAMS;
     static {
-        createParams = new ArrayList<>(Arrays.asList(
+        CREATE_PARAMS = new ArrayList<>(Arrays.asList(
                 "template", "libertySettingsFolder", "noPassword"
                 ));
-        createParams.addAll(libertyCommonParams);
-        createParams.addAll(libertyCommonServerParams);
+        CREATE_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
+        CREATE_PARAMS.addAll(LIBERTY_COMMON_SERVER_PARAMS);
     }
     
-    private static ArrayList<String> deployParams;
+    private static final ArrayList<String> DEPLOY_PARAMS;
     static {
-        deployParams = new ArrayList<>(Arrays.asList(
+        DEPLOTY_PARAMS = new ArrayList<>(Arrays.asList(
                 "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication"
                 // executeMojo can not use alias parameters:
                 // "installAppPackages"
                 ));
-        deployParams.addAll(libertyCommonParams);
-        deployParams.addAll(libertyCommonServerParams);
+        DEPLOTY_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
+        DEPLOTY_PARAMS.addAll(LIBERTY_COMMON_SERVER_PARAMS);
     }
     
-    private static ArrayList<String> installFeatureParams;
+    private static final ArrayList<String> INSTALL_FEATURE_PARAMS;
     static {
-        installFeatureParams = new ArrayList<>(Arrays.asList("features"));
-        installFeatureParams.addAll(libertyCommonParams);
+        INSTALL_FEATURE_PARAMS = new ArrayList<>(Arrays.asList("features"));
+        INSTALL_FEATURE_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
     }
 
-    private static final Map<String, String> libertyAliasMap;
+    private static final Map<String, String> LIBERTY_ALIAS_MAP;
     static {
         Map<String, String>tempMap = new HashMap<String, String>();
         tempMap.put("runtimeArtifact", "assemblyArtifact");
@@ -173,7 +173,7 @@ public class ExecuteMojoUtil {
         tempMap.put("configFile", "serverXmlFile");
         tempMap.put("serverEnv", "serverEnvFile");
         tempMap.put("installAppPackages", "deployPackages");
-        libertyAliasMap = Collections.unmodifiableMap(tempMap);
+        LIBERTY_ALIAS_MAP = Collections.unmodifiableMap(tempMap);
     }
 
     /**
@@ -209,7 +209,7 @@ public class ExecuteMojoUtil {
         }
         if (numExec > 1) {
             log.warn(plugin.getArtifactId() + ":" + goal 
-                    + " goal has multiple execution configrations (default to \"" + execId + "\" execution)");
+                    + " goal has multiple execution configurations (default to \"" + execId + "\" execution)");
         }
         
         if (config == null) {
@@ -228,42 +228,42 @@ public class ExecuteMojoUtil {
         switch (executionGoal) {
         case "liberty-maven-plugin:create":
             config = convertLibertyAlias(config);
-            goalConfig = stripConfigElements(config, createParams);
+            goalConfig = stripConfigElements(config, CREATE_PARAMS);
             break;
         case "liberty-maven-plugin:deploy":
             config = convertLibertyAlias(config);
-            goalConfig = stripConfigElements(config, deployParams);
+            goalConfig = stripConfigElements(config, DEPLOTY_PARAMS);
             break;
         case "liberty-maven-plugin:install-feature":
             config = convertLibertyAlias(config);
-            goalConfig = stripConfigElements(config, installFeatureParams);
+            goalConfig = stripConfigElements(config, INSTALL_FEATURE_PARAMS);
             break;
         case "maven-compiler-plugin:compile":
-            goalConfig = stripConfigElements(config, compileParams);
+            goalConfig = stripConfigElements(config, COMPILE_PARAMS);
             break;
         case "maven-compiler-plugin:testCompile":
-            goalConfig = stripConfigElements(config, testCompileParams);
+            goalConfig = stripConfigElements(config, TEST_COMPILE_PARAMS);
             break;
         case "maven-compiler-plugin:resources":
-            goalConfig = stripConfigElements(config, resourcesParams);
+            goalConfig = stripConfigElements(config, RESOURCES_PARAMS);
             break;
         case "maven-compiler-plugin:testResources":
-            goalConfig = stripConfigElements(config, testResourcesParams);
+            goalConfig = stripConfigElements(config, TEST_RESOURCES_PARAMS);
             break;
         case "maven-surefire-plugin:test":
-            goalConfig = stripConfigElements(config, testParams);
+            goalConfig = stripConfigElements(config, TEST_PARAMS);
             break;
         case "maven-failsafe-plugin:integration-test":
-            goalConfig = stripConfigElements(config, integrationTestParams);
+            goalConfig = stripConfigElements(config, INTEGRATION_TEST_PARAMS);
             break;
         case "maven-failsafe-plugin:verify":
-            goalConfig = stripConfigElements(config, verifyParams);
+            goalConfig = stripConfigElements(config, VERIFY_PARAMS);
             break;
         case "maven-surefire-report-plugin:report-only":
-            goalConfig = stripConfigElements(config, reportOnlyParams);
+            goalConfig = stripConfigElements(config, REPORT_ONLY_PARAMS);
             break;
         case "maven-surefire-report-plugin:failsafe-report-only":
-            goalConfig = stripConfigElements(config, failsafeReportOnlyParams);
+            goalConfig = stripConfigElements(config, FAILSAFE_REPORT_ONLY_PARAMS);
             break;
         default:
             goalConfig = config;
@@ -276,17 +276,17 @@ public class ExecuteMojoUtil {
     private static Xpp3Dom convertLibertyAlias(Xpp3Dom config) {
         // convert alias parameter key to actual parameter key
         Xpp3Dom alias;
-        for (String key : libertyAliasMap.keySet()) {
+        for (String key : LIBERTY_ALIAS_MAP.keySet()) {
             alias = config.getChild(key);
             if (alias != null) {
                 if ("runtimeArtifact".contentEquals(key)) {
-                    Xpp3Dom artifact = new Xpp3Dom(libertyAliasMap.get(key));
+                    Xpp3Dom artifact = new Xpp3Dom(LIBERTY_ALIAS_MAP.get(key));
                     for (Xpp3Dom child : alias.getChildren()) {
                         artifact.addChild(child);
                     }
                     config.addChild(artifact);
                 } else {
-                    Element e = (element(name(libertyAliasMap.get(key)), alias.getValue()));
+                    Element e = (element(name(LIBERTY_ALIAS_MAP.get(key)), alias.getValue()));
                     config.addChild(e.toDom());
                 }
             }
