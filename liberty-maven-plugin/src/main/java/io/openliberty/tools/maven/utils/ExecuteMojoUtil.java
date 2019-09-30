@@ -232,7 +232,7 @@ public class ExecuteMojoUtil {
             break;
         case "liberty-maven-plugin:deploy":
             config = convertLibertyAlias(config);
-            goalConfig = stripConfigElements(config, DEPLOTY_PARAMS);
+            goalConfig = stripConfigElements(config, DEPLOY_PARAMS);
             break;
         case "liberty-maven-plugin:install-feature":
             config = convertLibertyAlias(config);
