@@ -133,22 +133,22 @@ public class DevMojo extends StartDebugMojoSupport {
     protected ProjectBuilder mavenProjectBuilder;
 
     /**
-     * Time in seconds to wait while verifying that the server has started.
+     * Time in seconds to wait while verifying that the application has started.
      */
-    @Parameter(property = "verifyTimeout", defaultValue = "60")
-    private int verifyTimeout = 60;
+    @Parameter(property = "verifyTimeout", defaultValue = "30")
+    private int verifyTimeout;
 
     /**
      * Time in seconds to wait while verifying that the application has updated.
      */
     @Parameter(property = "appUpdateTimeout", defaultValue = "5")
-    private int appUpdateTimeout = 5;
+    private int appUpdateTimeout;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
     @Parameter(property = "serverStartTimeout", defaultValue = "30")
-    private int serverStartTimeout = 30;
+    private int serverStartTimeout;
 
     /**
      * comma separated list of app names to wait for
@@ -197,7 +197,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests, skipUTs, skipITs, project.getArtifactId(), appUpdateTimeout, ((long)(compileWait * 1000L)));
+                    skipTests, skipUTs, skipITs, project.getArtifactId(), verifyTimeout, appUpdateTimeout, ((long)(compileWait * 1000L)));
 
             this.existingDependencies = project.getDependencies();
             File pom = project.getFile();
@@ -546,7 +546,7 @@ public class DevMojo extends StartDebugMojoSupport {
         util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
         util.addShutdownHook(executor);
         util.enableServerDebug(libertyDebugPort);
-        util.startServer(serverStartTimeout, verifyTimeout);
+        util.startServer(serverStartTimeout);
 
         // collect artifacts canonical paths in order to build classpath
         List<String> artifactPaths = util.getArtifacts();
