@@ -580,12 +580,12 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    runCompileMojo();
+                    runResourcesMojo();
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+                    runTestCompileMojo();
+                    runTestResourcesMojo();
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -666,10 +666,10 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        runCompileMojo();
+        runResourcesMojo();
+        runTestCompileMojo();
+        runTestResourcesMojo();
         
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
@@ -972,4 +972,31 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
     }
+
+    private void runResourcesMojo() throws MojoExecutionException {
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+    }
+
+    private void runTestResourcesMojo() throws MojoExecutionException {
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+    }
+
+    private void runCompileMojo(String goal) throws MojoExecutionException {
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
+        log.info("Running maven-compiler-plugin:" + goal);
+        log.debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config,
+                executionEnvironment(project, session, pluginManager));
+    }
+
+    private void runCompileMojo() throws MojoExecutionException {
+        runCompileMojo("compile");
+    }
+
+    private void runTestCompileMojo() throws MojoExecutionException {
+        runCompileMojo("testCompile");
+    }
+
 }
