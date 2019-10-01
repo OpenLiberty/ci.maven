@@ -30,11 +30,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -46,7 +42,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -78,6 +73,7 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
+import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -327,10 +323,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         log.info("Running boost:package");
                         runBoostMojo("package", true);
                     }
-                    else if (unhandledChange) {
-                        log.warn(
-                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
-                    }
                     
                     MavenProject updatedProject = loadProject(buildFile);
                     List<Dependency> dependencies = updatedProject.getDependencies();
@@ -389,13 +381,19 @@ public class DevMojo extends StartDebugMojoSupport {
                                 }
                             }
                         }
-
-                        this.existingPom = modifiedPom;
-
+                        if (!isUsingBoost() && unhandledChange) {
+                            log.warn(
+                                    "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
+                        } else {
+                            this.existingPom = modifiedPom;
+                        }
                         return true;
                     } else if (isUsingBoost()) {
                         this.existingPom = modifiedPom;
                         return true;
+                    } else if (unhandledChange) {
+                        log.warn(
+                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
             } catch (Exception e) {
@@ -604,10 +602,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // match dependencies based on artifactId, groupId, version and type
                 for (Dependency existingDep : existingDependencies) {
-                    if (Objects.equals(artifact.getArtifactId(), existingDep.getArtifactId())
-                            && Objects.equals(artifact.getGroupId(), existingDep.getGroupId())
-                            && Objects.equals(artifact.getVersion(), existingDep.getVersion())
-                            && Objects.equals(artifact.getType(), existingDep.getType())) {
+                    Artifact existingArtifact = getArtifact(existingDep.getGroupId(), existingDep.getArtifactId(), existingDep.getType(), existingDep.getVersion());
+                    if (Objects.equals(artifact.getArtifactId(), existingArtifact.getArtifactId())
+                            && Objects.equals(artifact.getGroupId(), existingArtifact.getGroupId())
+                            && Objects.equals(artifact.getVersion(), existingArtifact.getVersion())
+                            && Objects.equals(artifact.getType(), existingArtifact.getType())) {
                         newDependency = false;
                         break;
                     }
@@ -625,18 +624,13 @@ public class DevMojo extends StartDebugMojoSupport {
         return updatedArtifacts;
     }
 
-    private void runTestMojo(String groupId, String artifactId, String phase) throws MojoExecutionException {
+    private void runTestMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
-        Xpp3Dom config = getPluginConfig(plugin, phase);
-        if (config == null) {
-            log.debug("Could not find " + artifactId + " configuration for " + phase
-                    + " phase. Creating new configuration.");
-            config = configuration();
-        }
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
 
-        if (phase.equals("test")) {
+        if (goal.equals("test")) {
             injectTestId(config);
-        } else if (phase.equals("integration-test")) {
+        } else if (goal.equals("integration-test")) {
             injectTestId(config);
             injectLibertyProperties(config);
             // clean up previous summary file
@@ -658,9 +652,9 @@ public class DevMojo extends StartDebugMojoSupport {
             } else {
                 log.debug("Summary file doesn't exist");
             }
-        } else if (phase.equals("failsafe-report-only")) {
+        } else if (goal.equals("failsafe-report-only")) {
             Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
-            Xpp3Dom failsafeConfig = getPluginConfig(failsafePlugin, "integration-test");
+            Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
@@ -676,9 +670,9 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             linkXRef.setValue("false");
             config.addChild(linkXRef);
-        } else if (phase.equals("report-only")) {
+        } else if (goal.equals("report-only")) {
             Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
-            Xpp3Dom surefireConfig = getPluginConfig(surefirePlugin, "test");
+            Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
@@ -695,9 +689,9 @@ public class DevMojo extends StartDebugMojoSupport {
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         }
-        log.debug(artifactId + " configuration for " + phase + " phase: " + config);
 
-        executeMojo(plugin, goal(phase), config, executionEnvironment(project, session.clone(), pluginManager));
+        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session.clone(), pluginManager));
     }
 
     /**
@@ -713,41 +707,6 @@ public class DevMojo extends StartDebugMojoSupport {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
-    }
-
-    /**
-     * Given the Plugin get the Xpp3Dom configuration
-     * 
-     * @param plugin
-     * @param phase
-     * @return configuration specified in pom.xml
-     */
-    private Xpp3Dom getPluginConfig(Plugin plugin, String phase) {
-        Xpp3Dom config = null;
-
-        List<Plugin> buildPlugins = project.getBuildPlugins();
-        for (Plugin p : buildPlugins) {
-            if (p.equals(plugin)) {
-                config = (Xpp3Dom) p.getConfiguration();
-
-                PluginExecution pluginExecution = null;
-                Map<String, PluginExecution> peMap = p.getExecutionsAsMap();
-
-                String[] defaultExecutionIds = new String[] { "default-" + phase, phase, "default" };
-                for (String executionId : defaultExecutionIds) {
-                    pluginExecution = peMap.get(executionId);
-                    if (pluginExecution != null) {
-                        break;
-                    }
-                }
-                if (pluginExecution != null) {
-                    Xpp3Dom executionConfig = (Xpp3Dom) pluginExecution.getConfiguration();
-                    config = Xpp3Dom.mergeXpp3Dom(executionConfig, config);
-                }
-                break;
-            }
-        }
-        return config;
     }
 
     /**
@@ -921,153 +880,41 @@ public class DevMojo extends StartDebugMojoSupport {
         return plugin;
     }
 
-    private Xpp3Dom getLibertyPluginConfig() {
-        // get the Liberty plugin configuration from the pom and overrides looseApplication to true.
-        // ignores the plugin execution configuration just like CLI invocation (e.g. mvn liberty:create) ignoring execution configuration.
-        Plugin libertyPlugin = getLibertyPlugin();
-        Xpp3Dom overrides = configuration(element(name("looseApplication"), "true"));
-        return getPluginConfig(libertyPlugin, overrides);
-    }
-
-    private Xpp3Dom getPluginConfig(Plugin plugin, Xpp3Dom overrides) {
-        Xpp3Dom config = (overrides != null) ? overrides : configuration();
-        Xpp3Dom pluginConfig = (Xpp3Dom)plugin.getConfiguration();
-        if (pluginConfig != null) {
-            config = Xpp3Dom.mergeXpp3Dom(config, pluginConfig);
-        }
-        return config;
-    }
-
-    private static final ArrayList<String> commonParams = new ArrayList<>(Arrays.asList(
-            "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
-            "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
-            "assemblyInstallDirectory", "refresh", "skip"
-            // executeMojo can not use alias parameters:
-            // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory"
-            ));
-    
-    private static final ArrayList<String> commonServerParams = new ArrayList<>(Arrays.asList(
-            "serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-            "jvmOptions", "jvmOptionsFile", "serverEnvFile"
-            // executeMojo can not use alias parameters:
-            // "configFile", "serverEnv"
-            ));
-    
-    private static ArrayList<String> createParams;
-    static {
-        createParams = new ArrayList<>(Arrays.asList(
-                "template", "libertySettingsFolder", "noPassword"
-                ));
-        createParams.addAll(commonParams);
-        createParams.addAll(commonServerParams);
-    }
-    
-    private static ArrayList<String> deployParams;
-    static {
-        deployParams = new ArrayList<>(Arrays.asList(
-                "appsDirectory", "stripVersion", "deployPackages", "looseApplication", "timeout"
-                // executeMojo can not use alias parameters:
-                // "installAppPackages"
-                ));
-        deployParams.addAll(commonParams);
-        deployParams.addAll(commonServerParams);
-    }
-    
-    private static ArrayList<String> installFeatureParams;
-    static {
-        installFeatureParams = new ArrayList<>(Arrays.asList("features"));
-        installFeatureParams.addAll(commonParams);
-    }
-
-    private static final Map<String, String> aliasMap;
-    static {
-        Map<String, String>tempMap = new HashMap<String, String>();
-        tempMap.put("runtimeArtifact", "assemblyArtifact");
-        tempMap.put("runtimeArchive", "assemblyArchive");
-        tempMap.put("runtimeInstallDirectory", "assemblyInstallDirectory");
-        tempMap.put("configFile", "serverXmlFile");
-        tempMap.put("serverEnv", "serverEnvFile");
-        tempMap.put("installAppPackages", "deployPackages");
-        aliasMap = Collections.unmodifiableMap(tempMap);
-    }
-
-    private Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
-        // convert alias parameter key to actual parameter key
-        Xpp3Dom alias;
-        for (String key : aliasMap.keySet()) {
-            alias = config.getChild(key);
-            if (alias != null) {
-                if ("runtimeArtifact".contentEquals(key)) {
-                    Xpp3Dom artifact = new Xpp3Dom(aliasMap.get(key));
-                    for (Xpp3Dom child : alias.getChildren()) {
-                        artifact.addChild(child);
-                    }
-                    config.addChild(artifact);
-                } else {
-                    Element e = (element(name(aliasMap.get(key)), alias.getValue()));
-                    config.addChild(e.toDom());
-                }
-            }
-        }
-
-        // strip non applicable parameters
-        List<Integer> removeChildren = new ArrayList<Integer>();
-        for (int i=0; i<config.getChildCount(); i++) {
-            if (!goalParams.contains(config.getChild(i).getName().trim())) {
-                removeChildren.add(i);
-            }
-        }
-        Collections.reverse(removeChildren);
-        for (int child : removeChildren) {
-            config.removeChild(child);
-        }
-        return config;
-    }
-
     private void runLibertyMojoCreate() throws MojoExecutionException {
-        Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), createParams);
-        log.info("Running liberty:create goal");
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "create", log);
         runLibertyMojo("create", config);
     }
 
     private void runLibertyMojoDeploy() throws MojoExecutionException {
-        Xpp3Dom pluginConfig = (Xpp3Dom)getLibertyPlugin().getConfiguration();
-        if (pluginConfig != null && pluginConfig.getChild("looseApplication") != null 
-                && "false".equals(pluginConfig.getChild("looseApplication").getValue())) {
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "deploy", log);
+        Xpp3Dom looseApp = config.getChild("looseApplication");
+        if (looseApp != null && "false".equals(looseApp.getValue())) {
             log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+            looseApp.setValue("true");
         }
-        Xpp3Dom config = stripConfigElements(getLibertyPluginConfig(), deployParams);
-        log.info("Running liberty:deploy goal");
         runLibertyMojo("deploy", config);
     }
 
     private void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
-        Xpp3Dom config;
-
-        if (features == null) {
-            config = stripConfigElements(getLibertyPluginConfig(), installFeatureParams);
-        } else {
-            config = Xpp3Dom.mergeXpp3Dom(configuration(features), stripConfigElements(getLibertyPluginConfig(), installFeatureParams));
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
+        if (features != null) {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
         }
-
-        log.info("Running liberty:install-feature goal");
         runLibertyMojo("install-feature", config);
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
-        log.debug("LibertyMojo:" + goal + " configuration:\n" + config);
+        log.info("Running liberty:" + goal);
+        log.debug("configuration:\n" + config);
         executeMojo(getLibertyPlugin(), goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
 
     private void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
-        Xpp3Dom config = (Xpp3Dom)plugin.getConfiguration();
-        if (config == null) {
-            config = configuration();
-        }
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
         log.info("Running " + artifactId + ":" + goal);
-        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
+        log.debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
