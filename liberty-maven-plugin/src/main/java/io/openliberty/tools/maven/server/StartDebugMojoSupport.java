@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.EnumSet;
 import java.util.regex.Pattern;
@@ -39,7 +40,7 @@ import org.apache.tools.ant.types.FileSet;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.BasicSupport;
-import io.openliberty.tools.maven.ServerConfigDropinXmlDocument;
+import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -336,7 +337,7 @@ public class StartDebugMojoSupport extends BasicSupport {
        
                 writer.println((value != null) ? value.replace("\\", "/") : "");
                 if (value == null) {
-                    log.error("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
+                    log.warn("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
         } finally {
@@ -359,7 +360,7 @@ public class StartDebugMojoSupport extends BasicSupport {
                 String value = entry.getValue();
                 writer.println((value != null) ? value.replace("\\", "/") : "");
                 if (value == null) {
-                    log.error("The value of the server.env property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
+                    log.warn("The value of the server.env property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
         } finally {
@@ -399,14 +400,25 @@ public class StartDebugMojoSupport extends BasicSupport {
         ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
 
         configDocument.createComment(HEADER);
+        Set<String> existingVarNames = new HashSet<String>();
 
         for (Map.Entry<String, String> entry : varMavenProps.entrySet()) {
+            String key = entry.getKey();
+            existingVarNames.add(key);
             configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), false);
         }
 
         for (Map.Entry<String, String> entry : defaultVarMavenProps.entrySet()) {
-            // set boolean to true so the variable is created with a defaultValue instead of a value
-            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), true);
+            // check to see if a variable with a value already exists with the same name and log it
+            String key = entry.getKey();
+            if (existingVarNames.contains(key)) {
+                // since the defaultValue will only be used if no other value exists for the variable, 
+                // it does not make sense to generate the variable with a defaultValue when we know a value already exists.
+                log.warn("The variable with name "+key+" and defaultValue "+entry.getValue()+" is skipped since a variable with that name already exists with a value.");
+            } else {
+                // set boolean to true so the variable is created with a defaultValue instead of a value
+                configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), true);
+            }
         }
 
         // write XML document to file

@@ -26,7 +26,7 @@ If Liberty configuration is specified with Maven properties, the above indicated
 
 Note that properties specified with `-D` on the command line are also analyzed for the property name formats listed above and take precedence over Maven properties specified in the pom.xml.
 
-Example:
+Example of Liberty configuration with Maven properties:
 ```xml
 <properties>
     <liberty.jvm.minHeap>-Xms512m</liberty.jvm.minHeap>
@@ -34,7 +34,10 @@ Example:
     <liberty.var.someVariable1>someValue1</liberty.var.someVariable1>
     <liberty.defaultVar.someDefaultVar1>someDefaultValue1</liberty.defaultVar.someDefaultVar1>
 </properties>
+```
 
+Example of Liberty configuration with parameters:
+```xml
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
@@ -60,3 +63,4 @@ Example:
         ...
     </executions>
 </plugin>
+```

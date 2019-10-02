@@ -21,6 +21,7 @@
         <liberty.var.someVariable2>someValue2</liberty.var.someVariable2>
         <liberty.defaultVar.someDefaultVar1>someDefaultValue1</liberty.defaultVar.someDefaultVar1>
         <liberty.defaultVar.someDefaultVar2>someDefaultValue2</liberty.defaultVar.someDefaultVar2>
+        <liberty.defaultVar.someVariable1>ignoredDefaultValue</liberty.defaultVar.someVariable1>
     </properties>
 
     <dependencies>
