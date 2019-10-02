@@ -238,7 +238,6 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
 
         // copy server.env to server directory if end-user explicitly set it
-        // copy bootstrap.properties to server directory if end-user explicitly set it
         File envFile = new File(serverDirectory, "server.env");
         if (!envMavenProps.isEmpty()) {
             if (serverEnvPath != null) {
