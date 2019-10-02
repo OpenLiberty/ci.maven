@@ -3,4 +3,6 @@
         <feature>jsp-2.3</feature>
     </featureManager>
     <include optional="true" location="./testDir/server.xml"/>
+    <include optional="true" location="./testDir/missing.xml"/>
+    <include optional="true" location="/testDir/missing.xml"/>
 </server>
