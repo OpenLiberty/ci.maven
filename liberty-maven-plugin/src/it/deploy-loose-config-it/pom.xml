@@ -68,7 +68,7 @@
                         <type>zip</type>
                     </runtimeArtifact>
                     <serverName>test</serverName>
-                    <appsDirectory>apps</appsDirectory>
+                    <appsDirectory>dropins</appsDirectory>
                     <deployPackages>project</deployPackages>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>

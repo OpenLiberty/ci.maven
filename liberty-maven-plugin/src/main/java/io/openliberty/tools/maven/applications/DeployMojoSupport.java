@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
@@ -30,39 +31,25 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.DeployTask;
+import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
-
-import io.openliberty.tools.ant.DeployTask;
-import io.openliberty.tools.ant.SpringBootUtilTask;
-import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
-import io.openliberty.tools.common.plugins.config.LooseApplication;
-import io.openliberty.tools.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
  * Support for installing and deploying applications to a Liberty server.
  */
 public class DeployMojoSupport extends PluginConfigSupport {
     /**
-     * A file which points to a specific module's war | ear | eba | zip archive location
-     */
-    protected File appArchive;
-
-    /**
-     * Maven coordinates of an application to deploy. This is best listed as a dependency,
-     * in which case the version can be omitted.
-     */
-    protected Artifact appArtifact;
-
-    /**
      * Timeout to verify deploy successfully, in seconds.
      */
     @Parameter(property = "timeout", defaultValue = "40")
-    protected int timeout = 40;
+    protected long timeout = 40;
     
     /**
      *  The file name of the deployed application in the `dropins` directory.
@@ -75,19 +62,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     protected void installApp(Artifact artifact) throws Exception {
     
-        //The only time this would happen is if the project artifact is null.
-        //This method is called with reactor projects when dealing with dependency projects.
-        //Dependency projects will not pass artifacts with null files. See installDependencies()...
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            if (appArchive != null) {
-                artifact.setFile(appArchive);
-            } else if (appArtifact != null) {
-                artifact = appArtifact;
-            } else {
-                String warName = getAppFileName(project);
-                File f = new File(project.getBuild().getDirectory() + "/" + warName);
-                artifact.setFile(f);
-            }
+            String warName = getAppFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            artifact.setFile(f);
         }
 
         if (!artifact.getFile().exists()) {
@@ -118,45 +96,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
         // autoExpand="true"/>
         deleteApplication(new File(serverDirectory, "apps/expanded"), artifact.getFile());
         copyFile.execute();
-    }
 
-    protected void deployApp() throws Exception {
-        if (appArtifact != null) {
-            appArchive = appArtifact.getFile();
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based application", appArtifact));
-            if (stripVersion) { //Setting deploy name to stripped file name
-                appDeployName = stripVersionFromName(appArchive.getName(), appArtifact.getBaseVersion());
-            }
-        } else if (appArchive != null) { //Don't need to handle stripped version here. Will have been stripped as part of loose app generation
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based application", appArchive));
-        } else if (project.getArtifact() != null) {
-            appArchive = project.getArtifact().getFile();
-            if (stripVersion) {
-                appDeployName = stripVersionFromName(appArchive.getName(), project.getArtifact().getBaseVersion());
-            }
-        } else {
-            throw new MojoExecutionException("Could not deploy application. No appArchive or appArtifact set. No project artifact found.");
-        }
-
-        if (!appArchive.exists() || appArchive.isDirectory()) {
-            throw new MojoExecutionException("Application file does not exist or is a directory: " + appArchive);
-        }
-
-        log.info(MessageFormat.format(messages.getString("info.deploy.app"), appArchive.getCanonicalPath()));
-        DeployTask deployTask = (DeployTask) ant.createTask("antlib:io/openliberty/tools/ant:deploy");
-        if (deployTask == null) {
-            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "deploy"));
-        }
-
-        deployTask.setInstallDir(installDirectory);
-        deployTask.setServerName(serverName);
-        deployTask.setUserDir(userDirectory);
-        deployTask.setOutputDir(outputDirectory);
-        deployTask.setFile(appArchive);
-        deployTask.setDeployName(appDeployName);
-        // Convert from seconds to milliseconds
-        deployTask.setTimeout(Long.toString(timeout*1000));
-        deployTask.execute();
+        verifyAppStarted(fileName);
     }
 
     // install war project artifact using loose application configuration file
@@ -237,6 +178,44 @@ public class DeployMojoSupport extends PluginConfigSupport {
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-ear-plugin");
         looseEar.addManifestFile(manifestFile);
+    }
+
+    private boolean shouldValidateAppStart() throws MojoExecutionException {
+        try {
+            return new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
+        } catch (IOException ioe) {
+            throw new MojoExecutionException("Could not get the server directory to determine the state of the server.");
+        }
+    }
+
+    protected void verifyAppStarted(String appFile) throws MojoExecutionException {
+        if (shouldValidateAppStart()) {
+            String appName;
+            if (getAppsDirectory().equals("apps")) {
+                ServerConfigDocument scd = null;
+
+                File serverXML = new File(serverDirectory, "server.xml");
+
+                if (serverXML != null && serverXML.exists()) {
+                    try {
+                        scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
+                                bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+                    } catch (Exception e) {
+                        log.warn(e.getLocalizedMessage());
+                        log.debug(e);
+                    }
+                }
+                //appName will be set to appFile if no name can be found.
+                appName = scd.findNameForLocation(appFile);
+            } else {
+                appName = appFile.substring(0, appFile.lastIndexOf('.'));
+            }
+
+            ServerTask serverTask = initializeJava();
+            if (serverTask.waitForStringInLog(START_APP_MESSAGE_REGEXP + appName, timeout * 1000, new File(new File(outputDirectory, serverName), "logs/messages.log")) == null) {
+                throw new MojoExecutionException(MessageFormat.format(messages.getString("error.deploy.fail"), appName));
+            }
+        }
     }
 
     private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir)

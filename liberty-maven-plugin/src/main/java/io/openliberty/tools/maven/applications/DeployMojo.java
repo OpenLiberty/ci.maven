@@ -148,25 +148,11 @@ public class DeployMojo extends DeployMojoSupport {
             }
             if (artifact.getScope().equals("compile")) {
                 if (isSupportedType(artifact.getType())) {
-                    if (looseApplication && isReactorMavenProject(artifact)) {
+                    if (looseApplication && isReactorMavenProject(artifact)) {  //Installing the reactor project artifacts
                         MavenProject dependProj = getReactorMavenProject(artifact);
-                        if (shouldDeploy()) {
-                            appArchive = new File(project.getBuild().getDirectory(), getLooseConfigFileName(dependProj));
-                            //Generates looseAppFile in the project's buildDir
-                            installLooseApplication(dependProj, appArchive);
-                            //Loose app xml deployed to server
-                            deployApp();
-                        } else {
-                            //Writes loose app xml straight to serverDir
-                            installLooseApplication(dependProj, new File(new File(serverDirectory, getAppsDirectory()), getLooseConfigFileName(dependProj)));
-                        }
-                    } else { //Deploying or installing the reactor project artifacts
-                        if (shouldDeploy()) {
-                            appArtifact = artifact;
-                            deployApp();
-                        } else {
-                            installApp(resolveArtifact(artifact));
-                        }
+                        installLooseApplication(dependProj);
+                    } else {
+                        installApp(resolveArtifact(artifact));
                     }
                 } else {
                     log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
@@ -179,23 +165,9 @@ public class DeployMojo extends DeployMojoSupport {
     protected void installProject() throws Exception {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
-                //Either write loose app xml file to buildDir and deploy, or install to serverDir
-                if (shouldDeploy()) {
-                    appArchive = new File(project.getBuild().getDirectory(), getLooseConfigFileName(project));
-                    //Generates looseAppFile in the project's buildDir
-                    installLooseApplication(project, appArchive);
-                    //Loose app xml deployed to server
-                    deployApp();
-                } else {
-                    //Writes loose app xml straight to serverDir
-                    installLooseApplication(project, new File(new File(serverDirectory, getAppsDirectory()), getLooseConfigFileName(project)));
-                }
+                installLooseApplication(project);
             } else {
-                if (shouldDeploy()) {
-                    deployApp();
-                } else {
-                    installApp(project.getArtifact());
-                }
+                installApp(project.getArtifact());
             }
         } else {
             throw new MojoExecutionException(
@@ -203,9 +175,11 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
 
-    private void installLooseApplication(MavenProject proj, File looseConfigFile) throws Exception {
-        String looseConfigFileName = looseConfigFile.getName();
+    private void installLooseApplication(MavenProject proj) throws Exception {
+        String looseConfigFileName = getLooseConfigFileName(proj);
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
+        File destDir = new File(serverDirectory, getAppsDirectory());
+        File looseConfigFile = new File(destDir, looseConfigFileName);
         LooseConfigData config = new LooseConfigData();
 
         switch (proj.getPackaging()) {
@@ -216,6 +190,8 @@ public class DeployMojo extends DeployMojoSupport {
                 deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
                 deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
                 config.toXmlFile(looseConfigFile);
+                //Only checks if server is running
+                verifyAppStarted(application);
                 break;
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
@@ -224,6 +200,8 @@ public class DeployMojo extends DeployMojoSupport {
                 deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
                 deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
                 config.toXmlFile(looseConfigFile);
+                //Only checks if server is running
+                verifyAppStarted(application);
                 break;
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
@@ -233,6 +211,8 @@ public class DeployMojo extends DeployMojoSupport {
                     deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
                     deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
                     config.toXmlFile(looseConfigFile);
+                    //Only checks if server is running
+                    verifyAppStarted(application);
                 } else {
                     log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
@@ -249,14 +229,6 @@ public class DeployMojo extends DeployMojoSupport {
         if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
             ServerConfigDocument.markInstanceStale();
-        }
-    }
-
-    private boolean shouldDeploy() throws MojoExecutionException {
-        try {
-            return new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
-        } catch (IOException ioe) {
-            throw new MojoExecutionException("Could not get the server directory to determine the state of the server.");
         }
     }
 
