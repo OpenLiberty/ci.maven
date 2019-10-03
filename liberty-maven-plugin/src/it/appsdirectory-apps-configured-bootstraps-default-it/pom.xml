@@ -12,6 +12,12 @@
   <artifactId>appsdirectory-apps-configured-bootstraps-default-it</artifactId>
   <packaging>war</packaging>
 
+    <properties>
+        <!-- This type property should NOT override the one specified below in bootstrapProperties -->
+        <liberty.bootstrap.type>jar</liberty.bootstrap.type>
+        <liberty.bootstrap.test>mavenPropertyCopiedToBootstrapPropertiesFile</liberty.bootstrap.test>
+    </properties>
+
   <dependencies>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
