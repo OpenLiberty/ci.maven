@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>deploy-loose-config-it</artifactId>
+    <artifactId>deploy-loose-config-apps-it</artifactId>
     <packaging>war</packaging>
 
     <properties>
@@ -68,7 +68,7 @@
                         <type>zip</type>
                     </runtimeArtifact>
                     <serverName>test</serverName>
-                    <appsDirectory>dropins</appsDirectory>
+                    <appsDirectory>apps</appsDirectory>
                     <deployPackages>project</deployPackages>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>

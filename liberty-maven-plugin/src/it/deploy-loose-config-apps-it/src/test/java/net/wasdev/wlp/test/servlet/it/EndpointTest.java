@@ -27,7 +27,7 @@ public class EndpointTest {
 
     @BeforeClass
     public static void init() {
-        URL = "http://localhost:9080/deploy-loose-config-it/servlet";
+        URL = "http://localhost:9080/deploy-app/servlet";
     }
 
     @Test

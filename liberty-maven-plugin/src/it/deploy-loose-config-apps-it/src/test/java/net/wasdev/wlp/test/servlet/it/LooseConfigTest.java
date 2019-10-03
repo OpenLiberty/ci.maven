@@ -38,7 +38,7 @@ public class LooseConfigTest {
     
     @Test
     public void testXmlElements() throws Exception {
-    	File in = new File("liberty/usr/servers/test/dropins/deploy-loose-config-it.war.xml");
+    	File in = new File("liberty/usr/servers/test/apps/deploy-loose-config-apps-it.war.xml");
         FileInputStream input = new FileInputStream(in);
         
         // get input XML Document 
@@ -66,7 +66,7 @@ public class LooseConfigTest {
     
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/dropins/deploy-loose-config-it.war.xml");
+        File f = new File("liberty/usr/servers/test/apps/deploy-loose-config-apps-it.war.xml");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
 }
