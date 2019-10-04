@@ -288,20 +288,6 @@ public class DevMojo extends StartDebugMojoSupport {
             return artifactPaths;
         }
 
-        public boolean compareProperties(Properties p, Properties q) {
-            if (p.size() != q.size()) {
-                return false;
-            }
-            Enumeration<?> e = p.propertyNames();
-            while (e.hasMoreElements()) {
-                String key = (String) e.nextElement();
-                if (!(p.get(key).equals(q.get(key)))) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         private Properties getPropertiesWithKeyPrefix(Properties p, String prefix) {
             Properties result = new Properties();
             if (p != null) {
@@ -314,17 +300,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
             return result;
-        }
-
-        private boolean compareConfigElement(Xpp3Dom source, Xpp3Dom target) {
-            if (source != null) {
-                if (source.equals(target)) {
-                    return true;
-                }
-            } else if (target == null) {
-                return true;
-            }
-            return false;
         }
 
         private List<Dependency> getEsaDependency(List<Dependency> dependencies) {
@@ -384,17 +359,17 @@ public class DevMojo extends StartDebugMojoSupport {
                 // Monitoring liberty properties in the pom.xml
                 Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.bootstrap.");
                 Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.bootstrap.");
-                if (!compareProperties(p, q)) {
+                if (!Objects.equals(p, q)) {
                     restartServer = true;
                 } else {
                     p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.jvm.");
                     q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.jvm.");
-                    if (!compareProperties(p, q)) {
+                    if (!Objects.equals(p, q)) {
                         restartServer = true;
                     } else {
                         p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.env.");
                         q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.env.");
-                        if (!compareProperties(p, q)) {
+                        if (!Objects.equals(p, q)) {
                             restartServer = true;
                         }
                     }
@@ -403,12 +378,12 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (!restartServer) {
                     p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.var.");
                     q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.var.");
-                    if (!compareProperties(p, q)) {
+                    if (!Objects.equals(p, q)) {
                         createServer = true;
                     } else {
                         p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.defaultVar.");
                         q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.defaultVar.");
-                        if (!compareProperties(p, q)) {
+                        if (!Objects.equals(p, q)) {
                             createServer = true;
                         }
                     }
@@ -419,22 +394,22 @@ public class DevMojo extends StartDebugMojoSupport {
                     Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
                     Xpp3Dom currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
 
-                    if (!compareConfigElement(config.getChild("bootstrapProperties"),
+                    if (!Objects.equals(config.getChild("bootstrapProperties"),
                             currentConfig.getChild("bootstrapProperties"))) {
                         restartServer = true;
-                    } else if (!compareConfigElement(config.getChild("bootstrapPropertiesFile"),
+                    } else if (!Objects.equals(config.getChild("bootstrapPropertiesFile"),
                             currentConfig.getChild("bootstrapPropertiesFile"))) {
                         restartServer = true;
-                    } else if (!compareConfigElement(config.getChild("jvmOptions"),
+                    } else if (!Objects.equals(config.getChild("jvmOptions"),
                             currentConfig.getChild("jvmOptions"))) {
                         restartServer = true;
-                    } else if (!compareConfigElement(config.getChild("jvmOptionsFile"),
+                    } else if (!Objects.equals(config.getChild("jvmOptionsFile"),
                             currentConfig.getChild("jvmOptionsFile"))) {
                         restartServer = true;
-                    } else if (!compareConfigElement(config.getChild("serverEnvFile"),
+                    } else if (!Objects.equals(config.getChild("serverEnvFile"),
                             currentConfig.getChild("serverEnvFile"))) {
                         restartServer = true;
-                    } else if (!compareConfigElement(config.getChild("configDirectory"),
+                    } else if (!Objects.equals(config.getChild("configDirectory"),
                             currentConfig.getChild("configDirectory"))) {
                         restartServer = true;
                         // restart dev mode
@@ -443,7 +418,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", log);
                         currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature",
                                 log);
-                        if (!compareConfigElement(config.getChild("features"), currentConfig.getChild("features"))) {
+                        if (!Objects.equals(config.getChild("features"), currentConfig.getChild("features"))) {
                             installFeature = true;
                         }
                     }
