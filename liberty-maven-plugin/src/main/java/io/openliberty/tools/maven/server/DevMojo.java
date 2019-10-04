@@ -352,7 +352,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
-            // monitoring project pom.xml file changes for dev mode update:
+            // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properites in project properties section
             // - changes in liberty plugin configuration in the build plugin section
             // - project dependencies changes
@@ -414,7 +414,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
 
-                // Liberty plugin configuration change in the pom.xml
+                // monitoring Liberty plugin configuration changes in dev mode
                 if (!restartServer && !createServer) {
                     Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
                     Xpp3Dom currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
@@ -526,7 +526,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     session.setCurrentProject(backupProject);
                     return false;
                 }
-                //
             } catch (IOException | DependencyResolutionException | MojoExecutionException
                     | ProjectBuildingException e) {
                 log.error("Could not handle changes in pom.xml. " + e.getMessage());
