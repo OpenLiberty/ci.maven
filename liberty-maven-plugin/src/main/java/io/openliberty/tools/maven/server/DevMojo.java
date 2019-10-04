@@ -360,12 +360,10 @@ public class DevMojo extends StartDebugMojoSupport {
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_VAR_PROP))) {
                 return true;
             }
-
             if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_DEFAULT_VAR_PROP), 
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_DEFAULT_VAR_PROP))) {
                 return true;
             }
-
             return false;
         }
 
