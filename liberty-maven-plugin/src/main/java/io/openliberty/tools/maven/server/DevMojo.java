@@ -325,6 +325,42 @@ public class DevMojo extends StartDebugMojoSupport {
             return deps;
         }
 
+        private boolean hasServerPropertyChanged(MavenProject project, MavenProject backupProject) {
+            Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.bootstrap.");
+            Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.bootstrap.");
+            if (!Objects.equals(p, q)) {
+                return true;
+            } else {
+                p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.jvm.");
+                q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.jvm.");
+                if (!Objects.equals(p, q)) {
+                    return true;
+                } else {
+                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.env.");
+                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.env.");
+                    if (!Objects.equals(p, q)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private boolean hasServerVariableChanged(MavenProject project, MavenProject backupProject) {
+            Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.var.");
+            Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.var.");
+            if (!Objects.equals(p, q)) {
+                return true;
+            } else {
+                p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.defaultVar.");
+                q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.defaultVar.");
+                if (!Objects.equals(p, q)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
             // monitoring project pom.xml file changes in dev mode:
@@ -357,36 +393,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
             try {
                 // Monitoring liberty properties in the pom.xml
-                Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.bootstrap.");
-                Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.bootstrap.");
-                if (!Objects.equals(p, q)) {
+                if (hasServerPropertyChanged(project, backupProject)) {
                     restartServer = true;
-                } else {
-                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.jvm.");
-                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.jvm.");
-                    if (!Objects.equals(p, q)) {
-                        restartServer = true;
-                    } else {
-                        p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.env.");
-                        q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.env.");
-                        if (!Objects.equals(p, q)) {
-                            restartServer = true;
-                        }
-                    }
                 }
-
-                if (!restartServer) {
-                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.var.");
-                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.var.");
-                    if (!Objects.equals(p, q)) {
-                        createServer = true;
-                    } else {
-                        p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.defaultVar.");
-                        q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.defaultVar.");
-                        if (!Objects.equals(p, q)) {
-                            createServer = true;
-                        }
-                    }
+                if (!restartServer && hasServerVariableChanged(project, backupProject)) {
+                    createServer = true;
                 }
 
                 // monitoring Liberty plugin configuration changes in dev mode
