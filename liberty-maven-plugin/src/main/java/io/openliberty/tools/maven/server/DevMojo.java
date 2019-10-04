@@ -496,14 +496,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting dev mode
-                    log.debug("changes in the pom.xml is not required by dev mode");
+                    log.debug("changes in the pom.xml are not monitored by dev mode");
                     project = backupProject;
                     session.setCurrentProject(backupProject);
                     return false;
                 }
             } catch (IOException | DependencyResolutionException | MojoExecutionException
                     | ProjectBuildingException e) {
-                log.error("Could not handle changes in pom.xml. " + e.getMessage());
+                log.error("Unhandled change detected in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
                 session.setCurrentProject(backupProject);
