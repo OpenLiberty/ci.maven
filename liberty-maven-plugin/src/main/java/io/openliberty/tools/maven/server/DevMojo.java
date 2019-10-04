@@ -27,11 +27,12 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,10 +41,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -56,16 +55,11 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.custommonkey.xmlunit.DetailedDiff;
-import org.custommonkey.xmlunit.Difference;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
-import org.w3c.dom.Node;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.util.DevUtil;
@@ -190,8 +184,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private class DevMojoUtil extends DevUtil {
 
-        List<Dependency> existingDependencies;
-        String existingPom;
         Set<String> existingFeatures;
 
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
@@ -200,9 +192,6 @@ public class DevMojo extends StartDebugMojoSupport {
                     skipTests, skipUTs, skipITs, project.getArtifactId(), verifyTimeout, appUpdateTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug);
 
-            this.existingDependencies = project.getDependencies();
-            File pom = project.getFile();
-            this.existingPom = readFile(pom);
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
         }
@@ -299,44 +288,183 @@ public class DevMojo extends StartDebugMojoSupport {
             return artifactPaths;
         }
 
+        public boolean compareProperties(Properties p, Properties q) {
+            if (p.size() != q.size()) {
+                return false;
+            }
+            Enumeration<?> e = p.propertyNames();
+            while (e.hasMoreElements()) {
+                String key = (String) e.nextElement();
+                if (!(p.get(key).equals(q.get(key)))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private Properties getPropertiesWithKeyPrefix(Properties p, String prefix) {
+            Properties result = new Properties();
+            if (p != null) {
+                Enumeration<?> e = p.propertyNames();
+                while (e.hasMoreElements()) {
+                    String key = (String) e.nextElement();
+                    if (key.startsWith(prefix)) {
+                        result.put(key, p.get(key));
+                    }
+                }
+            }
+            return result;
+        }
+
+        private boolean compareConfigElement(Xpp3Dom source, Xpp3Dom target) {
+            if (source != null) {
+                if (source.equals(target)) {
+                    return true;
+                }
+            } else if (target == null) {
+                return true;
+            }
+            return false;
+        }
+
+        private List<Dependency> getEsaDependency(List<Dependency> dependencies) {
+            List<Dependency> deps = new ArrayList<Dependency>();
+            if (dependencies != null) {
+                for (Dependency d : dependencies) {
+                    if ("esa".equals(d.getType())) {
+                        deps.add(d);
+                    }
+                }
+            }
+            return deps;
+        }
+        private List<Dependency> getCompileDependency(List<Dependency> dependencies) {
+            List<Dependency> deps = new ArrayList<Dependency>();
+            if (dependencies != null) {
+                for (Dependency d : dependencies) {
+                    if ("compile".equals(d.getScope())) {
+                        deps.add(d);
+                    }
+                }
+            }
+            return deps;
+        }
+
         @Override
         public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor) {
+            // monitoring project pom.xml file changes for dev mode update:
+            // - liberty.* properites in project properties section
+            // - changes in liberty plugin configuration in the build plugin section
+            // - project dependencies changes
+
+            boolean restartServer = false;
+            boolean createServer = false;
+            boolean installFeature = false;
+            boolean redeployApp = false;
+            boolean runBoostPackage = false;
+
+            ProjectBuildingResult build;
             try {
-                boolean unhandledChange = false;
-                String modifiedPom = readFile(buildFile);
-                XMLUnit.setIgnoreWhitespace(true);
-                XMLUnit.setIgnoreAttributeOrder(true);
-                XMLUnit.setIgnoreComments(true);
-                DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(this.existingPom, modifiedPom));
-                List<?> allDifferences = (List<?>)diff.getAllDifferences();
-                log.debug("Number of differences in the pom: " + allDifferences.size());
+                build = mavenProjectBuilder.build(buildFile,
+                        session.getProjectBuildingRequest().setResolveDependencies(true));
+            } catch (ProjectBuildingException e) {
+                log.error("Could not parse pom.xml. " + e.getMessage());
+                log.debug(e);
+                return false;
+            }
 
-                for (Object differenceObj : allDifferences) {
-                    Difference difference = (Difference)differenceObj;
-                    if (difference.getControlNodeDetail().getNode() != null && !dependencyChange(difference.getControlNodeDetail().getNode())) {
-                        unhandledChange = true;
-                    }
-                }                
-                if (!allDifferences.isEmpty()) {
-                    log.info("Pom has been modified");
-                    if (isUsingBoost()) {
-                        log.info("Running boost:package");
-                        runBoostMojo("package", true);
-                    }
-                    
-                    MavenProject updatedProject = loadProject(buildFile);
-                    List<Dependency> dependencies = updatedProject.getDependencies();
-                    log.debug("Dependencies size: " + dependencies.size());
-                    log.debug("Existing dependencies size: " + this.existingDependencies.size());
-                    List<String> dependencyIds = new ArrayList<String>();
-                    List<Artifact> updatedArtifacts = getNewDependencies(dependencies, this.existingDependencies);
+            // set the updated project in current session;
+            Plugin backupLibertyPlugin = getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+            MavenProject backupProject = project;
+            project = build.getProject();
+            session.setCurrentProject(project);
+            Plugin libertyPlugin = getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
 
+            try {
+                // Monitoring liberty properties in the pom.xml
+                Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.bootstrap.");
+                Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.bootstrap.");
+                if (!compareProperties(p, q)) {
+                    restartServer = true;
+                } else {
+                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.jvm.");
+                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.jvm.");
+                    if (!compareProperties(p, q)) {
+                        restartServer = true;
+                    } else {
+                        p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.env.");
+                        q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.env.");
+                        if (!compareProperties(p, q)) {
+                            restartServer = true;
+                        }
+                    }
+                }
+
+                if (!restartServer) {
+                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.var.");
+                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.var.");
+                    if (!compareProperties(p, q)) {
+                        createServer = true;
+                    } else {
+                        p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.defaultVar.");
+                        q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.defaultVar.");
+                        if (!compareProperties(p, q)) {
+                            createServer = true;
+                        }
+                    }
+                }
+
+                // Liberty plugin configuration change in the pom.xml
+                if (!restartServer && !createServer) {
+                    Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
+                    Xpp3Dom currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
+
+                    if (!compareConfigElement(config.getChild("bootstrapProperties"),
+                            currentConfig.getChild("bootstrapProperties"))) {
+                        restartServer = true;
+                    } else if (!compareConfigElement(config.getChild("bootstrapPropertiesFile"),
+                            currentConfig.getChild("bootstrapPropertiesFile"))) {
+                        restartServer = true;
+                    } else if (!compareConfigElement(config.getChild("jvmOptions"),
+                            currentConfig.getChild("jvmOptions"))) {
+                        restartServer = true;
+                    } else if (!compareConfigElement(config.getChild("jvmOptionsFile"),
+                            currentConfig.getChild("jvmOptionsFile"))) {
+                        restartServer = true;
+                    } else if (!compareConfigElement(config.getChild("serverEnvFile"),
+                            currentConfig.getChild("serverEnvFile"))) {
+                        restartServer = true;
+                    } else if (!compareConfigElement(config.getChild("configDirectory"),
+                            currentConfig.getChild("configDirectory"))) {
+                        restartServer = true;
+                        // restart dev mode
+                    } else {
+                        // assume createServer will call install-feature implicitly
+                        config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", log);
+                        currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature",
+                                log);
+                        if (!compareConfigElement(config.getChild("features"), currentConfig.getChild("features"))) {
+                            installFeature = true;
+                        }
+                    }
+                }
+
+                List<Dependency> deps = project.getDependencies();
+                List<Dependency> oldDeps = backupProject.getDependencies();
+                if (!deps.equals(oldDeps)) {
+                    runBoostPackage = true;
+                    // detect esa dependency changes
+                    if (!getEsaDependency(deps).equals(getEsaDependency(oldDeps))) {
+                        installFeature = true;
+                    }
+                    // detect compile dependency changes
+                    if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
+                        redeployApp = true;
+                    }
+                    // update classpath for dependencies changes
+                    List<Artifact> updatedArtifacts = getNewDependencies(deps, oldDeps);
                     if (!updatedArtifacts.isEmpty()) {
                         for (Artifact artifact : updatedArtifacts) {
-                            if (("esa").equals(artifact.getType())) {
-                                dependencyIds.add(artifact.getArtifactId());
-                            }
-
                             org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
                                     artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
                                     artifact.getVersion());
@@ -349,57 +477,65 @@ public class DevMojo extends StartDebugMojoSupport {
 
                             List<String> addToClassPath = new ArrayList<String>();
                             DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-                            try {
-                                DependencyResult dependencyResult = repositorySystem
-                                        .resolveDependencies(repoSession, depRequest);
-                                org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                                List<File> artifactsList = new ArrayList<File>();
-                                addArtifacts(root, artifactsList);
-                                for (File a : artifactsList) {
-                                    log.debug("Artifact: " + a);
-                                    if (a.getCanonicalPath().endsWith(".jar")) {
-                                        addToClassPath.add(a.getCanonicalPath());
-                                    }
+
+                            DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession,
+                                    depRequest);
+                            org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
+                            List<File> artifactsList = new ArrayList<File>();
+                            addArtifacts(root, artifactsList);
+                            for (File a : artifactsList) {
+                                log.debug("Artifact: " + a);
+                                if (a.getCanonicalPath().endsWith(".jar")) {
+                                    addToClassPath.add(a.getCanonicalPath());
                                 }
-                            } catch (DependencyResolutionException e) {
-                                throw new MojoExecutionException(e.getMessage(), e);
                             }
                             artifactPaths.addAll(addToClassPath);
                         }
-
-                        if (!dependencyIds.isEmpty()) {
-                            runLibertyMojoInstallFeature(null);
-                            dependencyIds.clear();
-                        }
-
-                        // update dependencies
-                        for (Artifact artifact : updatedArtifacts) {
-                            for (Dependency dependency : dependencies) {
-                                if (artifact.getArtifactId().equals(dependency.getArtifactId())) {
-                                    this.existingDependencies.add(dependency);
-                                    break;
-                                }
-                            }
-                        }
-                        if (!isUsingBoost() && unhandledChange) {
-                            log.warn(
-                                    "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
-                        } else {
-                            this.existingPom = modifiedPom;
-                        }
-                        return true;
-                    } else if (isUsingBoost()) {
-                        this.existingPom = modifiedPom;
-                        return true;
-                    } else if (unhandledChange) {
-                        log.warn(
-                                "Unhandled change detected in pom.xml. Restart liberty:dev mode for it to take effect.");
                     }
                 }
-            } catch (Exception e) {
-                log.debug("Could not recompile pom.xml", e);
+
+                if (restartServer) {
+                    // TODO: restart server automatically
+                    // - stop Server
+                    // - create server or runBootMojo
+                    // - install feature
+                    // - deploy app
+                    // - start server
+                    log.error("Changes for Liberty server bootstrap properties or environment variables or JVM options "
+                            + "in the pom.xml has been detected, Restart liberty:dev mode for it to take effect.");
+                    project = backupProject;
+                    session.setCurrentProject(backupProject);
+                    return false;
+                } else {
+                    if (isUsingBoost() && (createServer || runBoostPackage)) {
+                        log.info("Running boost:package");
+                        runBoostMojo("package", false);
+                    } else if (createServer) {
+                        runLibertyMojoCreate();
+                    } else if (redeployApp) {
+                        runLibertyMojoDeploy();
+                    }
+                    if (installFeature) {
+                        runLibertyMojoInstallFeature(null);
+                    }
+                }
+                if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
+                    // pom.xml is changed but not affecting dev mode
+                    log.debug("changes in the pom.xml is not required by dev mode");
+                    project = backupProject;
+                    session.setCurrentProject(backupProject);
+                    return false;
+                }
+                //
+            } catch (IOException | DependencyResolutionException | MojoExecutionException
+                    | ProjectBuildingException e) {
+                log.error("Could not handle changes in pom.xml. " + e.getMessage());
+                log.debug(e);
+                project = backupProject;
+                session.setCurrentProject(backupProject);
+                return false;
             }
-            return false;
+            return true;
         }
 
         @Override
@@ -782,40 +918,6 @@ public class DevMojo extends StartDebugMojoSupport {
         executeMojo(boostPlugin, goal(goal), configuration(),
                 executionEnvironment(boostProject, boostSession, pluginManager));
 
-    }
-
-    private static MavenProject loadProject(File pomFile) throws IOException, XmlPullParserException {
-        MavenProject ret = null;
-        MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-
-        if (pomFile != null && pomFile.exists()) {
-            FileReader reader = null;
-            try {
-                reader = new FileReader(pomFile);
-                Model model = mavenReader.read(reader);
-                model.setPomFile(pomFile);
-                ret = new MavenProject(model);
-            } finally {
-                reader.close();
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Check if the pom.xml has had a dependency change
-     * 
-     * @param node difference node in the pom.xml
-     * @return true if the change is related to a dependency change
-     */
-    private boolean dependencyChange(Node node) {
-        if (node.getNodeName().equals("dependency") || node.getNodeName().equals("dependencies")) {
-            return true;
-        } else if (node.getParentNode() == null) {
-            return false;
-        } else {
-            return dependencyChange(node.getParentNode());
-        }
     }
 
     private void listFiles(File directory, List<File> files, String suffix) {
