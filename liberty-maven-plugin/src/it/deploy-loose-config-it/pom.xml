@@ -71,9 +71,6 @@
                     <appsDirectory>dropins</appsDirectory>
                     <deployPackages>project</deployPackages>
                     <stripVersion>true</stripVersion>
-                    <packageName>${project.artifactId}</packageName>
-                    <packageType>${package.type}</packageType>
-                    <include>${include}</include>
                 </configuration>
                 <executions>
                     <execution>
@@ -179,6 +176,16 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <excludes>
+                                <include>**/AppFileTest.java</include>
+                            </excludes>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

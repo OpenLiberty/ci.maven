@@ -190,25 +190,22 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     protected void verifyAppStarted(String appFile) throws MojoExecutionException {
         if (shouldValidateAppStart()) {
-            String appName;
+            String appName = appFile.substring(0, appFile.lastIndexOf('.'));
             if (getAppsDirectory().equals("apps")) {
                 ServerConfigDocument scd = null;
 
                 File serverXML = new File(serverDirectory, "server.xml");
 
-                if (serverXML != null && serverXML.exists()) {
-                    try {
-                        scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                                bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
-                    } catch (Exception e) {
-                        log.warn(e.getLocalizedMessage());
-                        log.debug(e);
-                    }
-                }
-                //appName will be set to appFile if no name can be found.
-                appName = scd.findNameForLocation(appFile);
-            } else {
-                appName = appFile.substring(0, appFile.lastIndexOf('.'));
+                try {
+                    scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
+                            bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+
+                    //appName will be set to a name derived from appFile if no name can be found.
+                    appName = scd.findNameForLocation(appFile);
+                } catch (Exception e) {
+                    log.warn(e.getLocalizedMessage());
+                    log.debug(e);
+                } 
             }
 
             ServerTask serverTask = initializeJava();

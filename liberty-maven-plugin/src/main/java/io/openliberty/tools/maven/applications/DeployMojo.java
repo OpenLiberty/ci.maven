@@ -187,32 +187,20 @@ public class DeployMojo extends DeployMojoSupport {
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigWar(proj, config);
-                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                config.toXmlFile(looseConfigFile);
-                //Only checks if server is running
-                verifyAppStarted(application);
+                installAndVerifyApp(config, looseConfigFile, application);
                 break;
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigEar(proj, config);
-                deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                config.toXmlFile(looseConfigFile);
-                //Only checks if server is running
-                verifyAppStarted(application);
+                installAndVerifyApp(config, looseConfigFile, application);
                 break;
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config);
-                    deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
-                    deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-                    config.toXmlFile(looseConfigFile);
-                    //Only checks if server is running
-                    verifyAppStarted(application);
+                    installAndVerifyApp(config, looseConfigFile, application);
                 } else {
                     log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
@@ -224,7 +212,15 @@ public class DeployMojo extends DeployMojoSupport {
                 break;
         }
     }
-    
+
+    private void installAndVerifyApp(LooseConfigData config, File looseConfigFile, String applicationName) throws Exception {
+        deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
+        deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
+        config.toXmlFile(looseConfigFile);
+        //Only checks if server is running
+        verifyAppStarted(applicationName);
+    }
+
     private void cleanupPreviousExecution() {
         if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
