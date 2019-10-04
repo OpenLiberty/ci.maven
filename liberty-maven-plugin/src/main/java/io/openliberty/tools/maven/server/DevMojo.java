@@ -325,38 +325,72 @@ public class DevMojo extends StartDebugMojoSupport {
             return deps;
         }
 
+        private static final String LIBERTY_BOOTSTRAP_PROP = "liberty.bootstrap.";
+        private static final String LIBERTY_JVM_PROP = "liberty.jvm.";
+        private static final String LIBERTY_ENV_PROP = "liberty.env.";
+        private static final String LIBERTY_VAR_PROP = "liberty.var.";
+        private static final String LIBERTY_DEFAULT_VAR_PROP = "liberty.defaultVar.";
+
         private boolean hasServerPropertyChanged(MavenProject project, MavenProject backupProject) {
-            Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.bootstrap.");
-            Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.bootstrap.");
-            if (!Objects.equals(p, q)) {
+            Properties projProp = project.getProperties();
+            Properties backupProjProp = backupProject.getProperties();
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_BOOTSTRAP_PROP), 
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_BOOTSTRAP_PROP))) {
                 return true;
-            } else {
-                p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.jvm.");
-                q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.jvm.");
-                if (!Objects.equals(p, q)) {
-                    return true;
-                } else {
-                    p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.env.");
-                    q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.env.");
-                    if (!Objects.equals(p, q)) {
-                        return true;
-                    }
-                }
+            }
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_JVM_PROP), 
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_JVM_PROP))) {
+                return true;
+            }
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_ENV_PROP), 
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_ENV_PROP))) {
+                return true;
             }
             return false;
         }
 
         private boolean hasServerVariableChanged(MavenProject project, MavenProject backupProject) {
-            Properties p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.var.");
-            Properties q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.var.");
-            if (!Objects.equals(p, q)) {
+            Properties projProp = project.getProperties();
+            Properties backupProjProp = backupProject.getProperties();
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_VAR_PROP), 
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_VAR_PROP))) {
                 return true;
-            } else {
-                p = getPropertiesWithKeyPrefix(project.getProperties(), "liberty.defaultVar.");
-                q = getPropertiesWithKeyPrefix(backupProject.getProperties(), "liberty.defaultVar.");
-                if (!Objects.equals(p, q)) {
-                    return true;
-                }
+            }
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_DEFAULT_VAR_PROP), 
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_DEFAULT_VAR_PROP))) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean restartForLibertyMojoConfigChanged(Xpp3Dom config, Xpp3Dom oldConfig) {
+            if (!Objects.equals(config.getChild("bootstrapProperties"),
+                    oldConfig.getChild("bootstrapProperties"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("bootstrapPropertiesFile"),
+                    oldConfig.getChild("bootstrapPropertiesFile"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("jvmOptions"),
+                    oldConfig.getChild("jvmOptions"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("jvmOptionsFile"),
+                    oldConfig.getChild("jvmOptionsFile"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("serverEnv"),
+                    oldConfig.getChild("serverEnv"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("serverEnvFile"),
+                    oldConfig.getChild("serverEnvFile"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("configDirectory"),
+                    oldConfig.getChild("configDirectory"))) {
+                return true;
             }
             return false;
         }
@@ -401,38 +435,27 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
 
                 // monitoring Liberty plugin configuration changes in dev mode
-                if (!restartServer && !createServer) {
-                    Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
-                    Xpp3Dom currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
-
-                    if (!Objects.equals(config.getChild("bootstrapProperties"),
-                            currentConfig.getChild("bootstrapProperties"))) {
-                        restartServer = true;
-                    } else if (!Objects.equals(config.getChild("bootstrapPropertiesFile"),
-                            currentConfig.getChild("bootstrapPropertiesFile"))) {
-                        restartServer = true;
-                    } else if (!Objects.equals(config.getChild("jvmOptions"),
-                            currentConfig.getChild("jvmOptions"))) {
-                        restartServer = true;
-                    } else if (!Objects.equals(config.getChild("jvmOptionsFile"),
-                            currentConfig.getChild("jvmOptionsFile"))) {
-                        restartServer = true;
-                    } else if (!Objects.equals(config.getChild("serverEnvFile"),
-                            currentConfig.getChild("serverEnvFile"))) {
-                        restartServer = true;
-                    } else if (!Objects.equals(config.getChild("configDirectory"),
-                            currentConfig.getChild("configDirectory"))) {
-                        restartServer = true;
-                        // restart dev mode
-                    } else {
-                        // assume createServer will call install-feature implicitly
-                        config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", log);
-                        currentConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature",
-                                log);
-                        if (!Objects.equals(config.getChild("features"), currentConfig.getChild("features"))) {
-                            installFeature = true;
+                Xpp3Dom config;
+                Xpp3Dom oldConfig;
+                if (!restartServer) {
+                    config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
+                    oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
+                    if (!Objects.equals(config, oldConfig)) {
+                        createServer = true;
+                        if (restartForLibertyMojoConfigChanged(config, oldConfig)) {
+                            restartServer = true;
                         }
                     }
+                }
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", log);
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature", log);
+                if (!Objects.equals(config, oldConfig)) {
+                    installFeature = true;
+                }
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "deploy", log);
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "deploy", log);
+                if (!Objects.equals(config, oldConfig)) {
+                    redeployApp = true;
                 }
 
                 List<Dependency> deps = project.getDependencies();
