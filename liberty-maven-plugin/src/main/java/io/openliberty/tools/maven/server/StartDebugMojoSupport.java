@@ -314,12 +314,17 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     // The properties parameter comes from the <bootstrapProperties> configuration in pom.xml and takes precedence over
     // the mavenProperties parameter, which comes from generic maven <properties> configuration.
+    // One of the passed in Maps must be not null and not empty
     private void writeBootstrapProperties(File file, Map<String, String> properties, Map<String, String> mavenProperties) throws IOException {
         if (!mavenProperties.isEmpty()) {
-            combinedBootstrapProperties = new HashMap<String,String> ();
-            // add the maven properties first so that they do not take precedence over the properties specified with <bootstrapProperties>
-            combinedBootstrapProperties.putAll(mavenProperties);
-            combinedBootstrapProperties.putAll(properties);
+            if (properties == null) {
+                combinedBootstrapProperties = mavenProperties;
+            } else {
+                combinedBootstrapProperties = new HashMap<String,String> ();
+                // add the maven properties first so that they do not take precedence over the properties specified with <bootstrapProperties>
+                combinedBootstrapProperties.putAll(mavenProperties);
+                combinedBootstrapProperties.putAll(properties);
+            }
         } else {
             combinedBootstrapProperties = properties;
         }
@@ -370,12 +375,17 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
+    // One of the passed in Lists must be not null and not empty
     private void writeJvmOptions(File file, List<String> options, List<String> mavenProperties) throws IOException {
         if (!mavenProperties.isEmpty()) {
-            combinedJvmOptions = new ArrayList<String> ();
-            // add the maven properties first so that they do not take precedence over the options specified with jvmOptions
-            combinedJvmOptions.addAll(mavenProperties);
-            combinedJvmOptions.addAll(options);
+            if (options == null) {
+                combinedJvmOptions = mavenProperties;
+            } else {
+                combinedJvmOptions = new ArrayList<String> ();
+                // add the maven properties first so that they do not take precedence over the options specified with jvmOptions
+                combinedJvmOptions.addAll(mavenProperties);
+                combinedJvmOptions.addAll(options);
+            }
         } else {
             combinedJvmOptions = options;
         }
