@@ -487,8 +487,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     // - install feature
                     // - deploy app
                     // - start server
-                    log.error("Changes for Liberty server bootstrap properties or environment variables or JVM options "
-                            + "in the pom.xml has been detected, Restart liberty:dev mode for it to take effect.");
+                    log.error("Changes for Liberty server bootstrap properties, environment variables or JVM options "
+                            + "in the pom.xml have been detected. Restart liberty:dev mode for the changes to take effect.");
                     project = backupProject;
                     session.setCurrentProject(backupProject);
                     return false;
