@@ -483,7 +483,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (restartServer) {
                     // TODO: restart server automatically
                     // - stop Server
-                    // - create server or runBootMojo
+                    // - create server or runBoostMojo
                     // - install feature
                     // - deploy app
                     // - start server
@@ -506,15 +506,14 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
-                    // pom.xml is changed but not affecting dev mode
+                    // pom.xml is changed but not affecting liberty:dev mode. return true with the updated 
+                    // project set in the session 
                     log.debug("changes in the pom.xml are not monitored by dev mode");
-                    project = backupProject;
-                    session.setCurrentProject(backupProject);
-                    return false;
+                    return true;
                 }
             } catch (IOException | DependencyResolutionException | MojoExecutionException
                     | ProjectBuildingException e) {
-                log.error("Unhandled change detected in pom.xml. " + e.getMessage());
+                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
                 session.setCurrentProject(backupProject);
