@@ -58,7 +58,16 @@ public class BaseDevTest {
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
    }
+
+   protected static void setUpBeforeClass(String devModeParams, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(devModeParams, "../resources/basic-dev-project", isDevMode);
+   }
+
    protected static void setUpBeforeClass(String devModeParams, String projectRoot) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(devModeParams, projectRoot, true);
+   }
+
+   protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       basicDevProj = new File(projectRoot);
       String os = System.getProperty("os.name");
       if (os != null && os.toLowerCase().startsWith("windows")) {
@@ -83,13 +92,20 @@ public class BaseDevTest {
 
          replaceVersion();
 
-         startDevMode(devModeParams);
+         startProcess(params, isDevMode);
       }
    }
 
-   private static void startDevMode(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
+   private static void startProcess(String devModeParams, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
-      StringBuilder command = new StringBuilder("mvn liberty:dev");
+      String goal;
+      if(isDevMode) {
+         goal = "dev";
+      } else {
+         goal = "run";
+      }
+
+      StringBuilder command = new StringBuilder("mvn liberty:" + goal);
       if (devModeParams != null) {
          command.append(" " + devModeParams);
       }
@@ -115,7 +131,7 @@ public class BaseDevTest {
    protected static void cleanUpAfterClass() throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
-         stopDevMode();
+         stopProcess();
 
          if (tempProj != null && tempProj.exists()) {
             FileUtils.deleteDirectory(tempProj);
@@ -127,7 +143,7 @@ public class BaseDevTest {
       }
    }
 
-   protected static void stopDevMode() throws IOException, InterruptedException, FileNotFoundException {
+   private static void stopProcess() throws IOException, InterruptedException, FileNotFoundException {
       // shut down dev mode
       if (writer != null) {
          writer.write("exit"); // trigger dev mode to shut down
