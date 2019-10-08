@@ -96,7 +96,7 @@ public class BaseDevTest {
       }
    }
 
-   private static void startProcess(String devModeParams, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+   private static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
       String goal;
       if(isDevMode) {
@@ -106,8 +106,8 @@ public class BaseDevTest {
       }
 
       StringBuilder command = new StringBuilder("mvn liberty:" + goal);
-      if (devModeParams != null) {
-         command.append(" " + devModeParams);
+      if (params != null) {
+         command.append(" " + params);
       }
       ProcessBuilder builder = buildProcess(command.toString());
 
@@ -129,9 +129,13 @@ public class BaseDevTest {
    }
 
    protected static void cleanUpAfterClass() throws Exception {
+      cleanUpAfterClass(true);
+   }
+
+   protected static void cleanUpAfterClass(boolean isDevMode) throws Exception {
       if (!isWindows) { // skip tests on windows until server.env bug is fixed
 
-         stopProcess();
+         stopProcess(isDevMode);
 
          if (tempProj != null && tempProj.exists()) {
             FileUtils.deleteDirectory(tempProj);
@@ -143,10 +147,15 @@ public class BaseDevTest {
       }
    }
 
-   private static void stopProcess() throws IOException, InterruptedException, FileNotFoundException {
+   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       // shut down dev mode
       if (writer != null) {
-         writer.write("exit"); // trigger dev mode to shut down
+         if(isDevMode) {
+            writer.write("exit"); // trigger dev mode to shut down
+         }
+         else {
+            process.destroy(); // stop run
+         }
          writer.flush();
          writer.close();
 

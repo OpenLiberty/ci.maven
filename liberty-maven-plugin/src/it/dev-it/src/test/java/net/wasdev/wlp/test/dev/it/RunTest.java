@@ -64,7 +64,7 @@ public class RunTest extends BaseDevTest {
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass();
+      BaseDevTest.cleanUpAfterClass(false);
    }
 }
 

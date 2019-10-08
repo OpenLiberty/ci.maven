@@ -198,11 +198,17 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected void runLibertyMojoDeploy() throws MojoExecutionException {
+        runLibertyMojoDeploy(true);
+    }
+    
+    protected void runLibertyMojoDeploy(boolean forceLooseApp) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "deploy", log);
-        Xpp3Dom looseApp = config.getChild("looseApplication");
-        if (looseApp != null && "false".equals(looseApp.getValue())) {
-            log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
-            looseApp.setValue("true");
+        if(forceLooseApp) {
+            Xpp3Dom looseApp = config.getChild("looseApplication");
+            if (looseApp != null && "false".equals(looseApp.getValue())) {
+                log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+                looseApp.setValue("true");
+            }
         }
         runLibertyMojo("deploy", config);
     }
