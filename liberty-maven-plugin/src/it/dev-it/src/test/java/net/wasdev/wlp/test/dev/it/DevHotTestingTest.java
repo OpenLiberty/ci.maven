@@ -37,7 +37,7 @@ public class DevHotTestingTest extends BaseDevTest {
       
       if (isWindows) return;
 
-      assertFalse(checkLogMessage(2000,  "Tests will run automatically"));
+      assertFalse(checkLogMessage(10000,  "Tests will run automatically"));
    
       testModifyJavaFile();
 
