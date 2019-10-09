@@ -181,6 +181,8 @@ public class DevTest extends BaseDevTest {
 
       if (isWindows) return;
       
+      assertFalse(checkLogMessage(10000,  "Press the Enter key to run tests on demand."));
+
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
       assertTrue(systemHealthRes.exists());
