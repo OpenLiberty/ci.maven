@@ -28,7 +28,7 @@ import org.junit.Test;
 public class AppFileTest {
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/apps/deploy-loose-config-it.war");
+        File f = new File("liberty/usr/servers/test/apps/deploy-loose-config-apps-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
 }
