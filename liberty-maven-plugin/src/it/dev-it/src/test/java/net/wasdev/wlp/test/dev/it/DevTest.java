@@ -43,16 +43,11 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void basicTest() throws Exception {
-
-      if (isWindows) return; 
       testModifyJavaFile();
    }
 
    @Test
    public void configChangeTest() throws Exception {
-
-      if (isWindows) return;
-
       // configuration file change
       File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
       File targetServerXML = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/server.xml");
@@ -76,42 +71,33 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void unhandledChangeTest() throws Exception {
-
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         // make an unhandled change to the pom.xml
-         replaceString("dev-sample-proj", "dev-sample-project", pom);
-         assertFalse(checkLogMessage(100000, "An unexpected error occurred while processing changes in pom.xml"));
-      }
+      // make an unhandled change to the pom.xml
+      replaceString("dev-sample-proj", "dev-sample-project", pom);
+      assertFalse(checkLogMessage(100000, "An unexpected error occurred while processing changes in pom.xml"));
    }
 
    @Test
    public void resourceFileChangeTest() throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      // make a resource file change
+      File resourceDir = new File(tempProj, "src/main/resources");
+      assertTrue(resourceDir.exists());
 
-         // make a resource file change
-         File resourceDir = new File(tempProj, "src/main/resources");
-         assertTrue(resourceDir.exists());
+      File propertiesFile = new File(resourceDir, "microprofile-config.properties");
+      assertTrue(propertiesFile.createNewFile());
 
-         File propertiesFile = new File(resourceDir, "microprofile-config.properties");
-         assertTrue(propertiesFile.createNewFile());
+      Thread.sleep(2000); // wait for compilation
+      File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
+      assertTrue(targetPropertiesFile.exists());
+      assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
 
-         Thread.sleep(2000); // wait for compilation
-         File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
-         assertTrue(targetPropertiesFile.exists());
-         assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
-
-         // delete a resource file
-         assertTrue(propertiesFile.delete());
-         Thread.sleep(2000);
-         assertFalse(targetPropertiesFile.exists());
-      }
+      // delete a resource file
+      assertTrue(propertiesFile.delete());
+      Thread.sleep(2000);
+      assertFalse(targetPropertiesFile.exists());
    }
    
    @Test
    public void testDirectoryTest() throws Exception {
-      if (isWindows) return;
-
       // create the test directory
       File testDir = new File(tempProj, "src/test/java");
       assertTrue(testDir.mkdirs());
@@ -149,9 +135,6 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-
-      if (isWindows) return;
-
       assertFalse(checkLogMessage(2000,  "Press the Enter key to run tests on demand."));
 
       writer.write("\n");
@@ -163,9 +146,6 @@ public class DevTest extends BaseDevTest {
    
     @Test
     public void invalidDependencyTest() throws Exception {
-        if (isWindows)
-            return;
-
         // add invalid dependency to pom.xml
         String invalidDepComment = "<!-- <dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
                 + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n"
@@ -177,10 +157,7 @@ public class DevTest extends BaseDevTest {
     }
    
    @Test
-   public void resolveDependencyTest() throws Exception {
-
-      if (isWindows) return;
-      
+   public void resolveDependencyTest() throws Exception {      
       assertFalse(checkLogMessage(10000,  "Press the Enter key to run tests on demand."));
 
       // create the HealthCheck class, expect a compilation error

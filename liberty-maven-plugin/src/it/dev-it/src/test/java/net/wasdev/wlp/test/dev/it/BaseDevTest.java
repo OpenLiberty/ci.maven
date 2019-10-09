@@ -52,7 +52,6 @@ public class BaseDevTest {
    static File targetDir;
    static File pom;
    static BufferedWriter writer;
-   static boolean isWindows = false;
    static Process process;
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
@@ -69,31 +68,24 @@ public class BaseDevTest {
 
    protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       basicDevProj = new File(projectRoot);
-      String os = System.getProperty("os.name");
-      if (os != null && os.toLowerCase().startsWith("windows")) {
-         isWindows = true;
-      }
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      tempProj = Files.createTempDirectory("temp").toFile();
+      assertTrue(tempProj.exists());
 
-         tempProj = Files.createTempDirectory("temp").toFile();
-         assertTrue(tempProj.exists());
+      assertTrue(basicDevProj.exists());
 
-         assertTrue(basicDevProj.exists());
+      FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
+      assertTrue(tempProj.listFiles().length > 0);
 
-         FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
-         assertTrue(tempProj.listFiles().length > 0);
+      logFile = new File(basicDevProj, "logFile.txt");
+      assertTrue(logFile.createNewFile());
 
-         logFile = new File(basicDevProj, "logFile.txt");
-         assertTrue(logFile.createNewFile());
+      pom = new File(tempProj, "pom.xml");
+      assertTrue(pom.exists());
 
-         pom = new File(tempProj, "pom.xml");
-         assertTrue(pom.exists());
+      replaceVersion();
 
-         replaceVersion();
-
-         startProcess(params, isDevMode);
-      }
+      startProcess(params, isDevMode);
    }
 
    private static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
@@ -133,17 +125,14 @@ public class BaseDevTest {
    }
 
    protected static void cleanUpAfterClass(boolean isDevMode) throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      stopProcess(isDevMode);
 
-         stopProcess(isDevMode);
+      if (tempProj != null && tempProj.exists()) {
+         FileUtils.deleteDirectory(tempProj);
+      }
 
-         if (tempProj != null && tempProj.exists()) {
-            FileUtils.deleteDirectory(tempProj);
-         }
-
-         if (logFile != null && logFile.exists()) {
-            assertTrue(logFile.delete());
-         }
+      if (logFile != null && logFile.exists()) {
+         assertTrue(logFile.delete());
       }
    }
 
