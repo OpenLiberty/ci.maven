@@ -38,7 +38,7 @@ public class MPStarterTest extends BaseDevTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      assertFalse(checkLogMessage(10000,  "Press the Enter key to run tests on demand."));
+      assertFalse(checkLogMessage(30000,  "Press the Enter key to run tests on demand."));
 
       writer.write("\n");
       writer.flush();
