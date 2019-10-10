@@ -15,17 +15,17 @@
  */
 package io.openliberty.tools.maven.server;
 
-import java.text.MessageFormat;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Start a liberty server
  */
-@Mojo(name = "run")
-public class RunServerMojo extends StartDebugMojoSupport {
+@Mojo(name = "run", requiresDependencyCollection = ResolutionScope.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+public class RunServerMojo extends PluginConfigSupport {
 
     /**
      * Clean all cached information on server start up.
@@ -44,12 +44,17 @@ public class RunServerMojo extends StartDebugMojoSupport {
         if (skip) {
             return;
         }
-        if (isInstall) {
-            installServerAssembly();
-        } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
-            checkServerHomeExists();
+        
+        runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        
+        if(!looseApplication) {
+            runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
         }
+        
+        runLibertyMojoCreate();
+        runLibertyMojoInstallFeature(null);
+        runLibertyMojoDeploy(false);
 
         ServerTask serverTask = initializeJava();
         copyConfigFiles();

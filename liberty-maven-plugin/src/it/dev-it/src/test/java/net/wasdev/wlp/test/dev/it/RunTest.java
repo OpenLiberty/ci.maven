@@ -17,6 +17,7 @@ package net.wasdev.wlp.test.dev.it;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,34 +25,46 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.Scanner;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MPStarterTest extends BaseDevTest {
+public class RunTest extends BaseDevTest {
+
+   private static String URL;
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/mp-starter-project");
+      URL = "http://localhost:9080/dev-sample-proj-1.0-SNAPSHOT/servlet";
+      setUpBeforeClass(null, false);
    }
 
    @Test
-   public void manualTestsInvocationTest() throws Exception {
-      assertFalse(checkLogMessage(30000,  "Press the Enter key to run tests on demand."));
+   public void endpointTest() throws Exception {
+         HttpClient client = new HttpClient();
 
-      writer.write("\n");
-      writer.flush();
+        GetMethod method = new GetMethod(URL);
+         try {
+            int statusCode = client.executeMethod(method);
 
-      assertFalse(checkLogMessage(10000,  "Unit tests finished."));
-      assertFalse(checkLogMessage(2000,  "Integration tests finished."));
+            assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
 
-      assertTrue("Found CWWKM2179W message indicating incorrect app deployment", checkLogMessage(2000,  "CWWKM2179W"));
+            String response = method.getResponseBodyAsString();
+
+            assertTrue("Unexpected response body", response.contains("hello world"));
+         } finally {
+            method.releaseConnection();
+         }
    }
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass();
+      BaseDevTest.cleanUpAfterClass(false);
    }
 }
 

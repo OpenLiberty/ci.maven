@@ -52,46 +52,54 @@ public class BaseDevTest {
    static File targetDir;
    static File pom;
    static BufferedWriter writer;
-   static boolean isWindows = false;
    static Process process;
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
    }
-   protected static void setUpBeforeClass(String devModeParams, String projectRoot) throws IOException, InterruptedException, FileNotFoundException {
-      basicDevProj = new File(projectRoot);
-      String os = System.getProperty("os.name");
-      if (os != null && os.toLowerCase().startsWith("windows")) {
-         isWindows = true;
-      }
 
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
-
-         tempProj = Files.createTempDirectory("temp").toFile();
-         assertTrue(tempProj.exists());
-
-         assertTrue(basicDevProj.exists());
-
-         FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
-         assertTrue(tempProj.listFiles().length > 0);
-
-         logFile = new File(basicDevProj, "logFile.txt");
-         assertTrue(logFile.createNewFile());
-
-         pom = new File(tempProj, "pom.xml");
-         assertTrue(pom.exists());
-
-         replaceVersion();
-
-         startDevMode(devModeParams);
-      }
+   protected static void setUpBeforeClass(String devModeParams, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(devModeParams, "../resources/basic-dev-project", isDevMode);
    }
 
-   private static void startDevMode(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
+   protected static void setUpBeforeClass(String devModeParams, String projectRoot) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(devModeParams, projectRoot, true);
+   }
+
+   protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      basicDevProj = new File(projectRoot);
+
+      tempProj = Files.createTempDirectory("temp").toFile();
+      assertTrue(tempProj.exists());
+
+      assertTrue(basicDevProj.exists());
+
+      FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
+      assertTrue(tempProj.listFiles().length > 0);
+
+      logFile = new File(basicDevProj, "logFile.txt");
+      assertTrue(logFile.createNewFile());
+
+      pom = new File(tempProj, "pom.xml");
+      assertTrue(pom.exists());
+
+      replaceVersion();
+
+      startProcess(params, isDevMode);
+   }
+
+   private static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
-      StringBuilder command = new StringBuilder("mvn liberty:dev");
-      if (devModeParams != null) {
-         command.append(" " + devModeParams);
+      String goal;
+      if(isDevMode) {
+         goal = "dev";
+      } else {
+         goal = "run";
+      }
+
+      StringBuilder command = new StringBuilder("mvn liberty:" + goal);
+      if (params != null) {
+         command.append(" " + params);
       }
       ProcessBuilder builder = buildProcess(command.toString());
 
@@ -113,24 +121,30 @@ public class BaseDevTest {
    }
 
    protected static void cleanUpAfterClass() throws Exception {
-      if (!isWindows) { // skip tests on windows until server.env bug is fixed
+      cleanUpAfterClass(true);
+   }
 
-         stopDevMode();
+   protected static void cleanUpAfterClass(boolean isDevMode) throws Exception {
+      stopProcess(isDevMode);
 
-         if (tempProj != null && tempProj.exists()) {
-            FileUtils.deleteDirectory(tempProj);
-         }
+      if (tempProj != null && tempProj.exists()) {
+         FileUtils.deleteDirectory(tempProj);
+      }
 
-         if (logFile != null && logFile.exists()) {
-            assertTrue(logFile.delete());
-         }
+      if (logFile != null && logFile.exists()) {
+         assertTrue(logFile.delete());
       }
    }
 
-   protected static void stopDevMode() throws IOException, InterruptedException, FileNotFoundException {
+   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       // shut down dev mode
       if (writer != null) {
-         writer.write("exit"); // trigger dev mode to shut down
+         if(isDevMode) {
+            writer.write("exit"); // trigger dev mode to shut down
+         }
+         else {
+            process.destroy(); // stop run
+         }
          writer.flush();
          writer.close();
 
