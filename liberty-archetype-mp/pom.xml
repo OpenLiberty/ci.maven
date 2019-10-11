@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>2.3-SNAPSHOT</version>
+        <version>3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-archetype-mp</artifactId>
