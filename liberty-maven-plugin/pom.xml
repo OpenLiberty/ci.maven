@@ -14,6 +14,20 @@
     <name>liberty-maven-plugin</name>
     <description>Liberty Maven Plugin : Install, Start/Stop, Package, Create Server, Deploy/Undeploy applications</description>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <id>sonatype-nexus-releases</id>
+            <name>Sonatype Nexus Releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <dependency>
             <groupId>io.openliberty.tools</groupId>
