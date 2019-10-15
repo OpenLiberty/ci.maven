@@ -486,10 +486,6 @@ public class DevMojo extends StartDebugMojoSupport {
                                 }
                             }
                             artifactPaths.addAll(addToClassPath);
-                            
-                            if (Objects.equals(artifact.getType(), "jar")) {
-                                runLibertyMojoDeploy();
-                            }
                         }
                     }
                 }
