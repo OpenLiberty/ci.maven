@@ -486,6 +486,10 @@ public class DevMojo extends StartDebugMojoSupport {
                                 }
                             }
                             artifactPaths.addAll(addToClassPath);
+                            
+                            if (Objects.equals(artifact.getType(), "jar")) {
+                                runLibertyMojoDeploy();
+                            }
                         }
                     }
                 }
@@ -602,6 +606,15 @@ public class DevMojo extends StartDebugMojoSupport {
                 } else {
                     throw new PluginExecutionException("Failed to run integration tests", e);
                 }
+            }
+        }
+
+        @Override
+        public void redeployApp() throws PluginExecutionException {
+            try {
+                runLibertyMojoDeploy();
+            } catch (MojoExecutionException e) {
+                throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
     }
