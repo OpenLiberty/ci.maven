@@ -21,10 +21,10 @@ before_install:
 #    - cd ./ci.ant
 #    - mvn clean install
 #    - cd ..
-   - echo 'Installing ci.common lib...'
-   - git clone https://github.com/OpenLiberty/ci.common.git ./ci.common
-   - cd ./ci.common
-   - mvn clean install
-   - cd ..
+    - echo 'Installing ci.common lib...'
+    - git clone https://github.com/OpenLiberty/ci.common.git ./ci.common
+    - cd ./ci.common
+    - mvn clean install
+    - cd ..
 script:
     - travis_wait 30 mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
