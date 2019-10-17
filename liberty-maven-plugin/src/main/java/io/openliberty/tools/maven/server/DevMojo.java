@@ -604,6 +604,15 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
+
+        @Override
+        public void redeployApp() throws PluginExecutionException {
+            try {
+                runLibertyMojoDeploy();
+            } catch (MojoExecutionException e) {
+                throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
+            }
+        }
     }
 
     private boolean isUsingBoost() {
