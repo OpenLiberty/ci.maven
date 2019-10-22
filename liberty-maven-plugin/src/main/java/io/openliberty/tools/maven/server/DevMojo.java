@@ -24,6 +24,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -232,8 +233,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {
-                // ignore
-                log.debug("Error stopping server", e);
+                log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
             }
         }
 
