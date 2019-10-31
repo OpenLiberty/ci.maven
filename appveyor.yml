@@ -24,8 +24,9 @@ install:
 before_build:
     - cmd: |
         echo "Installing ci.ant lib..."
-        git clone https://github.com/OpenLiberty/ci.ant.git ci.ant
+        git clone https://github.com/cherylking/ci.ant.git ci.ant
         cd ci.ant
+        git checkout fixPackageArchiveProblem
         mvn clean install
         cd..
         echo "Installing ci.common lib..."
