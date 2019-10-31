@@ -254,19 +254,33 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
      * @throws IOException
      */
-    private String getPackageDirectory() throws IOException {
+    private String getPackageDirectory() throws IOException, MojoFailureException {
         if (packageDirectory != null && !packageDirectory.isEmpty()) {
             // done: check if path is relative or absolute, convert to canonical
             File dir = new File(packageDirectory);
             if (dir.isAbsolute()) {
+                createDir(dir);
                 return dir.getCanonicalPath();
             } else { //relative path
-                return new File(project.getBuild().getDirectory(), packageDirectory).getCanonicalPath();
+                File packageDir = new File(project.getBuild().getDirectory(), packageDirectory);
+                createDir(packageDir);
+                return packageDir.getCanonicalPath();
             }
         } else {
-            packageDirectory = project.getBuild().getDirectory();
-            return packageDirectory;
+            File packageDir = new File(project.getBuild().getDirectory());
+            createDir(packageDir);
+            return packageDir.getCanonicalPath();
         }
     }
+
+    private void createDir(File dir) throws MojoFailureException {
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                    throw new MojoFailureException("Unable to create directory "+dir.getPath());
+            }
+        }
+    }
+
+
 
 }
