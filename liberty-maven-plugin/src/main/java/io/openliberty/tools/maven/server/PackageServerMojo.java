@@ -192,9 +192,10 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * Validates the include and packageType values before setting the packageFile and packageFileType.
      * Also creates the package directory if it did not already exist.
      * 
+     * @throws IOException
      * @throws MojoExecutionException
      */
-    private void setAndCreatePackageFilePath() throws MojoExecutionException {
+    private void setAndCreatePackageFilePath() throws IOException, MojoExecutionException {
         setPackageFileType();
 
         File projectBuildDir = getPackageDirectory();
@@ -253,20 +254,21 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * Returns package directory
      * 
      * @return File representing specified package directory, or default ${project.build.directory} (target) if unspecified
+     * @throws IOException
      */
-    private File getPackageDirectory() {
+    private File getPackageDirectory() throws IOException {
         if (packageDirectory != null && !packageDirectory.isEmpty()) {
             // done: check if path is relative or absolute, convert to canonical
             File dir = new File(packageDirectory);
             if (dir.isAbsolute()) {
-                return dir;
+                return dir.getCanonicalFile();
             } else { //relative path
                 File packageDir = new File(project.getBuild().getDirectory(), packageDirectory);
-                return packageDir;
+                return packageDir.getCanonicalFile();
             }
         } else {
             File packageDir = new File(project.getBuild().getDirectory());
-            return packageDir;
+            return packageDir.getCanonicalFile();
         }
     }
 
