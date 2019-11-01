@@ -125,6 +125,7 @@
                         <artifactId>liberty-maven-plugin</artifactId>
                         <version>@pom.version@</version>
                         <configuration>
+                            <packageDirectory>package-directory-with space</packageDirectory>
                             <packageType>jar</packageType>
                         </configuration>
                     </plugin>

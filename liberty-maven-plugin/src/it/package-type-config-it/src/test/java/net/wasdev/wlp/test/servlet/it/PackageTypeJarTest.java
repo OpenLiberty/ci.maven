@@ -35,7 +35,7 @@ import org.junit.Test;
  */
 public class PackageTypeJarTest {
     
-    private String projectBuildName = "package-type-config-it.jar";
+    private String projectBuildName = "package-directory-with space/package-type-config-it.jar";
     
     @Test
     public void testPackageFileJarExists() {
