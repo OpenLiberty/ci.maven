@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumSet;
 
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -147,7 +147,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         copyConfigFiles();
         serverTask.setOperation("package");
 
-        setPackageFilePath();
+        setAndCreatePackageFilePath();
 
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
@@ -160,7 +160,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             project.getArtifact().setFile(packageFile);
         } else if (attach) {
             if (packageFileType.getValue() != project.getPackaging()) {
-                throw new MojoFailureException("packageType must match project packaging type.");
+                throw new MojoExecutionException("packageType must match project packaging type.");
             }
 
             project.getArtifact().setFile(packageFile);
@@ -188,16 +188,17 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Sets `packageFile` and `packageFileType` based on specified/defaulted package type, package dir, and package name.
+     * Sets `packageFile` and `packageFileType` based on specified/defaulted package type, package dir, and package name. 
      * Validates the include and packageType values before setting the packageFile and packageFileType.
+     * Also creates the package directory if it did not already exist.
      * 
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoExecutionException
      */
-    private void setPackageFilePath() throws IOException, MojoFailureException {
+    private void setAndCreatePackageFilePath() throws MojoExecutionException {
         setPackageFileType();
 
-        String projectBuildDir = getPackageDirectory();
+        File projectBuildDir = getPackageDirectory();
+        createDir(projectBuildDir);
         String projectBuildName = getPackageName();
         packageFile = new File(projectBuildDir, projectBuildName + "." + packageFileType.getValue());
     }
@@ -208,9 +209,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      * to PackageFileType.ZIP. If packageType is specified, and include contains `runnable`, 
      * then packageType must be `jar`.
      * 
-     * @throws MojoFailureException
+     * @throws MojoExecutionException
      */
-    private void setPackageFileType() throws MojoFailureException {
+    private void setPackageFileType() throws MojoExecutionException {
         ArrayList<String> includeValues = parseInclude();
         if (packageType == null) {
             if (includeValues.contains("runnable")) {
@@ -225,7 +226,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             if (packType != null) {
                 // if include contains runnable, validate packageType
                 if (includeValues.contains("runnable") && packType != PackageFileType.JAR) {
-                    throw new MojoFailureException("The `include` value `runnable` requires a `packageType` value of `jar`.");
+                    throw new MojoExecutionException("The `include` value `runnable` requires a `packageType` value of `jar`.");
                 }
                 packageFileType = packType;
             } else {
@@ -249,35 +250,29 @@ public class PackageServerMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Returns canonical path to package directory
+     * Returns package directory
      * 
-     * @return canonical path to specified package directory, or default ${project.build.directory} (target) if unspecified
-     * @throws IOException
+     * @return File representing specified package directory, or default ${project.build.directory} (target) if unspecified
      */
-    private String getPackageDirectory() throws IOException, MojoFailureException {
+    private File getPackageDirectory() {
         if (packageDirectory != null && !packageDirectory.isEmpty()) {
             // done: check if path is relative or absolute, convert to canonical
             File dir = new File(packageDirectory);
             if (dir.isAbsolute()) {
-                createDir(dir);
-                return dir.getCanonicalPath();
+                return dir;
             } else { //relative path
                 File packageDir = new File(project.getBuild().getDirectory(), packageDirectory);
-                createDir(packageDir);
-                return packageDir.getCanonicalPath();
+                return packageDir;
             }
         } else {
             File packageDir = new File(project.getBuild().getDirectory());
-            createDir(packageDir);
-            return packageDir.getCanonicalPath();
+            return packageDir;
         }
     }
 
-    private void createDir(File dir) throws MojoFailureException {
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                    throw new MojoFailureException("Unable to create directory "+dir.getPath());
-            }
+    private void createDir(File dir) throws MojoExecutionException {
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new MojoExecutionException("Unable to create directory "+dir.getPath());
         }
     }
 
