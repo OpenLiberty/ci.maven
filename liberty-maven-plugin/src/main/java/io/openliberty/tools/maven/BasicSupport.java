@@ -335,7 +335,7 @@ public class BasicSupport extends AbstractLibertySupport {
     }
     
     protected void installFromFile() throws Exception {
-        // Check if there is a newer archive or missing marker to trigger assembly install
+        // Check if there is a different/newer archive or missing marker to trigger assembly install
         File installMarker = new File(installDirectory, ".installed");
 
         if (!refresh) {
@@ -343,6 +343,8 @@ public class BasicSupport extends AbstractLibertySupport {
                 refresh = true;
             } else if (assemblyArchive.lastModified() > installMarker.lastModified()) {
                 log.debug(MessageFormat.format(messages.getString("debug.detect.assembly.archive"), ""));
+                refresh = true;
+            } else if(!assemblyArchive.getCanonicalPath().equals(FileUtils.fileRead(installMarker))) {
                 refresh = true;
             }
         } else {
@@ -377,7 +379,9 @@ public class BasicSupport extends AbstractLibertySupport {
             // delete installMarker first in case it was packaged with the assembly
             installMarker.delete();
             installMarker.createNewFile();
-
+            
+            // Write the assembly archive path so we can determine whether to install a different assembly in future invocations
+            FileUtils.fileWrite(installMarker, assemblyArchive.getCanonicalPath());
         } else {
             log.info(MessageFormat.format(messages.getString("info.reuse.installed.assembly"), ""));
         }
