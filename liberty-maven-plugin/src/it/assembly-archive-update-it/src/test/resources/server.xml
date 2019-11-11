@@ -1,0 +1,9 @@
+<server description="default server">
+    <featureManager>    
+        <feature>osgiBundle-1.0</feature>
+        <feature>jsp-2.3</feature>
+        <feature>mongodb-2.0</feature>
+        <feature>openid-2.0</feature>
+        <feature>couchdb-1.0</feature>
+    </featureManager>     
+</server>
