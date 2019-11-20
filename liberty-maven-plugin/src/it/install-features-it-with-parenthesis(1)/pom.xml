@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>install-features-2-it</artifactId>
+    <artifactId>install-features-it-with-parenthesis</artifactId>
     <packaging>pom</packaging>
 
     <build>
@@ -49,6 +49,12 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <assemblyArtifact>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>assembly-server</artifactId>
+                        <version>${project.version}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
                     <serverName>test</serverName>
                 </configuration>
             </plugin>
