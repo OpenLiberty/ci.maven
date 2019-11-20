@@ -244,10 +244,10 @@ public class ExecuteMojoUtil {
         case "maven-compiler-plugin:testCompile":
             goalConfig = stripConfigElements(config, TEST_COMPILE_PARAMS);
             break;
-        case "maven-compiler-plugin:resources":
+        case "maven-resources-plugin:resources":
             goalConfig = stripConfigElements(config, RESOURCES_PARAMS);
             break;
-        case "maven-compiler-plugin:testResources":
+        case "maven-resources-plugin:testResources":
             goalConfig = stripConfigElements(config, TEST_RESOURCES_PARAMS);
             break;
         case "maven-surefire-plugin:test":
@@ -294,6 +294,13 @@ public class ExecuteMojoUtil {
         return config;
     }
 
+    /**
+     * Strip all config elements except the ones in the goalParams list.
+     * 
+     * @param config existing config
+     * @param goalParams the config elements to keep
+     * @return config with non applicable elements removed
+     */
     private static Xpp3Dom stripConfigElements(Xpp3Dom config, ArrayList<String> goalParams) {
         // strip non applicable parameters
         List<Integer> removeChildren = new ArrayList<Integer>();
