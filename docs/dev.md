@@ -50,7 +50,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | debugPort | The debug port that you can attach a debugger to. The default value is `7777`. | No |
 | compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The default value is `30` seconds. | No |
-| verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started before running integration tests. The default value is `30` seconds. | No |
+| verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The default value is `30` seconds. | No |
 
 ###### System Properties for Integration Tests
 

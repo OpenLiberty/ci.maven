@@ -117,16 +117,10 @@ public class DevMojo extends StartDebugMojoSupport {
     protected ProjectBuilder mavenProjectBuilder;
 
     /**
-     * Time in seconds to wait while verifying that the application has started.
+     * Time in seconds to wait while verifying that the application has started or updated.
      */
     @Parameter(property = "verifyTimeout", defaultValue = "30")
     private int verifyTimeout;
-
-    /**
-     * Time in seconds to wait while verifying that the application has updated.
-     */
-    @Parameter(property = "appUpdateTimeout", defaultValue = "5")
-    private int appUpdateTimeout;
 
     /**
      * Time in seconds to wait while verifying that the server has started.
@@ -179,7 +173,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
-                    skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, appUpdateTimeout,
+                    skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug);
 
             ServerFeature servUtil = getServerFeatureUtil();
