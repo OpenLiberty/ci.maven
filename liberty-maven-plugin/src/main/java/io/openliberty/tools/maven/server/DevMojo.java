@@ -666,10 +666,10 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runCompileMojo();
-        runResourcesMojo();
-        runTestCompileMojo();
-        runTestResourcesMojo();
+        runCompileMojoLogError();
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        runTestCompileMojoLogError();
+        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
         
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
@@ -973,14 +973,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
     }
 
-    private void runResourcesMojo() throws MojoExecutionException {
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-    }
-
-    private void runTestResourcesMojo() throws MojoExecutionException {
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
-    }
-
+    /**
+     * Executes Maven goal passed but sets failOnError to false
+     * All errors are logged as warning messages
+     * 
+     * @param goal Maven compile goal
+     * @throws MojoExecutionException
+     */
     private void runCompileMojo(String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
@@ -991,11 +990,19 @@ public class DevMojo extends StartDebugMojoSupport {
                 executionEnvironment(project, session, pluginManager));
     }
 
-    private void runCompileMojo() throws MojoExecutionException {
+    /**
+     * Executes maven:compile but logs errors as warning messages
+     * @throws MojoExecutionException
+     */
+    private void runCompileMojoLogError() throws MojoExecutionException {
         runCompileMojo("compile");
     }
 
-    private void runTestCompileMojo() throws MojoExecutionException {
+    /**
+     * Executes maven:testCompile but logs errors as warning messages
+     * @throws MojoExecutionException
+     */
+    private void runTestCompileMojoLogError() throws MojoExecutionException {
         runCompileMojo("testCompile");
     }
 
