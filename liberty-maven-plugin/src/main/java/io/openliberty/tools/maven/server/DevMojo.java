@@ -666,9 +666,9 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runCompileMojoLogError();
+        runCompileMojoLogWarning();
         runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runTestCompileMojoLogError();
+        runTestCompileMojoLogWarning();
         runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
         
         sourceDirectory = new File(sourceDirectoryString.trim());
@@ -994,7 +994,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * Executes maven:compile but logs errors as warning messages
      * @throws MojoExecutionException
      */
-    private void runCompileMojoLogError() throws MojoExecutionException {
+    private void runCompileMojoLogWarning() throws MojoExecutionException {
         runCompileMojo("compile");
     }
 
@@ -1002,7 +1002,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * Executes maven:testCompile but logs errors as warning messages
      * @throws MojoExecutionException
      */
-    private void runTestCompileMojoLogError() throws MojoExecutionException {
+    private void runTestCompileMojoLogWarning() throws MojoExecutionException {
         runCompileMojo("testCompile");
     }
 
