@@ -580,12 +580,12 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    runCompileMojo();
-                    runResourcesMojo();
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    runTestCompileMojo();
-                    runTestResourcesMojo();
+                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 }
                 return true;
             } catch (MojoExecutionException e) {
