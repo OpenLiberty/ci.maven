@@ -110,7 +110,7 @@ public class DevTest extends BaseDevTest {
       Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
       assertTrue(unitTestSrcFile.exists());
 
-      Thread.sleep(2000); // wait for compilation
+      Thread.sleep(3000); // wait for compilation
       File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
       assertTrue(unitTestTargetFile.exists());
       long lastModified = unitTestTargetFile.lastModified();
@@ -196,7 +196,7 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(2000); // wait for compilation
+      Thread.sleep(3000); // wait for compilation
       assertFalse(checkLogMessage(100000, "Source compilation was successful."));
       assertTrue(systemHealthTarget.exists());
    }

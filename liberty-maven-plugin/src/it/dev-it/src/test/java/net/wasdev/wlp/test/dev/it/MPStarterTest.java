@@ -43,7 +43,7 @@ public class MPStarterTest extends BaseDevTest {
       writer.write("\n");
       writer.flush();
 
-      assertFalse(checkLogMessage(10000,  "Unit tests finished."));
+      assertFalse(checkLogMessage(20000,  "Unit tests finished."));
       assertFalse(checkLogMessage(2000,  "Integration tests finished."));
 
       assertTrue("Found CWWKM2179W message indicating incorrect app deployment", checkLogMessage(2000,  "CWWKM2179W"));
