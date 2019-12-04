@@ -34,7 +34,8 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @Test
    public void autoTestsInvocationTest() throws Exception {
-      assertFalse(checkLogMessage(10000,  "Tests will run automatically"));
+//      Thread.sleep(10000);
+      assertFalse(checkLogMessage(20000,  "Tests will run automatically"));
    
       testModifyJavaFile();
 

@@ -70,13 +70,6 @@ public class DevTest extends BaseDevTest {
    }
 
    @Test
-   public void unhandledChangeTest() throws Exception {
-      // make an unhandled change to the pom.xml
-      replaceString("dev-sample-proj", "dev-sample-project", pom);
-      assertFalse(checkLogMessage(100000, "An unexpected error occurred while processing changes in pom.xml"));
-   }
-
-   @Test
    public void resourceFileChangeTest() throws Exception {
       // make a resource file change
       File resourceDir = new File(tempProj, "src/main/resources");
@@ -110,7 +103,7 @@ public class DevTest extends BaseDevTest {
       Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
       assertTrue(unitTestSrcFile.exists());
 
-      Thread.sleep(2000); // wait for compilation
+      Thread.sleep(6000); // wait for compilation
       File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
       assertTrue(unitTestTargetFile.exists());
       long lastModified = unitTestTargetFile.lastModified();
@@ -123,7 +116,7 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(5000); // wait for compilation
+      Thread.sleep(2000); // wait for compilation
       assertTrue(unitTestTargetFile.lastModified() > lastModified);
 
       // delete the test file
@@ -169,7 +162,7 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
-      assertFalse(checkLogMessage(100000, "Source compilation had errors"));
+      assertFalse(checkLogMessage(200000, "Source compilation had errors"));
       assertFalse(systemHealthTarget.exists());
       
       // add mpHealth dependency to pom.xml
@@ -196,8 +189,9 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(2000); // wait for compilation
+      Thread.sleep(1000); // wait for compilation
       assertFalse(checkLogMessage(100000, "Source compilation was successful."));
+      Thread.sleep(15000); // wait for compilation
       assertTrue(systemHealthTarget.exists());
    }
 
