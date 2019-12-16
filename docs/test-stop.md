@@ -4,7 +4,7 @@ Stop a Liberty server. `test-stop` honors the `skipTests`, `skipITs`, and `maven
 
 ###### Additional Parameters
 
-The following are the parameters supported by this goal in addition to the [stop-server](stop-server.md#stop-server), the [common server parameters](common-server-parameters.md#common-server-parameters), and the [common parameters](common-parameters.md#common-parameters).
+The following are the parameters supported by this goal in addition to the parameters inherited from the [stop](stop.md#stop) goal, the [common server parameters](common-server-parameters.md#common-server-parameters), and the [common parameters](common-parameters.md#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
