@@ -135,7 +135,7 @@ public class DeployMojo extends DeployMojoSupport {
 
     protected void installDependencies() throws Exception {
         Set<Artifact> artifacts = project.getArtifacts();
-        log.debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
+        log.debug("Number of dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty
@@ -146,7 +146,7 @@ public class DeployMojo extends DeployMojoSupport {
             if (assemblyArtifact != null && matches(artifact, assemblyArtifact)) {
                 continue;
             }
-            if (artifact.getScope().equals("compile")) {
+            if (artifact.getScope().equals("compile") || artifact.getScope().equals("runtime")) {
                 if (isSupportedType(artifact.getType())) {
                     if (looseApplication && isReactorMavenProject(artifact)) {  //Installing the reactor project artifacts
                         MavenProject dependProj = getReactorMavenProject(artifact);
