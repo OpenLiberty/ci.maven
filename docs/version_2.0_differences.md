@@ -26,23 +26,28 @@ Updates to the `liberty-maven-plugin` require the use of Maven 3.0 or higher.
 
 There are new capabilities available in the `liberty-maven-plugin` that you might what to use when moving to release 2 of the plug-in.
 
+### Note upon 3.0 release
+
+With the 3.0 release of the `liberty-maven-plugin`, this page, written at the time of the 2.0 release, now links to an older version of the documentation to
+describe the older 2.0 goals.
+
 ### Loose application configuration
-[Loose applications](https://www.ibm.com/support/knowledgecenter/SSD28V_9.0.0/com.ibm.websphere.wlp.core.doc/ae/rwlp_loose_applications.html) are applications composed from multiple physical locations described by an XML file. In development, they allow easy updates to classes and files without repackaging an application archive. The `liberty-maven-plugin` can now install web applications using loose application XML with the [`install-apps` goal](install-apps.md) and the `looseApplication` parameter. The `package-server` goal will create a WAR file from the loose application XML file description and package the WAR with the server archive.
+[Loose applications](https://www.ibm.com/support/knowledgecenter/SSD28V_9.0.0/com.ibm.websphere.wlp.core.doc/ae/rwlp_loose_applications.html) are applications composed from multiple physical locations described by an XML file. In development, they allow easy updates to classes and files without repackaging an application archive. The `liberty-maven-plugin` can now install web applications using loose application XML with the [`install-apps` goal](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/install-apps.md) and the `looseApplication` parameter. The `package-server` goal will create a WAR file from the loose application XML file description and package the WAR with the server archive.
 
 ### Copy a configuration directory
-There is a new [common server parameter](common-server-parameters.md) that allows you to copy a directory of server 
+There is a new [common server parameter](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/common-server-parameters.md) that allows you to copy a directory of server 
 configuration files. If you are using files included in your `server.xml` file, then with one configuration element, 
 you can copy all your configuration related files if they are in one folder. It supports nested directories.
 
 ### New start and stop goals for testing
-There are two new goals to assist with integration test. The [`test-start-server`](test-start-server.md) and
-[`test-stop-server`](test-stop-server.md) goals honor elements, such as `skipTests`, `skipITs`, and `maven-test-skip`, used to skip the testing phases.
+There are two new goals to assist with integration test. The [`test-start-server`](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/test-start-server.md) and
+[`test-stop-server`](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/test-stop-server.md) goals honor elements, such as `skipTests`, `skipITs`, and `maven-test-skip`, used to skip the testing phases.
 
 ### Update Liberty license
-You can update the Liberty runtime license to a production license using the [`install-server` goal](install-server.md).
+You can update the Liberty runtime license to a production license using the [`install-server` goal](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/install-server.md).
 
 ### debug-server
-The new [`debug-server` goal](debug-server.md) allows you to pause the server during foreground start so that a debugger 
+The new [`debug-server` goal](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/debug-server.md) allows you to pause the server during foreground start so that a debugger 
 can be attached to the server process.
 
 ## Behavior differences in the liberty-maven-plugin
@@ -62,7 +67,7 @@ pass the goal but not run properly on the server.
 |`appsDirectory` set to `apps` | Install to the `apps` folder. | Add `webApplication` configuration to the target `configDropins` folder. Produce a warning message telling user to configure the application in the source server configuration. |
 
 ### packageFile default
-By default, when the `packageFile` parameter is not set on the `package-server` goal, the goal would put the archive at unexpected locations defined by the `server package` command. Now, by default packages are created in the `target` folder with naming described in the [`package-server` goal documentation](package-server.md).
+By default, when the `packageFile` parameter is not set on the `package-server` goal, the goal would put the archive at unexpected locations defined by the `server package` command. Now, by default packages are created in the `target` folder with naming described in the [`package-server` goal documentation](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/package-server.md).
 
 ### stop-server errors
 In the past, the stop-server goal would fail if the server package was not valid or could not run the stop.  Now you will get a warning since in most failure cases, the server was not running. The goal would also try to install the server if it was not already installed. It no longer installs the server. The goal will try its best to stop the server, but if it cannot, it will not fail the build.
@@ -91,5 +96,5 @@ The default lifecycle for the `liberty-assembly` packaging type binds more goals
 ## Archetypes
 ### liberty-archetype-webapp and the new parent pom
 
-`liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests is on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
+`liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests is on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](https://github.com/OpenLiberty/ci.maven/blob/liberty-maven-2.0/docs/parent-pom.md) parent pom that binds `liberty-maven-plugin` goals to the Maven default build lifecycle.
 

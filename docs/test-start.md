@@ -4,7 +4,7 @@ Start a Liberty server in background. The server instance will be automatically 
 
 ###### Additional Parameters
 
-The following are the parameters supported by this goal in addition to the [start-server](start-server.md#start-server), the [common server parameters](common-server-parameters.md#common-server-parameters), and the [common parameters](common-parameters.md#common-parameters).
+The following are the parameters supported by this goal in addition to the parameters inherited from the [start](start.md#start) goal, the [common server parameters](common-server-parameters.md#common-server-parameters), and the [common parameters](common-parameters.md#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
