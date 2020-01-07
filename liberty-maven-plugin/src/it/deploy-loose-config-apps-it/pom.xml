@@ -184,6 +184,7 @@
                         <configuration>
                             <excludes>
                                 <include>**/AppFileTest.java</include>
+                                <include>**/UndeployAppFileTest.java</include>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -218,6 +219,41 @@
                         <version>2.19.1</version>
                         <configuration>
                             <excludes>
+                                <include>**/AppFileTest.java</include>
+                                <include>**/LooseConfigTest.java</include>
+                                <include>**/UndeployAppFileTest.java</include>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>undeploy-loose-app</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.openliberty.tools</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <version>@pom.version@</version>
+                        <executions>
+                            <execution>
+                                <id>install-artifact</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <excludes>
+                                <include>**/AppFileTest.java</include>
+                                <include>**/EndppointTest.java</include>
                                 <include>**/LooseConfigTest.java</include>
                             </excludes>
                         </configuration>
