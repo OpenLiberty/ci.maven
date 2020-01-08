@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2017.
+ * (c) Copyright IBM Corporation 2017, 2019.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,13 +59,15 @@ public class LooseConfigTestIT {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/archive/file";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <file/> element ==>", 3, nodes.getLength());
+        assertEquals("Number of <file/> element ==>", 4, nodes.getLength());
         assertEquals("file targetInArchive attribute value", "/META-INF/application.xml", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/lib/log4j.jar", 
+        assertEquals("file targetInArchive attribute value", "/lib/log4j-core.jar", 
                 nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/META-INF/MANIFEST.MF", 
+        assertEquals("file targetInArchive attribute value", "/lib/log4j-api.jar", 
                 nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+        assertEquals("file targetInArchive attribute value", "/META-INF/MANIFEST.MF", 
+                nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         
         expression = "/archive/archive";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
