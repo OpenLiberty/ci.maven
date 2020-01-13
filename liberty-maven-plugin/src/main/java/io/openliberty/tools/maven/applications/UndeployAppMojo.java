@@ -106,7 +106,8 @@ public class UndeployAppMojo extends DeployMojoSupport {
                         if (stripVersion) {
                             depArchive = new File(stripVersionFromName(depArtifact.getFile().getName(), depArtifact.getBaseVersion()));
                         }
-                        undeployApp(depArchive);
+                        File installDir = new File(serverDirectory, getAppsDirectory());
+                        undeployApp(new File(installDir, depArchive.getName()));
                     }
                 } else {
                     log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
@@ -143,7 +144,6 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 log.warn(e.getLocalizedMessage());
             } 
         }
-
         file.delete();
 
         //check stop message code
