@@ -51,14 +51,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected long timeout = 40;
     
     /**
-     *  The file name of the deployed application in the `dropins` directory.
+     * When deploying loose applications, the optional directory to which application dependencies are copied.
      */
-    @Parameter(property = "appDeployName")
-    protected String appDeployName;
-    
     @Parameter(property = "copyLibsDirectory")
     protected File copyLibsDirectory;
-
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
