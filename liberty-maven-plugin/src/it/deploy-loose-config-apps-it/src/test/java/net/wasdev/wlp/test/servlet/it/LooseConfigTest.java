@@ -63,7 +63,7 @@ public class LooseConfigTest {
         
         Node looseConfigFragmentNode = nodes.item(0);
         String sourceOnDisk = looseConfigFragmentNode.getAttributes().getNamedItem("sourceOnDisk").getNodeValue();
-        Assert.assertTrue(sourceOnDisk.contains("target/libs"));
+        Assert.assertTrue(sourceOnDisk.contains("target" + File.separator + "libs"));
         
         Assert.assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/loose-config-fragment-it-1.0-SNAPSHOT.jar", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
