@@ -139,7 +139,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
 
                 //appName will be set to a name derived from file if no name can be found.
-                appName = scd.findNameForLocation(file.getName());
+                appName = scd.findNameForLocation(appName);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
             } 
