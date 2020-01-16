@@ -219,7 +219,6 @@
                         <version>2.19.1</version>
                         <configuration>
                             <excludes>
-                                <include>**/AppFileTest.java</include>
                                 <include>**/LooseConfigTest.java</include>
                                 <include>**/UndeployAppFileTest.java</include>
                             </excludes>
@@ -242,6 +241,7 @@
                                 <phase>integration-test</phase>
                                 <goals>
                                     <goal>deploy</goal>
+                                    <goal>undeploy</goal>
                                 </goals>
                             </execution>
                         </executions>
