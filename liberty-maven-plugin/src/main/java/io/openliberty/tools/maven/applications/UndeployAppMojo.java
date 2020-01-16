@@ -144,7 +144,14 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 log.warn(e.getLocalizedMessage());
             } 
         }
-        file.delete();
+
+        try {
+            if (!file.delete()) {
+                throw new MojoExecutionException(file.toString() + " could not be deleted from the server during undeploy.");
+            }    
+        } catch (SecurityException se) {
+            throw new MojoExecutionException(file.toString() + " could not be deleted because access was denied.", se);
+        }
 
         //check stop message code
         String stopMessage = STOP_APP_MESSAGE_CODE_REG + appName;
