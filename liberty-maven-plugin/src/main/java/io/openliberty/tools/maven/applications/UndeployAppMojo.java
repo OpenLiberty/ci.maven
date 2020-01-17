@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
-import io.openliberty.tools.ant.UndeployTask;
+import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
+import io.openliberty.tools.maven.utils.CommonLogger;
 
 /**
  * Undeploy application from liberty server. If no parameters have been defined
@@ -37,7 +39,10 @@ import io.openliberty.tools.ant.UndeployTask;
 
 public class UndeployAppMojo extends DeployMojoSupport {
 
-    private UndeployTask undeployTask;
+    private static final String STOP_APP_MESSAGE_CODE_REG = "CWWKZ0009I.*";
+    private static final long APP_STOP_TIMEOUT_DEFAULT = 30 * 1000;
+
+    private ServerConfigDocument scd;
     
     /*
      * (non-Javadoc)
@@ -51,21 +56,6 @@ public class UndeployAppMojo extends DeployMojoSupport {
         
         checkServerHomeExists();
         checkServerDirectoryExists();
-        
-        undeployTask = (UndeployTask) ant
-                .createTask("antlib:io/openliberty/tools/ant:undeploy");
-        
-        if (undeployTask == null) {
-            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "undeploy"));
-        }
-
-        undeployTask.setInstallDir(installDirectory);
-        undeployTask.setServerName(serverName);
-        undeployTask.setUserDir(userDirectory);
-        undeployTask.setOutputDir(outputDirectory);
-        
-        // Convert from seconds to milliseconds
-        undeployTask.setTimeout(Long.toString(timeout * 1000));
 
         boolean uninstallDependencies = false;
         boolean uninstallProject = false;
@@ -86,32 +76,16 @@ public class UndeployAppMojo extends DeployMojoSupport {
         }
 
         if (uninstallDependencies) {
-            
             undeployDependencies();
         }
         if (uninstallProject) {
             undeployProject();
         }
     }
-
-    private void undeployApp(File appArchive) throws MojoExecutionException {
-        try {
-            log.info(MessageFormat.format(
-                        messages.getString("info.undeploy.app"),
-                        appArchive.getCanonicalPath()));
-            undeployTask.setFile(appArchive.toString());
-            undeployTask.execute();
-        } catch (IOException ioe) {
-            throw new MojoExecutionException(MessageFormat.format(
-                messages.getString("error.undeploy.app.noexist"),
-                appArchive.toString()));
-        }
-    }
     
     private void undeployDependencies() throws MojoExecutionException {
         Set<Artifact> artifacts = project.getArtifacts();
 
-        System.out.println(project.getArtifacts().size());
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty
             if (!isSupportedType(artifact.getType())) {
@@ -132,7 +106,8 @@ public class UndeployAppMojo extends DeployMojoSupport {
                         if (stripVersion) {
                             depArchive = new File(stripVersionFromName(depArtifact.getFile().getName(), depArtifact.getBaseVersion()));
                         }
-                        undeployApp(depArchive);
+                        File installDir = new File(serverDirectory, getAppsDirectory());
+                        undeployApp(new File(installDir, depArchive.getName()));
                     }
                 } else {
                     log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
@@ -143,10 +118,46 @@ public class UndeployAppMojo extends DeployMojoSupport {
     }
 
     private void undeployProject() throws MojoExecutionException {
+        File installDir = new File(serverDirectory, getAppsDirectory());
         if (looseApplication) {
-            undeployApp(new File(new File(serverDirectory, getAppsDirectory()), getLooseConfigFileName(project)));
+            undeployApp(new File(installDir, getLooseConfigFileName(project)));
         } else {
-            undeployApp(project.getArtifact().getFile());
+            undeployApp(new File(installDir, getAppFileName(project)));
+        }
+    }
+
+    protected void undeployApp(File file) throws MojoExecutionException {
+        String appName = file.getName().substring(0, file.getName().lastIndexOf('.'));
+
+        if (getAppsDirectory().equals("apps")) {
+            scd = null;
+
+            try {
+                File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
+            
+                scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
+                bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+
+                //appName will be set to a name derived from file if no name can be found.
+                appName = scd.findNameForLocation(appName);
+            } catch (Exception e) {
+                log.warn(e.getLocalizedMessage());
+            } 
+        }
+
+        try {
+            if (!file.delete()) {
+                throw new MojoExecutionException(file.toString() + " could not be deleted from the server during undeploy.");
+            }    
+        } catch (SecurityException se) {
+            throw new MojoExecutionException(file.toString() + " could not be deleted because access was denied.", se);
+        }
+
+        //check stop message code
+        String stopMessage = STOP_APP_MESSAGE_CODE_REG + appName;
+        ServerTask serverTask = initializeJava();
+        if (serverTask.waitForStringInLog(stopMessage, APP_STOP_TIMEOUT_DEFAULT, new File(serverDirectory, "logs/messages.log")) == null) {
+            throw new MojoExecutionException("CWWKM2022E: Failed to undeploy application " + file.getPath() + ". The Stop application message cannot be found in console.log.");
         }
     }
 }

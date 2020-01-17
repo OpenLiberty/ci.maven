@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2019.
+ * (C) Copyright IBM Corporation 2016, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,7 +287,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     }
 
     // get loose application configuration file name for project artifact
-    private String getAppFileName(MavenProject project) {
+    protected String getAppFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
         if (project.getPackaging().equals("liberty-assembly")) {
             name = project.getBuild().getFinalName() + ".war";
