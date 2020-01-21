@@ -657,7 +657,8 @@ public class DevMojo extends StartDebugMojoSupport {
             // passing liberty installDirectory, outputDirectory and serverName to determine server status
             if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
                 throw new MojoExecutionException("The server " + serverName
-                        + " is already running. Terminate all instances of the server before starting dev mode.");
+                        + " is already running. Terminate all instances of the server before starting dev mode."
+                        + " You can stop a server instance with the command 'mvn liberty:stop'.");
             }
         }
 
