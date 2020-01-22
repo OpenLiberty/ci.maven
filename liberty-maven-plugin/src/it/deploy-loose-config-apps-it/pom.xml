@@ -253,7 +253,7 @@
                         <configuration>
                             <excludes>
                                 <include>**/AppFileTest.java</include>
-                                <include>**/EndppointTest.java</include>
+                                <include>**/EndpointTest.java</include>
                                 <include>**/LooseConfigTest.java</include>
                             </excludes>
                         </configuration>
