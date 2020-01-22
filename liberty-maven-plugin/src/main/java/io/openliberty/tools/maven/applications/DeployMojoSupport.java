@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2019.
+ * (C) Copyright IBM Corporation 2016, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
-import io.openliberty.tools.ant.DeployTask;
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
@@ -52,11 +51,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected long timeout = 40;
     
     /**
-     *  The file name of the deployed application in the `dropins` directory.
+     * When deploying loose applications, the optional directory to which application dependencies are copied.
      */
-    @Parameter(property = "appDeployName")
-    protected String appDeployName;
-
+    @Parameter(property = "copyLibsDirectory")
+    protected File copyLibsDirectory;
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
@@ -223,7 +221,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         for (Artifact artifact : artifacts) {
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
                     && "jar".equals(artifact.getType())) {
-                addlibrary(parent, looseApp, dir, artifact);
+                addLibrary(parent, looseApp, dir, artifact);
             }
         }
     }
@@ -237,12 +235,12 @@ public class DeployMojoSupport extends PluginConfigSupport {
             // package
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
                     && "jar".equals(artifact.getType()) && !looseEar.isEarDependency(artifact)) {
-                addlibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
+                addLibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
             }
         }
     }
 
-    private void addlibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact) throws Exception {
+    private void addLibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact) throws Exception {
         {
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
@@ -253,7 +251,20 @@ public class DeployMojoSupport extends PluginConfigSupport {
                 looseApp.addManifestFileWithParent(archive, manifestFile);
             } else {
                 resolveArtifact(artifact);
-                looseApp.getConfig().addFile(parent, artifact.getFile(), dir + artifact.getFile().getName());
+                if(copyLibsDirectory != null) {
+                    if(!copyLibsDirectory.exists()) {
+                        copyLibsDirectory.mkdirs();
+                    }
+                    if(!copyLibsDirectory.isDirectory()) {
+                        throw new MojoExecutionException("copyLibsDirectory must be a directory");
+                    }
+                    else {
+                        looseApp.getConfig().addFile(parent, artifact.getFile(), dir + artifact.getFile().getName(), copyLibsDirectory);
+                    }
+                }
+                else {
+                    looseApp.getConfig().addFile(parent, artifact.getFile(), dir + artifact.getFile().getName());
+                }
             }
         }
     }
@@ -287,7 +298,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     }
 
     // get loose application configuration file name for project artifact
-    private String getAppFileName(MavenProject project) {
+    protected String getAppFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
         if (project.getPackaging().equals("liberty-assembly")) {
             name = project.getBuild().getFinalName() + ".war";

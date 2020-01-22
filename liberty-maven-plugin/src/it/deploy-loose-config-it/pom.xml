@@ -184,6 +184,7 @@
                         <configuration>
                             <excludes>
                                 <include>**/AppFileTest.java</include>
+                                <include>**/UndeployAppFileTest.java</include>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -218,6 +219,45 @@
                         <version>2.19.1</version>
                         <configuration>
                             <excludes>
+                                <include>**/LooseConfigTest.java</include>
+                                <include>**/UndeployAppFileTest.java</include>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-->Checking that undeploy works<-->
+        <profile>
+            <id>undeploy-app</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.openliberty.tools</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <version>@pom.version@</version>
+                        <executions>
+                            <execution>
+                                <id>install-artifact</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                    <goal>undeploy</goal>
+                                </goals>
+                                <configuration>
+                                    <looseApplication>false</looseApplication>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <excludes>
+                                <include>**/AppFileTest.java</include>
+                                <include>**/EndpointTest.java</include>
                                 <include>**/LooseConfigTest.java</include>
                             </excludes>
                         </configuration>
