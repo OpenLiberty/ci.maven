@@ -16,7 +16,6 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
