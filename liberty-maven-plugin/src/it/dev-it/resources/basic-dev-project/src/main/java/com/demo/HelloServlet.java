@@ -33,7 +33,7 @@ public class HelloServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(HelloLogger.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.info("Here is the Log");
+        log.info("SLF4J Logger is ready for messages.");
         response.getWriter().append("hello world");
     }
 }

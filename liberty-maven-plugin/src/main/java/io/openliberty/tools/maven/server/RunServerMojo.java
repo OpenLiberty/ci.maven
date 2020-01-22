@@ -24,7 +24,7 @@ import io.openliberty.tools.ant.ServerTask;
 /**
  * Start a liberty server
  */
-@Mojo(name = "run", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "run", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class RunServerMojo extends PluginConfigSupport {
 
     /**

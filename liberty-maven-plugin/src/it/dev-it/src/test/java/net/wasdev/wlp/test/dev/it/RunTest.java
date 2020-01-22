@@ -60,6 +60,8 @@ public class RunTest extends BaseDevTest {
             // Note that checkLogMessage returns true if it does NOT find the message.
             // So I am verifying that SLF4J loaded properly.
             assertTrue(checkLogMessage(2000, "SLF4J: Failed to load class"));
+            // And then verify the logging message was successfully logged.
+            assertFalse(checkLogMessage(2000, "SLF4J Logger is ready for messages."));
          } finally {
             method.releaseConnection();
          }
