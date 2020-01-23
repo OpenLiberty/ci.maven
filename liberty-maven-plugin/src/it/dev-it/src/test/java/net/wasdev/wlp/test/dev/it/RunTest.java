@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2019, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@ public class RunTest extends BaseDevTest {
             String response = method.getResponseBodyAsString();
 
             assertTrue("Unexpected response body", response.contains("hello world"));
+            // Note that checkLogMessage returns true if it does NOT find the message.
+            // So I am verifying that SLF4J loaded properly.
+            assertTrue(checkLogMessage(2000, "SLF4J: Failed to load class"));
+            // And then verify the logging message was successfully logged.
+            assertFalse(checkLogMessage(2000, "SLF4J Logger is ready for messages."));
          } finally {
             method.releaseConnection();
          }

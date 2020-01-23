@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,23 @@
  *******************************************************************************/
 package com.demo;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
-@WebServlet(urlPatterns="/servlet")
-public class HelloServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
+@Path("/show-log")
+public class HelloLogger {
     private static final Logger log = LoggerFactory.getLogger(HelloLogger.class);
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.info("SLF4J Logger is ready for messages.");
-        response.getWriter().append("hello world");
+    @GET
+    @Produces(TEXT_PLAIN)
+    public String showLog() {
+        log.info("Here is the Log");
+        return "Log has been shown";
     }
 }
