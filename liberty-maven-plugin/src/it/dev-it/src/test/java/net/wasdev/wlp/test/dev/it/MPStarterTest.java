@@ -22,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
-import java.util.Scanner;
 
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;

@@ -60,12 +60,15 @@ public class DevTest extends BaseDevTest {
       assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
       Thread.sleep(2000);
       Scanner scanner = new Scanner(targetServerXML);
-
-      while (scanner.hasNextLine()) {
-         String line = scanner.nextLine();
-         if (line.contains("<feature>mpHealth-1.0</feature>")) {
-            assertTrue(true);
+      try {
+         while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.contains("<feature>mpHealth-1.0</feature>")) {
+               assertTrue(true);
+            }
          }
+      } finally {
+         scanner.close();
       }
    }
 

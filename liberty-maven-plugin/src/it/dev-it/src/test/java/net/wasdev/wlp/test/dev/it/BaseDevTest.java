@@ -179,12 +179,15 @@ public class BaseDevTest {
 
    private static boolean readFile(String str, File file) throws FileNotFoundException {
       Scanner scanner = new Scanner(file);
-
-      while (scanner.hasNextLine()) {
-         String line = scanner.nextLine();
-         if (line.contains(str)) {
-            return true;
+      try {
+         while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.contains(str)) {
+               return true;
+            }
          }
+      } finally {
+         scanner.close();
       }
       return false;
    }
