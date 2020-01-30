@@ -15,8 +15,7 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -60,16 +59,19 @@ public class DevTest extends BaseDevTest {
       assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
       Thread.sleep(2000);
       Scanner scanner = new Scanner(targetServerXML);
+      boolean foundUpdate = false;
       try {
          while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if (line.contains("<feature>mpHealth-1.0</feature>")) {
-               assertTrue(true);
+               foundUpdate = true;
+               break;
             }
          }
       } finally {
-         scanner.close();
+            scanner.close();
       }
+      assertTrue("Could not find the updated feature in the target server.xml file", foundUpdate);
    }
 
    @Test
