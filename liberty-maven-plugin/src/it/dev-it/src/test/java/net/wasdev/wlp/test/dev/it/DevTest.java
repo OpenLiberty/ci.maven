@@ -55,8 +55,8 @@ public class DevTest extends BaseDevTest {
 
       replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
 
-      // check for application updated message
-      assertFalse(checkLogMessage(60000, "CWWKZ0003I"));
+      // check for server configuration was successfully updated message
+      assertFalse(checkLogMessage(60000, "CWWKG0017I"));
       Thread.sleep(2000);
       Scanner scanner = new Scanner(targetServerXML);
       boolean foundUpdate = false;
