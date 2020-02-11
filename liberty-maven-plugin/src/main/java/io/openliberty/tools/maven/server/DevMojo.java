@@ -221,6 +221,11 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public String getServerStartTimeoutExample() {
+            return "'mvn liberty:dev -DserverStartTimeout=90'";
+        }
+
+        @Override
         public void libertyCreate() throws PluginExecutionException {
             try {
                 if (isUsingBoost()) {
