@@ -51,6 +51,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
+| polling | If set to `true`, poll for file changes instead of using file system notifications. The default value is `false`. | No |
+| pollingInterval | Polling interval in milliseconds. The default value is `100` milliseconds. This parameter is only used if `polling` is enabled. | No |
 
 ###### System Properties for Integration Tests
 
