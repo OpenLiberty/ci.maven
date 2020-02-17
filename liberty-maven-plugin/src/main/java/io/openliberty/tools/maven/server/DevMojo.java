@@ -671,11 +671,6 @@ public class DevMojo extends StartDebugMojoSupport {
         // any further changes detected mid-test will be in the following run
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
-
-        runCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runTestCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
         
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
@@ -691,14 +686,6 @@ public class DevMojo extends StartDebugMojoSupport {
         log.debug("Test Source directory: " + testSourceDirectory);
         log.debug("Test Output directory: " + testOutputDirectory);
 
-        if (isUsingBoost()) {
-            log.info("Running boost:package");
-            runBoostMojo("package");
-        } else {
-            runLibertyMojoCreate();
-            runLibertyMojoInstallFeature(null);
-            runLibertyMojoDeploy();
-        }
         // resource directories
         List<File> resourceDirs = new ArrayList<File>();
         if (outputDirectory.exists()) {

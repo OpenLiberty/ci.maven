@@ -16,11 +16,22 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.net.URI;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.io.Files;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -162,7 +173,13 @@ public class DeployMojo extends DeployMojoSupport {
     }
     
     protected void installProject() throws Exception {
-        if (isSupportedType(project.getPackaging())) {
+        String packagingType = project.getPackaging();
+        if (isSupportedType(packagingType)) {
+            if(packagingType.equals("liberty-war")) {
+                installServerLibs(project);
+                File thinWar = buildThinLibertyWar();
+                project.getArtifact().setFile(thinWar);
+            }
             if (looseApplication) {
                 installLooseApplication(project);
             } else {
@@ -172,6 +189,39 @@ public class DeployMojo extends DeployMojoSupport {
             throw new MojoExecutionException(
                     MessageFormat.format(messages.getString("error.application.not.supported"), project.getId()));
         }
+    }
+
+    private File buildThinLibertyWar() throws Exception {
+        checkArtifactFile(project.getArtifact());
+        File warFile = project.getArtifact().getFile();
+
+        Files.copy(warFile, new File(warFile.getParentFile(), warFile.getName() + ".original"));
+
+        if(!FilenameUtils.getExtension(warFile.getName()).equals("war")) {
+            throw new MojoExecutionException("Project artifact file must be a war.");
+        }
+
+        /* Define ZIP File System Properies in HashMap */    
+        Map<String, String> zip_properties = new HashMap<>(); 
+        /* We want to read an existing ZIP File, so we set this to False */
+        zip_properties.put("create", "false"); 
+
+        /* Specify the path to the ZIP File that you want to read as a File System */
+        String uriString = "jar:file:" + warFile.getCanonicalPath();
+        System.out.println(uriString);
+        URI zip_disk = URI.create(uriString);
+
+        /* Create ZIP file System */
+        try (FileSystem zipfs = FileSystems.newFileSystem(zip_disk, zip_properties)) {
+            /* Get the Path inside ZIP File to delete the ZIP Entry */
+            Path libsPath = zipfs.getPath("WEB-INF/lib/");
+            DirectoryStream<Path> filePathStream = java.nio.file.Files.newDirectoryStream(libsPath);
+            for (Path path : filePathStream) {
+                java.nio.file.Files.delete(path);
+            }
+            java.nio.file.Files.delete(libsPath);
+        }
+        return warFile;
     }
 
     private void installLooseApplication(MavenProject proj) throws Exception {
@@ -194,6 +244,7 @@ public class DeployMojo extends DeployMojoSupport {
                 installLooseConfigEar(proj, config);
                 installAndVerifyApp(config, looseConfigFile, application);
                 break;
+            case "liberty-war":
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
@@ -209,6 +260,20 @@ public class DeployMojo extends DeployMojoSupport {
                         proj.getPackaging()));
                 installApp(proj.getArtifact());
                 break;
+        }
+    }
+
+    private void installServerLibs(MavenProject proj) throws Exception {
+        File serverLibGlobalDir = new File(serverDirectory, "lib/global/");
+        serverLibGlobalDir.mkdirs();
+
+        Set<Artifact> artifacts = proj.getArtifacts();
+        for (Artifact artifact : artifacts) {
+            if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
+                    && "jar".equals(artifact.getType())) {
+                resolveArtifact(artifact);
+                Files.copy(artifact.getFile(), new File(serverLibGlobalDir, artifact.getFile().getName()));
+            }
         }
     }
 

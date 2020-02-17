@@ -59,16 +59,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
     protected void installApp(Artifact artifact) throws Exception {
-    
-        if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getAppFileName(project);
-            File f = new File(project.getBuild().getDirectory() + "/" + warName);
-            artifact.setFile(f);
-        }
-
-        if (!artifact.getFile().exists()) {
-            throw new MojoExecutionException(messages.getString("error.install.app.missing"));
-        }
+        checkArtifactFile(artifact);
 
         File destDir = new File(serverDirectory, getAppsDirectory());
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
@@ -178,6 +169,18 @@ public class DeployMojoSupport extends PluginConfigSupport {
         looseEar.addManifestFile(manifestFile);
     }
 
+    protected void checkArtifactFile(Artifact artifact) throws MojoExecutionException {
+        if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
+            String warName = getAppFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            artifact.setFile(f);
+        }
+
+        if (!artifact.getFile().exists()) {
+            throw new MojoExecutionException(messages.getString("error.install.app.missing"));
+        }
+    }
+
     private boolean shouldValidateAppStart() throws MojoExecutionException {
         try {
             return new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
@@ -242,6 +245,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     private void addLibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact) throws Exception {
         {
+            if(project.getPackaging().equals("liberty-war")) {
+                return; // Skip adding library to loose app for "liberty-war"
+                        // packaging type since it will be at the runtime classpath level
+            }
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
                 Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
@@ -300,7 +307,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
     // get loose application configuration file name for project artifact
     protected String getAppFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
-        if (project.getPackaging().equals("liberty-assembly")) {
+        if (
+            project.getPackaging().equals("liberty-assembly") ||
+            project.getPackaging().equals("liberty-war")
+        ) {
             name = project.getBuild().getFinalName() + ".war";
         }
         if (stripVersion) {
@@ -371,6 +381,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
             case "eba":
             case "esa":
             case "liberty-assembly":
+            case "liberty-war":
                 supported = true;
                 break;
             default:

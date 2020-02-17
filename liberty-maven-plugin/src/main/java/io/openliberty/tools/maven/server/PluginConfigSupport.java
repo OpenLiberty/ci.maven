@@ -79,7 +79,8 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     protected String getDeployPackages() {
-        if ("ear".equals(project.getPackaging())) {
+        String packagingType = project.getPackaging();
+        if ("ear".equals(packagingType) || "liberty-war".equals(packagingType)) {
             deployPackages = "project";
         }
         return deployPackages;
@@ -244,6 +245,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
                 name += ".xml";
             }
             break;
+        case "liberty-war":
         case "liberty-assembly":
             // assuming liberty-assembly project will also have a war file
             // output.
