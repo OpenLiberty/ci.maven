@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +37,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
@@ -50,6 +50,11 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.resolution.DependencyRequest;
@@ -663,8 +668,29 @@ public class DevMojo extends StartDebugMojoSupport {
         if(project.getPackaging().equals("liberty-war")) {
             File installMarker = new File(installDirectory, ".installed");
             if (!installMarker.exists()) {
+                log.info("No existing runtime detected, running package phase...");
+                InvocationRequest request = new DefaultInvocationRequest();
+                request.setPomFile( new File( project.getBasedir(), "pom.xml" ) );
+                request.setGoals( Collections.singletonList( "package" ) );
                 
+                Invoker invoker = new DefaultInvoker();
+                InvocationResult result = invoker.execute( request );
+        
+                if ( result.getExitCode() != 0 ) {
+                    throw new IllegalStateException( "Package build failed, terminating dev mode execution." );
+                }
             }
+        }
+        // Otherwise run the standard server setup goal sequence
+        else {
+            runCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runTestCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+
+            runLibertyMojoCreate();
+            runLibertyMojoInstallFeature(null);
+            runLibertyMojoDeploy();
         }
 
         // create an executor for tests with an additional queue of size 1, so

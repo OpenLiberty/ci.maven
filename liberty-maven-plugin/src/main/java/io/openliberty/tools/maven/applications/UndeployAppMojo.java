@@ -16,12 +16,10 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Set;
 
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;

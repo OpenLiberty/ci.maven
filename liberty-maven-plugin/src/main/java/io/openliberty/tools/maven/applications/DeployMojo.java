@@ -30,7 +30,6 @@ import java.util.Set;
 
 import com.google.common.io.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
