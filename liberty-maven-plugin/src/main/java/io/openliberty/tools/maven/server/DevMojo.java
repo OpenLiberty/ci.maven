@@ -111,8 +111,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
     private ServerTask serverTask = null;
     
-    private Plugin boostPlugin = null;
-
     @Component
     protected ProjectBuilder mavenProjectBuilder;
 
@@ -240,13 +238,8 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void libertyCreate() throws PluginExecutionException {
             try {
-                if (isUsingBoost()) {
-                    log.info("Running boost:package");
-                    runBoostMojo("package");
-                } else {
-                    runLibertyMojoCreate();
-                }
-            } catch (MojoExecutionException | ProjectBuildingException e) {                
+                runLibertyMojoCreate();
+            } catch (MojoExecutionException e) {                
                 throw new PluginExecutionException(e);
             }
         }
@@ -434,7 +427,6 @@ public class DevMojo extends StartDebugMojoSupport {
             boolean createServer = false;
             boolean installFeature = false;
             boolean redeployApp = false;
-            boolean runBoostPackage = false;
 
             ProjectBuildingResult build;
             try {
@@ -489,7 +481,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<Dependency> deps = project.getDependencies();
                 List<Dependency> oldDeps = backupProject.getDependencies();
                 if (!deps.equals(oldDeps)) {
-                    runBoostPackage = true;
                     // detect esa dependency changes
                     if (!getEsaDependency(deps).equals(getEsaDependency(oldDeps))) {
                         installFeature = true;
@@ -533,17 +524,14 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 if (restartServer) {
                     // - stop Server
-                    // - create server or runBoostMojo
+                    // - create server
                     // - install feature
                     // - deploy app
                     // - start server
                     util.restartServer();
                     return true;
                 } else {
-                    if (isUsingBoost() && (createServer || runBoostPackage)) {
-                        log.info("Running boost:package");
-                        runBoostMojo("package");
-                    } else if (createServer) {
+                    if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
@@ -552,14 +540,13 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoInstallFeature(null);
                     }
                 }
-                if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
+                if (!(restartServer || createServer || redeployApp || installFeature)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the updated 
                     // project set in the session 
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (IOException | DependencyResolutionException | MojoExecutionException
-                    | ProjectBuildingException e) {
+            } catch (IOException | DependencyResolutionException | MojoExecutionException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -652,10 +639,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private boolean isUsingBoost() {
-        return boostPlugin != null;
-    }
-
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
@@ -667,15 +650,20 @@ public class DevMojo extends StartDebugMojoSupport {
             skipUTs = true;
         }
 
-        // Check if this is a Boost application
-        boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
-
         if (serverDirectory.exists()) {
             // passing liberty installDirectory, outputDirectory and serverName to determine server status
             if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
                 throw new MojoExecutionException("The server " + serverName
                         + " is already running. Terminate all instances of the server before starting dev mode."
                         + " You can stop a server instance with the command 'mvn liberty:stop'.");
+            }
+        }
+
+        // For liberty-war, run install if the runtime does not exist
+        if(project.getPackaging().equals("liberty-war")) {
+            File installMarker = new File(installDirectory, ".installed");
+            if (!installMarker.exists()) {
+                
             }
         }
 
@@ -913,18 +901,6 @@ public class DevMojo extends StartDebugMojoSupport {
         if (sysProps.getChild(key) == null && value != null) {
             sysProps.addChild(element(name(key), value).toDom());
         }
-    }
-
-    private void runBoostMojo(String goal)
-            throws MojoExecutionException, ProjectBuildingException {
-
-        MavenProject boostProject = this.project;
-        MavenSession boostSession = this.session;
-
-        log.debug("plugin version: " + boostPlugin.getVersion());
-        executeMojo(boostPlugin, goal(goal), configuration(),
-                executionEnvironment(boostProject, boostSession, pluginManager));
-
     }
 
     private void listFiles(File directory, List<File> files, String suffix) {
