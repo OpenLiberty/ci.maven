@@ -101,6 +101,9 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "debugPort", defaultValue = "7777")
     private int libertyDebugPort;
 
+    @Parameter(property = "headless", defaultValue = "false")
+    private boolean headless;
+
     /**
      * Time in seconds to wait before processing Java changes and deletions.
      */
@@ -186,7 +189,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, polling, pollingInterval);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, polling, pollingInterval, headless);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -271,14 +274,16 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void stopServer() {
-
+            if (headless) {
+                return;
+            }
             try {
                 ServerTask serverTask = initializeJava();
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {
                 log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
-            }
+            }    
         }
 
         @Override
@@ -299,6 +304,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 } else {
                     serverTask.setOperation("run");
                 }
+
                 return serverTask;
             }
         }
@@ -650,10 +656,20 @@ public class DevMojo extends StartDebugMojoSupport {
                 throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
+
+        @Override
+        public boolean isServerRunning() {
+            return isServerRunningFromMaven();
+        }
     }
 
     private boolean isUsingBoost() {
         return boostPlugin != null;
+    }
+
+    public boolean isServerRunningFromMaven() {
+        // passing liberty installDirectory, libertyOutputDirectory and serverName to determine server status
+        return ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName);
     }
 
     @Override
@@ -670,12 +686,13 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        if (serverDirectory.exists()) {
-            // passing liberty installDirectory, outputDirectory and serverName to determine server status
-            if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
-                throw new MojoExecutionException("The server " + serverName
-                        + " is already running. Terminate all instances of the server before starting dev mode."
-                        + " You can stop a server instance with the command 'mvn liberty:stop'.");
+        if (!headless) {
+            if (serverDirectory.exists()) {
+                if (isServerRunningFromMaven()) {
+                    throw new MojoExecutionException("The server " + serverName
+                            + " is already running. Terminate all instances of the server before starting dev mode."
+                            + " You can stop a server instance with the command 'mvn liberty:stop'.");
+                }
             }
         }
 
