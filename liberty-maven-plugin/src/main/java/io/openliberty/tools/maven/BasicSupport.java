@@ -351,12 +351,12 @@ public class BasicSupport extends AbstractLibertySupport {
             log.debug(MessageFormat.format(messages.getString("debug.request.refresh"), ""));
         }
 
+        String userDirectoryPath = userDirectory.getCanonicalPath();
         if (refresh && installDirectory.exists() && installDirectory.isDirectory()) {
             log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
             // Delete everything in the install directory except usr directory
             for(File f : installDirectory.listFiles()) {
-                if(f.isDirectory() && f.getCanonicalPath().equals(userDirectory.getCanonicalPath())) {}
-                else {
+                if(!(f.isDirectory() && f.getCanonicalPath().equals(userDirectoryPath))) {
                     FileUtils.forceDelete(f);
                 }
             }
