@@ -59,6 +59,47 @@ public class MavenProjectUtil {
         }
         return null;
     }
+
+    /**
+     * Get a nested configuration value from a plugin
+     * @param proj the Maven project
+     * @param pluginGroupId the plugin group id
+     * @param pluginArtifactId the plugin artifact id
+     * @param key1 the configuration key to get from
+     * @param key2 the configuration key nested in key1 to get from or null
+     * @param childName the configuration key nested in key2 to get from or null
+     * @return the array of values corresponding to the configuration keys
+     */
+    public static String[] getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key1, String key2, String childName) {
+        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+        if (dom != null) {
+            Xpp3Dom val1 = dom.getChild(key1);
+            if (val1 != null) {
+                Xpp3Dom val2 = null;
+                if (key2 == null) {
+                    val2 = val1; // don't travel down the tree
+                } else {
+                    val2 = val1.getChild(key2);
+                }
+                if (val2 != null) {
+                    Xpp3Dom[] children = null;
+                    if (childName == null)
+                        children = val2.getChildren();
+                    else
+                        children = val2.getChildren(childName);
+                    if (children != null) {
+                        String[] result = new String[children.length];
+                        for (int i = 0; i < children.length; i++) {
+                            result[i] = children[i].getValue();
+                        }
+                        return result;
+                    }
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
     
     /**
      * Get a configuration value from a goal from a plugin
