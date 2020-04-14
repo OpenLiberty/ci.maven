@@ -83,10 +83,11 @@ public class MavenProjectUtil {
                 }
                 if (val2 != null) {
                     Xpp3Dom[] children = null;
-                    if (childName == null)
+                    if (childName == null) {
                         children = val2.getChildren();
-                    else
+                    } else {
                         children = val2.getChildren(childName);
+                    }
                     if (children != null) {
                         String[] result = new String[children.length];
                         for (int i = 0; i < children.length; i++) {

@@ -115,8 +115,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
         // retrieve the directories defined as resources in the maven war plugin
         String webResources[] = MavenProjectUtil.getPluginConfiguration(proj, "org.apache.maven.plugins",
             "maven-war-plugin", "webResources", "resource", "directory");
-        for (int i = 0; i < webResources.length; i++) {
-            looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBasedir().getAbsolutePath(), webResources[i]), "/");
+        if (webResources != null) {
+            for (int i = 0; i < webResources.length; i++) {
+                looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBasedir().getAbsolutePath(), webResources[i]), "/");
+            }
         }
 
         // retrieves dependent library jar files
