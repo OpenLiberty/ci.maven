@@ -141,18 +141,6 @@ public class DevMojo extends StartDebugMojoSupport {
     protected boolean clean;
 
     /**
-     * Poll for file changes instead of using file system notifications.
-     */
-    @Parameter(property = "polling", defaultValue = "false")
-    protected boolean polling;
-
-    /**
-     * Polling interval in milliseconds.
-     */
-    @Parameter(property = "pollingInterval", defaultValue = "100")
-    private long pollingInterval;
-
-    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -186,7 +174,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, polling, pollingInterval);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
