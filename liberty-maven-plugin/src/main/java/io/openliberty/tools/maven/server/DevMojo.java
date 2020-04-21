@@ -125,7 +125,7 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Time in seconds to wait while verifying that the server has started.
      */
-    @Parameter(property = "serverStartTimeout", defaultValue = "30")
+    @Parameter(property = "serverStartTimeout", defaultValue = "90")
     private int serverStartTimeout;
 
     /**
@@ -234,7 +234,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public String getServerStartTimeoutExample() {
-            return "'mvn liberty:dev -DserverStartTimeout=90'";
+            return "'mvn liberty:dev -DserverStartTimeout=120'";
         }
 
         @Override
