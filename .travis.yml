@@ -22,7 +22,7 @@ before_install:
     - mvn clean install
     - cd ..
     - echo 'Installing ci.common lib...'
-    - git clone -b 748-build-test https://github.com/TrevCraw/ci.common ./ci.common
+    - git clone -b 748-auto-file-tracking https://github.com/TrevCraw/ci.common ./ci.common
     - cd ./ci.common
     - mvn clean install
     - cd ..
