@@ -20,7 +20,7 @@ public class PollingDevTest extends DevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass("-Dpolling");
+      setUpBeforeClass("-DpollingTest");
    }
 
 }
