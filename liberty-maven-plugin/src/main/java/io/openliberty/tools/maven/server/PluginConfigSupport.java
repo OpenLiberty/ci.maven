@@ -350,11 +350,22 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
     protected File getWarSourceDirectory(MavenProject proj) {
         String dir = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
+        log.debug(
+        		String.format("WAR source directory from POM: %s", dir));
+        File warSourceDir;
+        
         if (dir != null) {
-            return new File(proj.getBasedir(), dir);
+        	File dirObj = new File(dir);
+        	if (dirObj.isAbsolute()) {
+        		warSourceDir = dirObj;
+        	} else {
+        		warSourceDir = new File(proj.getBasedir(), dir);
+        	}
         } else {
-            return new File(proj.getBasedir(), "src/main/webapp");
+        	warSourceDir = new File(proj.getBasedir(), "src/main/webapp");
         }
+        log.debug(String.format("Final WAR source directory: %s (absolute: %s)", warSourceDir, warSourceDir.getAbsolutePath()));
+        return warSourceDir;
     }
 
     private String getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId,
