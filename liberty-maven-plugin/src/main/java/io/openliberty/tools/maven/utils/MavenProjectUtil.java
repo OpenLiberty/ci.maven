@@ -16,8 +16,9 @@
 package io.openliberty.tools.maven.utils;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -61,41 +62,30 @@ public class MavenProjectUtil {
     }
 
     /**
-     * Get a nested configuration value from a plugin
+     * Get directory and targetPath configuration values from the Maven WAR plugin
      * @param proj the Maven project
-     * @param pluginGroupId the plugin group id
-     * @param pluginArtifactId the plugin artifact id
-     * @param key1 the configuration key to get from
-     * @param key2 the configuration key nested in key1 to get from or null
-     * @param childName the configuration key nested in key2 to get from or null
-     * @return the array of values corresponding to the configuration keys
+     * @return a Map of source and target directories corresponding to the configuration keys
      */
-    public static String[] getPluginConfiguration(MavenProject proj, String pluginGroupId, String pluginArtifactId, String key1, String key2, String childName) {
-        Xpp3Dom dom = proj.getGoalConfiguration(pluginGroupId, pluginArtifactId, null, null);
+    public static Map<String,String> getWebResourcesConfiguration(MavenProject proj) {
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         if (dom != null) {
-            Xpp3Dom val1 = dom.getChild(key1);
-            if (val1 != null) {
-                Xpp3Dom val2 = null;
-                if (key2 == null) {
-                    val2 = val1; // don't travel down the tree
-                } else {
-                    val2 = val1.getChild(key2);
-                }
-                if (val2 != null) {
-                    Xpp3Dom[] children = null;
-                    if (childName == null) {
-                        children = val2.getChildren();
-                    } else {
-                        children = val2.getChildren(childName);
-                    }
-                    if (children != null) {
-                        String[] result = new String[children.length];
-                        for (int i = 0; i < children.length; i++) {
-                            result[i] = children[i].getValue();
+            Xpp3Dom web = dom.getChild("webResources");
+            if (web != null) {
+                Xpp3Dom resources[] = web.getChildren("resource");
+                if (resources != null) {
+                    Map<String, String> result = new HashMap<String, String>();
+                    for (int i = 0; i < resources.length; i++) {
+                        Xpp3Dom dir = resources[i].getChild("directory");
+                        if (dir != null) {
+                            Xpp3Dom target = resources[i].getChild("targetPath");
+                            if (target != null) {
+                                result.put(dir.getValue(), target.getValue());
+                            } else {
+                                result.put(dir.getValue(), null);
+                            }
                         }
-                        return result;
                     }
-                    return null;
+                    return result;
                 }
             }
         }

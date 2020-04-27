@@ -55,7 +55,7 @@ public class LooseConfigTest {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/archive/dir";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <dir> element ==>", 3, nodes.getLength());
+        Assert.assertEquals("Number of <dir> element ==>", 4, nodes.getLength());
         
         expression = "/archive/file";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
