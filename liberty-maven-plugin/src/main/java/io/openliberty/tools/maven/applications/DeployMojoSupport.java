@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -113,11 +114,11 @@ public class DeployMojoSupport extends PluginConfigSupport {
                 "/WEB-INF/classes");
 
         // retrieve the directories defined as resources in the maven war plugin
-        String webResources[] = MavenProjectUtil.getPluginConfiguration(proj, "org.apache.maven.plugins",
-            "maven-war-plugin", "webResources", "resource", "directory");
+        Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
         if (webResources != null) {
-            for (int i = 0; i < webResources.length; i++) {
-                looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBasedir().getAbsolutePath(), webResources[i]), "/");
+            for (String directory : webResources.keySet()) {
+                String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
+                looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBasedir().getAbsolutePath(), directory), targetPath);
             }
         }
 
