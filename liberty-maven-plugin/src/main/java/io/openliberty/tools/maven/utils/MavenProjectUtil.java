@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.utils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.model.Plugin;
@@ -65,6 +66,9 @@ public class MavenProjectUtil {
      * Get directory and targetPath configuration values from the Maven WAR plugin
      * @param proj the Maven project
      * @return a Map of source and target directories corresponding to the configuration keys
+     * or null if the war plugin or its webResources or resource elements are not used. 
+     * The map will be empty if the directory element is not used. The value field of the 
+     * map is null when the targetPath element is not used.
      */
     public static Map<String,String> getWebResourcesConfiguration(MavenProject proj) {
         Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
