@@ -5,10 +5,10 @@ jdk:
     - openjdk8
     - openjdk11
 env:
-    - RUNTIME=ol RUNTIME_VERSION=19.0.0.6
-    - RUNTIME=ol RUNTIME_VERSION=19.0.0.9
-    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.6
-    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.9
+    - RUNTIME=ol RUNTIME_VERSION=19.0.0.12
+    - RUNTIME=ol RUNTIME_VERSION=20.0.0.3
+    - RUNTIME=wlp RUNTIME_VERSION=19.0.0.12
+    - RUNTIME=wlp RUNTIME_VERSION=20.0.0.3
 cache:
     directories:
         - $HOME/.m2
@@ -21,10 +21,10 @@ before_install:
     - cd ./ci.ant
     - mvn clean install
     - cd ..
-#    - echo 'Installing ci.common lib...'
-#    - git clone https://github.com/OpenLiberty/ci.common.git ./ci.common
-#    - cd ./ci.common
-#    - mvn clean install
-#    - cd ..
+    - echo 'Installing ci.common lib...'
+    - git clone https://github.com/OpenLiberty/ci.common.git ./ci.common
+    - cd ./ci.common
+    - mvn clean install
+    - cd ..
 script:
     - travis_wait 40 mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=$RUNTIME -DruntimeVersion=$RUNTIME_VERSION
