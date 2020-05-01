@@ -53,6 +53,7 @@
             <!-- Tests that should only run on WLP are here -->
             <modules>
                 <module>install-wlp-features-accept-license-it</module>
+                <module>uninstall-features-it</module>
             </modules>
         </profile>
         <profile>

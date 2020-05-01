@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2017.
+ * (C) Copyright IBM Corporation 2015, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,8 +23,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import io.openliberty.tools.ant.UninstallFeatureTask;
+import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.server.types.Features;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.lang.StringBuilder;
 
 /**
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
@@ -71,8 +76,28 @@ public class UninstallFeatureMojo extends BasicSupport {
         uninstallFeatureTask.setServerName(serverName);
         uninstallFeatureTask.setUserDir(userDirectory);
         uninstallFeatureTask.setOutputDir(outputDirectory);
-        uninstallFeatureTask.setFeatures(features.getFeatures());
-        uninstallFeatureTask.execute();
+
+        StringBuilder featureFailures = new StringBuilder();
+        for (Feature f: features.getFeatures()) {
+            try {
+                uninstallFeature(uninstallFeatureTask, f);
+            } catch (Exception e) {
+                featureFailures.append(f.getFeature());
+                featureFailures.append(", ");
+            }
+        }
+
+        if (featureFailures.length() > 0) {
+            featureFailures.setLength(featureFailures.length() - 2);
+            throw new MojoExecutionException(MessageFormat.format(messages.getString("error.uninstall.feature.fail"), featureFailures.toString()));
+        }
+    }
+
+    protected void uninstallFeature(UninstallFeatureTask task, Feature f) throws Exception {
+        List<Feature> featuresToUninstall = new ArrayList<Feature> ();
+        featuresToUninstall.add(f);
+        task.setFeatures(featuresToUninstall);
+        task.execute();
     }
 
 }
