@@ -18,7 +18,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.3</version>
+            <version>1.9.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
