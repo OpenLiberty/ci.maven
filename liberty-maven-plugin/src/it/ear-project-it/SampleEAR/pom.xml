@@ -52,6 +52,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <!-- Tell Maven we are using Java EE 7 -->
                     <version>7</version>
@@ -59,7 +60,7 @@
                         libraries are in easy way to package any libraries needed in the ear, and 
                         automatically have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
-                    <fileNameMapping>no-version</fileNameMapping>
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
                     <modules>
                         <webModule>
                             <groupId>io.openliberty.tools.it</groupId>

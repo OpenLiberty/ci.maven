@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.shared.mapping.MappingUtils;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
@@ -104,18 +105,15 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public String getModuleUri(Artifact artifact) throws Exception {
-        return getModuleUri(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
-    }
-
     public String getModuleUri(MavenProject proj) throws Exception {
-        return getModuleUri(proj.getGroupId(), proj.getArtifactId(), proj.getVersion(), proj.getPackaging());
+        return getModuleUri(proj.getArtifact());
     }
 
-    public String getModuleUri(String groupId, String artifactId, String version, String type) throws Exception {
-        String defaultUri = "/" + getModuleName(groupId, artifactId, version, type);
+    public String getModuleUri(Artifact artifact) throws Exception {
+        String defaultUri = "/" + getModuleName(artifact);
         // both "jar" and "bundle" packaging type project are "jar" type dependencies
         // that will be packaged in the ear lib directory
+        String type = artifact.getType();
         if (("jar".equals(type) || "bundle".equals(type)) && getEarDefaultLibBundleDir() != null) {
             defaultUri = "/" + getEarDefaultLibBundleDir() + defaultUri;
         }
@@ -126,8 +124,8 @@ public class LooseEarApplication extends LooseApplication {
                 Xpp3Dom[] modules = val.getChildren();
                 if (modules != null) {
                     for (int i = 0; i < modules.length; i++) {
-                        if (groupId.equals(getConfigValue(modules[i].getChild("groupId")))
-                                && artifactId.equals(getConfigValue(modules[i].getChild("artifactId")))) {
+                        if (artifact.getGroupId().equals(getConfigValue(modules[i].getChild("groupId")))
+                                && artifact.getArtifactId().equals(getConfigValue(modules[i].getChild("artifactId")))) {
                             String uri = getConfigValue(modules[i].getChild("uri"));
                             if (uri != null) {
                                 return uri;
@@ -159,7 +157,7 @@ public class LooseEarApplication extends LooseApplication {
                                 if (bundleFileName != null) {
                                     return bundleDir + "/" + bundleFileName;
                                 } else {
-                                    return bundleDir + "/" + getModuleName(groupId, artifactId, version, type);
+                                    return bundleDir + "/" + getModuleName(artifact);
                                 }
                             }
                         }
@@ -182,7 +180,15 @@ public class LooseEarApplication extends LooseApplication {
         config.addFile(artifact.getFile(), artifactName);
     }
 
-    public String getModuleName(String groupId, String artifactId, String version, String packaging) {
+    public String getModuleName(Artifact artifact) throws Exception {
+        int earPluginVersion = MavenProjectUtil.getMajorPluginVersion(project, "org.apache.maven.plugins:maven-ear-plugin");
+        if (earPluginVersion < 3) {
+            return getEarFileNameMappingHelper(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
+        }
+        return getEarOutputFileNameMapping(artifact);
+    }
+
+    public String getEarFileNameMappingHelper(String groupId, String artifactId, String version, String packaging) {
         String moduleName;
 
         String fileExtension = packaging;
@@ -211,7 +217,21 @@ public class LooseEarApplication extends LooseApplication {
         }
         return moduleName;
     }
+    
+    // Valid for maven-ear-plugin version 3 and greater
+    public String getEarOutputFileNameMapping(Artifact artifact) throws Exception {
+        String outputFileNameMapping = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
+            "maven-ear-plugin", "outputFileNameMapping");
+        String fileNameMapping = MappingUtils.evaluateFileNameMapping( outputFileNameMapping, artifact );
+        if (fileNameMapping == null || fileNameMapping.isEmpty()) {
+            // default format if none is specified
+            String defaultFormat = "@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@";
+            fileNameMapping = MappingUtils.evaluateFileNameMapping( defaultFormat, artifact );
+        }
+        return fileNameMapping;
+    }
 
+    // Deprecated for maven-ear-plugin version 3 and greater
     public String getEarFileNameMapping() {
         // valid values are: standard, no-version, no-version-for-ejb, full
         String fileNameMapping = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
