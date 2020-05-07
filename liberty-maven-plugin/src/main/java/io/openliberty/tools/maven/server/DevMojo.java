@@ -101,8 +101,8 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "debugPort", defaultValue = "7777")
     private int libertyDebugPort;
 
-    @Parameter(property = "headless", defaultValue = "false")
-    private boolean headless;
+    @Parameter(property = "container", defaultValue = "false")
+    private boolean container;
 
     /**
      * Time in seconds to wait before processing Java changes and deletions.
@@ -183,7 +183,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, headless);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -268,7 +268,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void stopServer() {
-            if (headless) {
+            if (container) {
+                // TODO stop the container instead
                 return;
             }
             try {
@@ -680,7 +681,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        if (!headless) {
+        if (!container) {
             if (serverDirectory.exists()) {
                 if (isServerRunningFromMaven()) {
                     throw new MojoExecutionException("The server " + serverName
@@ -688,7 +689,7 @@ public class DevMojo extends StartDebugMojoSupport {
                             + " You can stop a server instance with the command 'mvn liberty:stop'.");
                 }
             }
-        }
+        } // else TODO check if the container is already running?
 
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
