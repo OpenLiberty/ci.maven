@@ -651,20 +651,10 @@ public class DevMojo extends StartDebugMojoSupport {
                 throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
-
-        @Override
-        public boolean isServerRunning() {
-            return isServerRunningFromMaven();
-        }
     }
 
     private boolean isUsingBoost() {
         return boostPlugin != null;
-    }
-
-    public boolean isServerRunningFromMaven() {
-        // passing liberty installDirectory, libertyOutputDirectory and serverName to determine server status
-        return ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName);
     }
 
     @Override
@@ -683,7 +673,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         if (!container) {
             if (serverDirectory.exists()) {
-                if (isServerRunningFromMaven()) {
+                if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
                     throw new MojoExecutionException("The server " + serverName
                             + " is already running. Terminate all instances of the server before starting dev mode."
                             + " You can stop a server instance with the command 'mvn liberty:stop'.");
