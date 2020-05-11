@@ -7,7 +7,7 @@ Start a Liberty server in foreground. The server instance will be automatically 
 
 The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
 
-The run-server goal will propagate changes from source to the [server configuration](common-server-parameters.md#common-server-parameters). 
+The run goal will propagate changes from source to the [server configuration](common-server-parameters.md#common-server-parameters). 
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
