@@ -67,7 +67,10 @@
         <warContext>myLibertyApp</warContext>
         <package.file>${project.build.directory}/${app.name}.zip</package.file>
         <packaging.type>usr</packaging.type>
-
+        
+        <liberty.var.default.http.port>9080</liberty.var.default.http.port>
+        <liberty.var.default.https.port>9443</liberty.var.default.https.port>
+        
         <!-- Test properties -->
         <arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
         <arquillian.managed.version>1.0.6</arquillian.managed.version>
@@ -174,8 +177,6 @@
                     <packageName>WebsocketServerPackage</packageName>
                     <include>runnable</include>
                     <bootstrapProperties>
-                        <default.http.port>9080</default.http.port>
-                        <default.https.port>9443</default.https.port>
                         <build.directory>${project.build.directory}</build.directory>
                     </bootstrapProperties>
                     <features>

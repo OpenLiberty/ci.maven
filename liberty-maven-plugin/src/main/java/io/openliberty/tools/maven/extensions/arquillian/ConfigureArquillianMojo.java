@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2018.
+ * (C) Copyright IBM Corporation 2017, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,8 +148,9 @@ public class ConfigureArquillianMojo extends BasicSupport {
     private int getHttpPort() throws FileNotFoundException, XPathExpressionException, IOException,
             ParserConfigurationException, SAXException, ArquillianConfigurationException {
         File serverXML = new File(serverDirectory + "/server.xml");
+        File configVariableXML = new File(serverDirectory + "/configDropins/overrides/liberty-plugin-variable-config.xml");
         File bootstrapProperties = new File(serverDirectory + "/bootstrap.properties");
-        return HttpPortUtil.getHttpPort(serverXML, bootstrapProperties);
+        return HttpPortUtil.getHttpPort(serverXML, bootstrapProperties, configVariableXML);
     }
 
 }
