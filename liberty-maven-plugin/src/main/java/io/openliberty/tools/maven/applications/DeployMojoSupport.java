@@ -108,6 +108,11 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MessageFormat.format(messages.getString("error.project.not.compile"), proj.getId()));
         }
 
+        if (proj.getProperties().containsKey("container") ||
+            (System.getProperty("container") != null)) {
+            config.setProjectRoot(proj.getBasedir().getAbsolutePath());
+        }
+
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
         looseWar.addSourceDir(proj);
         looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
