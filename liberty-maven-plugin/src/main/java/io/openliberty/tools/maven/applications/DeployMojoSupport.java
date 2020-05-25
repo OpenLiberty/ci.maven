@@ -111,6 +111,17 @@ public class DeployMojoSupport extends PluginConfigSupport {
         if (proj.getProperties().containsKey("container") ||
             (System.getProperty("container") != null)) {
             config.setProjectRoot(proj.getBasedir().getAbsolutePath());
+
+            // This is a temporary workaround for https://github.com/OpenLiberty/ci.maven/issues/814
+            // TODO: see if this should be handled somewhere else e.g. when running the image
+            File configDropinsDefaults = new File(serverDirectory, "configDropins/defaults");
+            if (configDropinsDefaults.mkdirs()) {
+                log.info("Created directory: " + configDropinsDefaults.getAbsolutePath());
+            } else if (configDropinsDefaults.exists()) {
+                log.info("The directory " + configDropinsDefaults.getAbsolutePath() + " already exists.");
+            } else {
+                log.error("Failed to create the directory: " + configDropinsDefaults.getAbsolutePath());
+            }
         }
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
