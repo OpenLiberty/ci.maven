@@ -29,6 +29,7 @@ public class CheckStatusMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {
         if (skip) {
+            log.info("\nSkipping status goal.\n");
             return;
         }
         if (isInstall) {

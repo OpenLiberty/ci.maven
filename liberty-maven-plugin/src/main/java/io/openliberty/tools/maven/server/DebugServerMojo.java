@@ -38,6 +38,7 @@ public class DebugServerMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            log.info("\nSkipping debug goal.\n");
             return;
         }
         if (isInstall) {

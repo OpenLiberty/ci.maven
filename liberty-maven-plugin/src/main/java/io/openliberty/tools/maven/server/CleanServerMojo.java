@@ -52,6 +52,7 @@ public class CleanServerMojo extends StartDebugMojoSupport {
 
     protected void doExecute() throws Exception {
         if (skip) {
+            log.info("\nSkipping clean goal.\n");
             return;
         }
         
