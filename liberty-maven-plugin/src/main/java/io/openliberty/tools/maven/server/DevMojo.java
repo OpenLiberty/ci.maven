@@ -150,6 +150,12 @@ public class DevMojo extends StartDebugMojoSupport {
     protected boolean pollingTest;
 
     /**
+     * Dockerfile...
+     */
+    @Parameter(property = "dockerfile")
+    private File dockerfile;
+
+    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -183,7 +189,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
