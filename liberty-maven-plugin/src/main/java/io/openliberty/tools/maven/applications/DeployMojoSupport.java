@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -108,10 +109,9 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MessageFormat.format(messages.getString("error.project.not.compile"), proj.getId()));
         }
 
-        if (proj.getProperties().containsKey("container") ||
-            (System.getProperty("container") != null)) {
-            config.setProjectRoot(proj.getBasedir().getAbsolutePath());
-        }
+        // Set up the config to replace the absolute path names with ${variable}/target type references
+        config.setProjectRoot(proj.getBasedir().getAbsolutePath());
+        config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
         looseWar.addSourceDir(proj);
