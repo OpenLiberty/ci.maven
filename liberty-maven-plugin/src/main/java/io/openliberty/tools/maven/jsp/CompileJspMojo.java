@@ -17,24 +17,24 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.ant.jsp.CompileJSPs;
-import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.maven.InstallFeatureSupport;
 
 /**
  * Compile the JSPs in the src/main/webapp folder.
  */
-@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, 
-      requiresDependencyResolution = ResolutionScope.COMPILE)  
-public class CompileJspMojo extends BasicSupport {
+@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+public class CompileJspMojo extends InstallFeatureSupport {
 
     /**
-     * The version of JSP that should be compiled against. Defaults to 2.3. Can be 2.2 or 2.3
+     * The version of JSP that should be compiled against. Defaults to 2.3. Can be
+     * 2.2 or 2.3
      */
     @Parameter
     protected String jspVersion;
 
     /**
-     * Timeout for JSP compile. Stop the server if the jsp compile isn't finish within the given
-     * timeout (given in seconds).
+     * Timeout for JSP compile. Stop the server if the jsp compile isn't finish
+     * within the given timeout (given in seconds).
      */
     @Parameter(defaultValue = "40")
     protected int timeout;
@@ -43,7 +43,8 @@ public class CompileJspMojo extends BasicSupport {
     protected void doExecute() throws Exception {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:io/openliberty/tools/ant:compileJSPs");
         if (compile == null) {
-            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
+            throw new IllegalStateException(
+                    MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
         }
 
         compile.setInstallDir(installDirectory);
@@ -109,7 +110,12 @@ public class CompileJspMojo extends BasicSupport {
             compile.setJspVersion(jspVersion);
         }
 
-        // TODO do we need to add features?
+        // Install features needed to run JSP compile
+        // Only install if acceptLicense was configured and feature list isn't empty 
+        if(initialize() && getInstalledFeatures() != null && !getInstalledFeatures().isEmpty()) {
+            compile.setFeatures(getInstalledFeatures().toString().replace("[", "").replace("]", ""));
+        }
+
         compile.execute();
     }
 

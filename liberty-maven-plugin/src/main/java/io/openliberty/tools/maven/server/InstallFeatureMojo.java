@@ -18,158 +18,49 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 import io.openliberty.tools.ant.InstallFeatureTask;
 import io.openliberty.tools.ant.FeatureManagerTask.Feature;
-import io.openliberty.tools.maven.BasicSupport;
-import io.openliberty.tools.maven.server.types.Features;
+import io.openliberty.tools.maven.InstallFeatureSupport;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
-import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
  * runtime.
  */
 @Mojo(name = "install-feature")
-public class InstallFeatureMojo extends BasicSupport {
+public class InstallFeatureMojo extends InstallFeatureSupport {
     
-    /**
-     * Define a set of features to install in the server and the configuration
-     * to be applied for all instances.
-     */
-    @Parameter
-    private Features features;
-
-    
-    private boolean noFeaturesSection;
-
-    private class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas)  throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas);
-        }
-
-        @Override
-        public void debug(String msg) {
-            log.debug(msg);
-        }
-        
-        @Override
-        public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
-        }
-        
-        @Override
-        public void debug(Throwable e) {
-            log.debug(e);
-        }
-        
-        @Override
-        public void warn(String msg) {
-            log.warn(msg);
-        }
-
-        @Override
-        public void info(String msg) {
-            log.info(msg);
-        }
-        
-        @Override
-        public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
-        }
-        
-        @Override
-        public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
-            try {
-                return getArtifact(groupId, artifactId, type, version).getFile();
-            } catch (MojoExecutionException e) {
-                throw new PluginExecutionException(e);
-            }
-        }
-    }
-        
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
      */
     @Override
     protected void doExecute() throws Exception {
-        if (skip) {
+        if(!initialize()) {
             return;
         }
-
-        if (features == null) {
-            // For liberty-assembly integration:
-            // When using installUtility, if no features section was specified, 
-            // then don't install features because it requires license acceptance
-            noFeaturesSection = true;
-            
-            // initialize features section for all scenarios except for the above
-            features = new Features();
-        }
-
-        checkServerHomeExists();
         installFeatures();
     }
 
-    private void installFeatures() throws PluginExecutionException {       
-        Set<String> pluginListedFeatures = getPluginListedFeatures(false);
-        Set<String> pluginListedEsas = getPluginListedFeatures(true);
+    private void installFeatures() throws PluginExecutionException {
+          
+        Set<String> featuresToInstall = getInstalledFeatures();
         
-        InstallFeatureUtil util;
-        try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas);
-        } catch (PluginScenarioException e) {
-            log.debug(e.getMessage());
-            if (noFeaturesSection) {
-                log.debug("Skipping feature installation with installUtility because the "
-                        + "features configuration element with an acceptLicense parameter "
-                        + "was not specified for the install-feature goal.");
-            } else {
-                log.debug("Installing features from installUtility.");
-                installFeaturesFromAnt(features.getFeatures());
-            }
-            return;
+        if(installFromAnt) {
+            installFeaturesFromAnt(features.getFeatures());
         }
 
-        Set<String> dependencyFeatures = getDependencyFeatures();
-        Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory) : null;
-
-        Set<String> featuresToInstall = InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
-
-        util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
-    }
-    
-    private Set<String> getPluginListedFeatures(boolean findEsaFiles) {
-        Set<String> result = new HashSet<String>();
-        for (Feature feature : features.getFeatures()) {
-            if ((findEsaFiles && feature.getFeature().endsWith(".esa"))
-                    || (!findEsaFiles && !feature.getFeature().endsWith(".esa"))) {
-                result.add(feature.getFeature());
-                log.debug("Plugin listed " + (findEsaFiles ? "ESA" : "feature") + ": " + feature.getFeature());
-            }
+        else {
+            Set<String> pluginListedEsas = getPluginListedFeatures(true); 
+            InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
+            util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
         }
-        return result;
-    }
-    
-    private Set<String> getDependencyFeatures() {
-        Set<String> result = new HashSet<String>();
-        List<org.apache.maven.model.Dependency> dependencyArtifacts = project.getDependencies();
-        for (org.apache.maven.model.Dependency dependencyArtifact: dependencyArtifacts){
-            if (("esa").equals(dependencyArtifact.getType())) {
-                result.add(dependencyArtifact.getArtifactId());
-                log.debug("Dependency feature: " + dependencyArtifact.getArtifactId());
-            }
-        }
-        return result;
     }
 
     @SuppressWarnings("deprecation")
