@@ -79,4 +79,22 @@ public class DefaultAppDirectoryTest {
         File f = new File("liberty/usr/servers/test/apps/appsdirectory-notset-configured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
+
+    @Test
+    public void testCopyDependenciesFilesExist() throws Exception {
+        File f = new File("liberty/usr/servers/test/lib/global/commons-logging-1.0.4.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+
+        f = new File("liberty/usr/servers/test/lib/global/derbyclient-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derby-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derbytools-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " exists", !f.exists());
+   }
 }

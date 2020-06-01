@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2017.
+ * (C) Copyright IBM Corporation 2014, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.openliberty.tools.maven;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -209,6 +210,113 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return getArtifact(item);
     }
 
+    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version) {
+        ArtifactItem item = new ArtifactItem();
+        item.setGroupId(groupId);
+        item.setArtifactId(artifactId);
+        item.setType(type);
+        item.setVersion(version);
+
+        return item;
+    }
+
+    /**
+     * Find resolved dependencies with matching groupId:artifactId:version. Also collect transitive dependencies for those
+     * resolved dependencies. 
+     *
+     * @param gavCoordinates String in the format groupId:artifactId:version. The artifactId and version are optional.
+     *
+     * @return Set<File> A collection of File objects for the resolved dependencies and transitive dependencies
+     * @throws MojoExecutionException
+     */
+    protected Set<File> getResolvedDependencyWithTransitiveDependencies(String gavCoordinates) throws MojoExecutionException {
+        Set<File> resolvedDependencyFiles = new HashSet<File> ();
+
+        String groupId = null;
+        String artifactId = null;
+        String version = null;
+ 
+        String[] coordinates = gavCoordinates.split(":");
+        switch (coordinates.length) {
+            case 3: version = coordinates[2];
+            case 2: artifactId = coordinates[1];
+            case 1: groupId = coordinates[0];
+        }
+
+        if (version != null) {
+            // if version is set, it will always override the one in project dependency
+            Artifact artifact = getArtifact(groupId, artifactId, "jar", version);
+            if (artifact != null) {
+                resolvedDependencyFiles.add(artifact.getFile());
+                findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+            } else {
+                log.warn("Unable to find artifact matching coordinates " + gavCoordinates + " in configured repositories.");
+            }
+        } else {
+            Set<Artifact> artifacts = getProject().getArtifacts();
+        
+            for (Artifact artifact : artifacts) {
+                if (artifact.getGroupId().equals(groupId) && 
+                    ((artifactId != null && artifact.getArtifactId().equals(artifactId)) ||
+                     (artifactId == null))) {
+                    if (!artifact.isResolved()) {
+                        ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion()); 
+                        artifact = createArtifact(item);
+                    }
+                    log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
+                            + artifact.getArtifactId() + ":" + artifact.getVersion());
+                    resolvedDependencyFiles.add(artifact.getFile());
+                    findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+                }
+            }
+
+            if (resolvedDependencyFiles.isEmpty() && getProject().getDependencyManagement() != null) {
+                // if project has dependencyManagement section
+                List<Dependency> list = getProject().getDependencyManagement().getDependencies();
+            
+                for (Dependency dependency : list) {
+                    if (dependency.getGroupId().equals(groupId) && 
+                        ((artifactId != null && dependency.getArtifactId().equals(artifactId)) ||  
+                         (artifactId == null))) {
+                        ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()); 
+                        Artifact artifact = createArtifact(item);
+                        log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
+                            + dependency.getArtifactId() + ":" + dependency.getVersion());
+                        resolvedDependencyFiles.add(artifact.getFile());
+                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+                    }
+                }
+            }
+
+            if (resolvedDependencyFiles.isEmpty()) {
+                // No matching artifacts were found in the resolved dependencies. Send warning.
+                log.warn("Unable to find artifact matching coordinates " + gavCoordinates + " in either project dependencies or in project dependencyManagement.");
+            }
+        }
+
+        return resolvedDependencyFiles;
+     }
+
+     protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<File> resolvedDependencyFiles) {
+        String coords = resolvedArtifact.getGroupId() + ":" + resolvedArtifact.getArtifactId() + ":";
+        for (Artifact artifact : resolvedArtifacts) {
+            List<String> depTrail = artifact.getDependencyTrail();
+            if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
+                resolvedDependencyFiles.add(artifact.getFile());
+            }
+        }
+     }
+
+     protected boolean dependencyTrailContainsArtifact(String gaCoords, String version, List<String> depTrail) {
+         for (String nextFullArtifactId : depTrail) {
+             if (nextFullArtifactId.startsWith(gaCoords) && 
+                 ((version == null) || (version != null && nextFullArtifactId.endsWith(":"+version))) ) {
+                 return true;
+             }
+         }
+         return false;
+     }
+
     /**
      * Create a new artifact.
      *
@@ -242,8 +350,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         Set<Artifact> actifacts = getProject().getArtifacts();
         
         for (Artifact artifact : actifacts) {
-            if (artifact.getGroupId().equals(item.getGroupId()) && artifact.getArtifactId().equals(item.getArtifactId())
-                    && artifact.getType().equals(item.getType())) {
+            if (artifact.getGroupId().equals(item.getGroupId()) && 
+                artifact.getArtifactId().equals(item.getArtifactId()) && 
+                artifact.getType().equals(item.getType())) {
                 log.debug("Found ArtifactItem from project dependencies: " + artifact.getGroupId() + ":"
                         + artifact.getArtifactId() + ":" + artifact.getVersion());
                 // if (!artifact.getVersion().equals(item.getVersion())) {
@@ -264,9 +373,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             List<Dependency> list = getProject().getDependencyManagement().getDependencies();
             
             for (Dependency dependency : list) {
-                if (dependency.getGroupId().equals(item.getGroupId())
-                        && dependency.getArtifactId().equals(item.getArtifactId())
-                        && dependency.getType().equals(item.getType())) {
+                if (dependency.getGroupId().equals(item.getGroupId()) && 
+                    dependency.getArtifactId().equals(item.getArtifactId()) && 
+                    dependency.getType().equals(item.getType())) {
                     log.debug("Found ArtifactItem from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
                     return dependency;
