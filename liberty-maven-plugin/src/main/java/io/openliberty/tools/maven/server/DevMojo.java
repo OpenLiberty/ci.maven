@@ -102,7 +102,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private int libertyDebugPort;
 
     @Parameter(property = "container", defaultValue = "false")
-    private boolean container;
+    protected boolean container;
 
     /**
      * Time in seconds to wait before processing Java changes and deletions.
