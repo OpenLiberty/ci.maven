@@ -328,7 +328,9 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
 
         // Define the variable used in the loose app. configuration file.
-        appendToBootstrap(bootstrapFile, PROJECT_ROOT_NAME+" = "+project.getBasedir().getAbsolutePath());
+        if (serverDirectory.exists()) {
+            appendToBootstrap(bootstrapFile, PROJECT_ROOT_NAME+" = "+project.getBasedir().getAbsolutePath());
+        }
 
         // copy server.env to server directory if end-user explicitly set it
         File envFile = new File(serverDirectory, "server.env");
@@ -445,6 +447,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected void appendToBootstrap(File bootstrapFile, String line) throws IOException {
+        log.debug("AppendToBootstrap file="+bootstrapFile.getAbsolutePath()+" line="+line);
         PrintWriter writer = null;
         try {
             FileWriter fwriter = new FileWriter(bootstrapFile, true);
