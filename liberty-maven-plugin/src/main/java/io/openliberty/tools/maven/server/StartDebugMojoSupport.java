@@ -327,9 +327,12 @@ public class StartDebugMojoSupport extends BasicSupport {
             bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
         }
 
-        // Define the variable used in the loose app. configuration file.
-        if (serverDirectory.exists()) {
-            appendToBootstrap(bootstrapFile, PROJECT_ROOT_NAME+" = "+project.getBasedir().getAbsolutePath());
+        if (project.getProperties().containsKey("container") ||
+            (System.getProperty("container") != null)) {
+            // Define the variable used in the loose app. configuration file.
+            if (serverDirectory.exists()) {
+                appendToBootstrap(bootstrapFile, PROJECT_ROOT_NAME+" = "+project.getBasedir().getAbsolutePath());
+            }
         }
 
         // copy server.env to server directory if end-user explicitly set it

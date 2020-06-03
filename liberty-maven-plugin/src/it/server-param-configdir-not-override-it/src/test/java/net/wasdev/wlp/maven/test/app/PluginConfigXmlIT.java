@@ -92,9 +92,8 @@ public class PluginConfigXmlIT {
         File f1 = new File(SOURCE_BOOTSTRAP_PROPERTIES);
         File f2 = new File(nodeValue);
         assertEquals("bootstrapPropertiesFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
-        String targetFile = FileUtils.fileRead(TARGET_BOOTSTRAP_PROPERTIES);
-        assertTrue("verify target server bootstrap.properties",
-                targetFile.startsWith(FileUtils.fileRead(f2)) && targetFile.contains("io.openliberty.projectRoot = /"));
+        assertEquals("verify target server bootstrap.properties", FileUtils.fileRead(f2),
+                FileUtils.fileRead(TARGET_BOOTSTRAP_PROPERTIES));
     }
     
     @Test
