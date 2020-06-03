@@ -110,7 +110,9 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
         if (proj.getProperties().containsKey("container") ||
             (System.getProperty("container") != null)) {
+            // Set up the config to replace the absolute path names with ${variable}/target type references
             config.setProjectRoot(proj.getBasedir().getAbsolutePath());
+            config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
         }
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
