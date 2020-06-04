@@ -677,6 +677,18 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
+        if (dockerfile != null) {
+            if (dockerfile.exists()) {
+                container = true;
+                // set project property for use in DeployMojoSupport
+                project.getProperties().setProperty("container", "true");
+            }
+            else {
+                throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
+                    + " dockerfile should be a valid Dockerfile");
+            }
+        }
+
         if (!container) {
             if (serverDirectory.exists()) {
                 if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
