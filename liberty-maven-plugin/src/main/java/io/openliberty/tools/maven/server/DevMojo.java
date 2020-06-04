@@ -185,9 +185,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
         Set<String> existingFeatures;
 
-        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
+        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
                 List<File> resourceDirs) throws IOException {
-            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
+            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile);
 
@@ -748,7 +748,7 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs);
         util.addShutdownHook(executor);
         util.startServer();
 
