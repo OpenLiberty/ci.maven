@@ -150,7 +150,7 @@ public class DevMojo extends StartDebugMojoSupport {
     protected boolean pollingTest;
 
     /**
-     * Dockerfile...
+     * Dockerfile used to build a Docker image to then start a container with
      */
     @Parameter(property = "dockerfile")
     private File dockerfile;
