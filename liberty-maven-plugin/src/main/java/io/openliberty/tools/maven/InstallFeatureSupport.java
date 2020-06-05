@@ -102,8 +102,6 @@ public class InstallFeatureSupport extends BasicSupport {
         }
 
         if (features == null) {
-            System.out.println("otherIf");
-
             // For liberty-assembly integration:
             // When using installUtility, if no features section was specified, 
             // then don't install features because it requires license acceptance
@@ -125,13 +123,12 @@ public class InstallFeatureSupport extends BasicSupport {
 
         InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
 
-
+        
         if (util == null && noFeaturesSection) {
-            // No features were installed because acceptLicense parameter was not configured
-            return null;
+            //No features were installed because acceptLicense parameter was not configured
+            return new HashSet<String>();
         }
         else if (util == null && !noFeaturesSection) {
-            System.out.println("else if");
             Set<String> featuresToInstall = new HashSet<String>();
             for (Feature feature : features.getFeatures()) {
                 featuresToInstall.add(feature.toString());
@@ -141,7 +138,6 @@ public class InstallFeatureSupport extends BasicSupport {
         else {
             Set<String> dependencyFeatures = getDependencyFeatures();
             Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory) : null;
-            
             return InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
             
         }

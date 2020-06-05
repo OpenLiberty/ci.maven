@@ -22,17 +22,17 @@ import org.w3c.dom.NodeList;
 
 public class CompleJSPTest {
 
-    public final String COMPILE_JSTP_SEVER_XML = "compileJsp/servers/defaultServer/server.xml";
+    public final String COMPILE_JSP_SEVER_XML = "compileJsp/servers/defaultServer/server.xml";
 
     @Test
-    public void testConfigPropFileExist() throws Exception {
-        File f = new File(COMPILE_JSTP_SEVER_XML);
+    public void testServerXMLPropFileExist() throws Exception {
+        File f = new File(COMPILE_JSP_SEVER_XML);
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
     
     @Test
     public void testXmlElements() throws Exception {
-        File in = new File(COMPILE_JSTP_SEVER_XML);
+        File in = new File(COMPILE_JSP_SEVER_XML);
         FileInputStream input = new FileInputStream(in);
         
         // get input XML Document 
@@ -46,37 +46,14 @@ public class CompleJSPTest {
         
         // parse input XML Document
         XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/serverDirectory";
+        String expression = "/liberty-plugin-config/featureManager";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <serverDirectory/> element ==>", 1, nodes.getLength());
+        Assert.assertEquals("Number of <featureManager/> element ==>", 3, nodes.getLength());
         
         xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/configFile";
+        expression = "/liberty-plugin-config/feature";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <configFile/> element ==>", 1, nodes.getLength());
-
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/serverName/text()";
-        String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <serverName/> ==>", "test", value);
-
-        expression = "/liberty-plugin-config/appsDirectory/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <appsDirectory/> ==>", "dropins", value);
-        
-        expression = "/liberty-plugin-config/installAppPackages/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <installAppPackages/> ==>", "project", value);
-        
-        expression = "/liberty-plugin-config/applicationFilename/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-dropins-notconfigured-it.war", value);
-
+        Assert.assertEquals("Value of first <feature/> ==>", "ejbLite-3.2", value);
     }
     
-    @Test
-    public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/dropins/appsdirectory-dropins-notconfigured-it.war");
-        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
-    }
 }

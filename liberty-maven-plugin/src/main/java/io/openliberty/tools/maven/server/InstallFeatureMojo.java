@@ -51,14 +51,14 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     private void installFeatures() throws PluginExecutionException {
           
         Set<String> featuresToInstall = getInstalledFeatures();
+
+        Set<String> pluginListedEsas = getPluginListedFeatures(true); 
+        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
         
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
         }
-
         else {
-            Set<String> pluginListedEsas = getPluginListedFeatures(true); 
-            InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
         }
     }
