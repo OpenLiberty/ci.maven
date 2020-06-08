@@ -20,6 +20,11 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>10.15.2.0</version>
+    </dependency>
+    <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.0.4</version>
@@ -77,6 +82,16 @@
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
+          <copyDependencies>
+            <location>${project.build.directory}/liberty/usr/shared/resources</location>
+            <dependency>
+                <location>lib/global/derby</location>
+                <filter>org.apache.derby:derby</filter>
+            </dependency>
+            <dependency>
+                <filter>commons-logging:commons-logging</filter>
+            </dependency>
+          </copyDependencies>
         </configuration>
         <executions>
             <execution>

@@ -28,7 +28,7 @@ public class CopyDependencies {
      * The location to copy dependencies to. This can be a full path, or a path relative to
      * ${server.config.dir}. The default is ${server.config.dir}/lib/global.
      */
-    @Parameter(property = "location")
+    @Parameter
     private String location = "lib/global";
 
     /**

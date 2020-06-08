@@ -28,7 +28,7 @@ public class Dependency {
      * Filter specifying the dependency to copy. The format is groupId:artifactId:version, with artifactId and 
      * version optional. Maven dependency management will be used to resolve the dependency.
      */
-    @Parameter(property = "filter")
+    @Parameter
     private String filter = null;
 
     /**
@@ -36,7 +36,7 @@ public class Dependency {
      * ${server.config.dir}. The location in the containing CopyDependencies configuration will be 
      * used if nothing is specified here.
      */
-    @Parameter(property = "location")
+    @Parameter
     private String location = null;
 
     public String getLocation() {
