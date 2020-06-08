@@ -150,6 +150,12 @@ public class DevMojo extends StartDebugMojoSupport {
     protected boolean pollingTest;
 
     /**
+     * Dockerfile used to build a Docker image to then start a container with
+     */
+    @Parameter(property = "dockerfile")
+    private File dockerfile;
+
+    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -183,7 +189,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -670,6 +676,18 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
+
+        if (dockerfile != null) {
+            if (dockerfile.exists()) {
+                container = true;
+                // set project property for use in DeployMojoSupport
+                project.getProperties().setProperty("container", "true");
+            }
+            else {
+                throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
+                    + " dockerfile should be a valid Dockerfile");
+            }
+        }
 
         if (!container) {
             if (serverDirectory.exists()) {
