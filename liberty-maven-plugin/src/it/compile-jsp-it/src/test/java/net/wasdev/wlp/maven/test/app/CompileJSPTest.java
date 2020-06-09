@@ -13,6 +13,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+
 
 /**
  * 
@@ -20,7 +23,7 @@ import org.w3c.dom.NodeList;
  * 
  */
 
-public class CompleJSPTest {
+public class CompileJSPTest {
 
     public final String COMPILE_JSP_SEVER_XML = "compileJsp/servers/defaultServer/server.xml";
 
@@ -46,14 +49,14 @@ public class CompleJSPTest {
         
         // parse input XML Document
         XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/featureManager";
+        String expression = "/server/featureManager/feature[text()]";        
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <featureManager/> element ==>", 3, nodes.getLength());
-        
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/feature";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Value of first <feature/> ==>", "ejbLite-3.2", value);
+        Assert.assertEquals("Number of <feature/> elements ==>", 3, nodes.getLength());
+
+        Assert.assertEquals("Value of first <feature/> ==>", "ejbLite-3.2", nodes.item(0).getTextContent()); 
+        Assert.assertEquals("Value of second <feature/> ==>", "mongodb-2.0", nodes.item(1).getTextContent());
+        Assert.assertEquals("Value of third <feature/> ==>", "jsp-2.3", nodes.item(2).getTextContent());
+    
     }
     
 }

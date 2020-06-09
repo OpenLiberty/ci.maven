@@ -128,7 +128,6 @@
                                     <version>${runtimeVersion}</version>
                                     <type>zip</type>
                                 </assemblyArtifact>
-                                <feature>osgiBundle-1.0</feature>
                             </configuration>
                         </plugin>
                     </plugins>
