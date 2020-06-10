@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.jsp;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -143,11 +144,17 @@ public class CompileJspMojo extends InstallFeatureSupport {
         if (jspVersion != null) {
             compile.setJspVersion(jspVersion);
         }
-        else if (installedFeatures.contains("jsp-2.2")) {
-            compile.setJspVersion("2.2");
-        }
-        else if (installedFeatures.contains("jsp-2.3")) {
-            compile.setJspVersion("2.3");
+        else {
+            Iterator it = installedFeatures.iterator();
+            String currentFeature;
+            while (it.hasNext()) {
+                currentFeature = (String) it.next();
+                if(currentFeature.matches("jsp-[0-9]*\\.[0-9]*")) {
+                    String version = currentFeature.replace("jsp-", "");
+                    compile.setJspVersion(version);
+                    break;
+                }
+            }
         }
     }
 
