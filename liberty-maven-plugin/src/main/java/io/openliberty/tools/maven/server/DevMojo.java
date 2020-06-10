@@ -181,6 +181,12 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(readonly = true, required = true, defaultValue = "${project.build.testOutputDirectory}")
     private File testOutputDirectory;
 
+    /**
+     * Additional options for the docker run command when dev mode starts a container.
+     */
+    @Parameter(property = "dockerRunOpts")
+    private String dockerRunOpts;
+
     private class DevMojoUtil extends DevUtil {
 
         Set<String> existingFeatures;
@@ -189,7 +195,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
