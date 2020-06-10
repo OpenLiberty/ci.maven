@@ -120,13 +120,11 @@ public class CompileJspMojo extends InstallFeatureSupport {
         log.debug("Classpath: " + classpathStr);
         compile.setClasspath(classpathStr);
 
-        // TODO should we try to calculate this from a pom dependency?
-        if (jspVersion != null) {
-            compile.setJspVersion(jspVersion);
-        }
-
         if(initialize()) {
             Set<String> installedFeatures = getInstalledFeatures();
+
+            //Set JSP Feature Version
+            setJspVersion(compile, installedFeatures);
 
             //Removing jsp features at it is already set at this point 
             installedFeatures.remove("jsp-2.3");
@@ -140,8 +138,20 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.execute();
     }
 
-    private String join(Set<String> depPathes, String sep) {
+    private void setJspVersion(CompileJSPs compile, Set<String> installedFeatures) {
+        //If no conditions are met, defaults to 2.3 from the ant task
+        if (jspVersion != null) {
+            compile.setJspVersion(jspVersion);
+        }
+        else if (installedFeatures.contains("jsp-2.2")) {
+            compile.setJspVersion("2.2");
+        }
+        else if (installedFeatures.contains("jsp-2.3")) {
+            compile.setJspVersion("2.3");
+        }
+    }
 
+    private String join(Set<String> depPathes, String sep) {
         StringBuilder sb = new StringBuilder();
         for (String str : depPathes) {
             if (sb.length() != 0) {
