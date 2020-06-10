@@ -1,5 +1,7 @@
 package net.wasdev.wlp.maven.test.app;
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -52,10 +54,16 @@ public class CompileJSPTest {
         String expression = "/server/featureManager/feature[text()]";        
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
         Assert.assertEquals("Number of <feature/> elements ==>", 3, nodes.getLength());
+        
+        ArrayList<String> features = new ArrayList<String>();
 
-        Assert.assertEquals("Value of first <feature/> ==>", "ejbLite-3.2", nodes.item(0).getTextContent()); 
-        Assert.assertEquals("Value of second <feature/> ==>", "mongodb-2.0", nodes.item(1).getTextContent());
-        Assert.assertEquals("Value of third <feature/> ==>", "jsp-2.3", nodes.item(2).getTextContent());
+        for(int i = 0; i < nodes.getLength(); i++) {
+            features.add(nodes.item(i).getTextContent().trim());
+        }
+
+        Assert.assertTrue("ejbLite-3.2 <feature/> found ==>", features.contains("ejbLite-3.2")); 
+        Assert.assertTrue("mongodb-2.0 <feature/> found ==>", features.contains("mongodb-2.0"));
+        Assert.assertTrue("jsp-2.3 <feature/> found ==>", features.contains("jsp-2.3"));
     
     }
     
