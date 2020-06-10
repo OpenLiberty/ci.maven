@@ -149,7 +149,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
             String currentFeature;
             while (it.hasNext()) {
                 currentFeature = (String) it.next();
-                if(currentFeature.matches("jsp-[0-9]*\\.[0-9]*")) {
+                if(currentFeature.startsWith("jsp-")) {
                     String version = currentFeature.replace("jsp-", "");
                     compile.setJspVersion(version);
                     break;
