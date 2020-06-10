@@ -224,7 +224,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * Find resolved dependencies with matching groupId:artifactId:version. Also collect transitive dependencies for those
      * resolved dependencies. 
      *
-     * @param gavCoordinates String in the format groupId:artifactId:version. The artifactId and version are optional.
+     * @param gavCoordinates String in the format groupId:artifactId:version. The artifactId and version are optional. 
+     *                       The artifactId can also end with a '*' to indicate a wildcard match.
      *
      * @return Set<File> A collection of File objects for the resolved dependencies and transitive dependencies
      * @throws MojoExecutionException
@@ -254,14 +255,27 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             }
         } else {
             Set<Artifact> artifacts = getProject().getArtifacts();
+            boolean isWildcard = artifactId != null && artifactId.endsWith("*") ? true : false;
+            String compareArtifactId = artifactId;
+
+            if (isWildcard) {
+                // if the artifactId is "*", just match on groupId
+                if (artifactId.length() == 1) {
+                    compareArtifactId = null;
+                    isWildcard = false;
+                } else {
+                    compareArtifactId = artifactId.substring(0,artifactId.length() -1);
+                }
+            }
         
             for (Artifact artifact : artifacts) {
                 if (artifact.getGroupId().equals(groupId) && 
-                    ((artifactId != null && artifact.getArtifactId().equals(artifactId)) ||
-                     (artifactId == null))) {
+                    ((compareArtifactId == null) ||
+                     (isWildcard && artifact.getArtifactId().startsWith(compareArtifactId)) ||
+                     (artifact.getArtifactId().equals(compareArtifactId)))) {
                     if (!artifact.isResolved()) {
                         ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion()); 
-                        artifact = createArtifact(item);
+                        artifact = getArtifact(item);
                     }
                     log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
                             + artifact.getArtifactId() + ":" + artifact.getVersion());
@@ -276,10 +290,11 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             
                 for (Dependency dependency : list) {
                     if (dependency.getGroupId().equals(groupId) && 
-                        ((artifactId != null && dependency.getArtifactId().equals(artifactId)) ||  
-                         (artifactId == null))) {
+                        ((compareArtifactId == null) ||
+                         (isWildcard && dependency.getArtifactId().startsWith(compareArtifactId)) ||
+                         (dependency.getArtifactId().equals(compareArtifactId)))) {
                         ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()); 
-                        Artifact artifact = createArtifact(item);
+                        Artifact artifact = getArtifact(item);
                         log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
                         resolvedDependencyFiles.add(artifact.getFile());
@@ -299,7 +314,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
      protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<File> resolvedDependencyFiles) {
         String coords = resolvedArtifact.getGroupId() + ":" + resolvedArtifact.getArtifactId() + ":";
+        //log.info("Looking for transitive dependencies for groupId:artifactId " + coords + " and version " + resolvedArtifact.getVersion());
         for (Artifact artifact : resolvedArtifacts) {
+            //log.info("Checking dependency trail for artifact " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             List<String> depTrail = artifact.getDependencyTrail();
             if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
                 resolvedDependencyFiles.add(artifact.getFile());
@@ -309,6 +326,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
      protected boolean dependencyTrailContainsArtifact(String gaCoords, String version, List<String> depTrail) {
          for (String nextFullArtifactId : depTrail) {
+             //log.info("Dependency trail entry "+nextFullArtifactId);
              if (nextFullArtifactId.startsWith(gaCoords) && 
                  ((version == null) || (version != null && nextFullArtifactId.endsWith(":"+version))) ) {
                  return true;
