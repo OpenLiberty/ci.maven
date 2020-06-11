@@ -1,6 +1,6 @@
 #### run
 ---
-Start a Liberty server in foreground. The server instance will be automatically created if it does not exist.
+Start a Liberty server in the foreground. The run goal implicitly creates the server, installs features referenced by the server.xml file, and deploys the application before starting the Liberty server. 
 **Note:** This goal is designed to be executed directly from the Maven command line.
 
 ###### Additional Parameters
