@@ -1,7 +1,23 @@
+/**
+ * (C) Copyright IBM Corporation 2017, 2020.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.openliberty.tools.maven.jsp;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,24 +33,24 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.ant.jsp.CompileJSPs;
-import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.maven.InstallFeatureSupport;
 
 /**
  * Compile the JSPs in the src/main/webapp folder.
  */
-@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, 
-      requiresDependencyResolution = ResolutionScope.COMPILE)  
-public class CompileJspMojo extends BasicSupport {
+@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+public class CompileJspMojo extends InstallFeatureSupport {
 
     /**
-     * The version of JSP that should be compiled against. Defaults to 2.3. Can be 2.2 or 2.3
+     * The version of JSP that should be compiled against. Defaults to 2.3. Can be
+     * 2.2 or 2.3
      */
     @Parameter
     protected String jspVersion;
 
     /**
-     * Timeout for JSP compile. Stop the server if the jsp compile isn't finish within the given
-     * timeout (given in seconds).
+     * Timeout for JSP compile. Stop the server if the jsp compile isn't finish
+     * within the given timeout (given in seconds).
      */
     @Parameter(defaultValue = "40")
     protected int timeout;
@@ -43,7 +59,8 @@ public class CompileJspMojo extends BasicSupport {
     protected void doExecute() throws Exception {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:io/openliberty/tools/ant:compileJSPs");
         if (compile == null) {
-            throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
+            throw new IllegalStateException(
+                    MessageFormat.format(messages.getString("error.dependencies.not.found"), "compileJSPs"));
         }
 
         compile.setInstallDir(installDirectory);
@@ -104,17 +121,44 @@ public class CompileJspMojo extends BasicSupport {
         log.debug("Classpath: " + classpathStr);
         compile.setClasspath(classpathStr);
 
-        // TODO should we try to calculate this from a pom dependency?
-        if (jspVersion != null) {
-            compile.setJspVersion(jspVersion);
+        if(initialize()) {
+            Set<String> installedFeatures = getInstalledFeatures();
+
+            //Set JSP Feature Version
+            setJspVersion(compile, installedFeatures);
+
+            //Removing jsp features at it is already set at this point 
+            installedFeatures.remove("jsp-2.3");
+            installedFeatures.remove("jsp-2.2");
+            
+            if(installedFeatures != null && !installedFeatures.isEmpty()) {
+                compile.setFeatures(installedFeatures.toString().replace("[", "").replace("]", ""));
+            }
         }
 
-        // TODO do we need to add features?
         compile.execute();
     }
 
-    private String join(Set<String> depPathes, String sep) {
+    private void setJspVersion(CompileJSPs compile, Set<String> installedFeatures) {
+        //If no conditions are met, defaults to 2.3 from the ant task
+        if (jspVersion != null) {
+            compile.setJspVersion(jspVersion);
+        }
+        else {
+            Iterator it = installedFeatures.iterator();
+            String currentFeature;
+            while (it.hasNext()) {
+                currentFeature = (String) it.next();
+                if(currentFeature.startsWith("jsp-")) {
+                    String version = currentFeature.replace("jsp-", "");
+                    compile.setJspVersion(version);
+                    break;
+                }
+            }
+        }
+    }
 
+    private String join(Set<String> depPathes, String sep) {
         StringBuilder sb = new StringBuilder();
         for (String str : depPathes) {
             if (sb.length() != 0) {
