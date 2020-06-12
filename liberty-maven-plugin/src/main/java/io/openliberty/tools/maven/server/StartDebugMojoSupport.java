@@ -72,7 +72,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS); 
 
     protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
-    protected final String PROJECT_ROOT_NAME = "io.openliberty.projectRoot";
+    protected final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
@@ -327,14 +327,6 @@ public class StartDebugMojoSupport extends BasicSupport {
             bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
         }
 
-        if (project.getProperties().containsKey("container") ||
-            (System.getProperty("container") != null)) {
-            // Define the variable used in the loose app. configuration file.
-            if (serverDirectory.exists()) {
-                appendToBootstrap(bootstrapFile, PROJECT_ROOT_NAME+" = "+project.getBasedir().getAbsolutePath());
-            }
-        }
-
         // copy server.env to server directory if end-user explicitly set it
         File envFile = new File(serverDirectory, "server.env");
         if (!envMavenProps.isEmpty()) {
@@ -442,22 +434,6 @@ public class StartDebugMojoSupport extends BasicSupport {
                     log.warn("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-    }
-
-    protected void appendToBootstrap(File bootstrapFile, String line) throws IOException {
-        log.debug("AppendToBootstrap file="+bootstrapFile.getAbsolutePath()+" line="+line);
-        PrintWriter writer = null;
-        try {
-            FileWriter fwriter = new FileWriter(bootstrapFile, true);
-            writer = new PrintWriter(fwriter);
-            writer.println();
-            writer.println(HEADER);
-            writer.println(line);
         } finally {
             if (writer != null) {
                 writer.close();
