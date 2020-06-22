@@ -126,7 +126,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                         log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
                     }
                 } catch (IOException i) {
-                    log.debug("IOException trying to get the path of the project and the copyLibsDirectory parameter, message="+i.getMessage());
+                    log.error("IOException occurred trying to get the path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:"+i.getMessage());
                 }
             }
         }
