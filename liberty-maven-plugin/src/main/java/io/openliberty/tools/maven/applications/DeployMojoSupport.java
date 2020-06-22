@@ -114,13 +114,20 @@ public class DeployMojoSupport extends PluginConfigSupport {
             config.setProjectRoot(proj.getBasedir().getAbsolutePath());
             config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
             // Set the property to include the variable definition in liberty-plugin-variable-config.xml
-            String projectPath = proj.getBasedir().getAbsolutePath();
-            proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, projectPath);
+            proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, proj.getBasedir().getAbsolutePath());
             if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
                 copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
-            } else if (!copyLibsDirectory.getAbsolutePath().startsWith(projectPath)) {
-                // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
-                log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+            } else {
+                try { // test the user defined copyLibsDirectory parameter for use in a container
+                    String projectPath = proj.getBasedir().getCanonicalPath();
+                    String copyLibsPath = copyLibsDirectory.getCanonicalPath();
+                    if (!copyLibsPath.startsWith(projectPath)) {
+                        // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
+                        log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+                    }
+                } catch (IOException i) {
+                    log.debug("IOException trying to get the path of the project and the copyLibsDirectory parameter, message="+i.getMessage());
+                }
             }
         }
 
