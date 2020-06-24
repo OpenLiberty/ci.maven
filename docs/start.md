@@ -1,12 +1,12 @@
 #### start
 ---
-Start a Liberty server in background. The server instance will be automatically created if it does not exist.
+Start a Liberty server in the background. The server instance will be automatically created if it does not exist.
 
 ###### Additional Parameters
 
 The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
 
-The start-server goal will propagate changes from source to the [server configuration](common-server-parameters.md#common-server-parameters).
+The start goal will propagate changes from source to the [server configuration](common-server-parameters.md#common-server-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
