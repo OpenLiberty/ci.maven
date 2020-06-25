@@ -96,6 +96,8 @@ The following is a sample configuration of this plugin using the `devc` paramete
             </plugin>
 ```
 
+These parameters are available in addition to the ones in the `dev` section above.
+
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | container | If set to `true`, run the server in the container specified by the `dockerfile` parameter. Setting this to `true` is equivalent to using the `devc` goal. The default value is `false` when the `dev` goal is used, and `true` when the `devc` goal is used. | No |
