@@ -22,7 +22,7 @@ before_install:
 #    - mvn clean install
 #    - cd ..
     - echo 'Installing ci.common lib...'
-    - git clone -b devModeContainers https://github.com/OpenLiberty/ci.common.git ./ci.common
+    - git clone https://github.com/OpenLiberty/ci.common.git ./ci.common
     - cd ./ci.common
     - mvn clean install
     - cd ..
