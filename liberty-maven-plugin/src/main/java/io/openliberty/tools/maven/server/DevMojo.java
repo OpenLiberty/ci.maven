@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019.
+ * (C) Copyright IBM Corporation 2019, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -696,15 +696,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        if (dockerfile != null) {
-            if (dockerfile.exists()) {
-                setContainer(true);
-            }
-            else {
-                throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
-                    + " dockerfile should be a valid Dockerfile");
-            }
-        }
+        processContainerParams();
 
         if (!container) {
             if (serverDirectory.exists()) {
@@ -796,6 +788,29 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.info(e.getMessage());
             }
             return; // enter shutdown hook 
+        }
+    }
+
+    private void processContainerParams() throws MojoExecutionException {
+        if (container) {
+            // this also sets the project property for use in DeployMojoSupport
+            setContainer(true);
+            return;
+        } else {
+            if (dockerfile != null) {
+                if (dockerfile.exists()) {
+                    setContainer(true);
+                    return;
+                } else {
+                    throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
+                        + " dockerfile should be a valid Dockerfile");
+                }
+            }
+    
+            if (dockerRunOpts != null) {
+                setContainer(true);
+                return;
+            }    
         }
     }
 

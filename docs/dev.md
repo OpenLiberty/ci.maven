@@ -96,6 +96,6 @@ Sample configuration of this plugin using the `devc` parameters.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| container | If set, run the server in the container described by your Dockerfile. This option works the same as the `devc` goal. The default value is unset or `false` when the Maven goal `dev` is used. | No |
-| dockerRunOpts | This option allows you to add options to the docker run command used by dev mode to launch your server container. For example `-e key=value` is recognized by `docker run` to define an environment variable called `key`. If this option is used the container option is set. | No |
-| dockerfile | Define the file used by dev mode to build the container that runs your server and to specify the context used to build the container image. The default value is `Dockerfile`. If this option is used the container option is set. | No |
+| container | If set to `true`, run the server in the container specified by the `dockerfile` parameter. Setting this to `true` is equivalent to using the `devc` goal. The default value is `false` when the `dev` goal is used, and `true` when the `devc` goal is used. | No |
+| dockerRunOpts | Specifies options to add to the `docker run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `docker run` to define an environment variable with the name `key` and value `value`. Setting this parameter overrides the `container` parameter to `true`. | No |
+| dockerfile | Location of a Dockerfile to be used by dev mode to build the container that runs your server and to specify the context used to build the container image. The default value is `Dockerfile`. Setting this parameter overrides the `container` parameter to `true`. | No |

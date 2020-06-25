@@ -27,7 +27,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.FileWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;

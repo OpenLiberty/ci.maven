@@ -112,8 +112,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MessageFormat.format(messages.getString("error.project.not.compile"), proj.getId()));
         }
 
-        if (proj.getProperties().containsKey("container") ||
-            (System.getProperty("container") != null)) {
+        if (proj.getProperties().containsKey("container")) {
                 try {
                     // Set up the config to replace the absolute path names with ${variable}/target type references
                     config.setProjectRoot(proj.getBasedir().getCanonicalPath());
