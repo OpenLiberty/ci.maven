@@ -131,7 +131,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                         }
                     }
                 } catch (IOException e) {
-                    // rethrow the IOException since this should fail the build
+                    // an IOException here should fail the build
                     throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
                 }
         }
