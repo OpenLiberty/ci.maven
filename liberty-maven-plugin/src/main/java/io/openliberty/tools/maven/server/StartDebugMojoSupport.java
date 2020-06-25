@@ -214,11 +214,13 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
-        if (features != null) {
-            config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
+        if (!project.getProperties().containsKey("container")) {  // for now, container mode does not support installing features
+            Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
+            if (features != null) {
+                config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
+            }
+            runLibertyMojo("install-feature", config);   
         }
-        runLibertyMojo("install-feature", config);
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
