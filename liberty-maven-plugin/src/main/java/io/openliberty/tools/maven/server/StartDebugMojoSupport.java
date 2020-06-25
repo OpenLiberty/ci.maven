@@ -72,8 +72,6 @@ public class StartDebugMojoSupport extends BasicSupport {
     private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS); 
 
     protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
-    protected final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
-    protected final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  

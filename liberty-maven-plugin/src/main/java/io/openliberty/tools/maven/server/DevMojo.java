@@ -102,7 +102,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private int libertyDebugPort;
 
     @Parameter(property = "container", defaultValue = "false")
-    protected boolean container;
+    private boolean container;
 
     /**
      * Time in seconds to wait before processing Java changes and deletions.
@@ -186,6 +186,19 @@ public class DevMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "dockerRunOpts")
     private String dockerRunOpts;
+
+    /**
+     * Set the container option.
+     * 
+     * @param container whether dev mode should use a container
+     */
+    protected void setContainer(boolean container) {
+        // set container variable for DevMojo
+        this.container = container;
+        
+        // set project property for use in DeployMojoSupport
+        project.getProperties().setProperty("container", Boolean.toString(container));
+    }
 
     private class DevMojoUtil extends DevUtil {
 
@@ -685,9 +698,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         if (dockerfile != null) {
             if (dockerfile.exists()) {
-                container = true;
-                // set project property for use in DeployMojoSupport
-                project.getProperties().setProperty("container", "true");
+                setContainer(true);
             }
             else {
                 throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
