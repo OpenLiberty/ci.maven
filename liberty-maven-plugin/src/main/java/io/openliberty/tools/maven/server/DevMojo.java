@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019.
+ * (C) Copyright IBM Corporation 2019, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,9 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "debugPort", defaultValue = "7777")
     private int libertyDebugPort;
 
+    @Parameter(property = "container", defaultValue = "false")
+    private boolean container;
+
     /**
      * Time in seconds to wait before processing Java changes and deletions.
      */
@@ -147,6 +150,12 @@ public class DevMojo extends StartDebugMojoSupport {
     protected boolean pollingTest;
 
     /**
+     * Dockerfile used to build a Docker image to then start a container with
+     */
+    @Parameter(property = "dockerfile")
+    private File dockerfile;
+
+    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -172,15 +181,34 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(readonly = true, required = true, defaultValue = "${project.build.testOutputDirectory}")
     private File testOutputDirectory;
 
+    /**
+     * Additional options for the docker run command when dev mode starts a container.
+     */
+    @Parameter(property = "dockerRunOpts")
+    private String dockerRunOpts;
+
+    /**
+     * Set the container option.
+     * 
+     * @param container whether dev mode should use a container
+     */
+    protected void setContainer(boolean container) {
+        // set container variable for DevMojo
+        this.container = container;
+        
+        // set project property for use in DeployMojoSupport
+        project.getProperties().setProperty("container", Boolean.toString(container));
+    }
+
     private class DevMojoUtil extends DevUtil {
 
         Set<String> existingFeatures;
 
-        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory,
+        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
                 List<File> resourceDirs) throws IOException {
-            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs, hotTests,
+            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -265,14 +293,17 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void stopServer() {
-
+            if (container) {
+                // TODO stop the container instead
+                return;
+            }
             try {
                 ServerTask serverTask = initializeJava();
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {
                 log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
-            }
+            }    
         }
 
         @Override
@@ -293,6 +324,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 } else {
                     serverTask.setOperation("run");
                 }
+
                 return serverTask;
             }
         }
@@ -664,14 +696,17 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
-        if (serverDirectory.exists()) {
-            // passing liberty installDirectory, outputDirectory and serverName to determine server status
-            if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
-                throw new MojoExecutionException("The server " + serverName
-                        + " is already running. Terminate all instances of the server before starting dev mode."
-                        + " You can stop a server instance with the command 'mvn liberty:stop'.");
+        processContainerParams();
+
+        if (!container) {
+            if (serverDirectory.exists()) {
+                if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
+                    throw new MojoExecutionException("The server " + serverName
+                            + " is already running. Terminate all instances of the server before starting dev mode."
+                            + " You can stop a server instance with the command 'mvn liberty:stop'.");
+                }
             }
-        }
+        } // else TODO check if the container is already running?
 
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
@@ -722,7 +757,7 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, resourceDirs);
+        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs);
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -753,6 +788,29 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.info(e.getMessage());
             }
             return; // enter shutdown hook 
+        }
+    }
+
+    private void processContainerParams() throws MojoExecutionException {
+        if (container) {
+            // this also sets the project property for use in DeployMojoSupport
+            setContainer(true);
+            return;
+        } else {
+            if (dockerfile != null) {
+                if (dockerfile.exists()) {
+                    setContainer(true);
+                    return;
+                } else {
+                    throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
+                        + " dockerfile should be a valid Dockerfile");
+                }
+            }
+    
+            if (dockerRunOpts != null) {
+                setContainer(true);
+                return;
+            }    
         }
     }
 
