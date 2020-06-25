@@ -25,11 +25,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 public class DevcMojo extends DevMojo {
     @Override
     protected void doExecute() throws Exception {
-        // set container variable for DevMojo
-        super.container = true;
-        
-        // set project property for use in DeployMojoSupport
-        project.getProperties().setProperty("container", "true");
+        super.setContainer(true);
 
         // call dev mode
         super.doExecute();

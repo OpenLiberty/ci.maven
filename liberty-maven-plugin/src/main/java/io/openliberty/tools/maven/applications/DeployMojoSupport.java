@@ -45,6 +45,10 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
  * Support for installing and deploying applications to a Liberty server.
  */
 public class DeployMojoSupport extends PluginConfigSupport {
+
+    private final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
+    private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
+
     /**
      * Timeout to verify deploy successfully, in seconds.
      */
@@ -108,27 +112,28 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MessageFormat.format(messages.getString("error.project.not.compile"), proj.getId()));
         }
 
-        if (proj.getProperties().containsKey("container") ||
-            (System.getProperty("container") != null)) {
-            // Set up the config to replace the absolute path names with ${variable}/target type references
-            config.setProjectRoot(proj.getBasedir().getAbsolutePath());
-            config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
-            // Set the property to include the variable definition in liberty-plugin-variable-config.xml
-            proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, proj.getBasedir().getAbsolutePath());
-            if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
-                copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
-            } else {
-                try { // test the user defined copyLibsDirectory parameter for use in a container
-                    String projectPath = proj.getBasedir().getCanonicalPath();
-                    String copyLibsPath = copyLibsDirectory.getCanonicalPath();
-                    if (!copyLibsPath.startsWith(projectPath)) {
-                        // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
-                        log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+        if (proj.getProperties().containsKey("container")) {
+                try {
+                    // Set up the config to replace the absolute path names with ${variable}/target type references
+                    config.setProjectRoot(proj.getBasedir().getCanonicalPath());
+                    config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
+                    // Set the property to include the variable definition in liberty-plugin-variable-config.xml
+                    proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, proj.getBasedir().getCanonicalPath());
+                    if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
+                        copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
+                    } else {
+                        // test the user defined copyLibsDirectory parameter for use in a container
+                        String projectPath = proj.getBasedir().getCanonicalPath();
+                        String copyLibsPath = copyLibsDirectory.getCanonicalPath();
+                        if (!copyLibsPath.startsWith(projectPath)) {
+                            // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
+                            log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+                        }
                     }
-                } catch (IOException i) {
-                    log.error("IOException occurred trying to get the path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:"+i.getMessage());
+                } catch (IOException e) {
+                    // an IOException here should fail the build
+                    throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
                 }
-            }
         }
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
