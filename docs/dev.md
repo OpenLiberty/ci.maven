@@ -87,7 +87,7 @@ The following is a sample configuration of this plugin using the `devc` paramete
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3-M1</version>
+                <version>3.3.M1</version>
                 <configuration>
                     <container>true</container>
                     <dockerRunOpts>-p 9081:9081</dockerRunOpts>
