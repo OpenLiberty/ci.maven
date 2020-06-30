@@ -12,7 +12,6 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 	* [liberty-assembly](#liberty-assembly)
 * [Archetypes](#archetypes)
 	* [liberty-plugin-archetype](#liberty-plugin-archetype)
-	* [liberty-archetype-mp](#liberty-archetype-mp)
 	* [liberty-archetype-webapp](#liberty-archetype-webapp)
 	* [liberty-archetype-ear](#liberty-archetype-ear)
 
@@ -47,7 +46,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.2.1,)</version>
+                <version>[3.2.2,)</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -181,7 +180,7 @@ Example:
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.0.1,)</version>
+                <version>[3.2.2,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -203,9 +202,9 @@ Example:
 
 By default, all archetypes that specify a Liberty runtime use the latest version of the Open Liberty runtime. You can use a different runtime by setting the `runtimeGroupId` and `runtimeArtifactId`. For example, you can use `wlp-webProfile7` by setting `-DruntimeGroupId=com.ibm.websphere.appserver.runtime` and `-DruntimeArtifactId=wlp-webProfile7`. 
 
-The runtime version can also be set dynamically. For example, you can specify version `18.0.0.1` of the runtime by setting `-DruntimeVersion=18.0.0.1`.
+The runtime version can also be set dynamically. For example, you can specify version `20.0.0.3` of the runtime by setting `-DruntimeVersion=20.0.0.3`.
 
-Finally, the default Liberty Maven Plugin version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=2.2`.
+Finally, the default Liberty Maven Plugin version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=3.2`.
 
 ### liberty-plugin-archetype
 
@@ -217,27 +216,11 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-plugin-archetype \
         -DarchetypeVersion=2.2 \
-        -DlibertyPluginVersion=2.2 \
+        -DlibertyPluginVersion=3.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
 
-### liberty-archetype-mp
-
-The `liberty-archetype-mp` is used to generate a basic single-module project that builds a simple MicroProfile application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-archetype-mp \
-        -DarchetypeVersion=2.3-SNAPSHOT \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-        
-For this archetype, you might want to use the `wlp-microprofile1` runtime. You can specify this by setting `-DruntimeGroupId=com.ibm.websphere.appserver.runtime` and `-DruntimeArtifactId=wlp-microprofile1`. 
-        
 ### liberty-archetype-webapp
 
 The `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes the [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
