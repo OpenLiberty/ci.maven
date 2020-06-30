@@ -69,7 +69,7 @@ Integration tests can read the following system properties to obtain information
 
 #### devc, Container Mode
 
-This is a technology preview. The features and parameters described below may change in future milestones or releases of the Liberty Maven plugin.
+The following is a technology preview. The features and parameters described below may change in future milestones or releases of the Liberty Maven plugin.
 
 Start a Liberty server in a local container using the Dockerfile that you provide. An alternative to the `devc` goal is to specify the `dev` goal with the `-Dcontainer` option. 
 
@@ -81,7 +81,14 @@ When dev mode runs with container support it still provides the same features. I
 
 This mode publishes the container ports 9080, 9443 and 7777 by default. If your application needs to publish other ports add them to the `dockerRunOpts` option either in the `pom.xml` file or on the `mvn` command line. E.g. `-DdockerRunOpts="-p 9081:9081"`
 
-The following is a sample configuration of this plugin using the `devc` parameters.  Note that changing these while dev mode is running is not supported.
+###### Examples
+
+Start dev mode with the server in a container using the Dockerfile in the project root.
+```
+$ mvn liberty:devc
+```
+
+Customizing the container configuration in `pom.xml`.  Note that changing these while dev mode is running is not supported.
 ```
             <!-- Enable liberty-maven plugin -->
             <plugin>
@@ -95,6 +102,8 @@ The following is a sample configuration of this plugin using the `devc` paramete
                 </configuration>
             </plugin>
 ```
+
+###### Additional Parameters
 
 These parameters are available in addition to the ones in the `dev` section above.
 
