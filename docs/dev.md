@@ -4,7 +4,7 @@
 
 Start a Liberty server in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.  To exit dev mode, press `Control-C`, or type `q` and press Enter.
 
-To start the server in a container see the section `devc` below. 
+To start the server in a container, see the [devc](#devc-container-mode) section below. 
 
 Dev mode provides three key features. Code changes are detected, recompiled, and picked up by your running server. Unit and integration tests are run on demand when you press Enter in the command terminal where dev mode is running, or optionally on every code change to give you instant feedback on the status of your code. Finally, it allows you to attach a debugger to the running server at any time to step through your code.
 
@@ -13,7 +13,7 @@ The following are dev mode supported code changes. Changes to your server such a
 * Java source file changes and Java test file changes are detected, recompiled, and picked up by your running server.  
 * Added dependencies to your `pom.xml` are detected and added to your classpath.  Dependencies that are Liberty features will be installed via the `install-feature` goal.  Any other changes to your `pom.xml` will require restarting dev mode to be detected.
 * Resource file changes are detected and copied into your `target` directory. 
-* Configuration directory and configuration file changes are detected and copied into your `target` directory.  Added features to your `server.xml` will be installed and picked up by your running server.  Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
+* Configuration directory and configuration file changes are detected and copied into your `target` directory, which are hot deployed to the server.  Added features to your `server.xml` will be installed and picked up by your running server.  Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
 
 
 ###### Examples
@@ -69,7 +69,7 @@ Integration tests can read the following system properties to obtain information
 
 #### devc, Container Mode
 
-This is a technology preview. The features and parameters described below may change in future milestones or releases of the Liberty Maven plugin.
+The following is a technology preview. The features and parameters described below may change in future milestones or releases of the Liberty Maven plugin.
 
 Start a Liberty server in a local container using the Dockerfile that you provide. An alternative to the `devc` goal is to specify the `dev` goal with the `-Dcontainer` option. 
 
@@ -81,7 +81,25 @@ When dev mode runs with container support it still provides the same features. I
 
 This mode publishes the container ports 9080, 9443 and 7777 by default. If your application needs to publish other ports add them to the `dockerRunOpts` option either in the `pom.xml` file or on the `mvn` command line. E.g. `-DdockerRunOpts="-p 9081:9081"`
 
-The following is a sample configuration of this plugin using the `devc` parameters.  Note that changing these while dev mode is running is not supported.
+###### Limitations
+
+For the current technology preview, the following limitations apply.
+
+- Platform limitations:
+  - Supported on macOS and Windows with Docker Desktop installed. Not supported on Linux at the moment.
+
+- Dockerfile limitations:
+  - The Dockerfile must copy only one .war file for the application.  Other application archive formats or multiple .war files are not supported.
+  - Hot deployment is only supported for individual configuration files that are specified as the source in the Dockerfile's COPY commands. Hot deployment is not supported for COPY commands with variable substitution, wildcard characters, spaces in paths, paths relative to WORKDIR, multi-stage builds, or entire directories specified as the source.
+
+###### Examples
+
+Start dev mode with the server in a container using the Dockerfile in the project root.
+```
+$ mvn liberty:devc
+```
+
+Customizing the container configuration in `pom.xml`.  Note that changing these while dev mode is running is not supported.
 ```
             <!-- Enable liberty-maven plugin -->
             <plugin>
@@ -95,6 +113,8 @@ The following is a sample configuration of this plugin using the `devc` paramete
                 </configuration>
             </plugin>
 ```
+
+###### Additional Parameters
 
 These parameters are available in addition to the ones in the `dev` section above.
 
