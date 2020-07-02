@@ -105,7 +105,7 @@ Customizing the container configuration in `pom.xml`.  Note that changing these 
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3.M1</version>
+                <version>3.3-M1</version>
                 <configuration>
                     <container>true</container>
                     <dockerRunOpts>-p 9081:9081</dockerRunOpts>
