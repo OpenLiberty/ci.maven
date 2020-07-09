@@ -52,14 +52,23 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
           
         Set<String> featuresToInstall = getInstalledFeatures();
 
-        Set<String> pluginListedEsas = getPluginListedFeatures(true); 
+        Set<String> pluginListedEsas = getPluginListedFeatures(true);
+
+        log.debug("Attempt to create InstallFeatureUtil object");
         InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
+        /*log.debug("BEFORE: " + util.getOpenLibertyVersion());
+
+        if (util.isOpenLibertyBetaVersion()) {
+            log.warn("Beta version of Open Liberty does not support installing features.");
+            return;
+        }*/
         
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
         }
         else {
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
+            log.debug("AFTER feature install: " + util.getOpenLibertyVersion());
         }
     }
 
