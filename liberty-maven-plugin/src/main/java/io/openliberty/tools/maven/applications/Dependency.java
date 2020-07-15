@@ -32,6 +32,14 @@ public class Dependency {
     private String filter = null;
 
     /**
+     * Boolean to indicate whether to strip versions from the file names when copying.
+     * The default is null. The stripVersion in the containing CopyDependencies configuration will
+     * be used if nothing is specified here.
+     */
+    @Parameter
+    private Boolean stripVersion;
+
+    /**
      * Optional location to copy the Dependency to. This can be a full path, or a path relative to
      * ${server.config.dir}. The location in the containing CopyDependencies configuration will be 
      * used if nothing is specified here.
@@ -54,4 +62,13 @@ public class Dependency {
     public void setFilter(String filter) {
         this.filter = filter;
     }
+
+    public Boolean getStripVersion() {
+        return this.stripVersion;
+    }
+
+    public void setStripVersion(boolean strip) {
+        this.stripVersion = new Boolean(strip);
+    }
+    
 }

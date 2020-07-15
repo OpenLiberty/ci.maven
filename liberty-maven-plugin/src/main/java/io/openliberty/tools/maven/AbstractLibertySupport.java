@@ -227,11 +227,11 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @param gavCoordinates String in the format groupId:artifactId:version. The artifactId and version are optional. 
      *                       The artifactId can also end with a '*' to indicate a wildcard match.
      *
-     * @return Set<File> A collection of File objects for the resolved dependencies and transitive dependencies
+     * @return Set<Artifact> A collection of Artifact objects for the resolved dependencies and transitive dependencies
      * @throws MojoExecutionException
      */
-    protected Set<File> getResolvedDependencyWithTransitiveDependencies(String gavCoordinates) throws MojoExecutionException {
-        Set<File> resolvedDependencyFiles = new HashSet<File> ();
+    protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies(String gavCoordinates) throws MojoExecutionException {
+        Set<Artifact> resolvedDependencies = new HashSet<Artifact> ();
 
         String groupId = null;
         String artifactId = null;
@@ -248,8 +248,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             // if version is set, it will always override the one in project dependency
             Artifact artifact = getArtifact(groupId, artifactId, "jar", version);
             if (artifact != null) {
-                resolvedDependencyFiles.add(artifact.getFile());
-                findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+                resolvedDependencies.add(artifact);
+                findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
             } else {
                 log.warn("Unable to find artifact matching coordinates " + gavCoordinates + " in configured repositories.");
             }
@@ -279,12 +279,12 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                     }
                     log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
                             + artifact.getArtifactId() + ":" + artifact.getVersion());
-                    resolvedDependencyFiles.add(artifact.getFile());
-                    findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+                    resolvedDependencies.add(artifact);
+                    findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
                 }
             }
 
-            if (resolvedDependencyFiles.isEmpty() && getProject().getDependencyManagement() != null) {
+            if (resolvedDependencies.isEmpty() && getProject().getDependencyManagement() != null) {
                 // if project has dependencyManagement section
                 List<Dependency> list = getProject().getDependencyManagement().getDependencies();
             
@@ -297,29 +297,29 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                         Artifact artifact = getArtifact(item);
                         log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
-                        resolvedDependencyFiles.add(artifact.getFile());
-                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencyFiles);
+                        resolvedDependencies.add(artifact);
+                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
                     }
                 }
             }
 
-            if (resolvedDependencyFiles.isEmpty()) {
+            if (resolvedDependencies.isEmpty()) {
                 // No matching artifacts were found in the resolved dependencies. Send warning.
                 log.warn("Unable to find artifact matching coordinates " + gavCoordinates + " in either project dependencies or in project dependencyManagement.");
             }
         }
 
-        return resolvedDependencyFiles;
+        return resolvedDependencies;
      }
 
-     protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<File> resolvedDependencyFiles) {
+     protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<Artifact> resolvedDependencies) {
         String coords = resolvedArtifact.getGroupId() + ":" + resolvedArtifact.getArtifactId() + ":";
         //log.info("Looking for transitive dependencies for groupId:artifactId " + coords + " and version " + resolvedArtifact.getVersion());
         for (Artifact artifact : resolvedArtifacts) {
             //log.info("Checking dependency trail for artifact " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             List<String> depTrail = artifact.getDependencyTrail();
             if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
-                resolvedDependencyFiles.add(artifact.getFile());
+                resolvedDependencies.add(artifact);
             }
         }
      }

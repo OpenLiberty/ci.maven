@@ -96,6 +96,7 @@ public class DeployMojo extends DeployMojoSupport {
     private void copyDependencies() throws Exception {
         if (copyDependencies != null) {
             List<Dependency> deps = copyDependencies.getDependencies();
+            boolean defaultStripVersion = copyDependencies.isStripVersion();
             String defaultLocation = copyDependencies.getLocation();
             File dftLocationFile = new File(defaultLocation);
 
@@ -117,13 +118,18 @@ public class DeployMojo extends DeployMojoSupport {
 
             for (Dependency dep : deps) {
                 String filter = dep.getFilter();
+                boolean stripVersion = defaultStripVersion;
+                Boolean specifiedStripVersion = dep.getStripVersion();
+                if (specifiedStripVersion != null) {
+                    stripVersion = specifiedStripVersion.booleanValue();
+                }
 
-                copyDependencies(dep.getFilter(), dep.getLocation(), dftLocationPath);                
+                copyDependencies(dep.getFilter(), dep.getLocation(), dftLocationPath, stripVersion);                
             }
         }
     }
 
-    private void copyDependencies(String gavCoordinates, String overrideLocation, String defaultLocation) throws Exception {
+    private void copyDependencies(String gavCoordinates, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
 
         String location = defaultLocation;
 
@@ -145,14 +151,24 @@ public class DeployMojo extends DeployMojoSupport {
             }
         }
 
-        Set<File> filesToCopy = getResolvedDependencyWithTransitiveDependencies(gavCoordinates);
+        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(gavCoordinates);
 
-        if (filesToCopy.isEmpty()) {
+        if (artifactsToCopy.isEmpty()) {
             log.warn("copyDependencies failed for dependency with filter "+ gavCoordinates +". No matching resolved dependencies were found.");
         } else {
-            for (File nextFile : filesToCopy) {
+            for (Artifact nextArtifact : artifactsToCopy) {
+                File nextFile = nextArtifact.getFile();
+                String targetFileName = nextFile.getName();
+                if (stripVersion) {
+                    String dashVersion = "-" + nextArtifact.getVersion();
+                    if (targetFileName.contains(dashVersion)) {
+                        targetFileName = targetFileName.replace(dashVersion,"");
+                    } else {
+                        targetFileName = targetFileName.replace(nextArtifact.getVersion(),"");
+                    }
+                }
            
-                File fileToCopyTo = new File(location, nextFile.getName());
+                File fileToCopyTo = new File(location, targetFileName);
 
                 Copy copy = (Copy) ant.createTask("copy");
                 copy.setFile(nextFile);
@@ -160,7 +176,7 @@ public class DeployMojo extends DeployMojoSupport {
                 copy.setOverwrite(true);
                 copy.execute();
 
-                log.info("copyDependencies copied file "+nextFile.getName()+" to location "+location);
+                log.info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
             }
         }
     }

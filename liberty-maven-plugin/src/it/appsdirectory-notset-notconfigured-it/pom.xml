@@ -89,12 +89,14 @@
           <looseApplication>false</looseApplication>
           <copyDependencies>
             <location>${project.build.directory}/liberty/usr/shared/resources</location>
+            <stripVersion>true</stripVersion>
             <dependency>
                 <location>lib/global/derby</location>
                 <filter>org.apache.derby:derby*</filter>
             </dependency>
             <dependency>
                 <filter>commons-logging:commons-logging</filter>
+                <stripVersion>false</stripVersion>
             </dependency>
           </copyDependencies>
         </configuration>

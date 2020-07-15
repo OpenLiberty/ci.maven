@@ -89,6 +89,7 @@
             </dependency>
             <dependency>
                 <filter>commons-logging</filter>
+                <stripVersion>true</stripVersion>
             </dependency>
             <dependency>
                 <filter>org.apache.derby:derbytools</filter>

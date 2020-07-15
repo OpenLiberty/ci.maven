@@ -32,6 +32,13 @@ public class CopyDependencies {
     private String location = "lib/global";
 
     /**
+     * Boolean to indicate whether to strip versions from the file names when copying.
+     * The default is false.
+     */
+    @Parameter(defaultValue="false")
+    private Boolean stripVersion;
+
+    /**
      * A list with the names of the features.
      */
     private List<Dependency> copyDependencyList = new ArrayList<Dependency>();
@@ -42,6 +49,21 @@ public class CopyDependencies {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+    
+    public boolean isStripVersion() {
+        if (this.stripVersion == null) {
+            return false;
+        }
+        return this.stripVersion.booleanValue();
+    }
+
+    public Boolean getStripVersion() {
+        return this.stripVersion;
+    }
+
+    public void setStripVersion(boolean strip) {
+        this.stripVersion = new Boolean(strip);
     }
     
     /**
