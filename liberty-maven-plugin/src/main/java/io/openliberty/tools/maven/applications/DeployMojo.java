@@ -36,11 +36,12 @@ import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
- * Copy applications to the specified directory of the Liberty server. The ResolutionScope.TEST is 
- * required for the copyDependencies functionality, in case any of the dependencies specified have
- * "test" scope.
+ * Copy applications to the specified directory of the Liberty server. The ResolutionScope.COMPILE_PLUS_RUNTIME 
+ * includes compile + system + provided + runtime dependencies. The copyDependencies functionality should only
+ * include dependencies and transitive dependencies with scope compile + system + runtime. So the provided scope
+ * ones will need to be excluded.
  */
-@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployMojo extends DeployMojoSupport {
 
     protected void doExecute() throws Exception {

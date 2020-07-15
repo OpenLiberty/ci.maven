@@ -25,11 +25,6 @@
         <version>10.15.2.0</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbyclient</artifactId>
-        <version>10.15.2.0</version>
-    </dependency>
-    <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.0.4</version>
@@ -95,7 +90,7 @@
                 <filter>org.apache.derby:derby*</filter>
             </dependency>
             <dependency>
-                <filter>commons-logging:commons-logging</filter>
+                <filter>org.apache.derby:derbyclient:10.15.2.0</filter>
                 <stripVersion>false</stripVersion>
             </dependency>
           </copyDependencies>

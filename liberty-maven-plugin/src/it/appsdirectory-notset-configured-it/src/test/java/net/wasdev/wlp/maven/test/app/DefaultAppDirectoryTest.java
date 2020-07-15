@@ -82,11 +82,16 @@ public class DefaultAppDirectoryTest {
 
     @Test
     public void testCopyDependenciesFilesExist() throws Exception {
-        // stripVersion was set to true for commons-logging
         File f = new File("liberty/usr/servers/test/lib/global/commons-logging.jar");
-        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+        // This was SCOPE_TEST and should not be copied.
+        Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
 
-        f = new File("liberty/usr/servers/test/lib/global/derbyclient-10.15.2.0.jar");
+        f = new File("liberty/usr/servers/test/lib/global/derbytools-10.15.2.0.jar");
+        // This was SCOPE_PROVIDED and should not be copied.
+        Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
+
+        // stripVersion was set to true for derby client
+        f = new File("liberty/usr/servers/test/lib/global/derbyclient.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
         f = new File("liberty/usr/servers/test/lib/global/derby/derby-10.15.2.0.jar");
@@ -95,7 +100,5 @@ public class DefaultAppDirectoryTest {
         f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared-10.15.2.0.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
-        f = new File("liberty/usr/servers/test/lib/global/derbytools-10.15.2.0.jar");
-        Assert.assertTrue(f.getCanonicalFile() + " exists", !f.exists());
    }
 }

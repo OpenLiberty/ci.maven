@@ -82,11 +82,8 @@ public class DefaultAppDirectoryTest {
 
     @Test
     public void testCopyDependenciesFilesExist() throws Exception {
-        // stripVersion was set to true globally, and set to false for commons-logging
-        File f = new File("liberty/usr/shared/resources/commons-logging-1.0.4.jar");
-        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
-
-        f = new File("liberty/usr/servers/test/lib/global/derby/derbyclient.jar");
+        // stripVersion was set to true globally, and set to false for derby-client
+        File f = new File("liberty/usr/shared/resources/derbyclient-10.15.2.0.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
         f = new File("liberty/usr/servers/test/lib/global/derby/derby.jar");

@@ -20,11 +20,11 @@ The `copyDependencies` parameter can contain a `location` parameter, a `stripVer
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| filter | The Maven coordinates `groupId:artifactId:version` identifying the dependency to be copied. The `artifactId` and `version` are optional. If only `groupId` is specified for the `filter`, all resolved dependencies with a matching `groupId` are copied to the specified or default location along with their transitive dependencies. If `groupId:artifactId` is specified for the `filter`, the resolved dependency with a matching `groupId` and `artifactId` is copied to the specified or default location along with its transitive dependencies. The `version` should only be specified if the dependency is not configured in the Maven `dependencies` or Maven `dependencyManagement` section of the `pom.xml` file. | Yes |
+| filter | The Maven coordinates `groupId:artifactId:version` identifying the dependency to be copied. The `artifactId` and `version` are optional. If only `groupId` is specified for the `filter`, all resolved dependencies with a matching `groupId` are copied to the specified or default location along with their transitive dependencies. If `groupId:artifactId` is specified for the `filter`, the resolved dependency with a matching `groupId` and `artifactId` is copied to the specified or default location along with its transitive dependencies. The `artifactId` may also end with a `*` to match all artifacts that start with the specified string. The `version` should only be specified if the dependency is not configured in the Maven `dependencies` or Maven `dependencyManagement` section of the `pom.xml` file. | Yes |
 | location | The optional directory to which the dependency is copied. This can be an absolute path, or a relative path to the target server configuration directory. | No |
 | stripVersion | The optional boolean indicating whether to strip the artifact version when copying the dependency. | No |
 
-When determining which resolved dependencies to copy for the `copyDependencies` configuration, all scopes are included to ensure all dependencies are eligible for copying. Also, the `type` is defaulted to `jar`. If your scenario is more complex, consider using the `copy` or `copy-dependencies` goal in the `maven-dependency-plugin` instead.
+When determining which resolved dependencies to copy for the `copyDependencies` configuration, only scopes compile, runtime and system are included. This ensures provided scope and test scope dependencies are not copied. Also, the `type` is defaulted to `jar`. If your scenario is more complex, consider using the `copy` or `copy-dependencies` goal in the `maven-dependency-plugin` instead.
 
 Example:
 Copy the Maven project dependencies.
@@ -125,11 +125,16 @@ Copy the Maven project package plus dependencies configured with the `copyDepend
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.4</version>
-            <scope>test</scope>
+            <scope>system</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+            <version>10.15.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
             <version>10.15.2.0</version>
         </dependency>
     </dependencies>
@@ -157,10 +162,10 @@ Copy the Maven project package plus dependencies configured with the `copyDepend
                                     <filter>commons-logging</filter>
                                 </dependency>
                                 <dependency>
-                                    <!-- copies the org.apache.derby:derby:10.15.2.0 dependency plus transitive 
-                                         dependencies to the specified location ${server.config.dir}/lib/global/derby
-                                         and strips the version during the copy. -->
-                                    <filter>org.apache.derby:derby</filter>
+                                    <!-- copies the org.apache.derby:derby:10.15.2.0 and org.apache.derby:derbyclient:10.15.2.0 
+                                         dependencies plus transitive dependencies to the specified location 
+                                         ${server.config.dir}/lib/global/derby and strips the version during the copy. -->
+                                    <filter>org.apache.derby:derby*</filter>
                                     <location>lib/global/derby</location>
                                     <stripVersion>true</stripVersion>
                                 </dependency>

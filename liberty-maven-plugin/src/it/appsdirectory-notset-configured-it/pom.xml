@@ -89,13 +89,16 @@
             </dependency>
             <dependency>
                 <filter>commons-logging</filter>
-                <stripVersion>true</stripVersion>
             </dependency>
             <dependency>
                 <filter>org.apache.derby:derbytools</filter>
             </dependency>
             <dependency>
+                <filter>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</filter>
+            </dependency>
+            <dependency>
                 <filter>org.apache.derby:derbyclient:10.15.2.0</filter>
+                <stripVersion>true</stripVersion>
             </dependency>
           </copyDependencies>
 

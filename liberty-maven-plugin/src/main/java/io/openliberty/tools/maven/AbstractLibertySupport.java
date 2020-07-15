@@ -268,8 +268,10 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 }
             }
         
+            // Do not copy artifacts with SCOPE_PROVIDED
             for (Artifact artifact : artifacts) {
-                if (artifact.getGroupId().equals(groupId) && 
+                if (!artifact.getScope().equals(Artifact.SCOPE_PROVIDED) &&
+                    artifact.getGroupId().equals(groupId) && 
                     ((compareArtifactId == null) ||
                      (isWildcard && artifact.getArtifactId().startsWith(compareArtifactId)) ||
                      (artifact.getArtifactId().equals(compareArtifactId)))) {
@@ -289,7 +291,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 List<Dependency> list = getProject().getDependencyManagement().getDependencies();
             
                 for (Dependency dependency : list) {
-                    if (dependency.getGroupId().equals(groupId) && 
+                    // Do not copy dependencies with SCOPE_PROVIDED
+                    if (!dependency.getScope().equals(Artifact.SCOPE_PROVIDED) &&
+                        dependency.getGroupId().equals(groupId) && 
                         ((compareArtifactId == null) ||
                          (isWildcard && dependency.getArtifactId().startsWith(compareArtifactId)) ||
                          (dependency.getArtifactId().equals(compareArtifactId)))) {
@@ -314,12 +318,13 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
      protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<Artifact> resolvedDependencies) {
         String coords = resolvedArtifact.getGroupId() + ":" + resolvedArtifact.getArtifactId() + ":";
-        //log.info("Looking for transitive dependencies for groupId:artifactId " + coords + " and version " + resolvedArtifact.getVersion());
         for (Artifact artifact : resolvedArtifacts) {
-            //log.info("Checking dependency trail for artifact " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
-            List<String> depTrail = artifact.getDependencyTrail();
-            if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
-                resolvedDependencies.add(artifact);
+            // Do not copy transitive dependencies with SCOPE_PROVIDED
+            if (!artifact.getScope().equals(Artifact.SCOPE_PROVIDED)) {
+                List<String> depTrail = artifact.getDependencyTrail();
+                if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
+                    resolvedDependencies.add(artifact);
+                }
             }
         }
      }
