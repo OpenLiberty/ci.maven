@@ -79,4 +79,19 @@ public class DefaultAppDirectoryTest {
         File f = new File("liberty/usr/servers/test/dropins/appsdirectory-notset-notconfigured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
+
+    @Test
+    public void testCopyDependenciesFilesExist() throws Exception {
+        // stripVersion was set to true globally, and set to false for derby-client
+        File f = new File("liberty/usr/shared/resources/derbyclient-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derby.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+   }
+
 }
