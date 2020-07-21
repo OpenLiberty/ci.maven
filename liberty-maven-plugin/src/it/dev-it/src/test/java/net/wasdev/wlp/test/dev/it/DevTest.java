@@ -46,6 +46,12 @@ public class DevTest extends BaseDevTest {
    }
 
    @Test
+   public void verifyJsonHostName() throws Exception {
+      // simply verify escaped host exists in logs. parse occurs in ci.common
+      checkLogMessage(60, "CWWKT0016I: Web application available (default_host): http:\\/\\/");
+   }
+
+   @Test
    public void configChangeTest() throws Exception {
       // configuration file change
       File srcServerXML = new File(tempProj, "/src/main/liberty/config/server.xml");
