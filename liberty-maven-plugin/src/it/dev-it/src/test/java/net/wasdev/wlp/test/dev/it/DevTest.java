@@ -41,14 +41,14 @@ public class DevTest extends BaseDevTest {
    }
 
    @Test
-   public void basicTest() throws Exception {
-      testModifyJavaFile();
+   /* simple double check. if failure, check parse in ci.common */
+   public void verifyJsonHost() throws Exception {
+      checkLogMessage(2000, "CWWKT0016I"); 
    }
 
    @Test
-   public void verifyJsonHostName() throws Exception {
-      // simply verify escaped host exists in logs. parse occurs in ci.common
-      checkLogMessage(60, "CWWKT0016I: Web application available (default_host): http:\\/\\/");
+   public void basicTest() throws Exception {
+      testModifyJavaFile();
    }
 
    @Test
