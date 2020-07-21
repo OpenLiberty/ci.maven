@@ -123,8 +123,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     // Set up the config to replace the absolute path names with ${variable}/target type references
                     config.setProjectRoot(proj.getBasedir().getCanonicalPath());
                     config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
-                    // Set the property to include the variable definition in liberty-plugin-variable-config.xml
-                    proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, proj.getBasedir().getCanonicalPath());
                     if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
                         copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
                     } else {

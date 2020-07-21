@@ -71,6 +71,8 @@ public class StartDebugMojoSupport extends BasicSupport {
     private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS); 
 
     protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
+    protected final String DEVMODE_CONFIG_XML = "configDropins/overrides/dev-mode-config.xml";
+    private final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
@@ -349,6 +351,11 @@ public class StartDebugMojoSupport extends BasicSupport {
             writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, defaultVarMavenProps);  
         }
 
+        if (project.getProperties().containsKey("container")) {
+            File devModeConfig = new File(serverDirectory, DEVMODE_CONFIG_XML);
+            writeConfigDropinsDevModeVariable(devModeConfig, PROJECT_ROOT_NAME, project.getBasedir().getCanonicalPath());
+        }
+
         // log info on the configuration files that get used
         if (serverXMLPath != null && !serverXMLPath.isEmpty()) {
             log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
@@ -524,6 +531,18 @@ public class StartDebugMojoSupport extends BasicSupport {
         makeParentDirectory(file);
         configDocument.writeXMLDocument(file);
 
+    }
+
+    private void writeConfigDropinsDevModeVariable(File file, String key, String value) throws IOException, TransformerException, ParserConfigurationException {
+
+        ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
+
+        configDocument.createComment(HEADER);
+        configDocument.createVariableWithValue(key, value, false);
+
+        // write XML document to file
+        makeParentDirectory(file);
+        configDocument.writeXMLDocument(file);
     }
 
     private void makeParentDirectory(File file) {
