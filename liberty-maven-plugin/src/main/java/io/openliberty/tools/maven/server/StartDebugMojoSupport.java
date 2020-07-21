@@ -24,6 +24,8 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -244,6 +246,13 @@ public class StartDebugMojoSupport extends BasicSupport {
         loadLibertyConfigFromProperties();
 
         if (configDirectory != null && configDirectory.exists()) {
+            // If mergeServerEnv is true, merge configDir server.env with generated server.env before the copy is made
+            File configDirServerEnv = new File(configDirectory, "server.env");
+            if(mergeServerEnv && configDirServerEnv.exists()){
+                File generatedServerEnv = new File(serverDirectory, "server.env");
+                mergeConfigDirServerEnv(configDirServerEnv, generatedServerEnv);
+            }
+
             // copy configuration files from configuration directory to server directory if end-user set it
             Copy copydir = (Copy) ant.createTask("copy");
             FileSet fileset = new FileSet();
@@ -268,7 +277,6 @@ public class StartDebugMojoSupport extends BasicSupport {
                 bootStrapPropertiesPath = configDirBootstrapFile.getCanonicalPath();
             }
 
-            File configDirServerEnv = new File(configDirectory, "server.env");
             if (configDirServerEnv.exists()) {
                 serverEnvPath = configDirServerEnv.getCanonicalPath();
             }
@@ -329,19 +337,24 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy server.env to server directory if end-user explicitly set it
         File envFile = new File(serverDirectory, "server.env");
-        if (!envMavenProps.isEmpty()) {
-            if (serverEnvPath != null) {
-                log.warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
+        if(mergeServerEnv) {
+            serverEnvPath = mergeServerEnvFileAndEnvMavenProps(serverEnvPath);
+        }
+        else {
+            if (!envMavenProps.isEmpty()) {
+                if (serverEnvPath != null) {
+                    log.warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
+                }
+                writeServerEnvProperties(envFile, envMavenProps);
+                serverEnvPath = "inlined configuration";
+            } else if (serverEnvFile != null && serverEnvFile.exists()) {
+                Copy copy = (Copy) ant.createTask("copy");
+                copy.setFile(serverEnvFile);
+                copy.setTofile(envFile);
+                copy.setOverwrite(true);
+                copy.execute();
+                serverEnvPath = serverEnvFile.getCanonicalPath();
             }
-            writeServerEnvProperties(envFile, envMavenProps);
-            serverEnvPath = "inlined configuration";
-        } else if (serverEnvFile != null && serverEnvFile.exists()) {
-            Copy copy = (Copy) ant.createTask("copy");
-            copy.setFile(serverEnvFile);
-            copy.setTofile(envFile);
-            copy.setOverwrite(true);
-            copy.execute();
-            serverEnvPath = serverEnvFile.getCanonicalPath();
         }
 
         if (!varMavenProps.isEmpty() || !defaultVarMavenProps.isEmpty()) {
@@ -366,6 +379,64 @@ public class StartDebugMojoSupport extends BasicSupport {
             log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "server.env", serverEnvPath));
         }
+    }
+
+    //merges configured serverEnvFile with envMavenProps if specified
+    private String mergeServerEnvFileAndEnvMavenProps(String serverEnvPath) throws IOException {
+        StringBuilder updatedServerEnvPath = new StringBuilder(serverEnvPath);
+
+        File serverEnv = new File(serverDirectory, "server.env");
+        Map<String, String> serverEnvProps = convertServerEnvToProperties(serverEnv);
+
+        //merge specified server.env if present
+        if (serverEnvFile != null && serverEnvFile.exists()) {
+            Map<String, String> serverEnvFileProps = convertServerEnvToProperties(serverEnvFile);
+            serverEnvProps.putAll(serverEnvFileProps);
+        }
+
+        //merge server env props
+        if (!envMavenProps.isEmpty()) {
+            serverEnvProps.putAll(envMavenProps);
+        }
+
+        writeServerEnvProperties(serverEnv, serverEnvProps);
+        return updatedServerEnvPath.toString();
+    }
+
+    // Merge configured serverEnvFile with envMavenProps if specified
+    private void mergeConfigDirServerEnv(File configDirServerEnv, File generatedServerEnv) throws IOException {
+        Map<String, String> configDirServerEnvProps = convertServerEnvToProperties(configDirServerEnv);
+        Map<String, String> generatedServerEnvProps = convertServerEnvToProperties(generatedServerEnv);
+
+        // Merge the properties, with the configDirServerEnvProps overwriting any conflicts with generatedServerEnvProps
+        generatedServerEnvProps.putAll(configDirServerEnvProps);
+
+        writeServerEnvProperties(configDirServerEnv, generatedServerEnvProps);
+
+    }
+
+    private Map<String, String> convertServerEnvToProperties(File serverEnv) throws IOException {
+        Map<String, String> mavenProperties = new HashMap<String, String>();
+
+        if ((serverEnv == null) || !serverEnv.exists()) {
+            return mavenProperties;
+        }
+
+        BufferedReader bf = new BufferedReader(new FileReader(serverEnv));
+        String line;
+        while((line = bf.readLine()) != null) {
+            
+            //Skip comments
+            if(!line.startsWith("#")) {
+                String[] keyValue = line.split("=", 2);
+                String key = keyValue[0];
+                String value = keyValue[1];
+
+                mavenProperties.put(key,value);
+            }
+        }
+
+        return mavenProperties;
     }
 
     private void loadLibertyConfigFromProperties() {

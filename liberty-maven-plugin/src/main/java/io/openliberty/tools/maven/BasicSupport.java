@@ -160,6 +160,12 @@ public class BasicSupport extends AbstractLibertySupport {
     protected File serverEnvFile;
 
     /**
+     * If set, merges server.env contents from default server.env, configDir server.env, inline properties,  and specified server.env
+     */
+    @Parameter(property = "mergeServerEnv", defaultValue = "false")
+    protected boolean mergeServerEnv;
+
+    /**
      * Version to override any specified in the assemblyArtifact
      */
     @Parameter(alias = "libertyRuntimeVersion", property = "liberty.runtime.version")
