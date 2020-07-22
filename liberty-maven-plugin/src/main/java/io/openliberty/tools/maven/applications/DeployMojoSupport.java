@@ -46,7 +46,6 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
  */
 public class DeployMojoSupport extends PluginConfigSupport {
 
-    private final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
     private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
     /**
