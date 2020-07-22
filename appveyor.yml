@@ -36,6 +36,6 @@ before_build:
 
 build_script:
     - "echo %WLP_VERSION%"
-    - "mvn verify -Pappveyor-windows-its -Dinvoker.streamLogs=true -Druntime=%RUNTIME% -DruntimeVersion=%RUNTIME_VERSION%"
+    - "mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=%RUNTIME% -DruntimeVersion=%RUNTIME_VERSION%"
 
 test: off

@@ -176,50 +176,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>appveyor-windows-its</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <configuration>
-                            <debug>false</debug>
-                            <goals>
-                                <goal>install</goal>
-                            </goals>
-                            <projectsDirectory>src/it</projectsDirectory>
-                            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-                            <properties>
-                                <runtime>${runtime}</runtime>
-                                <runtimeGroupId>${runtimeGroupId}</runtimeGroupId>
-                                <runtimeArtifactId>${runtimeArtifactId}</runtimeArtifactId>
-                                <runtimeKernelId>${runtimeKernelId}</runtimeKernelId>
-                                <runtimeVersion>${runtimeVersion}</runtimeVersion>
-                            </properties>
-                            <streamLogs>true</streamLogs>
-                            <profiles>
-                                <profile>online-its</profile>
-                            </profiles>
-                            <streamLogs>true</streamLogs>
-                            <pomExcludes>
-                                <pomExclude>dev-it/pom.xml</pomExclude>
-                            </pomExcludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>integration-test</id>
-                                <goals>
-                                    <goal>install</goal>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
 
         <!-- Profiles for WLP vs OL -->
         <profile>
@@ -268,6 +224,29 @@
                                 <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                 <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                 <pomExclude>install-features-it/pom.xml</pomExclude>
+                            </pomExcludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+    </profile>
+    <profile>
+        <id>appveyor-windows-its</id>
+        <activation>
+        <os>
+            <family>Windows</family>
+        </os>
+        </activation>
+        <build>
+            <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <pomExcludes>
+                                <pomExclude>dev-it/pom.xml</pomExclude>
                             </pomExcludes>
                         </configuration>
                     </plugin>
