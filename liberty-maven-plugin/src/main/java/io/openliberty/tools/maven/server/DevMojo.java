@@ -314,6 +314,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 // Setup server task
                 serverTask = initializeJava();
                 copyConfigFiles();
+                if (container) {
+                    generateDevModeConfig(project.getBasedir().getCanonicalPath(), HEADER);
+                }
                 serverTask.setClean(clean);
                 if (libertyDebug) {
                     setLibertyDebugPort(libertyDebugPort);

@@ -40,13 +40,13 @@ import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
+import io.openliberty.tools.common.plugins.util.DevUtil;
 
 /**
  * Support for installing and deploying applications to a Liberty server.
  */
 public class DeployMojoSupport extends PluginConfigSupport {
 
-    private final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
     private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
     /**
@@ -122,9 +122,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                 try {
                     // Set up the config to replace the absolute path names with ${variable}/target type references
                     config.setProjectRoot(proj.getBasedir().getCanonicalPath());
-                    config.setSourceOnDiskName("${"+PROJECT_ROOT_NAME+"}");
-                    // Set the property to include the variable definition in liberty-plugin-variable-config.xml
-                    proj.getProperties().setProperty("liberty.var."+PROJECT_ROOT_NAME, proj.getBasedir().getCanonicalPath());
+                    config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
                     if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
                         copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
                     } else {
