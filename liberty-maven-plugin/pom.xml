@@ -231,16 +231,29 @@
             </pluginManagement>
         </build>
     </profile>
-    <profile>
-        <id>appveyor-windows-its</id>
-        <activation>
-        <os>
-            <family>Windows</family>
-        </os>
-        </activation>
-        <build>
-            <pluginManagement>
-                <plugins>
+
+    <!-- WLP/OP profiles for windows on appveyor -->
+            <profile>
+            <id>windows-wlp-its</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>wlp</runtime>
+                <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+                <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+                <runtimeKernelId>wlp-kernel</runtimeKernelId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+            <build>
+                <pluginManagement>
+                  <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
@@ -253,7 +266,50 @@
                 </plugins>
             </pluginManagement>
         </build>
+
+        </profile>
+        <profile>
+            <id>windows-ol-its</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>ol</runtime>
+                <runtimeGroupId>io.openliberty</runtimeGroupId>
+                <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+                <runtimeKernelId>openliberty-kernel</runtimeKernelId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+            <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <pomExcludes>
+                                <pomExclude>dev-it/pom.xml</pomExclude>
+                                <pomExclude>basic-it/pom.xml</pomExclude>
+                                <pomExclude>assembly-it/pom.xml</pomExclude>
+                                <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-default-it/pom.xml</pomExclude>
+                                <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                <pomExclude>install-features-it/pom.xml</pomExclude>
+                            </pomExcludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
     </profile>
+
 
 </profiles>
 
