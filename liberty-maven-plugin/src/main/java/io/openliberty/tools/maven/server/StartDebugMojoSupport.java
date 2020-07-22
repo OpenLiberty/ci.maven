@@ -52,7 +52,6 @@ import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
-import io.openliberty.tools.common.plugins.util.DevUtil;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -72,7 +71,6 @@ public class StartDebugMojoSupport extends BasicSupport {
     private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS);
 
     protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
-    protected final String PROJECT_ROOT_NAME = "io.openliberty.tools.projectRoot";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
