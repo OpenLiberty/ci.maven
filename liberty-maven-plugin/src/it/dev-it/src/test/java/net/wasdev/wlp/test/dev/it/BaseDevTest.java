@@ -116,7 +116,7 @@ public class BaseDevTest {
       Thread.sleep(5000);
       assertFalse(checkLogMessage(120000, "CWWKF0011I"));
       if (isDevMode) {
-          assertFalse(checkLogMessage(60000, "Enter key to run tests on demand"));
+         assertFalse(checkLogMessage(60000, "Enter key to run tests on demand"));
       }
 
       // verify that the target directory was created
