@@ -314,7 +314,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 // Setup server task
                 serverTask = initializeJava();
                 copyConfigFiles();
-                if (project.getProperties().containsKey("container")) {
+                if (container) {
                     generateDevModeConfig(project.getBasedir().getCanonicalPath(), HEADER);
                 }
                 serverTask.setClean(clean);
