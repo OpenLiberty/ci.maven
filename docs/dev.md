@@ -86,7 +86,10 @@ This mode publishes the container ports 9080, 9443 and 7777 by default. If your 
 For the current technology preview, the following limitations apply.
 
 - Platform limitations:
-  - Supported on macOS and Windows with Docker Desktop installed. Not supported on Linux at the moment.
+  - Supported on macOS and Windows with Docker Desktop installed.
+  - Supported on Linux when dev mode is running with root permissions. Note the following.
+    - Configuration files: the Open Liberty server runs on UID (user identifier) 1001 inside the container. Since dev mode makes the server configuration files from your project available inside the container they must be readable by that user. Therefore dev mode makes the server directory (`defaultServer`) in your project readable by all users.
+    - Log files: the container will write the Open Liberty log files into the logs directory in the server directory in your project. Dev mode will change the owner of the logs directory and all the files inside to UID 1001 to match the id used by the server in the container. The GID will be 0 (root).
 
 - Dockerfile limitations:
   - The Dockerfile must copy only one .war file for the application.  Other application archive formats or multiple .war files are not supported.
