@@ -246,17 +246,18 @@ public class StartDebugMojoSupport extends BasicSupport {
         loadLibertyConfigFromProperties();
 
         if (configDirectory != null && configDirectory.exists()) {
-            // If mergeServerEnv is true, merge configDir server.env with generated server.env before the copy is made
-            File configDirServerEnv = new File(configDirectory, "server.env");
-            if(mergeServerEnv && configDirServerEnv.exists()){
-                File generatedServerEnv = new File(serverDirectory, "server.env");
-                mergeConfigDirServerEnv(configDirServerEnv, generatedServerEnv);
-            }
-
             // copy configuration files from configuration directory to server directory if end-user set it
             Copy copydir = (Copy) ant.createTask("copy");
             FileSet fileset = new FileSet();
             fileset.setDir(configDirectory);
+
+            // If mergeServerEnv is true, don't overwrite generated server.env
+            File configDirServerEnv = new File(configDirectory, "server.env");
+            File generatedServerEnv = new File(serverDirectory, "server.env");
+            if(mergeServerEnv && configDirServerEnv.exists()){
+                fileset.setExcludesfile(generatedServerEnv);
+            }
+
             copydir.addFileset(fileset);
             copydir.setTodir(serverDirectory);
             copydir.setOverwrite(true);
@@ -277,6 +278,7 @@ public class StartDebugMojoSupport extends BasicSupport {
                 bootStrapPropertiesPath = configDirBootstrapFile.getCanonicalPath();
             }
 
+ 
             if (configDirServerEnv.exists()) {
                 serverEnvPath = configDirServerEnv.getCanonicalPath();
             }
@@ -338,7 +340,8 @@ public class StartDebugMojoSupport extends BasicSupport {
         // copy server.env to server directory if end-user explicitly set it
         File envFile = new File(serverDirectory, "server.env");
         if(mergeServerEnv) {
-            serverEnvPath = mergeServerEnvFileAndEnvMavenProps(serverEnvPath);
+            mergeServerEnvFileAndEnvMavenProps(serverEnvPath);
+            serverEnvPath = getMergedServerEnvPath(serverEnvPath);
         }
         else {
             if (!envMavenProps.isEmpty()) {
@@ -382,11 +385,16 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     //merges configured serverEnvFile with envMavenProps if specified
-    private String mergeServerEnvFileAndEnvMavenProps(String serverEnvPath) throws IOException {
-        StringBuilder updatedServerEnvPath = new StringBuilder(serverEnvPath);
-
+    private void mergeServerEnvFileAndEnvMavenProps(String serverEnvPath) throws IOException {
         File serverEnv = new File(serverDirectory, "server.env");
         Map<String, String> serverEnvProps = convertServerEnvToProperties(serverEnv);
+
+        // merge configDir serverEnv if present
+        if (serverEnvPath!= null) {
+            File configDirServerEnv = new File(configDirectory, "server.env");
+            Map<String, String> configDirServerEnvProps = convertServerEnvToProperties(configDirServerEnv);
+            serverEnvProps.putAll(configDirServerEnvProps);
+        }
 
         //merge specified server.env if present
         if (serverEnvFile != null && serverEnvFile.exists()) {
@@ -400,19 +408,36 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
 
         writeServerEnvProperties(serverEnv, serverEnvProps);
-        return updatedServerEnvPath.toString();
     }
 
-    // Merge configured serverEnvFile with envMavenProps if specified
-    private void mergeConfigDirServerEnv(File configDirServerEnv, File generatedServerEnv) throws IOException {
-        Map<String, String> configDirServerEnvProps = convertServerEnvToProperties(configDirServerEnv);
-        Map<String, String> generatedServerEnvProps = convertServerEnvToProperties(generatedServerEnv);
+    private String getMergedServerEnvPath(String serverEnvPath) throws IOException {
+        boolean configDirEnvMerged = serverEnvPath != null;
+        boolean serverEnvFileMerged = serverEnvFile != null && serverEnvFile.exists();
+        boolean inlineEnvPropsMerged = !envMavenProps.isEmpty();
 
-        // Merge the properties, with the configDirServerEnvProps overwriting any conflicts with generatedServerEnvProps
-        generatedServerEnvProps.putAll(configDirServerEnvProps);
+        StringBuilder updatedServerEnvPath = new StringBuilder("merging");
 
-        writeServerEnvProperties(configDirServerEnv, generatedServerEnvProps);
+        if(configDirEnvMerged) {
+            updatedServerEnvPath.append(" configDir server.env " +  serverEnvPath + ", ");
+        }
+        if (serverEnvFileMerged) {
+            updatedServerEnvPath.append(" serverEnvFile " +  serverEnvFile.getCanonicalPath() + ", ");
+        }
+        if (inlineEnvPropsMerged) {
+            updatedServerEnvPath.append(" env properties, ");
+        }
+        // remove excess comma and space
+        int lastCommaIndex = updatedServerEnvPath.lastIndexOf(", ");
+        updatedServerEnvPath = updatedServerEnvPath.replace(lastCommaIndex, lastCommaIndex + 2, ".");
+        
+        //replace last comma and space with and
+        lastCommaIndex = updatedServerEnvPath.lastIndexOf(", ");
+        if(lastCommaIndex > 0) {
+            updatedServerEnvPath = updatedServerEnvPath.replace(lastCommaIndex, lastCommaIndex + 2, "");
+            updatedServerEnvPath = updatedServerEnvPath.insert(lastCommaIndex, " and");
+        }
 
+        return updatedServerEnvPath.toString();
     }
 
     private Map<String, String> convertServerEnvToProperties(File serverEnv) throws IOException {

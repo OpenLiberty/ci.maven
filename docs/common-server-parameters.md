@@ -11,6 +11,7 @@ Additional parameters shared by all server-based goals.
 | jvmOptions | List of JVM options for the server instance. `jvmOptions` will take precedence over `jvmOptionsFile`.| No |
 | jvmOptionsFile | Location of a JVM options file to be used by the instance.| No |
 | serverEnvFile | Location of a server environment file to be used by the instance. This replaces the `serverEnv` parameter which is still supported for backwards compatibility.| No |
+| mergeServerEnv | Merge the server environment properties from all specified sources with the default generated `server.env` file in the target server. Conflicts are resolved with the same precedence as the replacement policy when this attribute is set to `false`. The properties specified in the `env` attribute are highest precedence, followed by the `serverEnvFile` attribute, then the `server.env` file located in the `configDirectory`, and finally the default generated `server.env` file in the target server. The default value is `false`. | No |
 
 Starting with the 3.1 release of the liberty-maven-plugin, support is added to specify Liberty configuration with Maven properties. Use the following property name formats to update the desired Liberty configuration.
 
