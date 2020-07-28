@@ -253,9 +253,9 @@ public class StartDebugMojoSupport extends BasicSupport {
 
             // If mergeServerEnv is true, don't overwrite generated server.env
             File configDirServerEnv = new File(configDirectory, "server.env");
-            File generatedServerEnv = new File(serverDirectory, "server.env");
             if(mergeServerEnv && configDirServerEnv.exists()){
-                fileset.setExcludesfile(generatedServerEnv);
+                // set excludes pattern 
+                fileset.setExcludes("server.env");
             }
 
             copydir.addFileset(fileset);

@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>compile-jsp-it</artifactId>
+  <artifactId>merge-server-env-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -26,7 +26,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
+  <properties>
+    <liberty.env.TEST_PROP_2>white</liberty.env.TEST_PROP_2>
+    <liberty.env.CONFIG_SERVER_ENV_PROPS>TEST</liberty.env.CONFIG_SERVER_ENV_PROPS>
+  </properties>
+
   <build>
     <pluginManagement>
         <plugins>
@@ -65,6 +70,9 @@
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
+          <mergeServerEnv>true</mergeServerEnv>
+          <serverEnvFile>src/test/resources/server.env</serverEnvFile>
+          <configDirectory>src/test/resources/configDir</configDirectory>
         </configuration>
         <executions>
             <execution>
@@ -97,7 +105,6 @@
                <goals>
                    <goal>install-feature</goal>
                    <goal>start</goal>
-                   <goal>compile-jsp</goal>
                </goals>
                <configuration>
                     <features>
@@ -146,7 +153,7 @@
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
-                        <include>**/*CompileJSPTest.java</include>
+                        <include>**/*MergeServerEnvTest.java</include>
                     </includes>
                 </configuration>
                 <executions>
