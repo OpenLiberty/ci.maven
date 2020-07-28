@@ -148,7 +148,7 @@ public class ExecuteMojoUtil {
 
     private static final ArrayList<String> LIBERTY_COMMON_SERVER_PARAMS = new ArrayList<>(
             Arrays.asList("serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-                    "jvmOptions", "jvmOptionsFile", "serverEnvFile"
+                    "jvmOptions", "jvmOptionsFile", "serverEnvFile", "mergeServerEnv"
             // executeMojo can not use alias parameters:
             // "configFile", "serverEnv"
             ));
