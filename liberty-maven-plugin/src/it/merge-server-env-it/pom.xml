@@ -107,11 +107,6 @@
                    <goal>start</goal>
                </goals>
                <configuration>
-                    <features>
-                        <acceptLicense>true</acceptLicense>
-                        <feature>mongodb-2.0</feature>
-                        <feature>ejbLite-3.2</feature>
-                   </features>
                    <background>true</background>
                    <verifyTimeout>40</verifyTimeout>
                </configuration>
