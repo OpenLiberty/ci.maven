@@ -261,6 +261,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
+                                    <pomExclude>kernel-install-feature-tests/uninstall-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
