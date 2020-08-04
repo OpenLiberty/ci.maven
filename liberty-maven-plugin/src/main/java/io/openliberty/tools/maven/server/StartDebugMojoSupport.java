@@ -284,6 +284,13 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
+        // clear existing liberty config override
+        File configOverrides = new File(serverDirectory, "configDropins/overrides/liberty-plugin-variable-config.xml");
+        if (configOverrides.exists()) {
+            configOverrides.delete();
+            log.info("The pre-existing liberty-plugin-variable-config.xml has been cleaned to avoid conflicts.");
+        }
+
         // copy server.xml file to server directory if end-user explicitly set it.
         if (serverXmlFile != null && serverXmlFile.exists()) {
             if (serverXMLPath != null) {
@@ -299,6 +306,7 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy jvm.options to server directory if end-user explicitly set it
         File optionsFile = new File(serverDirectory, "jvm.options");
+        if (optionsFile.exists()) optionsFile.delete();
         if (jvmOptions != null || !jvmMavenProps.isEmpty()) {
             if (jvmOptionsPath != null) {
                 log.warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
@@ -319,6 +327,7 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy bootstrap.properties to server directory if end-user explicitly set it
         File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
+        if (bootstrapFile.exists()) bootstrapFile.delete();
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
                 log.warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
