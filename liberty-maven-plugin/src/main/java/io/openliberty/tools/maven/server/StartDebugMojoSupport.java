@@ -284,13 +284,6 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
-        // clear existing liberty config override
-        File configOverrides = new File(serverDirectory, "configDropins/overrides/liberty-plugin-variable-config.xml");
-        if (configOverrides.exists()) {
-            configOverrides.delete();
-            log.info("The pre-existing liberty-plugin-variable-config.xml has been cleaned to avoid conflicts.");
-        }
-
         // copy server.xml file to server directory if end-user explicitly set it.
         if (serverXmlFile != null && serverXmlFile.exists()) {
             if (serverXMLPath != null) {
@@ -369,8 +362,9 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
+        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
+        if (pluginVariableConfig.exists()) pluginVariableConfig.delete();
         if (!varMavenProps.isEmpty() || !defaultVarMavenProps.isEmpty()) {
-            File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
             writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, defaultVarMavenProps);  
         }
 
