@@ -41,4 +41,4 @@ jobs:
         mvn clean install
         cd ..
     - name: Run tests with maven
-      run: mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion=${{ matrix.RUNTIME_VERSION }}
+      run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
