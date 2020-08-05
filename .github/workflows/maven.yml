@@ -27,14 +27,17 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
-    - name: Pull ci.common
-      uses: actions/checkout@master
-      with:
-        repository: OpenLiberty/ci.common
-    - name: Install ci.common
-      run: |
-        mvn clean install
     - name: Checkout ci.maven
       uses: actions/checkout@v2
+    - name: Pull ci.common
+      uses: actions/checkout@v2
+      with:
+        repository: OpenLiberty/ci.common
+        path: ci.common
+    - name: Install ci.common
+      run: |
+        cd ./ci.common
+        mvn clean install
+        cd ..
     - name: Run tests with maven
       run: mvn verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion=${{ matrix.RUNTIME_VERSION }}
