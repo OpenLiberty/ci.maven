@@ -82,22 +82,24 @@ public class DefaultAppDirectoryTest {
 
     @Test
     public void testCopyDependenciesFilesExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/lib/global/commons-logging.jar");
         // This was SCOPE_TEST and should not be copied.
+        File f = new File("liberty/usr/shared/resources/commons-logging-1.0.4.jar");
         Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
 
-        f = new File("liberty/usr/servers/test/lib/global/derbytools-10.15.2.0.jar");
-        // This was SCOPE_PROVIDED and should not be copied.
+        // This was not defined in the dependencies and should not be copied.
+        f = new File("liberty/usr/shared/resources/derbytools-10.15.2.0.jar");
         Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
 
-        // stripVersion was set to true for derby client
-        f = new File("liberty/usr/servers/test/lib/global/derbyclient.jar");
+        // This was not defined in the dependencies and should be copied because the full GAV coordinate was specified.
+        f = new File("liberty/usr/shared/resources/derbyclient-10.15.2.0.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
-        f = new File("liberty/usr/servers/test/lib/global/derby/derby-10.15.2.0.jar");
+        // This was SCOPE_PROVIDED and should be copied.
+        f = new File("liberty/usr/shared/resources/derby-10.15.2.0.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
-        f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared-10.15.2.0.jar");
+        // This is a transitive dependency of org.apache.derby:derby and should be copied.
+        f = new File("liberty/usr/shared/resources/derbyshared-10.15.2.0.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
    }

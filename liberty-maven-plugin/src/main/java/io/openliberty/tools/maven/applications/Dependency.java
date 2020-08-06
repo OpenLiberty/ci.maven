@@ -15,60 +15,53 @@
  */
 package io.openliberty.tools.maven.applications;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * A Dependency specified with a filter and an optional location.
+ * A Dependency specified with GAV coordinate.
  */
 public class Dependency {
 
     /**
-     * Filter specifying the dependency to copy. The format is groupId:artifactId:version, with artifactId and 
-     * version optional. Maven dependency management will be used to resolve the dependency.
+     * The groupId of the Maven dependency to copy. This is required. Maven dependency management will be used to resolve the dependency.
      */
     @Parameter
-    private String filter = null;
+    private String groupId = null;
 
     /**
-     * Boolean to indicate whether to strip versions from the file names when copying.
-     * The default is null. The stripVersion in the containing CopyDependencies configuration will
-     * be used if nothing is specified here.
+     * The artifactId of the Maven dependency to copy. This is optional and also supports a '*' at the end. Maven dependency management will be used to resolve the dependency.
      */
     @Parameter
-    private Boolean stripVersion;
+    private String artifactId = null;
 
     /**
-     * Optional location to copy the Dependency to. This can be a full path, or a path relative to
-     * ${server.config.dir}. The location in the containing CopyDependencies configuration will be 
-     * used if nothing is specified here.
+     * The version of the Maven dependency to copy. This is optional.
      */
     @Parameter
-    private String location = null;
+    private String version = null;
 
-    public String getLocation() {
-        return location;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
     
-    public String getFilter() {
-        return filter;
+    public String getArtifactId() {
+        return artifactId;
     }
 
-    public void setFilter(String filter) {
-        this.filter = filter;
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+    
+    public String getVersion() {
+        return version;
     }
 
-    public Boolean getStripVersion() {
-        return this.stripVersion;
-    }
-
-    public void setStripVersion(boolean strip) {
-        this.stripVersion = new Boolean(strip);
+    public void setVersion(String version) {
+        this.version = version;
     }
     
 }

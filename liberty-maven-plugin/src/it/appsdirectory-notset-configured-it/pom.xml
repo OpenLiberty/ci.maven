@@ -35,6 +35,7 @@
         <groupId>org.apache.derby</groupId>
         <artifactId>derby</artifactId>
         <version>10.15.2.0</version>
+        <scope>provided</scope>
     </dependency>
   </dependencies>
   
@@ -83,22 +84,22 @@
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
           <copyDependencies>
+            <location>${project.build.directory}/liberty/usr/shared/resources</location>
             <dependency>
-                <location>lib/global/derby</location>
-                <filter>org.apache.derby:derby</filter>
+                <groupId>commons-logging</groupId>
             </dependency>
             <dependency>
-                <filter>commons-logging</filter>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbytools</artifactId>
             </dependency>
             <dependency>
-                <filter>org.apache.derby:derbytools</filter>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
             </dependency>
             <dependency>
-                <filter>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</filter>
-            </dependency>
-            <dependency>
-                <filter>org.apache.derby:derbyclient:10.15.2.0</filter>
-                <stripVersion>true</stripVersion>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>10.15.2.0</version>
             </dependency>
           </copyDependencies>
 
