@@ -24,8 +24,8 @@ jobs:
         RUNTIME_VERSION: [ 20.0.0.3, 20.0.0.6 ]
 
     steps:
-    - name: Set up Java
-      uses: actions/setup-java@v1
+    - name: Setup Java ${{ matrix.java }}
+      uses: joschi/setup-jdk@v2
       with:
         java-version: ${{ matrix.java }}
     - name: Checkout ci.maven
