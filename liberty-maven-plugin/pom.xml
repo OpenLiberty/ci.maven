@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -69,7 +70,7 @@
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
             <version>3.5.2</version>
-            <scope>provided</scope><!-- annotations are needed only to build the plugin -->
+            <scope>provided</scope>            <!-- annotations are needed only to build the plugin -->
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
@@ -211,30 +212,106 @@
             </properties>
             <build>
                 <pluginManagement>
-                  <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-invoker-plugin</artifactId>
-                        <configuration>
-                            <pomExcludes>
-                                <pomExclude>basic-it/pom.xml</pomExclude>
-                                <pomExclude>assembly-it/pom.xml</pomExclude>
-                                <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
-                                <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
-                                <pomExclude>server-param-default-it/pom.xml</pomExclude>
-                                <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
-                                <pomExclude>install-features-it/pom.xml</pomExclude>
-                            </pomExcludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </pluginManagement>
-        </build>
-    </profile>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>basic-it/pom.xml</pomExclude>
+                                    <pomExclude>assembly-it/pom.xml</pomExclude>
+                                    <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-default-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>install-features-it/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
 
-</profiles>
+        <!-- WLP/OP profiles for windows on appveyor -->
+        <profile>
+            <id>windows-wlp-its</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+                <property>
+                    <name>runtime</name>
+                    <value>wlp</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>wlp</runtime>
+                <runtimeGroupId>com.ibm.websphere.appserver.runtime</runtimeGroupId>
+                <runtimeArtifactId>wlp-javaee7</runtimeArtifactId>
+                <runtimeKernelId>wlp-kernel</runtimeKernelId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>dev-it/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>windows-ol-its</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+                <property>
+                    <name>runtime</name>
+                    <value>ol</value>
+                </property>
+            </activation>
+            <properties>
+                <runtime>ol</runtime>
+                <runtimeGroupId>io.openliberty</runtimeGroupId>
+                <runtimeArtifactId>openliberty-runtime</runtimeArtifactId>
+                <runtimeKernelId>openliberty-kernel</runtimeKernelId>
+                <runtimeVersion>${runtimeVersion}</runtimeVersion>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>dev-it/pom.xml</pomExclude>
+                                    <pomExclude>basic-it/pom.xml</pomExclude>
+                                    <pomExclude>assembly-it/pom.xml</pomExclude>
+                                    <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-default-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>install-features-it/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 
-<prerequisites>
-    <maven>3.0</maven>
-</prerequisites>
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
 </project>
