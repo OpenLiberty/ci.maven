@@ -27,6 +27,7 @@ import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 import io.openliberty.tools.maven.server.types.Features;
 
 
@@ -44,8 +45,9 @@ public class InstallFeatureSupport extends BasicSupport {
     public boolean installFromAnt;
 
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas)  throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas);
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+                throws PluginScenarioException, PluginExecutionException {
+            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion);
         }
 
         @Override
@@ -132,14 +134,16 @@ public class InstallFeatureSupport extends BasicSupport {
         return true;
     }
 
-    protected Set<String> getInstalledFeatures() throws PluginExecutionException {
+    protected Set<String> getInstalledFeatures(InstallFeatureUtil util) throws PluginExecutionException {
         Set<String> pluginListedFeatures = getPluginListedFeatures(false);
-        Set<String> pluginListedEsas = getPluginListedFeatures(true);
 
+        if (util == null) {
+            Set<String> pluginListedEsas = getPluginListedFeatures(true);
+            List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory, new File(installDirectory, "lib/versions"));
+            String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+            util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
+        }
 
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
-
-        
         if (util == null && noFeaturesSection) {
             //No features were installed because acceptLicense parameter was not configured
             return new HashSet<String>();
@@ -159,10 +163,11 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas) throws PluginExecutionException {
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
+            throws PluginExecutionException {
         InstallFeatureUtil util = null;
         try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas);
+            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion);
         } catch (PluginScenarioException e) {
             log.debug(e.getMessage());
             if (noFeaturesSection) {

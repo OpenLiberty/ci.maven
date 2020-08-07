@@ -122,7 +122,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setClasspath(classpathStr);
 
         if(initialize()) {
-            Set<String> installedFeatures = getInstalledFeatures();
+            Set<String> installedFeatures = getInstalledFeatures(null);
 
             //Set JSP Feature Version
             setJspVersion(compile, installedFeatures);

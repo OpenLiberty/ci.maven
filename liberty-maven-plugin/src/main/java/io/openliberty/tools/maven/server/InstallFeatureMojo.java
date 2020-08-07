@@ -28,6 +28,7 @@ import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.maven.InstallFeatureSupport;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 
 /**
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
@@ -49,26 +50,23 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     }
 
     private void installFeatures() throws PluginExecutionException {
-          
-        Set<String> featuresToInstall = getInstalledFeatures();
+        List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory, new File(installDirectory, "lib/versions"));
+        String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
-        Set<String> pluginListedEsas = getPluginListedFeatures(true);
-
-        log.debug("Attempt to create InstallFeatureUtil object");
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
-        /*log.debug("BEFORE: " + util.getOpenLibertyVersion());
-
-        if (util.isOpenLibertyBetaVersion()) {
+        if (isOpenLibertyBetaVersion(openLibertyVersion)) {
             log.warn("Beta version of Open Liberty does not support installing features.");
             return;
-        }*/
+        }
+
+        Set<String> pluginListedEsas = getPluginListedFeatures(true);
+        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
+        Set<String> featuresToInstall = getInstalledFeatures(util);
         
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
         }
         else {
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
-            log.debug("AFTER feature install: " + util.getOpenLibertyVersion());
         }
     }
 
@@ -97,6 +95,13 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         installFeatureTask.setFeatures(installFeatures);
         installFeatureTask.setFrom(features.getFrom());
         installFeatureTask.execute();
+    }
+
+    public boolean isOpenLibertyBetaVersion(String openLibertyVersion) {
+        if (openLibertyVersion != null && openLibertyVersion.endsWith("-beta")) {
+            return true;
+        }
+        return false;
     }
 
 }
