@@ -172,12 +172,7 @@ public class DeployMojo extends DeployMojoSupport {
                 File nextFile = nextArtifact.getFile();
                 String targetFileName = nextFile.getName();
                 if (stripVersion) {
-                    String dashVersion = "-" + nextArtifact.getVersion();
-                    if (targetFileName.contains(dashVersion)) {
-                        targetFileName = targetFileName.replace(dashVersion,"");
-                    } else {
-                        targetFileName = targetFileName.replace(nextArtifact.getVersion(),"");
-                    }
+                    targetFileName = stripVersionFromName(targetFileName, nextArtifact.getVersion());
                 }
            
                 File fileToCopyTo = new File(location, targetFileName);
