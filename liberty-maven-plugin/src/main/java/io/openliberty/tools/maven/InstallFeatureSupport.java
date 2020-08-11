@@ -173,9 +173,9 @@ public class InstallFeatureSupport extends BasicSupport {
     /**
      * Get a new instance of InstallFeatureUtil
      * 
-     * @param pluginListedEsas - TODO: not sure what this is
-     * @param propertiesList - List of ProductProperties which can be obtained through InstallFeatureUtil.loadProperties
-     * @param openLibertyVersion - Current openLibertyVersion can be obtained through InstallFeatureUtil.getOpenLibertyVersion
+     * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
+     * @param propertiesList The list of product properties installed with the Open Liberty runtime
+     * @param openLibertyVersion The version of the Open Liberty runtime
      * @return instance of InstallFeatureUtil
      */
     protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
