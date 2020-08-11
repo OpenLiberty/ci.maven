@@ -50,17 +50,17 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     }
 
     private void installFeatures() throws PluginExecutionException {
-        List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory, new File(installDirectory, "lib/versions"));
+        List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
-        if (isOpenLibertyBetaVersion(openLibertyVersion)) {
+        if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
             log.warn("Beta version of Open Liberty does not support installing features.");
             return;
         }
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
         InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
-        Set<String> featuresToInstall = getInstalledFeatures(util);
+        Set<String> featuresToInstall = getInstalledFeatures();
         
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
@@ -95,13 +95,6 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         installFeatureTask.setFeatures(installFeatures);
         installFeatureTask.setFrom(features.getFrom());
         installFeatureTask.execute();
-    }
-
-    public boolean isOpenLibertyBetaVersion(String openLibertyVersion) {
-        if (openLibertyVersion != null && openLibertyVersion.endsWith("-beta")) {
-            return true;
-        }
-        return false;
     }
 
 }

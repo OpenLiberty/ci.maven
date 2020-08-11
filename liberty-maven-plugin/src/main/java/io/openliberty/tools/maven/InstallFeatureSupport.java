@@ -44,6 +44,8 @@ public class InstallFeatureSupport extends BasicSupport {
 
     public boolean installFromAnt;
 
+    private InstallFeatureUtil util;
+
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
         public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
                 throws PluginScenarioException, PluginExecutionException {
@@ -134,12 +136,17 @@ public class InstallFeatureSupport extends BasicSupport {
         return true;
     }
 
-    protected Set<String> getInstalledFeatures(InstallFeatureUtil util) throws PluginExecutionException {
+    /**
+     * Get the current installed Liberty features
+     *
+     * @return Set of Strings containing the installed Liberty features
+     */
+    protected Set<String> getInstalledFeatures() throws PluginExecutionException {
         Set<String> pluginListedFeatures = getPluginListedFeatures(false);
 
         if (util == null) {
             Set<String> pluginListedEsas = getPluginListedFeatures(true);
-            List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory, new File(installDirectory, "lib/versions"));
+            List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
             String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
             util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
         }
@@ -163,9 +170,16 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
+    /**
+     * Get a new instance of InstallFeatureUtil
+     * 
+     * @param pluginListedEsas - TODO: not sure what this is
+     * @param propertiesList - List of ProductProperties which can be obtained through InstallFeatureUtil.loadProperties
+     * @param openLibertyVersion - Current openLibertyVersion can be obtained through InstallFeatureUtil.getOpenLibertyVersion
+     * @return instance of InstallFeatureUtil
+     */
     protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
             throws PluginExecutionException {
-        InstallFeatureUtil util = null;
         try {
             util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion);
         } catch (PluginScenarioException e) {
