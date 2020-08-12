@@ -148,7 +148,7 @@ public class InstallFeatureSupport extends BasicSupport {
             Set<String> pluginListedEsas = getPluginListedFeatures(true);
             List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
             String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-            util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
+            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
         }
 
         if (util == null && noFeaturesSection) {
@@ -170,15 +170,7 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
-    /**
-     * Get a new instance of InstallFeatureUtil
-     * 
-     * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
-     * @param propertiesList The list of product properties installed with the Open Liberty runtime
-     * @param openLibertyVersion The version of the Open Liberty runtime
-     * @return instance of InstallFeatureUtil
-     */
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
+    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
             throws PluginExecutionException {
         try {
             util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion);
@@ -193,6 +185,19 @@ public class InstallFeatureSupport extends BasicSupport {
                 log.debug("Installing features from installUtility.");
             }
         }
+    }
+
+    /**
+     * Get a new instance of InstallFeatureUtil
+     * 
+     * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
+     * @param propertiesList The list of product properties installed with the Open Liberty runtime
+     * @param openLibertyVersion The version of the Open Liberty runtime
+     * @return instance of InstallFeatureUtil
+     */
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+            throws PluginExecutionException {
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion);
         return util;
     }
     
