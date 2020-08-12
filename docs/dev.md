@@ -87,9 +87,9 @@ For the current technology preview, the following limitations apply.
 
 - Platform limitations:
   - Supported on macOS and Windows with Docker Desktop installed.
-  - Supported on Linux when dev mode is running with root permissions. Note the following.
-    - Configuration files: the Open Liberty server runs on UID (user identifier) 1001 inside the container. Since dev mode makes the server configuration files from your project available inside the container they must be readable by that user. Therefore dev mode makes the server directory (`defaultServer`) in your project readable by all users.
-    - Log files: the container will write the Open Liberty log files into the logs directory in the server directory in your project. Dev mode will change the owner of the logs directory and all the files inside to UID 1001 to match the id used by the server in the container. The GID will be 0 (root).
+  - Supported on Linux. Note the following.
+    - Configuration files: the Open Liberty server runs on UID (user identifier) 1001 inside the container. Since dev mode makes the server configuration files from your project available inside the container they must be readable by that user. Therefore dev mode makes all the files in the server directory (`defaultServer`) in your project readable by all users. It also makes all the directories but `workarea` usable by all users.
+    - Log files: the container will write the Open Liberty log files into the logs directory in the server directory in your project. When running with root permissions dev mode will change the owner of the logs directory and all the files inside to UID 1001 to match the id used by the server in the container. The GID will be 0 (root). When running as a non-root user the set GID bit will be set so that log files will be owned by user 1001 and the group id will be that of the current user.
     - Use of editors like `vim`: when you edit a configuration file with `vim` it will delete the file
     and rewrite it when you save. This necessitates a container restart. To avoid the restart edit your
     .vimrc file and add the line `set backupcopy=yes`
