@@ -278,7 +278,6 @@ public class StartDebugMojoSupport extends BasicSupport {
                 bootStrapPropertiesPath = configDirBootstrapFile.getCanonicalPath();
             }
 
- 
             if (configDirServerEnv.exists()) {
                 serverEnvPath = configDirServerEnv.getCanonicalPath();
             }
@@ -299,6 +298,9 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy jvm.options to server directory if end-user explicitly set it
         File optionsFile = new File(serverDirectory, "jvm.options");
+        if (optionsFile.exists() && jvmOptionsPath == null) {
+            optionsFile.delete();
+        }
         if (jvmOptions != null || !jvmMavenProps.isEmpty()) {
             if (jvmOptionsPath != null) {
                 log.warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
@@ -319,6 +321,9 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy bootstrap.properties to server directory if end-user explicitly set it
         File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
+        if (bootstrapFile.exists() && bootStrapPropertiesPath == null) {
+            bootstrapFile.delete();
+        } 
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
                 log.warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
@@ -360,8 +365,11 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
+        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
+        if (pluginVariableConfig.exists()) {
+            pluginVariableConfig.delete();
+        }
         if (!varMavenProps.isEmpty() || !defaultVarMavenProps.isEmpty()) {
-            File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
             writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, defaultVarMavenProps);  
         }
 
