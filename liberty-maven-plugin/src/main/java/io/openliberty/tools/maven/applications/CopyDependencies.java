@@ -39,9 +39,14 @@ public class CopyDependencies {
     private Boolean stripVersion;
 
     /**
-     * A list with the names of the features.
+     * A list of Dependency to copy.
      */
     private List<Dependency> copyDependencyList = new ArrayList<Dependency>();
+    
+    /**
+     * A list of DependencyGroup to copy.
+     */
+    private List<DependencyGroup> copyDependencyGroupList = new ArrayList<DependencyGroup>();
     
     public String getLocation() {
         return location;
@@ -82,6 +87,24 @@ public class CopyDependencies {
      */
     public void addDependency(Dependency dependency) {
         copyDependencyList.add(dependency);
+    }
+
+    /**
+     * Get all the current DependencyGroups to copy.
+     *
+     * @return A list with the DependencyGroup to copy.
+     */
+    public List<DependencyGroup> getDependencyGroups() {
+        return copyDependencyGroupList;
+    }
+
+    /**
+     * Add a DependencyGroup into a list.
+     *
+     * @param DependencyGroup
+     */
+    public void addDependencyGroup(DependencyGroup dependencyGroup) {
+        copyDependencyGroupList.add(dependencyGroup);
     }
 
 }

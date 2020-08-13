@@ -37,9 +37,9 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
  * Copy applications to the specified directory of the Liberty server. The ResolutionScope.COMPILE_PLUS_RUNTIME 
- * includes compile + system + provided + runtime dependencies. The copyDependencies functionality should only
- * include dependencies and transitive dependencies with scope compile + system + runtime. So the provided scope
- * ones will need to be excluded.
+ * includes compile + system + provided + runtime dependencies. The copyDependencies functionality will
+ * include dependencies with all those scopes, and transitive dependencies with scope compile + system + runtime. 
+ * Provided scope transitive dependencies are not included by default (built-in maven behavior).
  */
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployMojo extends DeployMojoSupport {
@@ -115,22 +115,33 @@ public class DeployMojo extends DeployMojoSupport {
 
             String dftLocationPath = dftLocationFile.getCanonicalPath();
 
-            log.debug("copyDependencies to default location: "+dftLocationPath);
+            if (!deps.isEmpty()) {      
+                log.debug("copyDependencies to location: "+dftLocationPath);
+            }
 
             for (Dependency dep : deps) {
-                String filter = dep.getFilter();
-                boolean stripVersion = defaultStripVersion;
-                Boolean specifiedStripVersion = dep.getStripVersion();
-                if (specifiedStripVersion != null) {
-                    stripVersion = specifiedStripVersion.booleanValue();
-                }
-
-                copyDependencies(dep.getFilter(), dep.getLocation(), dftLocationPath, stripVersion);                
+                copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), null, dftLocationPath, defaultStripVersion);                
             }
+
+            List<DependencyGroup> depGroups = copyDependencies.getDependencyGroups();
+
+            for (DependencyGroup depGroup : depGroups) {
+                String overrideLocation = depGroup.getLocation();
+                if (overrideLocation != null) {
+                    log.debug("copyDependencies to location: "+ overrideLocation);
+                } else {
+                    log.debug("copyDependencies to location: "+dftLocationPath);
+                }
+                List<Dependency> groupDeps = depGroup.getDependencies();
+                for (Dependency dep : groupDeps) {
+                    copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), overrideLocation, dftLocationPath, defaultStripVersion);                
+                }
+            }
+
         }
     }
 
-    private void copyDependencies(String gavCoordinates, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
+    private void copyDependencies(String groupId, String artifactId, String version, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
 
         String location = defaultLocation;
 
@@ -152,21 +163,16 @@ public class DeployMojo extends DeployMojoSupport {
             }
         }
 
-        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(gavCoordinates);
+        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(groupId, artifactId, version);
 
         if (artifactsToCopy.isEmpty()) {
-            log.warn("copyDependencies failed for dependency with filter "+ gavCoordinates +". No matching resolved dependencies were found.");
+            log.warn("copyDependencies failed for dependency with groupId "+ groupId +", artifactId "+artifactId+", and version "+version+". No matching resolved dependencies were found.");
         } else {
             for (Artifact nextArtifact : artifactsToCopy) {
                 File nextFile = nextArtifact.getFile();
                 String targetFileName = nextFile.getName();
                 if (stripVersion) {
-                    String dashVersion = "-" + nextArtifact.getVersion();
-                    if (targetFileName.contains(dashVersion)) {
-                        targetFileName = targetFileName.replace(dashVersion,"");
-                    } else {
-                        targetFileName = targetFileName.replace(nextArtifact.getVersion(),"");
-                    }
+                    targetFileName = stripVersionFromName(targetFileName, nextArtifact.getVersion());
                 }
            
                 File fileToCopyTo = new File(location, targetFileName);

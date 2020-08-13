@@ -82,14 +82,22 @@ public class DefaultAppDirectoryTest {
 
     @Test
     public void testCopyDependenciesFilesExist() throws Exception {
-        // stripVersion was set to true globally, and set to false for derby-client
-        File f = new File("liberty/usr/shared/resources/derbyclient-10.15.2.0.jar");
+        // stripVersion was set to true
+
+        // This was SCOPE_PROVIDED and should be copied. The default location was used.
+        File f = new File("liberty/usr/servers/test/lib/global/commons-logging.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
+        // This next three derby related dependencies were pulled in with
+        // 'derby*' for artifactId and the location was overridden in a dependencyGroup.
+
         f = new File("liberty/usr/servers/test/lib/global/derby/derby.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
         f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derbyclient.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
    }
