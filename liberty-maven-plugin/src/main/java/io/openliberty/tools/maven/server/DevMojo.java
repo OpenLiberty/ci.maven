@@ -188,6 +188,13 @@ public class DevMojo extends StartDebugMojoSupport {
     private String dockerRunOpts;
 
     /**
+     * Specify the amount of time in seconds that dev mode waits for docker commands
+     * to run to completion. Default to 60 seconds.
+     */
+    @Parameter(property = "dockerTimeout", defaultValue = "60")
+    private int dockerTimeout;
+
+    /**
      * Set the container option.
      * 
      * @param container whether dev mode should use a container
@@ -208,7 +215,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, dockerTimeout);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -809,11 +816,16 @@ public class DevMojo extends StartDebugMojoSupport {
                         + " dockerfile should be a valid Dockerfile");
                 }
             }
-    
+
             if (dockerRunOpts != null) {
                 setContainer(true);
                 return;
-            }    
+            }
+
+            if (dockerTimeout != 60) { // limitation: if user sets dockerTimeout to the default value container is not set
+                setContainer(true);
+                return;
+            }
         }
     }
 
