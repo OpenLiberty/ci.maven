@@ -53,7 +53,7 @@ public class CreateServerMojo extends PluginConfigSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
-            log.info("\nSkipping create goal.\n");
+            getLog().info("\nSkipping create goal.\n");
             return;
         }
         if (isInstall) {

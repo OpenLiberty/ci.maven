@@ -27,7 +27,7 @@ public class InstallServerMojo extends PluginConfigSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
-            log.info("\nSkipping install-server goal.\n");
+            getLog().info("\nSkipping install-server goal.\n");
             return;
         }
 

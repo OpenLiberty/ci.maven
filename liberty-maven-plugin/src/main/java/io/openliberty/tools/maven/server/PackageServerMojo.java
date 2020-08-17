@@ -132,7 +132,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
 
         if (skip || skipLibertyPackage) {
-            log.info("\nSkipping package goal.\n");
+            getLog().info("\nSkipping package goal.\n");
             return;
         }
 
