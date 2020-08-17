@@ -191,7 +191,7 @@
                     </execution>
                     <execution>
                         <id>verify</id>
-                        <phase>install</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
                         </goals>
