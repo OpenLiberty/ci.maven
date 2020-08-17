@@ -15,8 +15,8 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedWriter;
@@ -114,9 +114,9 @@ public class BaseDevTest {
 
       // check that the server has started
       Thread.sleep(5000);
-      assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+      assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
-         assertFalse(checkLogMessage(60000, "Enter key to run tests on demand"));
+         assertTrue(verifyLogMessageExists("Enter key to run tests on demand", 60000));
       }
 
       // verify that the target directory was created
@@ -144,7 +144,7 @@ public class BaseDevTest {
       // shut down dev mode
       if (writer != null) {
          if(isDevMode) {
-            writer.write("exit"); // trigger dev mode to shut down
+            writer.write("exit\n"); // trigger dev mode to shut down
          }
          else {
             process.destroy(); // stop run
@@ -152,8 +152,15 @@ public class BaseDevTest {
          writer.flush();
          writer.close();
 
+         try {
+            process.waitFor(120, TimeUnit.SECONDS);
+            process.exitValue();
+         } catch (IllegalThreadStateException e) {
+            throw e;
+         }
+
          // test that dev mode has stopped running
-         assertFalse(checkLogMessage(100000, "CWWKE0036I"));
+         assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
       }
    }
 
@@ -236,5 +243,19 @@ public class BaseDevTest {
          }
       }
       return (waited > timeout);
+   }
+
+   protected static boolean verifyLogMessageExists(String message, int timeout)
+         throws InterruptedException, FileNotFoundException {
+      int waited = 0;
+      int sleep = 10;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (readFile(message, logFile)) {
+            return true;
+         }
+      }
+      return false;
    }
 }
