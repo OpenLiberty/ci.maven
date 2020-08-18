@@ -56,6 +56,7 @@ public class DumpServerMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping dump goal.\n");
             return;
         }
         if (isInstall) {

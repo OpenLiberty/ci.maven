@@ -37,6 +37,7 @@ public class StopServerMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping stop goal.\n");
             return;
         }
         

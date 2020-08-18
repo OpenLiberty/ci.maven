@@ -51,6 +51,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping undeploy goal.\n");
             return;
         }
         

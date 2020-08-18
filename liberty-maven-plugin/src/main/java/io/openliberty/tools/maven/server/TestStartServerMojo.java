@@ -38,6 +38,7 @@ public class TestStartServerMojo extends StartServerMojo {
                 || (skipITs != null && skipITs.equalsIgnoreCase("true")) 
                 || (mavenSkipTest != null && mavenSkipTest.equalsIgnoreCase("true"))
                 || skipTestServer){
+            getLog().info("\nSkipping test-start goal.\n");
             return;
         }
         super.doExecute();

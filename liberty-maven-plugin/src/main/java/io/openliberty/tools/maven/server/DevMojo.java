@@ -688,6 +688,7 @@ public class DevMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping dev goal.\n");
             return;
         }
 

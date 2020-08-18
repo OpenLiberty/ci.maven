@@ -42,6 +42,7 @@ public class RunServerMojo extends PluginConfigSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping run goal.\n");
             return;
         }
         
