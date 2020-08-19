@@ -821,11 +821,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 setContainer(true);
                 return;
             }
-
-            if (dockerTimeout != 60) { // limitation: if user sets dockerTimeout to the default value container is not set
-                setContainer(true);
-                return;
-            }
         }
     }
 
