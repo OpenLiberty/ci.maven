@@ -19,10 +19,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -184,17 +186,31 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
-   private static boolean readFile(String str, File file) throws FileNotFoundException {
-      Scanner scanner = new Scanner(file);
+   private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+      // Scanner scanner = new Scanner(file);
+      // try {
+      //    while (scanner.hasNextLine()) {
+      //       String line = scanner.nextLine();
+      //       if (line.contains(str)) {
+      //          return true;
+      //       }
+      //    }
+      // } finally {
+      //    scanner.close();
+      // }
+      // return false;
+
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line = br.readLine();
       try {
-         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
+         while (line != null) {
             if (line.contains(str)) {
                return true;
             }
+            line = br.readLine();
          }
       } finally {
-         scanner.close();
+         br.close();
       }
       return false;
    }
@@ -230,7 +246,7 @@ public class BaseDevTest {
    }
 
    protected static boolean checkLogMessage(int timeout, String message)
-         throws InterruptedException, FileNotFoundException {
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
       boolean startFlag = false;
       while (!startFlag && waited <= timeout) {
@@ -246,7 +262,7 @@ public class BaseDevTest {
    }
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
-         throws InterruptedException, FileNotFoundException {
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
       int sleep = 10;
       while (waited <= timeout) {
