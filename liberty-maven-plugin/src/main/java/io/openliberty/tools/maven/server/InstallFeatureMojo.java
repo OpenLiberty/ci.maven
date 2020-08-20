@@ -54,7 +54,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
         if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
-            log.warn("Beta version of Open Liberty does not support installing features.");
+            log.warn("Downloading additional features is not supported for beta releases.");
             return;
         }
 
