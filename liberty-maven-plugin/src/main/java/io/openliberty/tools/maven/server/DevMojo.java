@@ -188,7 +188,7 @@ public class DevMojo extends StartDebugMojoSupport {
     private String dockerRunOpts;
 
     /**
-     * Specify the amount of time in seconds that dev mode waits for docker commands
+     * Specify the amount of time in seconds that dev mode waits for the docker build command
      * to run to completion. Default to 60 seconds.
      */
     @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
