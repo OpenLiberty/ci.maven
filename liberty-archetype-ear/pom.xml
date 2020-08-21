@@ -15,7 +15,7 @@
     <name>Archetype - liberty-archetype-ear</name>
     
     <description>
-        An archetype that generates a Java EE 7 multi-module project that includes an EJB module, a web application module and an EAR module
+        An archetype that generates a Java EE 8 multi-module project that includes an EJB module, a web application module and an EAR module
     </description>
     
     <build>
@@ -50,7 +50,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>[3.2.0,)</version>
                 </plugin>
             </plugins>
         </pluginManagement>

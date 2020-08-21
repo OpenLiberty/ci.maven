@@ -215,7 +215,7 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=2.2 \
+        -DarchetypeVersion=3.2.2 \
         -DlibertyPluginVersion=3.2 \
         -DgroupId=test \
         -DartifactId=test \
@@ -230,7 +230,7 @@ The `liberty-archetype-webapp` is used to generate a basic single-module project
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.2 \
+        -DarchetypeVersion=3.2.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -244,7 +244,7 @@ The `liberty-archetype-ear` is used to generate a multi-module project that incl
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=2.2 \
+        -DarchetypeVersion=3.2.2 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
