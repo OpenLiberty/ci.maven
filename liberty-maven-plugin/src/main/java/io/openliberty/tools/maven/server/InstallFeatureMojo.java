@@ -58,13 +58,8 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
         }
-        else {
-            if(util != null) {
-                util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
-            }
-            else {
-                return;
-            }
+        else if(util != null) {
+            util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
         }
     }
 
