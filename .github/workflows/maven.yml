@@ -41,7 +41,7 @@ jobs:
         repository: OpenLiberty/ci.ant
         path: ci.ant
     - name: Cache maven packages
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}

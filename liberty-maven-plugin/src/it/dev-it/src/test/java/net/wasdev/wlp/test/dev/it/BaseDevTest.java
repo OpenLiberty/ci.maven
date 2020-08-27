@@ -187,19 +187,6 @@ public class BaseDevTest {
    }
 
    private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
-      // Scanner scanner = new Scanner(file);
-      // try {
-      //    while (scanner.hasNextLine()) {
-      //       String line = scanner.nextLine();
-      //       if (line.contains(str)) {
-      //          return true;
-      //       }
-      //    }
-      // } finally {
-      //    scanner.close();
-      // }
-      // return false;
-
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
       try {
