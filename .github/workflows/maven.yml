@@ -35,15 +35,22 @@ jobs:
       with:
         repository: OpenLiberty/ci.common
         path: ci.common
+    - name: Checkout ci.ant
+      uses: actions/checkout@v2
+      with:
+        repository: OpenLiberty/ci.ant
+        path: ci.ant
     - name: Cache maven packages
       uses: actions/cache@v1
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    - name: Install ci.common
+    - name: Install ci.ant and ci.common
       run: |
-        cd ./ci.common
+        cd ./ci.ant
+        mvn clean install
+        cd ../ci.common
         mvn clean install
         cd ..
     - name: Run tests with maven
