@@ -94,6 +94,7 @@
                             <goal>clean</goal>
                         </goals>
                         <configuration>
+                            <cleanLogs>false</cleanLogs>
                             <cleanDropins>true</cleanDropins>
                             <cleanApps>true</cleanApps>
                         </configuration>
