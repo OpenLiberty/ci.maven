@@ -142,7 +142,7 @@ public class BaseDevTest {
       }
    }
 
-   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
          if(isDevMode) {
@@ -154,12 +154,8 @@ public class BaseDevTest {
          writer.flush();
          writer.close();
 
-         try {
-            process.waitFor(120, TimeUnit.SECONDS);
-            process.exitValue();
-         } catch (IllegalThreadStateException e) {
-            throw e;
-         }
+         process.waitFor(120, TimeUnit.SECONDS);
+         process.exitValue();
 
          // test that dev mode has stopped running
          assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
@@ -230,22 +226,6 @@ public class BaseDevTest {
 
       content = content.replaceAll(str, replacement);
       Files.write(path, content.getBytes(charset));
-   }
-
-   protected static boolean checkLogMessage(int timeout, String message)
-         throws InterruptedException, FileNotFoundException, IOException {
-      int waited = 0;
-      boolean startFlag = false;
-      while (!startFlag && waited <= timeout) {
-         int sleep = 10;
-         Thread.sleep(sleep);
-         waited += sleep;
-         if (readFile(message, logFile)) {
-            startFlag = true;
-            Thread.sleep(1000);
-         }
-      }
-      return (waited > timeout);
    }
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
