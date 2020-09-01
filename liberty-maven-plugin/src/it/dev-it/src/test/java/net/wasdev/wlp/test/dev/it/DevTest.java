@@ -44,7 +44,7 @@ public class DevTest extends BaseDevTest {
    /* simple double check. if failure, check parse in ci.common */
    public void verifyJsonHost() throws Exception {
       assertTrue(verifyLogMessageExists("CWWKT0016I", 2000));   // Verify web app code triggered
-      assertTrue(verifyLogMessageExists("http:\\/\\/", 2000));  // Verify escape char seq passes
+      assertTrue(verifyLogMessageExists("http:\\\\/\\\\/", 2000));  // Verify escape char seq passes
    }
 
    @Test
