@@ -43,8 +43,9 @@ public class DevTest extends BaseDevTest {
    @Test
    /* simple double check. if failure, check parse in ci.common */
    public void verifyJsonHost() throws Exception {
-      checkLogMessage(2000, "CWWKT0016I");   // Verify web app code triggered
-      checkLogMessage(2000, "http:\\/\\/");  // Verify escape char seq passes
+      assertTrue(verifyLogMessageExists("CWWKT0016I", 2000));   // Verify web app code triggered
+      //TODO: fix below with correct assertion
+      verifyLogMessageExists("http:\\/\\/", 2000);  // Verify escape char seq passes
    }
 
    @Test
@@ -63,7 +64,7 @@ public class DevTest extends BaseDevTest {
       replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
 
       // check for server configuration was successfully updated message
-      assertFalse(checkLogMessage(60000, "CWWKG0017I"));
+      assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
       Thread.sleep(2000);
       Scanner scanner = new Scanner(targetServerXML);
       boolean foundUpdate = false;
@@ -93,7 +94,7 @@ public class DevTest extends BaseDevTest {
       Thread.sleep(2000); // wait for compilation
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
       assertTrue(targetPropertiesFile.exists());
-      assertFalse(checkLogMessage(100000, "CWWKZ0003I"));
+      assertTrue(verifyLogMessageExists("CWWKZ0003I", 100000));
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
@@ -140,13 +141,13 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      assertFalse(checkLogMessage(2000,  "Press the Enter key to run tests on demand."));
+      assertTrue(verifyLogMessageExists("Press the Enter key to run tests on demand.", 2000));
 
       writer.write("\n");
       writer.flush();
 
-      assertFalse(checkLogMessage(10000,  "Unit tests finished."));
-      assertFalse(checkLogMessage(2000,  "Integration tests finished."));
+      assertTrue(verifyLogMessageExists("Unit tests finished.", 10000));
+      assertTrue(verifyLogMessageExists("Integration tests finished.", 2000));
    }
    
     @Test
@@ -158,12 +159,12 @@ public class DevTest extends BaseDevTest {
         String invalidDep = "<dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
                 + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n" + "    </dependency>";
         replaceString(invalidDepComment, invalidDep, pom);
-        assertFalse(checkLogMessage(10000, "Unable to resolve artifact: io.openliberty.features:abcd:1.0"));
+        assertTrue(verifyLogMessageExists("Unable to resolve artifact: io.openliberty.features:abcd:1.0", 10000));
     }
    
    @Test
    public void resolveDependencyTest() throws Exception {      
-      assertFalse(checkLogMessage(10000,  "Press the Enter key to run tests on demand."));
+      assertTrue(verifyLogMessageExists("Press the Enter key to run tests on demand.", 10000));
 
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
@@ -174,7 +175,7 @@ public class DevTest extends BaseDevTest {
       FileUtils.copyFile(systemHealthRes, systemHealthSrc);
       assertTrue(systemHealthSrc.exists());
       
-      assertFalse(checkLogMessage(200000, "Source compilation had errors"));
+      assertTrue(verifyLogMessageExists("Source compilation had errors", 200000));
       assertFalse(systemHealthTarget.exists());
       
       // add mpHealth dependency to pom.xml
@@ -192,7 +193,7 @@ public class DevTest extends BaseDevTest {
             "    </dependency>";
       replaceString(mpHealthComment, mpHealth, pom);
       
-      assertFalse(checkLogMessage(100000,"The following features have been installed"));
+      assertTrue(verifyLogMessageExists("The following features have been installed", 100000));
       
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(systemHealthSrc, true));
@@ -202,7 +203,7 @@ public class DevTest extends BaseDevTest {
       javaWriter.close();
 
       Thread.sleep(1000); // wait for compilation
-      assertFalse(checkLogMessage(100000, "Source compilation was successful."));
+      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
       Thread.sleep(15000); // wait for compilation
       assertTrue(systemHealthTarget.exists());
    }

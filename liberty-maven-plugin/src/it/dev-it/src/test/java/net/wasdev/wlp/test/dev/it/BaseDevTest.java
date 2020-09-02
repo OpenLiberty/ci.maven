@@ -15,14 +15,16 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,9 +116,9 @@ public class BaseDevTest {
 
       // check that the server has started
       Thread.sleep(5000);
-      assertFalse(checkLogMessage(120000, "CWWKF0011I"));
+      assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
-         assertFalse(checkLogMessage(60000, "Enter key to run tests on demand"));
+         assertTrue(verifyLogMessageExists("Enter key to run tests on demand", 60000));
       }
 
       // verify that the target directory was created
@@ -140,11 +142,11 @@ public class BaseDevTest {
       }
    }
 
-   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
          if(isDevMode) {
-            writer.write("exit"); // trigger dev mode to shut down
+            writer.write("exit\n"); // trigger dev mode to shut down
          }
          else {
             process.destroy(); // stop run
@@ -152,8 +154,11 @@ public class BaseDevTest {
          writer.flush();
          writer.close();
 
+         process.waitFor(120, TimeUnit.SECONDS);
+         process.exitValue();
+
          // test that dev mode has stopped running
-         assertFalse(checkLogMessage(100000, "CWWKE0036I"));
+         assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
       }
    }
 
@@ -177,17 +182,18 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
-   private static boolean readFile(String str, File file) throws FileNotFoundException {
-      Scanner scanner = new Scanner(file);
+   private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line = br.readLine();
       try {
-         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
+         while (line != null) {
             if (line.contains(str)) {
                return true;
             }
+            line = br.readLine();
          }
       } finally {
-         scanner.close();
+         br.close();
       }
       return false;
    }
@@ -222,19 +228,17 @@ public class BaseDevTest {
       Files.write(path, content.getBytes(charset));
    }
 
-   protected static boolean checkLogMessage(int timeout, String message)
-         throws InterruptedException, FileNotFoundException {
+   protected static boolean verifyLogMessageExists(String message, int timeout)
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
-      boolean startFlag = false;
-      while (!startFlag && waited <= timeout) {
-         int sleep = 10;
+      int sleep = 10;
+      while (waited <= timeout) {
          Thread.sleep(sleep);
          waited += sleep;
          if (readFile(message, logFile)) {
-            startFlag = true;
-            Thread.sleep(1000);
+            return true;
          }
       }
-      return (waited > timeout);
+      return false;
    }
 }
