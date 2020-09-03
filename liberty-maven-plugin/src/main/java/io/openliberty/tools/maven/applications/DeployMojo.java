@@ -46,6 +46,7 @@ public class DeployMojo extends DeployMojoSupport {
 
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping deploy goal.\n");
             return;
         }
         checkServerHomeExists();

@@ -57,6 +57,11 @@ public class CompileJspMojo extends InstallFeatureSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        if (skip) {
+            getLog().info("\nSkipping compile-jsp goal.\n");
+            return;
+        }
+
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:io/openliberty/tools/ant:compileJSPs");
         if (compile == null) {
             throw new IllegalStateException(

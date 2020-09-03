@@ -52,6 +52,7 @@ public class UninstallFeatureMojo extends BasicSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping uninstall-feature goal.\n");
             return;
         }
         

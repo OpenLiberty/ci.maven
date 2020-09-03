@@ -23,16 +23,16 @@ install:
 
 before_build:
     - cmd: |
+        echo "Installing ci.ant lib..."
+        git clone https://github.com/OpenLiberty/ci.ant.git ci.ant
+        cd ci.ant
+        mvn clean install
+        cd..
         echo "Installing ci.common lib..."
         git clone https://github.com/OpenLiberty/ci.common.git ci.common
         cd ci.common
         mvn clean install
         cd..
-#        echo "Installing ci.ant lib..."
-#        git clone https://github.com/OpenLiberty/ci.ant.git ci.ant
-#        cd ci.ant
-#        mvn clean install
-#        cd..
 
 build_script:
     - "echo %WLP_VERSION%"
