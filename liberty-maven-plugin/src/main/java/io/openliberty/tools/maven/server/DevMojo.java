@@ -267,6 +267,11 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public String getProjectName() {
+            return project.getName();
+        }
+
+        @Override
         public void libertyCreate() throws PluginExecutionException {
             try {
                 if (isUsingBoost()) {
