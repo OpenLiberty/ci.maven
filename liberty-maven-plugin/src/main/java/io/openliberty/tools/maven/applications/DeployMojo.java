@@ -133,9 +133,14 @@ public class DeployMojo extends DeployMojoSupport {
                 } else {
                     log.debug("copyDependencies to location: "+dftLocationPath);
                 }
+                boolean stripVersion = defaultStripVersion;
+                Boolean overrideStripVersion = depGroup.getStripVersion();
+                if (overrideStripVersion != null) {
+                    stripVersion = overrideStripVersion.booleanValue();
+                }
                 List<Dependency> groupDeps = depGroup.getDependencies();
                 for (Dependency dep : groupDeps) {
-                    copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), overrideLocation, dftLocationPath, defaultStripVersion);                
+                    copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), overrideLocation, dftLocationPath, stripVersion);                
                 }
             }
 

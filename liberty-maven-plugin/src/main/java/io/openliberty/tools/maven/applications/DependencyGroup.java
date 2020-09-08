@@ -46,6 +46,21 @@ public class DependencyGroup {
     }
     
     /**
+     * Boolean to indicate whether to strip versions from the file names when copying.
+     * The stripVersion in the containing CopyDependencies configuration will be 
+     * used if nothing is specified here.
+     */
+    @Parameter
+    private Boolean stripVersion = null;
+
+    public Boolean getStripVersion() {
+        return this.stripVersion;
+    }
+
+    public void setStripVersion(boolean strip) {
+        this.stripVersion = new Boolean(strip);
+    }
+    /**
      * Get all the current Dependency to copy.
      *
      * @return A list with the Dependency to copy.
