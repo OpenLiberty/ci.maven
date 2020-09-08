@@ -85,7 +85,7 @@ public class DefaultAppDirectoryTest {
         // stripVersion was set to true
 
         // This was SCOPE_PROVIDED and should be copied. The default location was used.
-        File f = new File("liberty/usr/servers/test/lib/global/commons-logging.jar");
+        File f = new File("liberty/usr/servers/test/lib/global/commons-logging-1.0.4.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
  
         // This next three derby related dependencies were pulled in with

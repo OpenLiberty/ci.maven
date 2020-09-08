@@ -97,6 +97,7 @@
                 </dependency>
             </dependencyGroup>
             <dependencyGroup>
+                <stripVersion>false</stripVersion>
                 <dependency>
                     <groupId>commons-logging</groupId>
                 </dependency>
