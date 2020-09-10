@@ -64,6 +64,7 @@ import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
+import io.openliberty.tools.maven.applications.DeployMojoSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -686,6 +687,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
+
+        @Override
+        public boolean isLooseApplication() {
+            // dev mode forces deploy with looseApplication=true, but it only takes effect if packaging is one of the supported loose app types
+            return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
+        }
+
     }
 
     private boolean isUsingBoost() {
