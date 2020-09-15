@@ -9,33 +9,15 @@
     </parent>
 
     <artifactId>liberty-archetype-webapp</artifactId>
-
     <packaging>maven-archetype</packaging>
-    
     <name>Archetype - liberty-archetype-webapp</name>
-    
+
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>META-INF/maven/archetype-metadata.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>archetype-resources/pom.xml</include>
-                </includes>
-            </resource>
-        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.archetype</groupId>
                 <artifactId>archetype-packaging</artifactId>
-                <version>3.0.0</version>
+                <version>2.2</version>
             </extension>
         </extensions>
         <pluginManagement>
@@ -48,5 +30,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
