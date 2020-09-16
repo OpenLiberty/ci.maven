@@ -203,7 +203,7 @@ public class DevMojo extends StartDebugMojoSupport {
     protected void setContainer(boolean container) {
         // set container variable for DevMojo
         this.container = container;
-        
+
         // set project property for use in DeployMojoSupport
         project.getProperties().setProperty("container", Boolean.toString(container));
     }
@@ -715,6 +715,8 @@ public class DevMojo extends StartDebugMojoSupport {
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
+        processContainerParams();
+
         if (!container) {
             if (serverDirectory.exists()) {
                 if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
@@ -805,6 +807,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.info(e.getMessage());
             }
             return; // enter shutdown hook 
+        }
+    }
+
+    private void processContainerParams() throws MojoExecutionException {
+        if (container) {
+            // this also sets the project property for use in DeployMojoSupport
+            setContainer(true);
         }
     }
 
