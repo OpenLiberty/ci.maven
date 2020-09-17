@@ -88,8 +88,7 @@ For the current technology preview, the following limitations apply.
 - Platform limitations:
   - Supported on macOS and Windows with Docker Desktop installed.
   - Supported on Linux. Note the following.
-    - Configuration files: the Open Liberty server runs on the UID (user identifier) of the current user inside the container. Dev mode makes the server configuration files from your project available inside the container. Therefore dev mode makes all the files in the server directory (`defaultServer`) in your project readable by all users. It also makes all the directories but `workarea` usable by all users.
-    - Log files: the container will write the Open Liberty log files into the logs directory in the server directory in your project. When running with root permissions dev mode will change the owner of the logs directory and all the files inside to UID 1001. The GID will be 0 (root). When running as a non-root user the set GID bit will be set so that log files will be owned by the current user and the group id will be that of the current user.
+    - In dev mode the Open Liberty server runs in the container on the UID (user identifier) of the current user. This is so that the server can access the configuration files from your project and you can access the Open Liberty log files. Outside of dev mode the Open Liberty server will run on the UID specified in the Docker image.
     - Use of editors like `vim`: when you edit a configuration file with `vim` it will delete the file
     and rewrite it when you save. This necessitates a container restart. To avoid the restart edit your
     .vimrc file and add the line `set backupcopy=yes`
