@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,12 +35,12 @@ public class DevHotTestingTest extends BaseDevTest {
    @Test
    public void autoTestsInvocationTest() throws Exception {
 //      Thread.sleep(10000);
-      assertFalse(checkLogMessage(20000,  "Tests will run automatically"));
+      assertTrue(verifyLogMessageExists("Tests will run automatically", 20000));
    
       testModifyJavaFile();
 
-      assertFalse(checkLogMessage(2000,  "Unit tests finished."));
-      assertFalse(checkLogMessage(2000,  "Integration tests finished."));   
+      assertTrue(verifyLogMessageExists("Unit tests finished.", 2000));
+      assertTrue(verifyLogMessageExists("Integration tests finished.", 2000));   
    }
 
 }

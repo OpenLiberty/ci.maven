@@ -1,0 +1,57 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Java CI with Maven
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    strategy:
+      fail-fast: false
+      matrix:
+        # test against latest update of each major Java version, as well as specific updates of LTS versions:
+        os: [windows-latest]
+        java: [ 8, 11 ]
+        RUNTIME: [ ol, wlp ]
+        RUNTIME_VERSION: [ 20.0.0.3, 20.0.0.6 ]
+
+    steps:
+    - name: Setup Java ${{ matrix.java }}
+      uses: joschi/setup-jdk@v2
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Checkout ci.maven
+      uses: actions/checkout@v2
+    - name: Checkout ci.common
+      uses: actions/checkout@v2
+      with:
+        repository: OpenLiberty/ci.common
+        path: ci.common
+    - name: Checkout ci.ant
+      uses: actions/checkout@v2
+      with:
+        repository: OpenLiberty/ci.ant
+        path: ci.ant
+    - name: Cache maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Install ci.ant and ci.common
+      run: |
+        cd ./ci.ant
+        mvn clean install
+        cd ../ci.common
+        mvn clean install
+        cd ..
+    - name: Run tests with maven
+      run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"

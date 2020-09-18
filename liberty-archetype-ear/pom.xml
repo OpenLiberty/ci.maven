@@ -9,35 +9,14 @@
     </parent>
 
     <artifactId>liberty-archetype-ear</artifactId>
-    
     <packaging>maven-archetype</packaging>
-    
     <name>Archetype - liberty-archetype-ear</name>
     
     <description>
-        An archetype that generates a Java EE 7 multi-module project that includes an EJB module, a web application module and an EAR module
+        An archetype that generates a Java EE 8 multi-module project that includes an EJB module, a web application module and an EAR module
     </description>
     
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>META-INF/maven/archetype-metadata.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>archetype-resources/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-ear/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-ejb/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-war/pom.xml</include>
-                </includes>
-            </resource>
-        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.archetype</groupId>
@@ -50,7 +29,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.2.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>

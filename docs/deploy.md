@@ -9,7 +9,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | appsDirectory | The server's `apps` or `dropins` directory where the application files should be copied. The default value is set to `apps` if the application is defined in the server configuration, otherwise it is set to `dropins`.  | No |
-| copyDependencies | Copies the specified dependencies to the specified locations. Multiple `dependency` parameters and `dependencyGroup` parameters can be added to the `copyDependencies` configuration. The `location` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default location, which is the `lib/global` folder of the target server. The `stripVersion` parameter can be added to the `copyDependencies` configuration to override the default `stripVersion` value, which is `false`. | No |
+| copyDependencies | Copies the specified dependencies to the specified locations. Multiple `dependency` parameters and `dependencyGroup` parameters can be added to the `copyDependencies` configuration. The `location` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default location, which is the `lib/global` folder of the target server. The `stripVersion` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default `stripVersion` value, which is `false`. | No |
 | copyLibsDirectory | The optional directory to which loose application dependencies referenced by the loose application configuration file are copied. For example, if you want loose application dependencies to be contained within the build directory, you could set this parameter to `target`. The loose application configuration file will reference this directory for the loose application dependencies instead of the local repository cache. Only applicable when `looseApplication` is set to `true`. | No |
 | deployPackages | The Maven packages to copy to Liberty runtime's application directory. One of `dependencies`, `project` or `all`. The default is `project`.<br>For an ear type project, this parameter is ignored and only the project package is installed. | No |
 | looseApplication | Generate a loose application configuration file representing the Maven project package and copy it to the Liberty server's `apps` or `dropins` directory. The default value is `true`. This parameter is ignored if `deployPackages` is set to `dependencies` or if the project packaging type is neither `war` nor `liberty-assembly`. When using the packaging type `liberty-assembly`, using a combination of `deployPackages` set to `all` or `project` and `looseApplication` set to `true` results in the installation of application code provided in the project without the need of adding additional goals to your POM file. | No |
@@ -31,6 +31,7 @@ The `dependencyGroup` parameter within the `copyDependencies` can contain the fo
 | --------  | ----------- | -------  |
 | dependency | A collection of `dependency` parameters that specify the coordinate of the Maven dependency to copy. | Yes |
 | location | The optional directory to which the dependencies are copied. This can be an absolute path, or a relative path to the target server configuration directory. If not specified, the `location` from the `copyDependencies` is used.| No |
+| stripVersion | The optional boolean indicating whether to strip the artifact version when copying the dependency. If not specified, the `stripVersion` from the `copyDependencies` is used.| No |
 
 The `dependency` parameter within the `copyDependencies` or `dependencyGroup` can contain the following parameters.
 
@@ -168,9 +169,8 @@ Copy the Maven project package plus dependencies configured with the `copyDepend
                             <appsDirectory>apps</appsDirectory>
                             <stripVersion>true</stripVersion>
                             <copyDependencies>
-                                <stripVersion>true</stripVersion>
                                 <!-- copies the commons-logging:commons-logging:1.0.4 dependency plus transitive dependencies
-                                     to the default location lib/global folder of the target server and strips the version. -->
+                                     to the default location lib/global folder of the target server and does not strip the version. -->
                                 <dependency>
                                     <groupId>commons-logging</groupId>
                                     <artifactId>commons-logging</artifactId>
@@ -180,6 +180,7 @@ Copy the Maven project package plus dependencies configured with the `copyDepend
                                      dependencies plus transitive dependencies to the lib/global/derby folder of the target 
                                      server and strips the version during the copy. -->
                                 <dependencyGroup>
+                                    <stripVersion>true</stripVersion>
                                     <location>lib/global/derby</location>
                                     <dependency>
                                         <groupId>org.apache.derby</groupId>

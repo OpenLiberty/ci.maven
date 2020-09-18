@@ -64,6 +64,7 @@ import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
+import io.openliberty.tools.maven.applications.DeployMojoSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -208,7 +209,7 @@ public class DevMojo extends StartDebugMojoSupport {
     protected void setContainer(boolean container) {
         // set container variable for DevMojo
         this.container = container;
-        
+
         // set project property for use in DeployMojoSupport
         project.getProperties().setProperty("container", Boolean.toString(container));
     }
@@ -698,6 +699,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
+
+        @Override
+        public boolean isLooseApplication() {
+            // dev mode forces deploy with looseApplication=true, but it only takes effect if packaging is one of the supported loose app types
+            return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
+        }
+
     }
 
     private boolean isUsingBoost() {
@@ -818,22 +826,6 @@ public class DevMojo extends StartDebugMojoSupport {
         if (container) {
             // this also sets the project property for use in DeployMojoSupport
             setContainer(true);
-            return;
-        } else {
-            if (dockerfile != null) {
-                if (dockerfile.exists()) {
-                    setContainer(true);
-                    return;
-                } else {
-                    throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
-                        + " dockerfile should be a valid Dockerfile");
-                }
-            }
-
-            if (dockerRunOpts != null) {
-                setContainer(true);
-                return;
-            }
         }
     }
 

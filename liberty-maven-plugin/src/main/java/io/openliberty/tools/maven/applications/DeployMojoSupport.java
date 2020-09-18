@@ -420,4 +420,19 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
         return supported;
     }
+
+    public static boolean isSupportedLooseAppType(String type) {
+        boolean supported = false;
+        switch (type) {
+            case "ear":
+            case "war":
+            case "liberty-assembly":
+                supported = true;
+                break;
+            default:
+                break;
+        }
+        return supported;
+    }
+
 }

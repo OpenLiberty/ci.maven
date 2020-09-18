@@ -9,31 +9,15 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>appsdirectory-notset-notconfigured-it</artifactId>
+  <artifactId>merge-server-env-none-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>10.15.2.0</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbyclient</artifactId>
-        <version>10.15.2.0</version>
-    </dependency>
-    <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.0.4</version>
-        <scope>provided</scope>
+        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -42,7 +26,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <build>
     <pluginManagement>
         <plugins>
@@ -77,32 +61,10 @@
         <extensions>true</extensions>
         <configuration>
           <stripVersion>true</stripVersion>
-          <assemblyArtifact>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>assembly-server</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-          </assemblyArtifact>
           <serverName>test</serverName>
-          <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
-          <copyDependencies>
-            <stripVersion>true</stripVersion>
-            <dependencyGroup>
-                <location>lib/global/derby</location>
-                <dependency>
-                    <groupId>org.apache.derby</groupId>
-                    <artifactId>derby*</artifactId>
-                </dependency>
-            </dependencyGroup>
-            <dependencyGroup>
-                <stripVersion>false</stripVersion>
-                <dependency>
-                    <groupId>commons-logging</groupId>
-                </dependency>
-            </dependencyGroup>
-          </copyDependencies>
+          <mergeServerEnv>true</mergeServerEnv>
         </configuration>
         <executions>
             <execution>
@@ -133,6 +95,7 @@
                <id>start-liberty-server</id>
                <phase>pre-integration-test</phase>
                <goals>
+                   <goal>install-feature</goal>
                    <goal>start</goal>
                </goals>
                <configuration>
@@ -177,7 +140,7 @@
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/*MergeServerEnvTest.java</include>
                     </includes>
                 </configuration>
                 <executions>
