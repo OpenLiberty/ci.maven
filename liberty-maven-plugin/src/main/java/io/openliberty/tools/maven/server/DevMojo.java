@@ -194,6 +194,12 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
     private int dockerBuildTimeout;
 
+     /**
+     * If specified, these port mappings override the default Docker port mappings
+     */
+    @Parameter(property = "dockerPortOverrides")
+    private String dockerPortOverrides;
+
     /**
      * Set the container option.
      * 
@@ -215,7 +221,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, dockerBuildTimeout);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
+                    dockerBuildTimeout, dockerPortOverrides);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
