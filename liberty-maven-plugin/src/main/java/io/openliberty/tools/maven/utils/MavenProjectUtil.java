@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018.
+ * (C) Copyright IBM Corporation 2018, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,32 @@ public class MavenProjectUtil {
         }
         throw new PluginScenarioException("Could not find configuration string " + configName + " for goal " + goal + " on plugin " + pluginKey);
     }
-    
+
+    /**
+     * Checks that the plugin exists for the given pluginKey.
+     *
+     */    
+    public static boolean doesPluginGoalExecutionExist(MavenProject project, String pluginKey, String goal) {
+        boolean exists = false;
+
+        Plugin plugin = project.getPlugin(pluginKey);
+        if (plugin != null) {
+            List<PluginExecution> executions = plugin.getExecutions();
+        
+            if (executions != null) {
+                for(Iterator<PluginExecution> iterator = executions.iterator(); iterator.hasNext();) {
+                    PluginExecution execution = (PluginExecution) iterator.next();
+                    if(execution.getGoals().contains(goal)) {
+                        exists = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return exists;
+    }
+
     /**
      * Get an execution of a plugin
      * @param plugin
@@ -148,7 +173,10 @@ public class MavenProjectUtil {
      */
     public static PluginExecution getPluginGoalExecution(MavenProject project, String pluginKey, String goal) throws PluginScenarioException {
         Plugin plugin = project.getPlugin(pluginKey);
-        return getPluginGoalExecution(plugin, goal);
+        if (plugin != null) {
+            return getPluginGoalExecution(plugin, goal);
+        }
+        throw new PluginScenarioException("Could not find plugin " + pluginKey);
     }
     
     /**
