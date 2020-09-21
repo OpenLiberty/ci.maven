@@ -9,9 +9,7 @@
     </parent>
 
     <artifactId>liberty-archetype-ear</artifactId>
-    
     <packaging>maven-archetype</packaging>
-    
     <name>Archetype - liberty-archetype-ear</name>
     
     <description>
@@ -19,25 +17,6 @@
     </description>
     
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>META-INF/maven/archetype-metadata.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>archetype-resources/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-ear/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-ejb/pom.xml</include>
-                    <include>archetype-resources/__rootArtifactId__-war/pom.xml</include>
-                </includes>
-            </resource>
-        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.archetype</groupId>

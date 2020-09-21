@@ -203,7 +203,7 @@ public class DevMojo extends StartDebugMojoSupport {
     protected void setContainer(boolean container) {
         // set container variable for DevMojo
         this.container = container;
-        
+
         // set project property for use in DeployMojoSupport
         project.getProperties().setProperty("container", Boolean.toString(container));
     }
@@ -814,22 +814,6 @@ public class DevMojo extends StartDebugMojoSupport {
         if (container) {
             // this also sets the project property for use in DeployMojoSupport
             setContainer(true);
-            return;
-        } else {
-            if (dockerfile != null) {
-                if (dockerfile.exists()) {
-                    setContainer(true);
-                    return;
-                } else {
-                    throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
-                        + " dockerfile should be a valid Dockerfile");
-                }
-            }
-
-            if (dockerRunOpts != null) {
-                setContainer(true);
-                return;
-            }
         }
     }
 

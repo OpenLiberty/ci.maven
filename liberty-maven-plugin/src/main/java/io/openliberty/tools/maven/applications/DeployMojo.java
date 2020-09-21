@@ -195,10 +195,14 @@ public class DeployMojo extends DeployMojoSupport {
     }
 
     private void installSpringBootApp() throws Exception {
+        if (!SpringBootUtil.doesSpringBootRepackageGoalExecutionExist(project)) {
+            throw new MojoExecutionException("The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.");
+        }
+
         File fatArchiveSrc = SpringBootUtil.getSpringBootUberJAR(project, getLog());
         
         // Check if the archiveSrc is executable and then invokeSpringUtilCommand. 
-        if(io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
+        if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
             
