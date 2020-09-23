@@ -141,7 +141,7 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      assertTrue(verifyLogMessageExists("Press the Enter key to run tests on demand.", 2000));
+      assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 2000));
 
       writer.write("\n");
       writer.flush();
@@ -164,7 +164,7 @@ public class DevTest extends BaseDevTest {
    
    @Test
    public void resolveDependencyTest() throws Exception {      
-      assertTrue(verifyLogMessageExists("Press the Enter key to run tests on demand.", 10000));
+      assertTrue(verifyLogMessageExists("Liberty dev mode has started!", 10000));
 
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
