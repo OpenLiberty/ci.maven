@@ -121,7 +121,7 @@ public class DeployMojo extends DeployMojoSupport {
             }
 
             for (Dependency dep : deps) {
-                copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), null, dftLocationPath, defaultStripVersion);                
+                copyDependencies(dep, null, dftLocationPath, defaultStripVersion);                
             }
 
             List<DependencyGroup> depGroups = copyDependencies.getDependencyGroups();
@@ -140,14 +140,14 @@ public class DeployMojo extends DeployMojoSupport {
                 }
                 List<Dependency> groupDeps = depGroup.getDependencies();
                 for (Dependency dep : groupDeps) {
-                    copyDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), overrideLocation, dftLocationPath, stripVersion);                
+                    copyDependencies(dep, overrideLocation, dftLocationPath, stripVersion);                
                 }
             }
 
         }
     }
 
-    private void copyDependencies(String groupId, String artifactId, String version, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
+    private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
 
         String location = defaultLocation;
 
@@ -169,10 +169,23 @@ public class DeployMojo extends DeployMojoSupport {
             }
         }
 
-        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(groupId, artifactId, version);
+        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), dep.getType());
 
         if (artifactsToCopy.isEmpty()) {
-            log.warn("copyDependencies failed for dependency with groupId "+ groupId +", artifactId "+artifactId+", and version "+version+". No matching resolved dependencies were found.");
+            StringBuilder sb = new StringBuilder();
+            sb.append("copyDependencies failed for dependency with groupId "+ dep.getGroupId());
+            String artifactId = dep.getArtifactId();
+            if (artifactId != null) {
+                sb.append(", artifactId "+artifactId);
+            }
+            String version = dep.getVersion();
+            if (version != null) {
+                sb.append(", version "+ version);
+            }
+            sb.append(" and type "+dep.getType());
+            sb.append(". No matching resolved dependencies were found.");
+
+            log.warn(sb.toString());
         } else {
             for (Artifact nextArtifact : artifactsToCopy) {
                 File nextFile = nextArtifact.getFile();

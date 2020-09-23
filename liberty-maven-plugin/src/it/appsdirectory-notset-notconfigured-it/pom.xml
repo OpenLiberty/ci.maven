@@ -101,6 +101,12 @@
                 <dependency>
                     <groupId>commons-logging</groupId>
                 </dependency>
+                <dependency>
+                    <groupId>org.apache.derby</groupId>
+                    <artifactId>derbywar</artifactId>
+                    <version>10.15.2.0</version>
+                    <type>war</type>
+                </dependency>
             </dependencyGroup>
           </copyDependencies>
         </configuration>
