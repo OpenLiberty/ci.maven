@@ -40,6 +40,12 @@ public class Dependency {
     @Parameter
     private String version = null;
 
+    /**
+     * The type of the Maven dependency to copy. This is optional. The default is 'jar'.
+     */
+    @Parameter
+    private String type = "jar";
+
     public String getGroupId() {
         return groupId;
     }
@@ -62,6 +68,14 @@ public class Dependency {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+    
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
 }

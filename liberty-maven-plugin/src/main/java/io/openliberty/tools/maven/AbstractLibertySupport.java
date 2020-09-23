@@ -228,21 +228,22 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @param groupId String specifying the groupId of the Maven artifact to copy.
      * @param artifactId String specifying the artifactId of the Maven artifact to copy.
      * @param version String specifying the version of the Maven artifact to copy.
+     * @param type String specifying the type of the Maven artifact to copy.
      *
      * @return Set<Artifact> A collection of Artifact objects for the resolved dependencies and transitive dependencies
      * @throws MojoExecutionException
      */
-    protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies(String groupId, String artifactId, String version) throws MojoExecutionException {
+    protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies(String groupId, String artifactId, String version, String type) throws MojoExecutionException {
         Set<Artifact> resolvedDependencies = new HashSet<Artifact> ();
 
         if (version != null) {
             // if version is set, it will always override the one in project dependency
-            Artifact artifact = getArtifact(groupId, artifactId, "jar", version);
+            Artifact artifact = getArtifact(groupId, artifactId, type, version);
             if (artifact != null) {
                 resolvedDependencies.add(artifact);
                 findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
             } else {
-                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", and version "+version+" in configured repositories.");
+                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", version "+version+", and type "+type+" in configured repositories.");
             }
         } else {
             Set<Artifact> artifacts = getProject().getArtifacts();

@@ -90,6 +90,7 @@ public class DefaultAppDirectoryTest {
  
         // This next three derby related dependencies were pulled in with
         // 'derby*' for artifactId and the location was overridden in a dependencyGroup.
+        // The type defaulted to jar.
 
         f = new File("liberty/usr/servers/test/lib/global/derby/derby.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
@@ -99,6 +100,11 @@ public class DefaultAppDirectoryTest {
  
         f = new File("liberty/usr/servers/test/lib/global/derby/derbyclient.jar");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+
+        // The next dependency specified the full GAV plus type `war`. The default location was used.
+        f = new File("liberty/usr/servers/test/lib/global/derbywar-10.15.2.0.war");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+
  
    }
 
