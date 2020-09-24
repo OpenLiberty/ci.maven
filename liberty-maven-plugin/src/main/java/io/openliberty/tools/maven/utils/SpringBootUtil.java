@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018.
+ * (C) Copyright IBM Corporation 2018, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,14 @@ import org.apache.maven.project.MavenProject;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 public class SpringBootUtil {
+
+    /**
+     * Checks that the plugin exists for the given pluginKey.
+     *
+     */    
+    public static boolean doesSpringBootRepackageGoalExecutionExist(MavenProject project) {
+        return MavenProjectUtil.doesPluginGoalExecutionExist(project, "org.springframework.boot:spring-boot-maven-plugin", "repackage");
+    }
 
     /**
      * Read the value of the classifier configuration parameter from the

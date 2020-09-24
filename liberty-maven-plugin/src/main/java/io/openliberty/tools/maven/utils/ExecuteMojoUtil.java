@@ -61,7 +61,7 @@ public class ExecuteMojoUtil {
 
     // https://maven.apache.org/plugins/maven-resources-plugin/resources-mojo.html
     private static final ArrayList<String> RESOURCES_PARAMS = new ArrayList<>(Arrays.asList(
-            "outputDirectory", "addDefaultExcludes", "delimiters", "encoding", "escapeString",
+            "outputDirectory", "resources", "addDefaultExcludes", "delimiters", "encoding", "escapeString",
             "escapeWindowsPaths", "fileNameFiltering", "filters", "includeEmptyDirs", 
             "mavenFilteringHints", "nonFilteredFileExtensions", "overwrite", "skip",
             "supportMultiLineFiltering", "useBuildFilters", "useDefaultDelimiters"
