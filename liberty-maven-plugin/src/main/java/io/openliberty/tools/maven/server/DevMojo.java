@@ -195,6 +195,12 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
     private int dockerBuildTimeout;
 
+     /**
+     * If true, the default Docker port mappings are skipped in the docker run command
+     */
+    @Parameter(property = "skipDefaultPorts", defaultValue = "false")
+    private boolean skipDefaultPorts;
+
     /**
      * Set the container option.
      * 
@@ -216,7 +222,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, dockerBuildTimeout);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
+                    dockerBuildTimeout, skipDefaultPorts);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -265,6 +272,11 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public String getServerStartTimeoutExample() {
             return "'mvn liberty:dev -DserverStartTimeout=120'";
+        }
+
+        @Override
+        public String getProjectName() {
+            return project.getName();
         }
 
         @Override
