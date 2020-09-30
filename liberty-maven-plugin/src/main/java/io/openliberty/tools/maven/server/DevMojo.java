@@ -1094,4 +1094,31 @@ public class DevMojo extends StartDebugMojoSupport {
         runCompileMojo("testCompile");
     }
 
+    /**
+     * Executes liberty:install-feature unless using Liberty in a container
+     * @throws MojoExecutionException
+     */
+    protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
+        if (!container) {
+            super.runLibertyMojoInstallFeature(features);
+        }
+    }
+
+    /**
+     * Executes liberty:create unless using a container, then just create the necessary server directories
+     * @throws MojoExecutionException
+     */
+    protected void runLibertyMojoCreate() throws MojoExecutionException {
+        if (container) {
+            log.debug("runLibertyMojoCreate check for installDirectory and serverDirectory");
+            if (!installDirectory.isDirectory()) {
+                installDirectory.mkdirs();
+            }
+            if (!serverDirectory.isDirectory()) {
+                serverDirectory.mkdirs();
+            }
+        } else {
+            super.runLibertyMojoCreate();
+        }
+    }
 }
