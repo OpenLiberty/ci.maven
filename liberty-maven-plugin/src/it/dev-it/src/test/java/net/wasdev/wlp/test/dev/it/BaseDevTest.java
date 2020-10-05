@@ -118,7 +118,7 @@ public class BaseDevTest {
       Thread.sleep(5000);
       assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
-         assertTrue(verifyLogMessageExists("Liberty dev mode has started!", 60000));
+         assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       }
 
       // verify that the target directory was created

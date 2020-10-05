@@ -164,7 +164,7 @@ public class DevTest extends BaseDevTest {
    
    @Test
    public void resolveDependencyTest() throws Exception {      
-      assertTrue(verifyLogMessageExists("Liberty dev mode has started!", 10000));
+      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
       // create the HealthCheck class, expect a compilation error
       File systemHealthRes = new File("../resources/SystemHealth.java");
