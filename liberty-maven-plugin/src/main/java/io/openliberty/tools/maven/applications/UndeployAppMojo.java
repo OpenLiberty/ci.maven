@@ -137,7 +137,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
             
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+                bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
 
                 //appName will be set to a name derived from file if no name can be found.
                 appName = scd.findNameForLocation(appName);

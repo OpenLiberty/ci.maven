@@ -238,7 +238,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
                 try {
                     scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                            bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+                            bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
 
                     //appName will be set to a name derived from appFile if no name can be found.
                     appName = scd.findNameForLocation(appFile);
