@@ -308,7 +308,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                        bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+                        bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);
