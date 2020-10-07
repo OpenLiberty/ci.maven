@@ -4,13 +4,13 @@ environment:
           RUNTIME_VERSION: 20.0.0.6
           RUNTIME: ol
         - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
-          RUNTIME_VERSION: 20.0.0.3
+          RUNTIME_VERSION: 20.0.0.9
           RUNTIME: ol
         - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
           RUNTIME_VERSION: 20.0.0.6
           RUNTIME: wlp
         - jdk: "C:\\Program Files\\Java\\jdk1.8.0\\bin:"
-          RUNTIME_VERSION: 20.0.0.3
+          RUNTIME_VERSION: 20.0.0.9
           RUNTIME: wlp
 
 install:
