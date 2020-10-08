@@ -64,6 +64,7 @@ import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
+import io.openliberty.tools.maven.applications.DeployMojoSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -188,6 +189,19 @@ public class DevMojo extends StartDebugMojoSupport {
     private String dockerRunOpts;
 
     /**
+     * Specify the amount of time in seconds that dev mode waits for the docker build command
+     * to run to completion. Default to 60 seconds.
+     */
+    @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
+    private int dockerBuildTimeout;
+
+     /**
+     * If true, the default Docker port mappings are skipped in the docker run command
+     */
+    @Parameter(property = "skipDefaultPorts", defaultValue = "false")
+    private boolean skipDefaultPorts;
+
+    /**
      * Set the container option.
      * 
      * @param container whether dev mode should use a container
@@ -195,7 +209,7 @@ public class DevMojo extends StartDebugMojoSupport {
     protected void setContainer(boolean container) {
         // set container variable for DevMojo
         this.container = container;
-        
+
         // set project property for use in DeployMojoSupport
         project.getProperties().setProperty("container", Boolean.toString(container));
     }
@@ -208,7 +222,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 List<File> resourceDirs) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts);
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
+                    dockerBuildTimeout, skipDefaultPorts);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
@@ -257,6 +272,11 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public String getServerStartTimeoutExample() {
             return "'mvn liberty:dev -DserverStartTimeout=120'";
+        }
+
+        @Override
+        public String getProjectName() {
+            return project.getName();
         }
 
         @Override
@@ -314,6 +334,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 // Setup server task
                 serverTask = initializeJava();
                 copyConfigFiles();
+                if (container) {
+                    generateDevModeConfig(project.getBasedir().getCanonicalPath(), HEADER);
+                }
                 serverTask.setClean(clean);
                 if (libertyDebug) {
                     setLibertyDebugPort(libertyDebugPort);
@@ -676,6 +699,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 throw new PluginExecutionException("liberty:deploy goal failed:" + e.getMessage());
             }
         }
+
+        @Override
+        public boolean isLooseApplication() {
+            // dev mode forces deploy with looseApplication=true, but it only takes effect if packaging is one of the supported loose app types
+            return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
+        }
+
     }
 
     private boolean isUsingBoost() {
@@ -685,6 +715,7 @@ public class DevMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping dev goal.\n");
             return;
         }
 
@@ -795,22 +826,6 @@ public class DevMojo extends StartDebugMojoSupport {
         if (container) {
             // this also sets the project property for use in DeployMojoSupport
             setContainer(true);
-            return;
-        } else {
-            if (dockerfile != null) {
-                if (dockerfile.exists()) {
-                    setContainer(true);
-                    return;
-                } else {
-                    throw new MojoExecutionException("The file " + dockerfile + " used for dev mode option dockerfile does not exist."
-                        + " dockerfile should be a valid Dockerfile");
-                }
-            }
-    
-            if (dockerRunOpts != null) {
-                setContainer(true);
-                return;
-            }    
         }
     }
 
@@ -1079,4 +1094,33 @@ public class DevMojo extends StartDebugMojoSupport {
         runCompileMojo("testCompile");
     }
 
+    /**
+     * Executes liberty:install-feature unless using Liberty in a container
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
+        if (!container) {
+            super.runLibertyMojoInstallFeature(features);
+        }
+    }
+
+    /**
+     * Executes liberty:create unless using a container, then just create the necessary server directories
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoCreate() throws MojoExecutionException {
+        if (container) {
+            log.debug("runLibertyMojoCreate check for installDirectory and serverDirectory");
+            if (!installDirectory.isDirectory()) {
+                installDirectory.mkdirs();
+            }
+            if (!serverDirectory.isDirectory()) {
+                serverDirectory.mkdirs();
+            }
+        } else {
+            super.runLibertyMojoCreate();
+        }
+    }
 }

@@ -79,4 +79,28 @@ public class DefaultAppDirectoryTest {
         File f = new File("liberty/usr/servers/test/apps/appsdirectory-notset-configured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
+
+    @Test
+    public void testCopyDependenciesFilesExist() throws Exception {
+        // This was SCOPE_TEST and should not be copied.
+        File f = new File("liberty/usr/shared/resources/commons-logging-1.0.4.jar");
+        Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
+
+        // This was not defined in the dependencies and should not be copied.
+        f = new File("liberty/usr/shared/resources/derbytools-10.15.2.0.jar");
+        Assert.assertFalse(f.getCanonicalFile() + " exists", f.exists());
+
+        // This was not defined in the dependencies and should be copied because the full GAV coordinate was specified.
+        f = new File("liberty/usr/shared/resources/derbyclient-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        // This was SCOPE_PROVIDED and should be copied.
+        f = new File("liberty/usr/shared/resources/derby-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        // This is a transitive dependency of org.apache.derby:derby and should be copied.
+        f = new File("liberty/usr/shared/resources/derbyshared-10.15.2.0.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+   }
 }

@@ -43,6 +43,7 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping java-dump goal.\n");
             return;
         }
         if (isInstall) {

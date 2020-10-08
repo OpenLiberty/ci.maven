@@ -1,4 +1,4 @@
-# ci.maven [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.tools/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.tools%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build Status](https://travis-ci.com/OpenLiberty/ci.maven.svg?branch=master)](https://travis-ci.com/OpenLiberty/ci.maven) [![Build status](https://ci.appveyor.com/api/projects/status/vket9064enwhf2lp?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3882b05e21b14d85bfe2f7bfe6abef13)](https://www.codacy.com/app/wasdevb1/ci.maven?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WASdev/ci.maven&amp;utm_campaign=Badge_Grade)
+# ci.maven [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.tools/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.tools%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build Status](https://travis-ci.com/OpenLiberty/ci.maven.svg?branch=master)](https://travis-ci.com/OpenLiberty/ci.maven) [![Build status](https://ci.appveyor.com/api/projects/status/vket9064enwhf2lp/branch/master?svg=true)](https://ci.appveyor.com/project/wasdevb1/ci-maven/branch/master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3882b05e21b14d85bfe2f7bfe6abef13)](https://www.codacy.com/app/wasdevb1/ci.maven?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WASdev/ci.maven&amp;utm_campaign=Badge_Grade)
 
 Collection of Maven plugins and archetypes for managing Open Liberty and WebSphere Liberty servers and applications.
 
@@ -46,7 +46,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.2.2,)</version>
+                <version>[3.2.3,)</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -180,7 +180,7 @@ Example:
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.2.2,)</version>
+                <version>[3.2.3,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
@@ -215,8 +215,8 @@ The `liberty-plugin-archetype` is used to generate a basic multi-module project 
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=2.2 \
-        -DlibertyPluginVersion=3.2 \
+        -DarchetypeVersion=3.2.3  \
+        -DlibertyPluginVersion=3.2.3  \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -230,7 +230,7 @@ The `liberty-archetype-webapp` is used to generate a basic single-module project
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=2.2 \
+        -DarchetypeVersion=3.2.3 \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT
@@ -244,7 +244,7 @@ The `liberty-archetype-ear` is used to generate a multi-module project that incl
     mvn archetype:generate \
         -DarchetypeGroupId=io.openliberty.tools \
         -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=2.2 \
+        -DarchetypeVersion=3.2.3  \
         -DgroupId=test \
         -DartifactId=test \
         -Dversion=1.0-SNAPSHOT

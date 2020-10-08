@@ -132,8 +132,10 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         }
 
         if (skip || skipLibertyPackage) {
+            getLog().info("\nSkipping package goal.\n");
             return;
         }
+
         if (isInstall) {
             installServerAssembly();
         } else {

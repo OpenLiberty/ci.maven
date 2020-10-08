@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +158,12 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(alias="serverEnv", property = "serverEnvFile")
     protected File serverEnvFile;
+
+    /**
+     * If set, merges server.env contents from default server.env, configDir server.env, inline properties,  and specified server.env
+     */
+    @Parameter(property = "mergeServerEnv", defaultValue = "false")
+    protected boolean mergeServerEnv;
 
     /**
      * Version to override any specified in the assemblyArtifact

@@ -1,3 +1,18 @@
+/**
+ * (C) Copyright IBM Corporation 2019, 2020.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.openliberty.tools.maven.utils;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
@@ -46,7 +61,7 @@ public class ExecuteMojoUtil {
 
     // https://maven.apache.org/plugins/maven-resources-plugin/resources-mojo.html
     private static final ArrayList<String> RESOURCES_PARAMS = new ArrayList<>(Arrays.asList(
-            "outputDirectory", "addDefaultExcludes", "delimiters", "encoding", "escapeString",
+            "outputDirectory", "resources", "addDefaultExcludes", "delimiters", "encoding", "escapeString",
             "escapeWindowsPaths", "fileNameFiltering", "filters", "includeEmptyDirs", 
             "mavenFilteringHints", "nonFilteredFileExtensions", "overwrite", "skip",
             "supportMultiLineFiltering", "useBuildFilters", "useDefaultDelimiters"
@@ -133,7 +148,7 @@ public class ExecuteMojoUtil {
 
     private static final ArrayList<String> LIBERTY_COMMON_SERVER_PARAMS = new ArrayList<>(
             Arrays.asList("serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-                    "jvmOptions", "jvmOptionsFile", "serverEnvFile"
+                    "jvmOptions", "jvmOptionsFile", "serverEnvFile", "mergeServerEnv"
             // executeMojo can not use alias parameters:
             // "configFile", "serverEnv"
             ));
@@ -150,7 +165,8 @@ public class ExecuteMojoUtil {
     private static final ArrayList<String> DEPLOY_PARAMS;
     static {
         DEPLOY_PARAMS = new ArrayList<>(Arrays.asList(
-                "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication"
+                "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication",
+                "copyDependencies", "copyLibsDirectory"
                 // executeMojo can not use alias parameters:
                 // "installAppPackages"
                 ));

@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.3-M2-SNAPSHOT</version>
+        <version>3.3-M5-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-plugin-archetype</artifactId>
@@ -26,7 +26,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>2.2</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

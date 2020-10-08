@@ -118,6 +118,7 @@ public class InstallFeatureSupport extends BasicSupport {
 
     protected boolean initialize() throws MojoExecutionException {
         if (skip) {
+            getLog().info("\nSkipping install-feature goal.\n");
             return false;
         }
 

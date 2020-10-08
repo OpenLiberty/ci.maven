@@ -15,8 +15,8 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedWriter;
@@ -56,11 +56,8 @@ public class RunTest extends BaseDevTest {
             String response = method.getResponseBodyAsString();
 
             assertTrue("Unexpected response body", response.contains("hello world"));
-            // Note that checkLogMessage returns true if it does NOT find the message.
-            // So I am verifying that SLF4J loaded properly.
-            assertTrue(checkLogMessage(2000, "SLF4J: Failed to load class"));
-            // And then verify the logging message was successfully logged.
-            assertFalse(checkLogMessage(2000, "SLF4J Logger is ready for messages."));
+            assertFalse(verifyLogMessageExists("SLF4J: Failed to load class", 2000));
+            assertTrue(verifyLogMessageExists("SLF4J Logger is ready for messages.", 2000));
          } finally {
             method.releaseConnection();
          }

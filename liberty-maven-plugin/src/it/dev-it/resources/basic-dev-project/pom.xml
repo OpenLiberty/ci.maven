@@ -193,6 +193,7 @@
           <bootstrapProperties>
             <default.http.port>${testServerHttpPort}</default.http.port>
             <default.https.port>${testServerHttpsPort}</default.https.port>
+            <com.ibm.ws.logging.message.format>json</com.ibm.ws.logging.message.format>
           </bootstrapProperties>
         </configuration>
       </plugin>

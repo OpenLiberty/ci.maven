@@ -20,10 +20,20 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>10.15.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbyclient</artifactId>
+        <version>10.15.2.0</version>
+    </dependency>
+    <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.0.4</version>
-        <scope>test</scope>
+        <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -77,6 +87,28 @@
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
+          <copyDependencies>
+            <stripVersion>true</stripVersion>
+            <dependencyGroup>
+                <location>lib/global/derby</location>
+                <dependency>
+                    <groupId>org.apache.derby</groupId>
+                    <artifactId>derby*</artifactId>
+                </dependency>
+            </dependencyGroup>
+            <dependencyGroup>
+                <stripVersion>false</stripVersion>
+                <dependency>
+                    <groupId>commons-logging</groupId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.derby</groupId>
+                    <artifactId>derbywar</artifactId>
+                    <version>10.15.2.0</version>
+                    <type>war</type>
+                </dependency>
+            </dependencyGroup>
+          </copyDependencies>
         </configuration>
         <executions>
             <execution>
@@ -163,7 +195,7 @@
                     </execution>
                     <execution>
                         <id>verify</id>
-                        <phase>install</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
                         </goals>

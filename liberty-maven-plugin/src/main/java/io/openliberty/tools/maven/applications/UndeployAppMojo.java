@@ -51,6 +51,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping undeploy goal.\n");
             return;
         }
         
@@ -136,7 +137,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
             
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                bootstrapPropertiesFile, bootstrapProperties, serverEnvFile, false);
+                bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
 
                 //appName will be set to a name derived from file if no name can be found.
                 appName = scd.findNameForLocation(appName);

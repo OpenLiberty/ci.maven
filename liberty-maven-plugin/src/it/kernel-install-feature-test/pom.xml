@@ -45,6 +45,10 @@
         <profile>
             <id>wlp-its</id>
             <activation>
+            <!-- exclude from Windows due to file locking issues -->
+                <os>
+                    <family>unix</family>
+                </os>
                 <property>
                     <name>runtime</name>
                     <value>wlp</value>
@@ -106,7 +110,7 @@
                     </execution>
                     <execution>
                         <id>verify</id>
-                        <phase>install</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
                         </goals>

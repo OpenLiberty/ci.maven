@@ -79,4 +79,33 @@ public class DefaultAppDirectoryTest {
         File f = new File("liberty/usr/servers/test/dropins/appsdirectory-notset-notconfigured-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
+
+    @Test
+    public void testCopyDependenciesFilesExist() throws Exception {
+        // stripVersion was set to true
+
+        // This was SCOPE_PROVIDED and should be copied. The default location was used.
+        File f = new File("liberty/usr/servers/test/lib/global/commons-logging-1.0.4.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        // This next three derby related dependencies were pulled in with
+        // 'derby*' for artifactId and the location was overridden in a dependencyGroup.
+        // The type defaulted to jar.
+
+        f = new File("liberty/usr/servers/test/lib/global/derby/derby.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derbyshared.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+ 
+        f = new File("liberty/usr/servers/test/lib/global/derby/derbyclient.jar");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+
+        // The next dependency specified the full GAV plus type `war`. The default location was used.
+        f = new File("liberty/usr/servers/test/lib/global/derbywar-10.15.2.0.war");
+        Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+
+ 
+   }
+
 }

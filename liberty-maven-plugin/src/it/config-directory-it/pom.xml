@@ -130,7 +130,7 @@
                     </execution>
                     <execution>
                         <id>verify</id>
-                        <phase>install</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
                         </goals>
@@ -146,4 +146,77 @@
             </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+        <id>main-it</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>io.openliberty.tools</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId>
+                    <version>@pom.version@</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.19.1</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/MicroClean*.java</exclude>>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+    <profile>
+        <id>micro-clean-before</id>
+        <properties>
+            <liberty.jvm.minHeap>-Xms512m</liberty.jvm.minHeap>
+            <liberty.bootstrap.location>pom.xml</liberty.bootstrap.location>
+            <liberty.defaultVar.postgres.port>51432</liberty.defaultVar.postgres.port>
+        </properties>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>io.openliberty.tools</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId>
+                    <version>@pom.version@</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.19.1</version>
+                    <configuration>
+                        <includes>
+                            <include>**/MicroCleanBefore*.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+    <profile>
+        <id>micro-clean-after</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>io.openliberty.tools</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId>
+                    <version>@pom.version@</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.19.1</version>
+                    <configuration>
+                        <includes>
+                            <include>**/MicroCleanAfter*.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+  </profiles>
 </project>

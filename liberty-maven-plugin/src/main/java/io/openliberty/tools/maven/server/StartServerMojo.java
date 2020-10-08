@@ -63,6 +63,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
+            getLog().info("\nSkipping start goal.\n");
             return;
         }
         if (isInstall) {

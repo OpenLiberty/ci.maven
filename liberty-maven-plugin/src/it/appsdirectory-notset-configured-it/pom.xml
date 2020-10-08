@@ -31,6 +31,12 @@
       <version>4.9</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>10.15.2.0</version>
+        <scope>provided</scope>
+    </dependency>
   </dependencies>
   
   <build>
@@ -77,6 +83,26 @@
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
+          <copyDependencies>
+            <location>${project.build.directory}/liberty/usr/shared/resources</location>
+            <dependency>
+                <groupId>commons-logging</groupId>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbytools</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>10.15.2.0</version>
+            </dependency>
+          </copyDependencies>
+
         </configuration>
         <executions>
             <execution>
@@ -138,7 +164,7 @@
                     </execution>
                     <execution>
                         <id>verify</id>
-                        <phase>install</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
                         </goals>

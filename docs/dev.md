@@ -2,9 +2,19 @@
 
 ----
 
-Start a Liberty server in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.  To exit dev mode, press `Control-C`, or type `q` and press Enter.
+Start a Liberty server in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.
 
 To start the server in a container, see the [devc](#devc-container-mode) section below. 
+
+##### Console actions
+
+While dev mode is running, perform the following in the command terminal to run the corresponding actions.
+
+* To run tests on demand, press Enter.
+* To restart the server, type `r` and press Enter.
+* To exit dev mode, press `Control-C`, or type `q` and press Enter.
+
+##### Features
 
 Dev mode provides three key features. Code changes are detected, recompiled, and picked up by your running server. Unit and integration tests are run on demand when you press Enter in the command terminal where dev mode is running, or optionally on every code change to give you instant feedback on the status of your code. Finally, it allows you to attach a debugger to the running server at any time to step through your code.
 
@@ -81,12 +91,25 @@ When dev mode runs with container support it still provides the same features. I
 
 This mode publishes the container ports 9080, 9443 and 7777 by default. If your application needs to publish other ports add them to the `dockerRunOpts` option either in the `pom.xml` file or on the `mvn` command line. E.g. `-DdockerRunOpts="-p 9081:9081"`
 
+##### Console actions
+
+While dev mode is running in container mode, perform the following in the command terminal to run the corresponding actions.
+
+* To run tests on demand, press Enter.
+* To rebuild the Docker image and restart the container, type `r` and press Enter.
+* To exit dev mode, press `Control-C`, or type `q` and press Enter.
+
 ###### Limitations
 
 For the current technology preview, the following limitations apply.
 
 - Platform limitations:
-  - Supported on macOS and Windows with Docker Desktop installed. Not supported on Linux at the moment.
+  - Supported on macOS and Windows with Docker Desktop installed.
+  - Supported on Linux. Note the following.
+    - In dev mode the Open Liberty server runs in the container on the UID (user identifier) of the current user. This is so that the server can access the configuration files from your project and you can access the Open Liberty log files. Outside of dev mode the Open Liberty server will run on the UID specified in the Docker image.
+    - Use of editors like `vim`: when you edit a configuration file with `vim` it will delete the file
+    and rewrite it when you save. This necessitates a container restart. To avoid the restart edit your
+    .vimrc file and add the line `set backupcopy=yes`
 
 - Dockerfile limitations:
   - The Dockerfile must copy only one .war file for the application.  Other application archive formats or multiple .war files are not supported.
@@ -121,5 +144,6 @@ These parameters are available in addition to the ones in the `dev` section abov
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | container | If set to `true`, run the server in the container specified by the `dockerfile` parameter. Setting this to `true` is equivalent to using the `devc` goal. The default value is `false` when the `dev` goal is used, and `true` when the `devc` goal is used. | No |
-| dockerRunOpts | Specifies options to add to the `docker run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `docker run` to define an environment variable with the name `key` and value `value`. Setting this parameter overrides the `container` parameter to `true`. | No |
-| dockerfile | Location of a Dockerfile to be used by dev mode to build the container that runs your server and to specify the context used to build the container image. The default value is `Dockerfile`. Setting this parameter overrides the `container` parameter to `true`. | No |
+| dockerRunOpts | Specifies options to add to the `docker run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `docker run` to define an environment variable with the name `key` and value `value`. | No |
+| dockerfile | Location of a Dockerfile to be used by dev mode to build the Docker image for the container that will run your Liberty server.  The directory containing the Dockerfile will also be the context for the `docker build`. The default value is `Dockerfile`. | No |
+| dockerBuildTimeout | Maximum time to wait (in seconds) for the completion of the Docker operation to build the image. The value must be an integer greater than 0. The default value is `60` seconds. | No |

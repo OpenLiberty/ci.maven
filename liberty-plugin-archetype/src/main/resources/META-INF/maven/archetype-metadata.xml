@@ -5,8 +5,19 @@
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <requiredProperties>
+        <requiredProperty key="groupId"/>
+        <requiredProperty key="artifactId"/>
+        <requiredProperty key="runtimeGroupId">
+            <defaultValue>io.openliberty</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="runtimeArtifactId">
+            <defaultValue>openliberty-runtime</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="runtimeVersion">
+            <defaultValue>[20.0.0.8,)</defaultValue>
+        </requiredProperty>
         <requiredProperty key="libertyPluginVersion">
-          <defaultValue>1.0</defaultValue>
+            <defaultValue>${project.version}</defaultValue>
         </requiredProperty>
     </requiredProperties>
     <modules>
