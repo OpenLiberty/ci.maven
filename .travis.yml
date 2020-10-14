@@ -24,6 +24,7 @@ before_install:
     - echo 'Installing ci.common lib...'
     - git clone https://github.com/jjvilleg/ci.common.git ./ci.common
     - cd ./ci.common
+    - git checkout includeBootstrap
     - mvn clean install
     - cd ..
 script:
