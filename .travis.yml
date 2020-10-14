@@ -5,10 +5,10 @@ jdk:
     - openjdk8
     - openjdk11
 env:
-    - RUNTIME=ol RUNTIME_VERSION=20.0.0.6
-    - RUNTIME=ol RUNTIME_VERSION=20.0.0.9
-    - RUNTIME=wlp RUNTIME_VERSION=20.0.0.6
-    - RUNTIME=wlp RUNTIME_VERSION=20.0.0.9
+    # - RUNTIME=ol RUNTIME_VERSION=20.0.0.6
+    - RUNTIME=ol RUNTIME_VERSION=20.0.0.10
+    # - RUNTIME=wlp RUNTIME_VERSION=20.0.0.6
+    - RUNTIME=wlp RUNTIME_VERSION=20.0.0.10
 cache:
     directories:
         - $HOME/.m2
