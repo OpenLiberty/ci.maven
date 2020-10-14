@@ -74,9 +74,6 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
-          <bootstrapPropertiesFile>src/main/liberty/config/bootstrap.properties</bootstrapPropertiesFile>
-          <serverXmlFile>src/main/liberty/config/server.xml</serverXmlFile>
-          <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
         </configuration>
         <executions>
@@ -113,7 +110,6 @@
                </goals>
                <configuration>
                    <background>true</background>
-                   <!-- <serverStartTimeout>40</serverStartTimeout> -->
                </configuration>
             </execution>
             <execution>
