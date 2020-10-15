@@ -7,4 +7,6 @@
     <include location="${test.datasources.file.2}"/>
     
     <include location="${test.datasources.file.3}"/>
+   
+    <include location="${test.datasources.file.4}"/>
 </server>
