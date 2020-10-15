@@ -1,0 +1,4 @@
+<server>
+<variable name="testName" value="testValue">
+</variable>
+</server>
