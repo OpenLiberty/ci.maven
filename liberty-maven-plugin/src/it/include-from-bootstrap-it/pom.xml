@@ -67,13 +67,13 @@
         <extensions>true</extensions>
         <configuration>
           <stripVersion>true</stripVersion>
-          <assemblyArtifact>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>assembly-server</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-          </assemblyArtifact>
-          <serverName>test</serverName>
+                    <assemblyArtifact>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeKernelId}</artifactId>
+                        <version>${runtimeVersion}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+           <serverName>test</serverName>
           <looseApplication>false</looseApplication>
         </configuration>
         <executions>
@@ -91,6 +91,11 @@
                 <goals>
                     <goal>install-feature</goal>
                 </goals>
+                <configuration>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                    </features>
+                </configuration>
             </execution>
             <execution>
                 <id>install-artifact</id>
