@@ -53,9 +53,16 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
+        System.out.println("---------------------------------------------------------------------------");
+        System.out.println(System.getProperty("skipBetaInstallFeatureWarning"));
+        System.out.println("---------------------------------------------------------------------------");
+
+        Boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty("skipBetaInstallFeatureWarning"));
         if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
-            log.warn("Downloading additional features is not supported for beta releases.");
-            return;
+            if (!skipBetaInstallFeatureWarning) {
+                log.warn("Downloading additional features is not supported for beta releases.");
+            }
+            return; // do not install features if the runtime is a beta version
         }
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
