@@ -17,7 +17,7 @@ The following parameters are supported by this goal in addition to the [common p
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| feature | Specify the location of the Subsystem archive to install. This can be an ESA file, an IBM-Shortname, or a Subsystem-SymbolicName of the Subsystem archive. The value can be a file name or a URL to the esa file. Multiple `feature` elements can be added to the `features` configuration. | No |
+| feature | Specify the location of the Subsystem archive to install. This can be a local ESA file, an IBM-Shortname, or a Subsystem-SymbolicName of the Subsystem archive. Multiple `feature` elements can be added to the `features` configuration. | No |
 | acceptLicense | Automatically indicate acceptance of license terms and conditions. The default is `false`, so you must add this parameter to get features installed if it is required. | Required for runtime versions 18.0.0.1 and below, or for features that are not from Open Liberty. <p/> Not required for Open Liberty features on runtime versions 18.0.0.2 and above. |
 | to | Specify where to install the feature. The feature can be installed to any configured product extension location, or as a user feature (usr, extension). If this option is not specified the feature will be installed as a user feature. | No |
 | from | Specifies a single directory-based repository as the source of the assets. | No |
