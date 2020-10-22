@@ -137,7 +137,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
 
-        configDocument.createElement("appsDirectory", getAppsDirectory());
+        if (isConfigCopied()) {
+            configDocument.createElement("appsDirectory", getAppsDirectory());
+        }
+
         configDocument.createElement("looseApplication", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", getDeployPackages());
@@ -305,7 +308,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
         File serverXML = new File(serverDirectory, "server.xml");
 
-        if (isConfigCopied() && serverXML != null && serverXML.exists()) {
+        if (serverXML != null && serverXML.exists()) {
             try {
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
