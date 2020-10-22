@@ -305,7 +305,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
         File serverXML = new File(serverDirectory, "server.xml");
 
-        if (serverXML != null && serverXML.exists()) {
+        if (isConfigCopied() && serverXML != null && serverXML.exists()) {
             try {
                 scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);

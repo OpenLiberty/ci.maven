@@ -72,6 +72,8 @@ public class StartDebugMojoSupport extends BasicSupport {
     private static final String LIBERTY_CONFIG_MAVEN_PROPS = "(^liberty\\.(env|jvm|bootstrap|var|defaultVar)\\.).+";
     private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS);
 
+    private static boolean configFilesCopied = false;
+
     protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
@@ -389,6 +391,8 @@ public class StartDebugMojoSupport extends BasicSupport {
             log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "server.env", serverEnvPath));
         }
+
+        configFilesCopied = true;
     }
 
     // Merges configured serverEnvFile with envMavenProps if specified, and returns the updated serverEnvPath
@@ -646,4 +650,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
+    public static boolean isConfigCopied() {
+        return configFilesCopied;
+    }
 }
