@@ -112,6 +112,8 @@ For the current technology preview, the following limitations apply.
 - Dockerfile limitations:
   - The Dockerfile must copy only one .war file for the application.  Other application archive formats or multiple .war files are not supported.
   - Hot deployment is only supported for individual configuration files that are specified as the source in the Dockerfile's COPY commands. Hot deployment is not supported for COPY commands with variable substitution, wildcard characters, spaces in paths, paths relative to WORKDIR, multi-stage builds, or entire directories specified as the source.
+  - Hot deployment is not supported for files or directories copied to the image with the ADD command.
+  When you change any of the files or directories that you ADDed to the image it will be rebuilt and the server restarted.
 
 ###### Examples
 
