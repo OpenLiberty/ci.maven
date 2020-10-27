@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
@@ -41,6 +43,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 
 import io.openliberty.tools.ant.install.InstallLibertyTask;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 
 /**
  * Basic Liberty Mojo Support
@@ -539,4 +542,48 @@ public class BasicSupport extends AbstractLibertySupport {
                 
         return (String) envvars.get("WLP_OUTPUT_DIR");
     }
+
+    static public Map<String,File> getLibertyDirectoryPropertyFiles(File installDir, File userDir, File serverDir) throws IOException {
+        Map<String, File> libertyDirectoryPropertyToFile = new HashMap<String,File>();
+
+        if (serverDir.exists()) {
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.SERVER_CONFIG_DIR, serverDir.getCanonicalFile());
+
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.WLP_INSTALL_DIR, installDir.getCanonicalFile());
+ 
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.WLP_USER_DIR, userDir.getCanonicalFile());
+
+            File userExtDir = new File(userDir, "extension");
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.USR_EXTENSION_DIR, userExtDir.getCanonicalFile());
+
+            File userSharedDir = new File(userDir, "shared");
+            File userSharedAppDir = new File(userSharedDir, "app");
+            File userSharedConfigDir = new File(userSharedDir, "config");
+            File userSharedResourcesDir = new File(userSharedDir, "resources");
+            File userSharedStackGroupsDir = new File(userSharedDir, "stackGroups");
+
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.SHARED_APP_DIR, userSharedAppDir.getCanonicalFile());
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.SHARED_CONFIG_DIR, userSharedConfigDir.getCanonicalFile());
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.SHARED_RESOURCES_DIR, userSharedResourcesDir.getCanonicalFile());
+            libertyDirectoryPropertyToFile.put(ServerFeatureUtil.SHARED_STACKGROUP_DIR, userSharedStackGroupsDir.getCanonicalFile());
+        }
+        return libertyDirectoryPropertyToFile;
+    }
+
+    protected Map<String,File> getLibertyDirectoryPropertyFiles() {
+        
+        if (serverDirectory.exists()) {
+            try {
+                return getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
+            } catch (Exception e) {
+                log.warn("The properties for directories could not be initialized because an error occurred when accessing the directories.");
+                log.debug("Exception received: "+e.getMessage(), (Throwable) e);
+            }
+        } else {
+            log.warn("The " + serverDirectory + " directory cannot be accessed. The properties for directories could not be initialized.");
+        }
+
+        return new HashMap<String,File> ();
+    }
+
 }
