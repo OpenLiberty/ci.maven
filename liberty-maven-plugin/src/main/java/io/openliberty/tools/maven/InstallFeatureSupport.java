@@ -154,7 +154,7 @@ public class InstallFeatureSupport extends BasicSupport {
         }
         else {
             Set<String> dependencyFeatures = getDependencyFeatures();
-            Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory) : null;
+            Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, getLibertyDirectoryPropertyFiles()) : null;
             return InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
             
         }
