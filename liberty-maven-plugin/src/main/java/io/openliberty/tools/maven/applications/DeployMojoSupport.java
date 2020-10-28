@@ -61,12 +61,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
     @Parameter(property = "copyLibsDirectory")
     protected File copyLibsDirectory;
 
-    /* 
-     * Define a set of dependencies to copy to the target Liberty server.
-     */
-    @Parameter
-    protected CopyDependencies copyDependencies;
-
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
     protected void installApp(Artifact artifact) throws Exception {

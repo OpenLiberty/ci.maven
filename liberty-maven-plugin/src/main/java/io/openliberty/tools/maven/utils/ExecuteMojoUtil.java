@@ -147,8 +147,8 @@ public class ExecuteMojoUtil {
     ));
 
     private static final ArrayList<String> LIBERTY_COMMON_SERVER_PARAMS = new ArrayList<>(
-            Arrays.asList("serverXmlFile", "configDirectory", "bootstrapProperties", "bootstrapPropertiesFile",
-                    "jvmOptions", "jvmOptionsFile", "serverEnvFile", "mergeServerEnv"
+            Arrays.asList("serverXmlFile", "configDirectory", "copyDependencies", "bootstrapProperties", 
+            "bootstrapPropertiesFile", "jvmOptions", "jvmOptionsFile", "serverEnvFile", "mergeServerEnv"
             // executeMojo can not use alias parameters:
             // "configFile", "serverEnv"
             ));
@@ -166,7 +166,7 @@ public class ExecuteMojoUtil {
     static {
         DEPLOY_PARAMS = new ArrayList<>(Arrays.asList(
                 "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication",
-                "copyDependencies", "copyLibsDirectory"
+                "copyLibsDirectory"
                 // executeMojo can not use alias parameters:
                 // "installAppPackages"
                 ));

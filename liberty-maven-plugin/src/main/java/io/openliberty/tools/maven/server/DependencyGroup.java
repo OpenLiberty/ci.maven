@@ -13,30 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.openliberty.tools.maven.applications;
+package io.openliberty.tools.maven.server;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * A class to store a set of CopyDependencies.
+ * A collection of Dependency with an optional location.
  */
-public class CopyDependencies {
-
-    /**
-     * The location to copy dependencies to. This can be a full path, or a path relative to
-     * ${server.config.dir}. The default is ${server.config.dir}/lib/global.
-     */
-    @Parameter
-    private String location = "lib/global";
-
-    /**
-     * Boolean to indicate whether to strip versions from the file names when copying.
-     * The default is false.
-     */
-    @Parameter(defaultValue="false")
-    private Boolean stripVersion;
+public class DependencyGroup {
 
     /**
      * A list of Dependency to copy.
@@ -44,10 +30,13 @@ public class CopyDependencies {
     private List<Dependency> copyDependencyList = new ArrayList<Dependency>();
     
     /**
-     * A list of DependencyGroup to copy.
+     * Optional location to copy the Dependency to. This can be a full path, or a path relative to
+     * ${server.config.dir}. The location in the containing CopyDependencies configuration will be 
+     * used if nothing is specified here.
      */
-    private List<DependencyGroup> copyDependencyGroupList = new ArrayList<DependencyGroup>();
-    
+    @Parameter
+    private String location = null;
+
     public String getLocation() {
         return location;
     }
@@ -56,12 +45,13 @@ public class CopyDependencies {
         this.location = location;
     }
     
-    public boolean isStripVersion() {
-        if (this.stripVersion == null) {
-            return false;
-        }
-        return this.stripVersion.booleanValue();
-    }
+    /**
+     * Boolean to indicate whether to strip versions from the file names when copying.
+     * The stripVersion in the containing CopyDependencies configuration will be 
+     * used if nothing is specified here.
+     */
+    @Parameter
+    private Boolean stripVersion = null;
 
     public Boolean getStripVersion() {
         return this.stripVersion;
@@ -70,7 +60,6 @@ public class CopyDependencies {
     public void setStripVersion(boolean strip) {
         this.stripVersion = new Boolean(strip);
     }
-    
     /**
      * Get all the current Dependency to copy.
      *
@@ -87,24 +76,6 @@ public class CopyDependencies {
      */
     public void addDependency(Dependency dependency) {
         copyDependencyList.add(dependency);
-    }
-
-    /**
-     * Get all the current DependencyGroups to copy.
-     *
-     * @return A list with the DependencyGroup to copy.
-     */
-    public List<DependencyGroup> getDependencyGroups() {
-        return copyDependencyGroupList;
-    }
-
-    /**
-     * Add a DependencyGroup into a list.
-     *
-     * @param DependencyGroup
-     */
-    public void addDependencyGroup(DependencyGroup dependencyGroup) {
-        copyDependencyGroupList.add(dependencyGroup);
     }
 
 }
