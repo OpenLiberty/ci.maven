@@ -111,9 +111,14 @@ For the current technology preview, the following limitations apply.
 
 - Dockerfile limitations:
   - The Dockerfile must copy only one .war file for the application.  Other application archive formats or multiple .war files are not supported.
-  - Hot deployment is only supported for individual configuration files that are specified as the source in the Dockerfile's COPY commands. Hot deployment is not supported for COPY commands with variable substitution, wildcard characters, spaces in paths, paths relative to WORKDIR, multi-stage builds, or entire directories specified as the source.
-  - Hot deployment is not supported for files or directories copied to the image with the ADD command.
-  When you change any of the files or directories that you ADDed to the image it will be rebuilt and the server restarted.
+  - Hot deployment is only supported for individual configuration files that are specified as the source in the Dockerfile's COPY commands. Hot deployment is not supported for COPY commands with entire directories specified as the source. In this case the image it will be rebuilt and the container restarted (regular deployment).
+  - Hot deployment is not supported for files or directories copied to the image with the ADD command. When you change any of the files or directories that you ADDed to the image it will be rebuilt and the container restarted.
+  - Certain dockerfile features are not supported by dev mode. In these cases the files are not tracked so if you change these files you must restart the container manually. Type 'r' and press Enter to restart the container.
+   - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
+   - wildcards used in the COPY or ADD command e.g. `src/main/liberty/config/*`
+   - paths relative to WORKDIR e.g. `ADD test.txt relativeDir/`
+   - multi-stage builds e.g. `COPY --from=<name>`
+
 
 ###### Examples
 
