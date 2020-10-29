@@ -90,7 +90,7 @@ When dev mode runs with container support it still provides the same features. I
 The Dockerfile must copy the application .war file and the server configuration files that the application requires into the container. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits the container is stopped and deleted and the logs are preserved as described.
 
 Dev mode offers different levels of file tracking and deployment depending on the way the file is specified in the Dockerfile. 
-1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files.**
+1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files,** so that you can make changes to those files at any time without needing to rebuild the image or restart the container.
    - E.g. `COPY src/main/liberty/config/server.xml /config/` 
    - Note that the Dockerfile must copy only one .war file for the application.  Multiple .war files are not supported.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
