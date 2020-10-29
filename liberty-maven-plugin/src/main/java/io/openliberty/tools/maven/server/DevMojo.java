@@ -830,6 +830,13 @@ public class DevMojo extends StartDebugMojoSupport {
         Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", log);
         JavaCompilerOptions compilerOptions = new JavaCompilerOptions();
 
+        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings");
+        if (showWarnings != null) {
+            boolean showWarningsBoolean = Boolean.parseBoolean(showWarnings);
+            log.debug("Setting showWarnings to " + showWarningsBoolean);
+            compilerOptions.setShowWarnings(showWarningsBoolean);
+        }
+
         String source = getCompilerOption(configuration, "source", "maven.compiler.source");
         if (source != null) {
             log.debug("Setting compiler source to " + source);
@@ -840,6 +847,12 @@ public class DevMojo extends StartDebugMojoSupport {
         if (target != null) {
             log.debug("Setting compiler target to " + target);
             compilerOptions.setTarget(target);
+        }
+
+        String release = getCompilerOption(configuration, "release", "maven.compiler.release");
+        if (release != null) {
+            log.debug("Setting compiler release to " + release);
+            compilerOptions.setRelease(release);
         }
         
         return compilerOptions;
