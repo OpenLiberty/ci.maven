@@ -95,7 +95,7 @@ Dev mode offers different levels of file tracking and deployment depending on th
    - Note that the Dockerfile must copy only one .war file for the application.  Multiple .war files are not supported.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
 3. The ADD command can be used on individual files including tar files as well as on directories. Again, dev mode will rebuild the image and restart the container when it detects file changes. 
-4. Certain Dockerfile features are not supported by dev mode. In these cases the files are not tracked so if you change these files you must rebuild the image and restart the container manually. **Type 'r' and press Enter to restart the container.**
+4. Certain Dockerfile features are not supported by dev mode. In these cases the files are not tracked so if you change these files you must rebuild the image and restart the container manually. **Type 'r' and press Enter to rebuild the image and restart the container.**
    - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
    - wildcards used in the COPY or ADD command e.g. `src/main/liberty/config/*`
    - paths relative to WORKDIR e.g. `WORKDIR /other/project` with `ADD test.txt relativeDir/`
