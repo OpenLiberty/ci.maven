@@ -230,7 +230,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     dockerBuildTimeout, skipDefaultPorts);
 
             ServerFeature servUtil = getServerFeatureUtil();
-            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
+            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         }
 
