@@ -61,6 +61,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
@@ -223,11 +224,11 @@ public class DevMojo extends StartDebugMojoSupport {
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File> ();
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
-                List<File> resourceDirs) throws IOException {
+                List<File> resourceDirs, JavaCompilerOptions compilerOptions) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts);
+                    dockerBuildTimeout, skipDefaultPorts, compilerOptions);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
@@ -793,7 +794,9 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs);
+        JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
+
+        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions);
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -825,6 +828,62 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             return; // enter shutdown hook 
         }
+    }
+
+    private JavaCompilerOptions getMavenCompilerOptions() {
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+        Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", log);
+        JavaCompilerOptions compilerOptions = new JavaCompilerOptions();
+
+        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings");
+        if (showWarnings != null) {
+            boolean showWarningsBoolean = Boolean.parseBoolean(showWarnings);
+            log.debug("Setting showWarnings to " + showWarningsBoolean);
+            compilerOptions.setShowWarnings(showWarningsBoolean);
+        }
+
+        String source = getCompilerOption(configuration, "source", "maven.compiler.source");
+        if (source != null) {
+            log.debug("Setting compiler source to " + source);
+            compilerOptions.setSource(source);
+        }
+
+        String target = getCompilerOption(configuration, "target", "maven.compiler.target");
+        if (target != null) {
+            log.debug("Setting compiler target to " + target);
+            compilerOptions.setTarget(target);
+        }
+
+        String release = getCompilerOption(configuration, "release", "maven.compiler.release");
+        if (release != null) {
+            log.debug("Setting compiler release to " + release);
+            compilerOptions.setRelease(release);
+        }
+        
+        return compilerOptions;
+    }
+
+    /**
+     * Gets a compiler option's value from maven-compiler-plugin's configuration or project properties.
+     * 
+     * @param configuration The maven-compiler-plugin's configuration from pom.xml
+     * @param mavenParameterName The maven-compiler-plugin parameter name to look for
+     * @param projectPropertyName The project property name to look for, if the mavenParameterName's parameter could not be found in the plugin configuration.
+     * @return The compiler option
+     */
+    private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName) {
+        // Plugin configuration takes precedence over project property
+        String option = null;
+        if (configuration != null) {
+            Xpp3Dom child = configuration.getChild(mavenParameterName);
+            if (child != null) {
+                option = child.getValue();                
+            }
+        }
+        if (option == null) {
+            option = project.getProperties().getProperty(projectPropertyName);
+        }
+        return option;
     }
 
     private void processContainerParams() throws MojoExecutionException {
