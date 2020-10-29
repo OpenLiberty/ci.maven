@@ -28,6 +28,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -66,6 +68,7 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
+import io.openliberty.tools.maven.BasicSupport;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -218,8 +221,9 @@ public class DevMojo extends StartDebugMojoSupport {
     private class DevMojoUtil extends DevUtil {
 
         Set<String> existingFeatures;
+        Map<String, File> libertyDirPropertyFiles = new HashMap<String, File> ();
 
-        public DevMojoUtil(File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
+        public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
@@ -227,7 +231,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     dockerBuildTimeout, skipDefaultPorts, compilerOptions);
 
             ServerFeature servUtil = getServerFeatureUtil();
-            this.existingFeatures = servUtil.getServerFeatures(serverDirectory);
+            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
+            this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         }
 
         @Override
@@ -623,7 +628,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = getServerFeatureUtil();
-                Set<String> features = servUtil.getServerFeatures(serverDir);
+                Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
                     features.removeAll(existingFeatures);
                     if (!features.isEmpty()) {
@@ -791,7 +796,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-        util = new DevMojoUtil(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions);
+        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions);
         util.addShutdownHook(executor);
         util.startServer();
 

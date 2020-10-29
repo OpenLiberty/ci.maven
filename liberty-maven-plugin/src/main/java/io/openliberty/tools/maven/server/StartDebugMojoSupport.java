@@ -285,7 +285,7 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // copy server.xml file to server directory if end-user explicitly set it.
         if (serverXmlFile != null && serverXmlFile.exists()) {
-            if (serverXMLPath != null) {
+            if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
                 log.warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
