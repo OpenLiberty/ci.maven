@@ -25,41 +25,41 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.EnumSet;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.xml.transform.TransformerException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginManagement;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
-import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
-
-import org.apache.maven.model.Plugin;
-import org.apache.maven.plugin.BuildPluginManager;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Start/Debug server support.
@@ -191,9 +191,26 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected Plugin getLibertyPlugin() {
         Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (plugin == null) {
+            plugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        }
+        if (plugin == null) {
             plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
         }
         return plugin;
+    }
+
+    protected Plugin getPluginFromPluginManagement(String groupId, String artifactId) {
+        Plugin retVal = null;
+        PluginManagement pm = project.getPluginManagement();
+        if (pm != null) {
+            for (Plugin p : pm.getPlugins()) {
+                if (groupId.equals(p.getGroupId()) && artifactId.equals(p.getArtifactId())) {
+                    retVal = p;
+                    break;
+                }
+            }
+        }
+        return retVal;
     }
 
     protected void runLibertyMojoCreate() throws MojoExecutionException {
