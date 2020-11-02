@@ -137,7 +137,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
 
-        configDocument.createElement("appsDirectory", getAppsDirectory());
+        if (isConfigCopied()) {
+            configDocument.createElement("appsDirectory", getAppsDirectory());
+        }
+
         configDocument.createElement("looseApplication", looseApplication);
         configDocument.createElement("stripVersion", stripVersion);
         configDocument.createElement("installAppPackages", getDeployPackages());

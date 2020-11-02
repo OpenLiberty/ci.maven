@@ -1,0 +1,7 @@
+<server>
+    <featureManager>
+        <feature>mongodb-2.0</feature>
+    </featureManager>
+<variable name="testName" value="testValue">
+</variable>
+</server>

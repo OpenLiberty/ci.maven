@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>appsdirectory-notset-configured-it</artifactId>
+  <artifactId>include-from-bootstrap-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -28,14 +28,8 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.9</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>10.15.2.0</version>
-        <scope>provided</scope>
     </dependency>
   </dependencies>
   
@@ -73,51 +67,35 @@
         <extensions>true</extensions>
         <configuration>
           <stripVersion>true</stripVersion>
-          <assemblyArtifact>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>assembly-server</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-          </assemblyArtifact>
-          <serverName>test</serverName>
-          <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-          <deployPackages>project</deployPackages>
+                    <assemblyArtifact>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeKernelId}</artifactId>
+                        <version>${runtimeVersion}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+           <serverName>test</serverName>
           <looseApplication>false</looseApplication>
-          <copyDependencies>
-            <location>${project.build.directory}/liberty/usr/shared/resources</location>
-            <dependency>
-                <groupId>commons-logging</groupId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbytools</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbyclient</artifactId>
-                <version>10.15.2.0</version>
-            </dependency>
-          </copyDependencies>
-
         </configuration>
         <executions>
             <execution>
-                <id>install-liberty</id>
-                <phase>package</phase>
+                <id>create-liberty-server</id>
+                <phase>prepare-package</phase>
                 <goals>
                     <goal>install-server</goal>
+                    <goal>create</goal>
                 </goals>
             </execution>
             <execution>
-                <id>create-liberty-server</id>
-                <phase>package</phase>
+                <id>install-feature</id>
+                <phase>prepare-package</phase>
                 <goals>
-                    <goal>create</goal>
+                    <goal>install-feature</goal>
                 </goals>
+                <configuration>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                    </features>
+                </configuration>
             </execution>
             <execution>
                 <id>install-artifact</id>
@@ -130,17 +108,41 @@
                 </configuration>
             </execution>
             <execution>
+               <id>start-liberty-server</id>
+               <phase>pre-integration-test</phase>
+               <goals>
+                   <goal>start</goal>
+               </goals>
+               <configuration>
+                   <background>true</background>
+               </configuration>
+            </execution>
+            <execution>
+               <id>check-liberty-server</id>
+               <phase>pre-integration-test</phase>
+               <goals>
+                   <goal>status</goal>
+               </goals>
+            </execution>
+            <execution>
+                <id>stop-liberty-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                    <goal>test-start</goal>
+                </goals>
+            </execution>
+            <execution>
                 <id>clean-server</id>
                 <phase>post-integration-test</phase>
                 <goals>
-                    <goal>clean</goal>
+                    <goal>test-stop</goal>
                 </goals>
                 <configuration>
                     <cleanDropins>true</cleanDropins>
                     <cleanApps>true</cleanApps>
                 </configuration>
             </execution>
-         </executions>
+         </executions> 
        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
