@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019. 
+ * (C) Copyright IBM Corporation 2014, 2020. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Package a liberty server
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     private enum PackageFileType {

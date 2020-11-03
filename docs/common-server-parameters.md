@@ -6,12 +6,110 @@ Additional parameters shared by all server-based goals.
 | --------  | ----------- | -------  |
 | serverXmlFile | Location of a server configuration file to be used by the instance. This replaces the `configFile` parameter which is still supported for backwards compatibility.| No |
 | configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to the target server. Files specified by other common server parameters will take precedence over files located in the configDirectory. The default value is `${basedir}/src/main/liberty/config`.| No |
+| copyDependencies | Copies the specified dependencies to the specified locations. Multiple `dependency` parameters and `dependencyGroup` parameters can be added to the `copyDependencies` configuration. The `location` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default location, which is the `lib/global` folder of the target server. The `stripVersion` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default `stripVersion` value, which is `false`. | No |
 | bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. `bootstrapProperties` will take precedence over `bootstrapPropertiesFile`.| No |
 | bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance.| No |
 | jvmOptions | List of JVM options for the server instance. `jvmOptions` will take precedence over `jvmOptionsFile`.| No |
 | jvmOptionsFile | Location of a JVM options file to be used by the instance.| No |
 | serverEnvFile | Location of a server environment file to be used by the instance. This replaces the `serverEnv` parameter which is still supported for backwards compatibility.| No |
 | mergeServerEnv | Merge the server environment properties from all specified sources with the default generated `server.env` file in the target server. Conflicts are resolved with the same precedence as the replacement policy when this attribute is set to `false`. The `liberty.env.{var}` Maven properties are highest precedence, followed by the `serverEnvFile` attribute, then the `server.env` file located in the `configDirectory`, and finally the default generated `server.env` file in the target server. The default value is `false`. | No |
+
+The `copyDependencies` parameter can contain the following parameters.
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| dependency | A collection of `dependency` parameters that specify the coordinate of the Maven dependency to copy. | Yes, only when `dependencyGroup` parameter is not set. |
+| dependencyGroup | A collection of `dependencyGroup` parameters that can contain a `location` parameter to override the default location, and multiple `dependency` parameters. | Yes, only when `dependency` parameter is not set. |
+| location | The optional directory to which the dependencies are copied. This can be an absolute path, or a relative path to the target server configuration directory. The default location is the `lib/global` folder of the target server.| No |
+| stripVersion | The optional boolean indicating whether to strip the artifact version when copying the dependency. The default value is `false`.| No |
+
+The `dependencyGroup` parameter within the `copyDependencies` can contain the following parameters.
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| dependency | A collection of `dependency` parameters that specify the coordinate of the Maven dependency to copy. | Yes |
+| location | The optional directory to which the dependencies are copied. This can be an absolute path, or a relative path to the target server configuration directory. If not specified, the `location` from the `copyDependencies` is used.| No |
+| stripVersion | The optional boolean indicating whether to strip the artifact version when copying the dependency. If not specified, the `stripVersion` from the `copyDependencies` is used.| No |
+
+The `dependency` parameter within the `copyDependencies` or `dependencyGroup` can contain the following parameters.
+
+| Parameter | Description | Required |
+| --------  | ----------- | -------  |
+| groupId | The groupId of the Maven dependency to be copied. The `artifactId` and `version` are optional. If only `groupId` is specified, all resolved dependencies with a matching `groupId` are copied to the specified or default location along with their transitive dependencies. | Yes |
+| artifactId | The artifactId of the Maven dependency to be copied. If an `artifactId` is specified, the resolved dependency with a matching `groupId` and `artifactId` is copied to the specified or default location along with its transitive dependencies. The `artifactId` may also end with a `*` to match all artifacts that have an `artifactId` that start with the specified string. | No |
+| type | The type of the Maven dependency to be copied. The default is `jar`. | No |
+| version | The version of the Maven dependency to be copied. You must specify the `version` for any dependency that is not configured in the Maven `dependencies` or Maven `dependencyManagement` section of the `pom.xml` file. | No |
+
+When determining which resolved dependencies to copy for the `copyDependencies` configuration, only scopes compile, runtime, system and provided are included. This ensures test scope dependencies are not copied. Please note that dependencies with scope compile, runtime, or system will still be packaged within the application unless configured otherwise. If you do not want the dependency within the application, then consider removing the dependency from the Maven `dependencies` or Maven `dependencyManagement` section of the pom.xml and specify the full coordinate with `version` within a `dependency` in `copyDependencies`. Alternatively, you could change the dependency scope to provided. A dependency that is configured in `copyDependencies` with a `version` will be treated as a 'provided'-scoped dependency in calculating transitive dependencies. The `type` is also defaulted to `jar`. If your scenario is more complex, consider using the `copy` or `copy-dependencies` goal in the `maven-dependency-plugin` instead.
+
+Example of copying dependencies with the `copyDependencies` parameter:
+```xml
+<project>
+    <groupId>wasdev</groupId>
+    <artifactId>SimpleServlet</artifactId>
+    <version>1.0</version>
+    <packaging>war</packaging>
+    ...
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.15.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>10.15.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    ...
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <executions>
+                    ...
+                    <execution>
+                        <id>start-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <copyDependencies>
+                                <!-- Copies the commons-logging:commons-logging:1.0.4 dependency plus transitive dependencies
+                                     to the default location lib/global folder of the target server. This dependency was not
+                                     defined in the Maven dependencies above which is why the version is specified here. -->
+                                <dependency>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                    <version>1.0.4</version>
+                                </dependency>
+                                <!-- Copies the org.apache.derby:derby:10.15.2.0 and org.apache.derby:derbyclient:10.15.2.0 
+                                     dependencies plus transitive dependencies which were defined in the Maven dependencies
+                                     above to the lib/global/derby folder of the target server and strips the version. -->
+                                <dependencyGroup>
+                                    <stripVersion>true</stripVersion>
+                                    <location>lib/global/derby</location>
+                                    <dependency>
+                                        <groupId>org.apache.derby</groupId>
+                                        <artifactId>derby*</artifactId>
+                                    </dependency>
+                                </dependencyGroup>
+                            </copyDependencies>
+                        </configuration>
+                    </execution>
+                    ...
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    ...
+</project>
+```
 
 Starting with the 3.1 release of the liberty-maven-plugin, support is added to specify Liberty configuration with Maven properties. Use the following property name formats to update the desired Liberty configuration.
 

@@ -36,9 +36,10 @@ import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
 /**
- * Copy applications to the specified directory of the Liberty server. The ResolutionScope.COMPILE_PLUS_RUNTIME 
- * includes compile + system + provided + runtime dependencies. The copyDependencies functionality will
- * include dependencies with all those scopes, and transitive dependencies with scope compile + system + runtime. 
+ * Copy applications to the specified directory of the Liberty server. 
+ * The ResolutionScope.COMPILE_PLUS_RUNTIME includes compile + system + provided + runtime dependencies. 
+ * The copyDependencies functionality will include dependencies with all those scopes, and transitive 
+ * dependencies with scope compile + system + runtime. 
  * Provided scope transitive dependencies are not included by default (built-in maven behavior).
  */
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
@@ -58,7 +59,6 @@ public class DeployMojo extends DeployMojoSupport {
         // update target server configuration
         copyConfigFiles();
         exportParametersToXml();
-        copyDependencies();
         
         boolean installDependencies = false;
         boolean installProject = false;
@@ -92,118 +92,6 @@ public class DeployMojo extends DeployMojoSupport {
         if (applicationXml.hasChildElements()) {
             log.warn(messages.getString("warn.install.app.add.configuration"));
             applicationXml.writeApplicationXmlDocument(serverDirectory);
-        }
-    }
-
-    private void copyDependencies() throws Exception {
-        if (copyDependencies != null) {
-            List<Dependency> deps = copyDependencies.getDependencies();
-            boolean defaultStripVersion = copyDependencies.isStripVersion();
-            String defaultLocation = copyDependencies.getLocation();
-            File dftLocationFile = new File(defaultLocation);
-
-            if (!dftLocationFile.isAbsolute()) {
-                // relative path
-                dftLocationFile = new File(serverDirectory,defaultLocation);
-            }
-
-            if (!dftLocationFile.exists()) {
-                dftLocationFile.mkdirs();
-            } else if (!dftLocationFile.isDirectory()) {
-                // send config error
-                throw new MojoExecutionException("The copyDependencies location "+ dftLocationFile.getCanonicalPath() +" is not a directory.");
-            }
-
-            String dftLocationPath = dftLocationFile.getCanonicalPath();
-
-            if (!deps.isEmpty()) {      
-                log.debug("copyDependencies to location: "+dftLocationPath);
-            }
-
-            for (Dependency dep : deps) {
-                copyDependencies(dep, null, dftLocationPath, defaultStripVersion);                
-            }
-
-            List<DependencyGroup> depGroups = copyDependencies.getDependencyGroups();
-
-            for (DependencyGroup depGroup : depGroups) {
-                String overrideLocation = depGroup.getLocation();
-                if (overrideLocation != null) {
-                    log.debug("copyDependencies to location: "+ overrideLocation);
-                } else {
-                    log.debug("copyDependencies to location: "+dftLocationPath);
-                }
-                boolean stripVersion = defaultStripVersion;
-                Boolean overrideStripVersion = depGroup.getStripVersion();
-                if (overrideStripVersion != null) {
-                    stripVersion = overrideStripVersion.booleanValue();
-                }
-                List<Dependency> groupDeps = depGroup.getDependencies();
-                for (Dependency dep : groupDeps) {
-                    copyDependencies(dep, overrideLocation, dftLocationPath, stripVersion);                
-                }
-            }
-
-        }
-    }
-
-    private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
-
-        String location = defaultLocation;
-
-        if (overrideLocation != null) {
-            File overrideLocationFile = new File(overrideLocation);
-            if (!overrideLocationFile.isAbsolute()) {
-                // relative path
-                overrideLocationFile = new File(serverDirectory, overrideLocation);
-            }
-
-            location = overrideLocationFile.getCanonicalPath();
-
-            if (!overrideLocationFile.exists()) {
-                overrideLocationFile.mkdirs();
-            } else if (!overrideLocationFile.isDirectory()) {
-                // send config error
-                log.warn("The specified dependency location "+ overrideLocationFile.getCanonicalPath() +" is not a directory. Using default copyDependencies location "+ defaultLocation +" instead.");
-                location = defaultLocation;
-            }
-        }
-
-        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), dep.getType());
-
-        if (artifactsToCopy.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("copyDependencies failed for dependency with groupId "+ dep.getGroupId());
-            String artifactId = dep.getArtifactId();
-            if (artifactId != null) {
-                sb.append(", artifactId "+artifactId);
-            }
-            String version = dep.getVersion();
-            if (version != null) {
-                sb.append(", version "+ version);
-            }
-            sb.append(" and type "+dep.getType());
-            sb.append(". No matching resolved dependencies were found.");
-
-            log.warn(sb.toString());
-        } else {
-            for (Artifact nextArtifact : artifactsToCopy) {
-                File nextFile = nextArtifact.getFile();
-                String targetFileName = nextFile.getName();
-                if (stripVersion) {
-                    targetFileName = stripVersionFromName(targetFileName, nextArtifact.getVersion());
-                }
-           
-                File fileToCopyTo = new File(location, targetFileName);
-
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(nextFile);
-                copy.setTofile(fileToCopyTo);
-                copy.setOverwrite(true);
-                copy.execute();
-
-                log.info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
-            }
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Dump diagnostic information from the server JVM.
  */
-@Mojo(name = "java-dump")
+@Mojo(name = "java-dump", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class JavaDumpServerMojo extends StartDebugMojoSupport {
 
     /**

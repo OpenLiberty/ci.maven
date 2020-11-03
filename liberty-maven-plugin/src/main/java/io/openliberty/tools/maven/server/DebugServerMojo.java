@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2019.
+ * (C) Copyright IBM Corporation 2017, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import io.openliberty.tools.ant.ServerTask;
 
 /**
  * Start a liberty server in debug mode
  */
-@Mojo(name = "debug")
+@Mojo(name = "debug", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 
 public class DebugServerMojo extends StartDebugMojoSupport {
 
