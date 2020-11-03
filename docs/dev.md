@@ -165,7 +165,7 @@ Alternatively, you can have Docker map random ephemeral local ports to the expos
 -DskipDefaultPorts -DdockerRunOpts="-P"
 ```
 
-To run multiple instances of dev mode in container mode, you can start the first dev mode instance with default settings, but specify the `skipDefaultPorts` option and alternative port mappings in `dockerRunOpts` for all following instances as in the examples above.
+If you use the default ports and you run multiple instances of dev mode in container mode, the containers will use different local port mappings to avoid errors. The first instance will use the local ports 9080 and 9443, the second instance will use 9081 and 9444 and so on. Alternatively, you can start the first dev mode instance with default settings, but specify the `skipDefaultPorts` option and your own port mappings in `dockerRunOpts` for all following instances as in the examples above.
 
 Note that you do not need to specify an alternative for the debug port. Dev mode will automatically find an open local port to map the container debug port to. 
 
