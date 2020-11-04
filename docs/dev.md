@@ -150,22 +150,24 @@ By default, container mode publishes the following ports and maps them to the co
 * HTTPS port at 9443
 * Debug port at 7777
 
+The container ports and mapped local ports will be displayed when dev mode starts up.
+
+If you use the default ports and you run multiple instances of dev mode in container mode, the containers will use different local port mappings to avoid errors. The first instance will use the local ports 9080 and 9443, the second instance will use 9081 and 9444, and so on.  
+
 To publish additional ports, add them to the `dockerRunOpts` parameter either in the `pom.xml` file or on the `mvn` command line.  For example:
 ```
 -DdockerRunOpts="-p 8000:8000"
 ```
 
-To map the container ports to local ports that are not the default, use the `skipDefaultPorts` parameter and specify Docker port mappings using the `dockerRunOpts` parameter:
+To map the container ports to specific local ports that are not the default, use the `skipDefaultPorts` parameter and specify Docker port mappings using the `dockerRunOpts` parameter:
 ```
--DskipDefaultPorts -DdockerRunOpts="-p 9081:9080 -p 9444:9443"
+-DskipDefaultPorts -DdockerRunOpts="-p 10000:9080 -p 10001:9443"
 ```
 
-Alternatively, you can have Docker map random ephemeral local ports to the exposed container ports as follows.  The mapped local HTTP and HTTPS ports will be displayed when dev mode starts up.
+Alternatively, you can have Docker map random ephemeral local ports to the exposed container ports as follows.
 ```
 -DskipDefaultPorts -DdockerRunOpts="-P"
 ```
-
-If you use the default ports and you run multiple instances of dev mode in container mode, the containers will use different local port mappings to avoid errors. The first instance will use the local ports 9080 and 9443, the second instance will use 9081 and 9444 and so on. Alternatively, you can start the first dev mode instance with default settings, but specify the `skipDefaultPorts` option and your own port mappings in `dockerRunOpts` for all following instances as in the examples above.
 
 Note that you do not need to specify an alternative for the debug port. Dev mode will automatically find an open local port to map the container debug port to. 
 
