@@ -54,7 +54,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
-        Boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
+        boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
         if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
             if (!skipBetaInstallFeatureWarning) {
                 log.warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
