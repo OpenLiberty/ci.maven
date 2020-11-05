@@ -27,6 +27,7 @@ import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 import io.openliberty.tools.maven.server.types.Features;
 
 
@@ -43,9 +44,12 @@ public class InstallFeatureSupport extends BasicSupport {
 
     public boolean installFromAnt;
 
+    private InstallFeatureUtil util;
+
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas)  throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas);
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+                throws PluginScenarioException, PluginExecutionException {
+            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion);
         }
 
         @Override
@@ -133,14 +137,21 @@ public class InstallFeatureSupport extends BasicSupport {
         return true;
     }
 
+    /**
+     * Get the current installed Liberty features
+     *
+     * @return Set of Strings containing the installed Liberty features
+     */
     protected Set<String> getInstalledFeatures() throws PluginExecutionException {
         Set<String> pluginListedFeatures = getPluginListedFeatures(false);
-        Set<String> pluginListedEsas = getPluginListedFeatures(true);
 
+        if (util == null) {
+            Set<String> pluginListedEsas = getPluginListedFeatures(true);
+            List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+            String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
+        }
 
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas);
-
-        
         if (util == null && noFeaturesSection) {
             //No features were installed because acceptLicense parameter was not configured
             return new HashSet<String>();
@@ -160,10 +171,10 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas) throws PluginExecutionException {
-        InstallFeatureUtil util = null;
+    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
+            throws PluginExecutionException {
         try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas);
+            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion);
         } catch (PluginScenarioException e) {
             log.debug(e.getMessage());
             if (noFeaturesSection) {
@@ -175,6 +186,19 @@ public class InstallFeatureSupport extends BasicSupport {
                 log.debug("Installing features from installUtility.");
             }
         }
+    }
+
+    /**
+     * Get a new instance of InstallFeatureUtil
+     * 
+     * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
+     * @param propertiesList The list of product properties installed with the Open Liberty runtime
+     * @param openLibertyVersion The version of the Open Liberty runtime
+     * @return instance of InstallFeatureUtil
+     */
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+            throws PluginExecutionException {
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion);
         return util;
     }
     
