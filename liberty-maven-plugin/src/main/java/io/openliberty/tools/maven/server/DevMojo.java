@@ -205,6 +205,12 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "skipDefaultPorts", defaultValue = "false")
     private boolean skipDefaultPorts;
 
+     /**
+     * If true, preserve the temporary Dockerfile used in the docker build command
+     */
+    @Parameter(property = "keepTempDockerfile", defaultValue = "false")
+    private boolean keepTempDockerfile;
+
     /**
      * Set the container option.
      * 
@@ -228,7 +234,7 @@ public class DevMojo extends StartDebugMojoSupport {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts, compilerOptions);
+                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
