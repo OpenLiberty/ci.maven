@@ -87,7 +87,9 @@ When dev mode runs with container support, it builds a container image and runs 
 
 ###### Dockerfile
 
-Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. Note: images with the `kernel-slim` tag are not supported with dev mode at this time.
+Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images.
+
+Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
 
 The Dockerfile must copy the application .war file and the server configuration files that the application requires into the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
 
