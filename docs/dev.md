@@ -89,7 +89,7 @@ You need to install the Docker runtime locally (Docker Desktop on macOS or Windo
 
 ###### Dockerfile
 
-Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images.
+Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile.
 
 Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
 
