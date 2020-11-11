@@ -89,11 +89,11 @@ You need to install the Docker runtime locally (Docker Desktop on macOS or Windo
 
 ###### Dockerfile
 
-Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile.
+Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. The Dockerfile must copy the application .war file and the server configuration files that the application requires into the container.
 
 Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
 
-The Dockerfile must copy the application .war file and the server configuration files that the application requires into the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
+Dev mode works with a temporary copy of your Dockerfile to allow for hot deployment during development. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
 
 ###### File Tracking
 
