@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.3-M5-SNAPSHOT</version>
+        <version>3.3-SNAPSHOT</version>
     </parent>
     
     <artifactId>liberty-maven-app-parent</artifactId>
