@@ -190,6 +190,9 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected Plugin getPlugin(String groupId, String artifactId) {
         Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
+            plugin = getPluginFromPluginManagement(groupId, artifactId);
+        }
+        if (plugin == null) {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
