@@ -93,12 +93,12 @@ Your project must have a Dockerfile to use dev mode in container mode. A sample 
 
 Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
 
-Dev mode works with a temporary copy of your Dockerfile to allow for hot deployment during development. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
+Dev mode works with a temporary modified copy of your Dockerfile to allow for hot deployment during development. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
 
 ###### File Tracking
 
 Dev mode offers different levels of file tracking and deployment depending on the way the file is specified in the Dockerfile. 
-1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files,** so that you can make changes to those files at any time without needing to rebuild the image or restart the container.
+1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files for dev mode,** so that you can make changes to those files at any time without needing to rebuild the image or restart the container.
    - E.g. `COPY src/main/liberty/config/server.xml /config/` 
    - Note that the Dockerfile must copy only one .war file for the application.  Multiple .war files are not supported.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
@@ -185,4 +185,4 @@ These parameters are available in addition to the ones in the `dev` section abov
 | dockerfile | Location of a Dockerfile to be used by dev mode to build the Docker image for the container that will run your Liberty server.  The directory containing the Dockerfile will also be the context for the `docker build`. The default value is `Dockerfile`. | No |
 | dockerBuildTimeout | Maximum time to wait (in seconds) for the completion of the Docker operation to build the image. The value must be an integer greater than 0. The default value is `60` seconds. | No |
 | skipDefaultPorts | If set to `true`, dev mode will not publish the default Docker port mappings of `9080:9080` (HTTP) and `9443:9443` (HTTPS). Use this option if you would like to specify alternative local ports to map to the exposed container ports for HTTP and HTTPS using the `dockerRunOpts` parameter. | No |
-| keepTempDockerfile | If set to `true`, dev mode will not delete the temporary file which is the Dockerfile used to build the container. This file is handy in case you need to debug the process of building the container. The name of the temporary file can be seen when dev mode displays the `docker build` command. The default value is `false`.| No |
+| keepTempDockerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Dockerfile used to build the Docker image. This file is handy in case you need to debug the process of building the Docker image. The name of the temporary Dockerfile can be seen when dev mode displays the `docker build` command. The default value is `false`.| No |
