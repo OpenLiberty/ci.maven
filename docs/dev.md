@@ -106,7 +106,7 @@ Dev mode offers different levels of file tracking and deployment depending on th
 4. Certain Dockerfile features are not supported by dev mode. In these cases, the files specified are not tracked. If you change these files, you must rebuild the image and restart the container manually. **Type 'r' and press Enter to rebuild the image and restart the container.**
    - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
    - wildcards used in the COPY or ADD command e.g. `src/main/liberty/config/*`
-   - paths relative to WORKDIR e.g. `WORKDIR /other/project` with `ADD test.txt relativeDir/`
+   - paths relative to WORKDIR e.g. `WORKDIR /other/project` followed by `COPY test.txt relativeDir/`
    - multi-stage builds e.g. `COPY --from=<name>`
 
 ###### Console Actions
@@ -140,7 +140,7 @@ Customizing the container configuration in `pom.xml`.  Note that changing these 
                 <version>3.3-M1</version>
                 <configuration>
                     <container>true</container>
-                    <dockerRunOpts>-p 9081:9081</dockerRunOpts>
+                    <dockerRunOpts>-e key=value</dockerRunOpts>
                     <dockerfile>myDockerfile</dockerfile>
                 </configuration>
             </plugin>
@@ -185,4 +185,4 @@ These parameters are available in addition to the ones in the `dev` section abov
 | dockerfile | Location of a Dockerfile to be used by dev mode to build the Docker image for the container that will run your Liberty server.  The directory containing the Dockerfile will also be the context for the `docker build`. The default value is `Dockerfile`. | No |
 | dockerBuildTimeout | Maximum time to wait (in seconds) for the completion of the Docker operation to build the image. The value must be an integer greater than 0. The default value is `60` seconds. | No |
 | skipDefaultPorts | If set to `true`, dev mode will not publish the default Docker port mappings of `9080:9080` (HTTP) and `9443:9443` (HTTPS). Use this option if you would like to specify alternative local ports to map to the exposed container ports for HTTP and HTTPS using the `dockerRunOpts` parameter. | No |
-| keepTempDockerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Dockerfile used to build the Docker image. This file is handy in case you need to debug the process of building the Docker image. The name of the temporary Dockerfile can be seen when dev mode displays the `docker build` command. The default value is `false`.| No |
+| keepTempDockerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Dockerfile used to build the Docker image. This file is handy in case you need to debug the process of building the Docker image. The path of the temporary Dockerfile can be seen when dev mode displays the `docker build` command. The default value is `false`.| No |
