@@ -61,8 +61,8 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
-                    <!-- Test embedded server -->
-                    <embedded>true</embedded>
+                    <!-- Set to false TEMPORARILY due to ci.ant issue 131 -->
+                    <embedded>false</embedded>
                     <assemblyArtifact>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>assembly-server</artifactId>

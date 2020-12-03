@@ -23,12 +23,10 @@ jobs:
         RUNTIME_VERSION: [20.0.0.12, 20.0.0.6]
         java: [11, 8]
         exclude:
-        - os: windows-latest
-          RUNTIME: wlp
-          RUNTIME_VERSION: 20.0.0.12
         - java: 8
           RUNTIME_VERSION: 20.0.0.6
 
+    name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, ${{ matrix.os }}
     steps:
     - name: Setup Java ${{ matrix.java }}
       uses: joschi/setup-jdk@v2
