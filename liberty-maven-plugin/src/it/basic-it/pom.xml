@@ -61,8 +61,8 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
-                    <!-- Set to false TEMPORARILY due to ci.ant issue 131 -->
-                    <embedded>false</embedded>
+                    <!-- Test embedded server -->
+                    <embedded>true</embedded>
                     <assemblyArtifact>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>assembly-server</artifactId>
@@ -152,6 +152,8 @@
                         <configuration>
                             <cleanDropins>true</cleanDropins>
                             <cleanApps>true</cleanApps>
+                            <!-- Temporarily set this to false due to ci.ant issue 131 -->
+                            <cleanWorkarea>false</cleanWorkarea>
                         </configuration>
                     </execution>
                     <execution>
