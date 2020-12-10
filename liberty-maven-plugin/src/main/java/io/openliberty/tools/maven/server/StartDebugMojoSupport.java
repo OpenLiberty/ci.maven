@@ -23,6 +23,8 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -244,14 +246,15 @@ public class StartDebugMojoSupport extends BasicSupport {
         runLibertyMojo("deploy", config);
     }
 
-    protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
-        if (!project.getProperties().containsKey("container")) {  // for now, container mode does not support installing features
-            Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
-            if (features != null) {
-                config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
-            }
-            runLibertyMojo("install-feature", config);   
+    protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
+        if (features != null) {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
         }
+        if (project.getProperties().containsKey("container") && containerName != null) {
+            config.addChild(element(name("containerName"), containerName).toDom());
+        }
+        runLibertyMojo("install-feature", config);   
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {

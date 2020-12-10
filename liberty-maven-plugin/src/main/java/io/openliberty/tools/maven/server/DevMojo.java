@@ -194,9 +194,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
     /**
      * Specify the amount of time in seconds that dev mode waits for the docker build command
-     * to run to completion. Default to 60 seconds.
+     * to run to completion. Default to 600 seconds.
      */
-    @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
+    @Parameter(property = "dockerBuildTimeout", defaultValue = "600")
     private int dockerBuildTimeout;
 
      /**
@@ -234,7 +234,7 @@ public class DevMojo extends StartDebugMojoSupport {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile);
+                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, settings.getLocalRepository());
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
@@ -305,10 +305,15 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
     
+        /**
+         * Install features in regular dev mode. This method should not be used in container mode.
+         * 
+         * @throws PluginExecutionException
+         */
         @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
-                runLibertyMojoInstallFeature(null);
+                runLibertyMojoInstallFeature(null, null);
             } catch (MojoExecutionException e) {                
                 throw new PluginExecutionException(e);
             }
@@ -610,7 +615,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoDeploy();
                     }
                     if (installFeature) {
-                        runLibertyMojoInstallFeature(null);
+                        runLibertyMojoInstallFeature(null, super.getContainerName());
                     }
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
@@ -645,7 +650,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         for (int i = 0; i < features.size(); i++) {
                             featureElems[i+1] = element(name("feature"), values[i]);
                         }
-                        runLibertyMojoInstallFeature(element(name("features"), featureElems));
+                        runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
                         this.existingFeatures.addAll(features);
                     }
                 }
@@ -780,7 +785,10 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             runLibertyMojoCreate();
-            runLibertyMojoInstallFeature(null);
+            // If non-container, install features before starting server. Otherwise, user should have "RUN features.sh" in their Dockerfile if they want features to be installed.
+            if (!container) {
+                runLibertyMojoInstallFeature(null, null);
+            }
             runLibertyMojoDeploy();
         }
         // resource directories
@@ -1169,10 +1177,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
-        if (!container) {
-            super.runLibertyMojoInstallFeature(features);
-        }
+    protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
+        super.runLibertyMojoInstallFeature(features, containerName);
     }
 
     /**

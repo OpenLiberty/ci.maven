@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2019.
+ * (C) Copyright IBM Corporation 2015, 2020.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import io.openliberty.tools.ant.InstallFeatureTask;
 import io.openliberty.tools.ant.FeatureManagerTask.Feature;
@@ -38,6 +39,13 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProper
 @Mojo(name = "install-feature")
 public class InstallFeatureMojo extends InstallFeatureSupport {
     
+    /**
+     * The container name if the features should be installed in a container.
+     * Otherwise null.
+     */
+    @Parameter
+    private String containerName;
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -51,20 +59,25 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     }
 
     private void installFeatures() throws PluginExecutionException {
-        List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-        String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-
-        boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
-        if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
-            if (!skipBetaInstallFeatureWarning) {
-                log.warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
+        // If non-container mode, check for Beta version and skip if needed.  Container mode does not need to check since featureUtility will check when it is called.
+        List<ProductProperties> propertiesList = null;
+        String openLibertyVersion = null;
+        if (containerName == null) {
+            propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+            openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+    
+            boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
+            if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
+                if (!skipBetaInstallFeatureWarning) {
+                    log.warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
+                }
+                return; // do not install features if the runtime is a beta version
             }
-            return; // do not install features if the runtime is a beta version
         }
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
-        Set<String> featuresToInstall = getInstalledFeatures();
+        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName);
+        Set<String> featuresToInstall = getSpecifiedFeatures(containerName);
         
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());

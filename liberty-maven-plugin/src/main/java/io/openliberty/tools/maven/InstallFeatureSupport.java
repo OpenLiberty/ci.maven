@@ -47,9 +47,9 @@ public class InstallFeatureSupport extends BasicSupport {
     private InstallFeatureUtil util;
 
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName)
                 throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion);
+            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName);
         }
 
         @Override
@@ -80,6 +80,11 @@ public class InstallFeatureSupport extends BasicSupport {
         @Override
         public boolean isDebugEnabled() {
             return log.isDebugEnabled();
+        }
+
+        @Override
+        public void error(String msg, Throwable e) {
+            log.error(msg, e);
         }
         
         @Override
@@ -138,18 +143,23 @@ public class InstallFeatureSupport extends BasicSupport {
     }
 
     /**
-     * Get the current installed Liberty features
+     * Get the current specified Liberty features.
      *
-     * @return Set of Strings containing the installed Liberty features
+     * @param String containerName The container name if the features should be installed in a container. Otherwise null.
+     * @return Set of Strings containing the specified Liberty features
      */
-    protected Set<String> getInstalledFeatures() throws PluginExecutionException {
+    protected Set<String> getSpecifiedFeatures(String containerName) throws PluginExecutionException {
         Set<String> pluginListedFeatures = getPluginListedFeatures(false);
 
         if (util == null) {
             Set<String> pluginListedEsas = getPluginListedFeatures(true);
-            List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-            String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion);
+            List<ProductProperties> propertiesList = null;
+            String openLibertyVersion = null;
+            if (containerName == null) {
+                propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+                openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+            }
+            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName);
         }
 
         if (util == null && noFeaturesSection) {
@@ -171,10 +181,10 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
-    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion) 
+    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName) 
             throws PluginExecutionException {
         try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion);
+            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName);
         } catch (PluginScenarioException e) {
             log.debug(e.getMessage());
             if (noFeaturesSection) {
@@ -194,11 +204,12 @@ public class InstallFeatureSupport extends BasicSupport {
      * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
      * @param propertiesList The list of product properties installed with the Open Liberty runtime
      * @param openLibertyVersion The version of the Open Liberty runtime
+     * @param containerName The container name if the features should be installed in a container. Otherwise null.
      * @return instance of InstallFeatureUtil
      */
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion)
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName)
             throws PluginExecutionException {
-        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion);
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName);
         return util;
     }
     

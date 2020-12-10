@@ -127,17 +127,17 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setClasspath(classpathStr);
 
         if(initialize()) {
-            Set<String> installedFeatures = getInstalledFeatures();
+            Set<String> specifiedFeatures = getSpecifiedFeatures();
 
             //Set JSP Feature Version
-            setJspVersion(compile, installedFeatures);
+            setJspVersion(compile, specifiedFeatures);
 
             //Removing jsp features at it is already set at this point 
-            installedFeatures.remove("jsp-2.3");
-            installedFeatures.remove("jsp-2.2");
+            specifiedFeatures.remove("jsp-2.3");
+            specifiedFeatures.remove("jsp-2.2");
             
-            if(installedFeatures != null && !installedFeatures.isEmpty()) {
-                compile.setFeatures(installedFeatures.toString().replace("[", "").replace("]", ""));
+            if(specifiedFeatures != null && !specifiedFeatures.isEmpty()) {
+                compile.setFeatures(specifiedFeatures.toString().replace("[", "").replace("]", ""));
             }
         }
 
