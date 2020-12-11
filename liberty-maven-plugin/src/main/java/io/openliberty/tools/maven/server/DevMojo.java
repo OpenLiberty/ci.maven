@@ -230,11 +230,11 @@ public class DevMojo extends StartDebugMojoSupport {
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File> ();
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
-                List<File> resourceDirs, JavaCompilerOptions compilerOptions) throws IOException {
+                List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, settings.getLocalRepository());
+                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, mavenCacheLocation);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
@@ -305,15 +305,10 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
     
-        /**
-         * Install features in regular dev mode. This method should not be used in container mode.
-         * 
-         * @throws PluginExecutionException
-         */
         @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
-                runLibertyMojoInstallFeature(null, null);
+                runLibertyMojoInstallFeature(null, container ? super.getContainerName() : null);
             } catch (MojoExecutionException e) {                
                 throw new PluginExecutionException(e);
             }
@@ -810,7 +805,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions);
+        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions, settings.getLocalRepository());
         util.addShutdownHook(executor);
         util.startServer();
 
