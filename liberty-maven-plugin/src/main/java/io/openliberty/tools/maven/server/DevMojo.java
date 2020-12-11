@@ -1137,6 +1137,11 @@ public class DevMojo extends StartDebugMojoSupport {
             log.info(msg);
         }
 
+        @Override
+        public void error(String msg, Throwable e) {
+            log.error(msg, e);
+        }
+
     }
 
     /**
