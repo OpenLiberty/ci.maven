@@ -194,9 +194,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
     /**
      * Specify the amount of time in seconds that dev mode waits for the docker build command
-     * to run to completion. Default to 60 seconds.
+     * to run to completion. Default to 600 seconds.
      */
-    @Parameter(property = "dockerBuildTimeout", defaultValue = "60")
+    @Parameter(property = "dockerBuildTimeout", defaultValue = "600")
     private int dockerBuildTimeout;
 
      /**
@@ -230,11 +230,11 @@ public class DevMojo extends StartDebugMojoSupport {
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File> ();
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
-                List<File> resourceDirs, JavaCompilerOptions compilerOptions) throws IOException {
+                List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
             super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile);
+                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, mavenCacheLocation);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
@@ -308,7 +308,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
-                runLibertyMojoInstallFeature(null);
+                runLibertyMojoInstallFeature(null, container ? super.getContainerName() : null);
             } catch (MojoExecutionException e) {                
                 throw new PluginExecutionException(e);
             }
@@ -610,7 +610,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoDeploy();
                     }
                     if (installFeature) {
-                        runLibertyMojoInstallFeature(null);
+                        runLibertyMojoInstallFeature(null, super.getContainerName());
                     }
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
@@ -645,7 +645,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         for (int i = 0; i < features.size(); i++) {
                             featureElems[i+1] = element(name("feature"), values[i]);
                         }
-                        runLibertyMojoInstallFeature(element(name("features"), featureElems));
+                        runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
                         this.existingFeatures.addAll(features);
                     }
                 }
@@ -780,7 +780,10 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             runLibertyMojoCreate();
-            runLibertyMojoInstallFeature(null);
+            // If non-container, install features before starting server. Otherwise, user should have "RUN features.sh" in their Dockerfile if they want features to be installed.
+            if (!container) {
+                runLibertyMojoInstallFeature(null, null);
+            }
             runLibertyMojoDeploy();
         }
         // resource directories
@@ -802,7 +805,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions);
+        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions, settings.getLocalRepository());
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -1129,6 +1132,11 @@ public class DevMojo extends StartDebugMojoSupport {
             log.info(msg);
         }
 
+        @Override
+        public void error(String msg, Throwable e) {
+            log.error(msg, e);
+        }
+
     }
 
     /**
@@ -1169,10 +1177,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoInstallFeature(Element features) throws MojoExecutionException {
-        if (!container) {
-            super.runLibertyMojoInstallFeature(features);
-        }
+    protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
+        super.runLibertyMojoInstallFeature(features, containerName);
     }
 
     /**
