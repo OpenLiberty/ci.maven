@@ -93,21 +93,29 @@ Your project must have a Dockerfile to use dev mode in container mode. A sample 
 
 Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
 
-Dev mode works with a temporary modified copy of your Dockerfile to allow for hot deployment during development. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
+Dev mode works with a temporary, modified copy of your Dockerfile to allow for hot deployment during development as detailed below. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
+
+Hot deployment is made possible because the application is installed as a loose application WAR. This method uses a file type of `.war.xml` which is functionally equivalent to the `.war` file. Dev mode only supports the application under development in the current project so to avoid application conflicts, dev mode removes all Dockerfile commands that copy or add a `.war` file.
+
+The `.war.xml` file is generated in the `defaultServer/apps` or the `defaultServer/dropins` directory so these directories are mounted in the container. Therefore any files that the Dockerfile may have copied into these directories in the container image will not be accessible.
+
+There are other features of the Dockerfile which are not supported for hot deployment of changes. See the section on [File Tracking](#File-Tracking) for details.
+
+Finally, if dev mode detects the Liberty command `RUN configure.sh` it will insert the environment variable command `ENV OPENJ9_SCC=false` in order to skip the configuration of the [shared class cache](https://github.com/OpenLiberty/ci.docker/#openj9-shared-class-cache-scc).
 
 ###### File Tracking
 
 Dev mode offers different levels of file tracking and deployment depending on the way the file is specified in the Dockerfile. 
 1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files for dev mode,** so that you can make changes to those files at any time without needing to rebuild the image or restart the container.
    - E.g. `COPY src/main/liberty/config/server.xml /config/` 
-   - Note that the Dockerfile must copy only one .war file for the application.  Multiple .war files are not supported.
+   - Note that the Dockerfile must copy only one `.war` file for the application. See the section on [Dockerfiles](#Dockerfile) for details.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
 3. The ADD command can be used on individual files, including tar files, as well as on directories. Again, dev mode will rebuild the image and restart the container when it detects file changes.
 4. Certain Dockerfile features are not supported by dev mode. In these cases, the files specified are not tracked. If you change these files, you must rebuild the image and restart the container manually. **Type 'r' and press Enter to rebuild the image and restart the container.**
    - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
    - wildcards used in the COPY or ADD command e.g. `src/main/liberty/config/*`
    - paths relative to WORKDIR e.g. `WORKDIR /other/project` followed by `COPY test.txt relativeDir/`
-   - multi-stage builds e.g. `COPY --from=<name>`
+   - files copied from a different part of a multistage Docker build e.g. `COPY --from=<name>`
 
 ###### Console Actions
 
