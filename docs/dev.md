@@ -91,8 +91,6 @@ You need to install the Docker runtime locally (Docker Desktop on macOS or Windo
 
 Your project must have a Dockerfile to use dev mode in container mode. A sample Dockerfile is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. The Dockerfile must copy the application .war file and the server configuration files that the application requires into the container.
 
-Note: Open Liberty images with the `kernel-slim` tag are not supported with dev mode at this time.
-
 Dev mode works with a temporary, modified copy of your Dockerfile to allow for hot deployment during development as detailed below. When dev mode starts up, it pulls the latest version of the parent image defined in the Dockerfile, builds the container image, then runs the container. Note that the context of the `docker build` command used to generate the container image is the directory containing the Dockerfile. When dev mode exits, the container is stopped and deleted, and the logs are preserved in the directory mentioned above.
 
 Hot deployment is made possible because the application is installed as a loose application WAR. This method uses a file type of `.war.xml` which is functionally equivalent to the `.war` file. Dev mode only supports the application under development in the current project so to avoid application conflicts, dev mode removes all Dockerfile commands that copy or add a `.war` file.
