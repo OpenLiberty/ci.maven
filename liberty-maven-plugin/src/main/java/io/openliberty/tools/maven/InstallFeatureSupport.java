@@ -83,6 +83,11 @@ public class InstallFeatureSupport extends BasicSupport {
         }
 
         @Override
+        public void error(String msg) {
+            log.error(msg);
+        }
+
+        @Override
         public void error(String msg, Throwable e) {
             log.error(msg, e);
         }
