@@ -325,6 +325,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void stopServer() {
+            super.serverFullyStarted.set(false);
+
             if (container) {
                 // TODO stop the container instead
                 return;
