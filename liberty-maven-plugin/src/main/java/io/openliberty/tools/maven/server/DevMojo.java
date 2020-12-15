@@ -288,7 +288,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public String getProjectName() {
-            return project.getName();
+            return project.getArtifactId();
         }
 
         @Override
