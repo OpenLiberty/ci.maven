@@ -251,7 +251,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (features != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
         }
-        if (project.getProperties().containsKey("container") && containerName != null) {
+        if (containerName != null) {
             config.addChild(element(name("containerName"), containerName).toDom());
         }
         runLibertyMojo("install-feature", config);   
