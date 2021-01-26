@@ -76,7 +76,8 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         }
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName);
+        List<String> additionalJsons = getAdditionalJsonList();
+        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
         Set<String> featuresToInstall = getSpecifiedFeatures(containerName);
         
         if(installFromAnt) {

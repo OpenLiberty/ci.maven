@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,11 +46,13 @@ public class InstallFeatureSupport extends BasicSupport {
     public boolean installFromAnt;
 
     private InstallFeatureUtil util;
+    
+    public static final String FEATURES_JSON_ARTIFACT_ID = "features";
 
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName)
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
                 throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName);
+            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         }
 
         @Override
@@ -125,6 +128,23 @@ public class InstallFeatureSupport extends BasicSupport {
         }
         return result;
     }
+    
+    protected List<String> getAdditionalJsonList() {
+        //note in this method we use the BOM coordinate but replace the BOM artifactId
+        //with the features JSON artifactId which by prepare-feature convention is "features"
+        List<String> result = new ArrayList<String>();
+        org.apache.maven.model.DependencyManagement dependencyManagement = project.getDependencyManagement();
+        List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
+        for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
+            if (("pom").equals(dependencyArtifact.getType())) {
+                String coordinate = String.format("%s:%s:%s",
+                        dependencyArtifact.getGroupId(), FEATURES_JSON_ARTIFACT_ID, dependencyArtifact.getVersion());
+                result.add(coordinate);
+                log.debug("Additional Json: " + coordinate);
+            }
+        }
+        return result;
+    }
 
     protected boolean initialize() throws MojoExecutionException {
         if (skip) {
@@ -164,7 +184,8 @@ public class InstallFeatureSupport extends BasicSupport {
                 propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
                 openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
             }
-            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName);
+            List<String> additionalJsons = getAdditionalJsonList();
+            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
         }
 
         if (util == null && noFeaturesSection) {
@@ -186,10 +207,10 @@ public class InstallFeatureSupport extends BasicSupport {
         }
     }
 
-    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName) 
+    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons) 
             throws PluginExecutionException {
         try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName);
+            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         } catch (PluginScenarioException e) {
             log.debug(e.getMessage());
             if (noFeaturesSection) {
@@ -212,9 +233,9 @@ public class InstallFeatureSupport extends BasicSupport {
      * @param containerName The container name if the features should be installed in a container. Otherwise null.
      * @return instance of InstallFeatureUtil
      */
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName)
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
             throws PluginExecutionException {
-        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName);
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         return util;
     }
     
