@@ -104,7 +104,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     }
 
     // install war project artifact using loose application configuration file
-    protected void installLooseConfigWar(MavenProject proj, LooseConfigData config) throws Exception {
+    protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
         // return error if webapp contains java source but it is not compiled yet.
         File dir = new File(proj.getBuild().getOutputDirectory());
         if (!dir.exists() && containsJavaSource(proj)) {
@@ -112,7 +112,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MessageFormat.format(messages.getString("error.project.not.compile"), proj.getId()));
         }
 
-        if (proj.getProperties().containsKey("container")) {
+        if (container) {
                 try {
                     // Set up the config to replace the absolute path names with ${variable}/target type references
                     config.setProjectRoot(proj.getBasedir().getCanonicalPath());

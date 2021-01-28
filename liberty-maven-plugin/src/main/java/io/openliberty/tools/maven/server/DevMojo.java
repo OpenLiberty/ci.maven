@@ -231,7 +231,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
-            super(serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
+            super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
                     skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
                     dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, mavenCacheLocation);
@@ -348,9 +348,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 // Setup server task
                 serverTask = initializeJava();
                 copyConfigFiles();
-                if (container) {
-                    generateDevModeConfig(project.getBasedir().getCanonicalPath(), HEADER);
-                }
                 serverTask.setClean(clean);
                 if (libertyDebug) {
                     setLibertyDebugPort(libertyDebugPort);

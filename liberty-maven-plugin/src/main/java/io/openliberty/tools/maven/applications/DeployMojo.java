@@ -34,6 +34,7 @@ import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
+import io.openliberty.tools.common.plugins.util.DevUtil;
 
 /**
  * Copy applications to the specified directory of the Liberty server. 
@@ -190,18 +191,30 @@ public class DeployMojo extends DeployMojoSupport {
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         File destDir = new File(serverDirectory, getAppsDirectory());
         File looseConfigFile = new File(destDir, looseConfigFileName);
-        LooseConfigData config = new LooseConfigData();
+
+        File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER), getAppsDirectory());
+        File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
+
+        LooseConfigData config;
 
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                installLooseConfigWar(proj, config);
+                config = new LooseConfigData();
+                installLooseConfigWar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
+                if (proj.getProperties().containsKey("container")) {
+                    // install another copy that is container specific
+                    config = new LooseConfigData();
+                    installLooseConfigWar(proj, config, true);
+                    config.toXmlFile(devcLooseConfigFile);
+                }
                 break;
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                config = new LooseConfigData();
                 installLooseConfigEar(proj, config);
                 installAndVerifyApp(config, looseConfigFile, application);
                 break;
@@ -209,8 +222,15 @@ public class DeployMojo extends DeployMojoSupport {
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                    installLooseConfigWar(proj, config);
+                    config = new LooseConfigData();
+                    installLooseConfigWar(proj, config, false);
                     installAndVerifyApp(config, looseConfigFile, application);
+                    if (proj.getProperties().containsKey("container")) {
+                        // install another copy that is container specific
+                        config = new LooseConfigData();
+                        installLooseConfigWar(proj, config, true);
+                        config.toXmlFile(devcLooseConfigFile);
+                    }
                 } else {
                     log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
