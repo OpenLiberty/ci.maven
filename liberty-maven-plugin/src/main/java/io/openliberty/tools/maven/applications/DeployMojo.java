@@ -195,13 +195,12 @@ public class DeployMojo extends DeployMojoSupport {
         File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER), getAppsDirectory());
         File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
 
-        LooseConfigData config;
+        LooseConfigData config = new LooseConfigData();
 
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                config = new LooseConfigData();
                 installLooseConfigWar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
@@ -214,7 +213,6 @@ public class DeployMojo extends DeployMojoSupport {
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                config = new LooseConfigData();
                 installLooseConfigEar(proj, config);
                 installAndVerifyApp(config, looseConfigFile, application);
                 break;
@@ -222,7 +220,6 @@ public class DeployMojo extends DeployMojoSupport {
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                    config = new LooseConfigData();
                     installLooseConfigWar(proj, config, false);
                     installAndVerifyApp(config, looseConfigFile, application);
                     if (proj.getProperties().containsKey("container")) {
