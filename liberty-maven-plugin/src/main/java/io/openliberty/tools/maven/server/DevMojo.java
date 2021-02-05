@@ -38,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -370,20 +371,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
 
-        @Override
-        public List<String> getArtifacts() {
-            List<String> artifactPaths = new ArrayList<String>();
-            Set<Artifact> artifacts = project.getArtifacts();
-            for (Artifact artifact : artifacts) {
-                try {
-                    artifactPaths.add(artifact.getFile().getCanonicalPath());
-                } catch (IOException e) {
-                    log.error("Unable to resolve project artifact " + e.getMessage());
-                }
-            }
-            return artifactPaths;
-        }
-
         private Properties getPropertiesWithKeyPrefix(Properties p, String prefix) {
             Properties result = new Properties();
             if (p != null) {
@@ -409,7 +396,6 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             return deps;
         }
-
         private List<Dependency> getCompileDependency(List<Dependency> dependencies) {
             List<Dependency> deps = new ArrayList<Dependency>();
             if (dependencies != null) {
@@ -485,8 +471,8 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor)
-                throws PluginExecutionException {
+        public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
+                List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properites in project properties section
             // - changes in liberty plugin configuration in the build plugin section
@@ -560,38 +546,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
                         redeployApp = true;
                     }
-                    // update classpath for dependencies changes
-                    List<Artifact> updatedArtifacts = getNewDependencies(deps, oldDeps);
-                    if (!updatedArtifacts.isEmpty()) {
-                        for (Artifact artifact : updatedArtifacts) {
-                            org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
-                                    artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
-                                    artifact.getVersion());
-                            org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
-                                    aetherArtifact, null, true);
-
-                            CollectRequest collectRequest = new CollectRequest();
-                            collectRequest.setRoot(dependency);
-                            collectRequest.setRepositories(repositories);
-
-                            List<String> addToClassPath = new ArrayList<String>();
-                            DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-
-                            DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession,
-                                    depRequest);
-                            org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                            List<File> artifactsList = new ArrayList<File>();
-                            addArtifacts(root, artifactsList);
-                            for (File a : artifactsList) {
-                                log.debug("Artifact: " + a);
-                                if (a.getCanonicalPath().endsWith(".jar")) {
-                                    addToClassPath.add(a.getCanonicalPath());
-                                }
-                            }
-                            artifactPaths.addAll(addToClassPath);
-                        }
-                    }
                 }
+
+                // update classpath for dependencies changes
+                compileArtifactPaths.clear();
+                compileArtifactPaths.addAll(project.getCompileClasspathElements());
+                testArtifactPaths.clear();
+                testArtifactPaths.addAll(project.getTestClasspathElements());
 
                 if (restartServer) {
                     // - stop Server
@@ -621,8 +582,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (IOException | DependencyResolutionException | MojoExecutionException
-                    | ProjectBuildingException e) {
+            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -816,7 +776,8 @@ public class DevMojo extends StartDebugMojoSupport {
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> artifactPaths = util.getArtifacts();
+        List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
+        List<String> testArtifactPaths = project.getTestClasspathElements();
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
@@ -835,8 +796,8 @@ public class DevMojo extends StartDebugMojoSupport {
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile,
-                    bootstrapPropertiesFile, jvmOptionsFile);
+            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                    testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
                 // a proper message is included in the exception if the server has been stopped
@@ -913,49 +874,6 @@ public class DevMojo extends StartDebugMojoSupport {
             // this also sets the project property for use in DeployMojoSupport
             setContainer(true);
         }
-    }
-
-    private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
-        if (root.getArtifact() != null) {
-            artifacts.add(root.getArtifact().getFile());
-        }
-
-        for (org.eclipse.aether.graph.DependencyNode node : root.getChildren()) {
-            addArtifacts(node, artifacts);
-        }
-    }
-
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) {
-        List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
-        for (Dependency dep : dependencies) {
-            boolean newDependency = true;
-            try {
-                // resolve new artifact
-                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
-
-                // match dependencies based on artifactId, groupId, version and type
-                for (Dependency existingDep : existingDependencies) {
-                    Artifact existingArtifact = getArtifact(existingDep.getGroupId(), existingDep.getArtifactId(),
-                            existingDep.getType(), existingDep.getVersion());
-                    if (Objects.equals(artifact.getArtifactId(), existingArtifact.getArtifactId())
-                            && Objects.equals(artifact.getGroupId(), existingArtifact.getGroupId())
-                            && Objects.equals(artifact.getVersion(), existingArtifact.getVersion())
-                            && Objects.equals(artifact.getType(), existingArtifact.getType())) {
-                        newDependency = false;
-                        break;
-                    }
-                }
-                if (newDependency) {
-                    log.debug("New dependency found: " + artifact.toString());
-                    updatedArtifacts.add(artifact);
-                }
-            } catch (MojoExecutionException e) {
-                log.warn(e.getMessage());
-            } catch (IllegalArgumentException e) {
-                log.warn(dep.toString() + " is not valid: " + e.getMessage());
-            }
-        }
-        return updatedArtifacts;
     }
 
     private void runTestMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
