@@ -159,7 +159,7 @@ public class DevTest extends BaseDevTest {
         String invalidDep = "<dependency>\n" + "        <groupId>io.openliberty.features</groupId>\n"
                 + "        <artifactId>abcd</artifactId>\n" + "        <version>1.0</version>\n" + "    </dependency>";
         replaceString(invalidDepComment, invalidDep, pom);
-        assertTrue(verifyLogMessageExists("Unable to resolve artifact: io.openliberty.features:abcd:1.0", 10000));
+        assertTrue(verifyLogMessageExists("The POM for io.openliberty.features:abcd:jar:1.0 is missing, no dependency information available", 10000));
     }
    
    @Test

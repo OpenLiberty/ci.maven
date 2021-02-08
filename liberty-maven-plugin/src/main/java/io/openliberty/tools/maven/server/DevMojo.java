@@ -38,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -118,14 +119,15 @@ public class DevMojo extends StartDebugMojoSupport {
     private int runId = 0;
 
     private ServerTask serverTask = null;
-    
+
     private Plugin boostPlugin = null;
 
     @Component
     protected ProjectBuilder mavenProjectBuilder;
 
     /**
-     * Time in seconds to wait while verifying that the application has started or updated.
+     * Time in seconds to wait while verifying that the application has started or
+     * updated.
      */
     @Parameter(property = "verifyTimeout", defaultValue = "30")
     private int verifyTimeout;
@@ -187,25 +189,27 @@ public class DevMojo extends StartDebugMojoSupport {
     private File testOutputDirectory;
 
     /**
-     * Additional options for the docker run command when dev mode starts a container.
+     * Additional options for the docker run command when dev mode starts a
+     * container.
      */
     @Parameter(property = "dockerRunOpts")
     private String dockerRunOpts;
 
     /**
-     * Specify the amount of time in seconds that dev mode waits for the docker build command
-     * to run to completion. Default to 600 seconds.
+     * Specify the amount of time in seconds that dev mode waits for the docker
+     * build command to run to completion. Default to 600 seconds.
      */
     @Parameter(property = "dockerBuildTimeout", defaultValue = "600")
     private int dockerBuildTimeout;
 
-     /**
-     * If true, the default Docker port mappings are skipped in the docker run command
+    /**
+     * If true, the default Docker port mappings are skipped in the docker run
+     * command
      */
     @Parameter(property = "skipDefaultPorts", defaultValue = "false")
     private boolean skipDefaultPorts;
 
-     /**
+    /**
      * If true, preserve the temporary Dockerfile used in the docker build command
      */
     @Parameter(property = "keepTempDockerfile", defaultValue = "false")
@@ -227,17 +231,21 @@ public class DevMojo extends StartDebugMojoSupport {
     private class DevMojoUtil extends DevUtil {
 
         Set<String> existingFeatures;
-        Map<String, File> libertyDirPropertyFiles = new HashMap<String, File> ();
+        Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
 
-        public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory, File testSourceDirectory, File configDirectory, File projectDirectory,
-                List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
-            super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, projectDirectory, resourceDirs, hotTests,
-                    skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerRunOpts, 
-                    dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, mavenCacheLocation);
+        public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
+                File testSourceDirectory, File configDirectory, File projectDirectory, List<File> resourceDirs,
+                JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
+            super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
+                    configDirectory, projectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
+                    project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
+                    dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
+                    mavenCacheLocation);
 
             ServerFeature servUtil = getServerFeatureUtil();
-            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir, serverDirectory);
+            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
+                    serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         }
 
@@ -300,25 +308,25 @@ public class DevMojo extends StartDebugMojoSupport {
                 } else {
                     runLibertyMojoCreate();
                 }
-            } catch (MojoExecutionException | ProjectBuildingException e) {                
+            } catch (MojoExecutionException | ProjectBuildingException e) {
                 throw new PluginExecutionException(e);
             }
         }
-    
+
         @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
                 runLibertyMojoInstallFeature(null, container ? super.getContainerName() : null);
-            } catch (MojoExecutionException e) {                
+            } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
         }
-    
+
         @Override
         public void libertyDeploy() throws PluginExecutionException {
             try {
                 runLibertyMojoDeploy();
-            } catch (MojoExecutionException e) {                
+            } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
         }
@@ -337,7 +345,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 serverTask.execute();
             } catch (Exception e) {
                 log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
-            }    
+            }
         }
 
         @Override
@@ -361,20 +369,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 return serverTask;
             }
-        }
-
-        @Override
-        public List<String> getArtifacts() {
-            List<String> artifactPaths = new ArrayList<String>();
-            Set<Artifact> artifacts = project.getArtifacts();
-            for (Artifact artifact : artifacts) {
-                try {
-                    artifactPaths.add(artifact.getFile().getCanonicalPath());
-                } catch (IOException e) {
-                    log.error("Unable to resolve project artifact " + e.getMessage());
-                }
-            }
-            return artifactPaths;
         }
 
         private Properties getPropertiesWithKeyPrefix(Properties p, String prefix) {
@@ -424,17 +418,17 @@ public class DevMojo extends StartDebugMojoSupport {
             Properties projProp = project.getProperties();
             Properties backupProjProp = backupProject.getProperties();
 
-            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_BOOTSTRAP_PROP), 
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_BOOTSTRAP_PROP),
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_BOOTSTRAP_PROP))) {
                 return true;
             }
 
-            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_JVM_PROP), 
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_JVM_PROP),
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_JVM_PROP))) {
                 return true;
             }
 
-            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_ENV_PROP), 
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_ENV_PROP),
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_ENV_PROP))) {
                 return true;
             }
@@ -445,11 +439,11 @@ public class DevMojo extends StartDebugMojoSupport {
             Properties projProp = project.getProperties();
             Properties backupProjProp = backupProject.getProperties();
 
-            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_VAR_PROP), 
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_VAR_PROP),
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_VAR_PROP))) {
                 return true;
             }
-            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_DEFAULT_VAR_PROP), 
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_DEFAULT_VAR_PROP),
                     getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_DEFAULT_VAR_PROP))) {
                 return true;
             }
@@ -457,34 +451,28 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         private boolean restartForLibertyMojoConfigChanged(Xpp3Dom config, Xpp3Dom oldConfig) {
-            if (!Objects.equals(config.getChild("bootstrapProperties"),
-                    oldConfig.getChild("bootstrapProperties"))) {
+            if (!Objects.equals(config.getChild("bootstrapProperties"), oldConfig.getChild("bootstrapProperties"))) {
                 return true;
             } else if (!Objects.equals(config.getChild("bootstrapPropertiesFile"),
                     oldConfig.getChild("bootstrapPropertiesFile"))) {
                 return true;
-            } else if (!Objects.equals(config.getChild("jvmOptions"),
-                    oldConfig.getChild("jvmOptions"))) {
+            } else if (!Objects.equals(config.getChild("jvmOptions"), oldConfig.getChild("jvmOptions"))) {
                 return true;
-            } else if (!Objects.equals(config.getChild("jvmOptionsFile"),
-                    oldConfig.getChild("jvmOptionsFile"))) {
+            } else if (!Objects.equals(config.getChild("jvmOptionsFile"), oldConfig.getChild("jvmOptionsFile"))) {
                 return true;
-            } else if (!Objects.equals(config.getChild("serverEnv"),
-                    oldConfig.getChild("serverEnv"))) {
+            } else if (!Objects.equals(config.getChild("serverEnv"), oldConfig.getChild("serverEnv"))) {
                 return true;
-            } else if (!Objects.equals(config.getChild("serverEnvFile"),
-                    oldConfig.getChild("serverEnvFile"))) {
+            } else if (!Objects.equals(config.getChild("serverEnvFile"), oldConfig.getChild("serverEnvFile"))) {
                 return true;
-            } else if (!Objects.equals(config.getChild("configDirectory"),
-                    oldConfig.getChild("configDirectory"))) {
+            } else if (!Objects.equals(config.getChild("configDirectory"), oldConfig.getChild("configDirectory"))) {
                 return true;
             }
             return false;
         }
 
         @Override
-        public boolean recompileBuildFile(File buildFile, List<String> artifactPaths, ThreadPoolExecutor executor)
-                throws PluginExecutionException {
+        public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
+                List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properites in project properties section
             // - changes in liberty plugin configuration in the build plugin section
@@ -558,38 +546,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
                         redeployApp = true;
                     }
-                    // update classpath for dependencies changes
-                    List<Artifact> updatedArtifacts = getNewDependencies(deps, oldDeps);
-                    if (!updatedArtifacts.isEmpty()) {
-                        for (Artifact artifact : updatedArtifacts) {
-                            org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
-                                    artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(),
-                                    artifact.getVersion());
-                            org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(
-                                    aetherArtifact, null, true);
-
-                            CollectRequest collectRequest = new CollectRequest();
-                            collectRequest.setRoot(dependency);
-                            collectRequest.setRepositories(repositories);
-
-                            List<String> addToClassPath = new ArrayList<String>();
-                            DependencyRequest depRequest = new DependencyRequest(collectRequest, null);
-
-                            DependencyResult dependencyResult = repositorySystem.resolveDependencies(repoSession,
-                                    depRequest);
-                            org.eclipse.aether.graph.DependencyNode root = dependencyResult.getRoot();
-                            List<File> artifactsList = new ArrayList<File>();
-                            addArtifacts(root, artifactsList);
-                            for (File a : artifactsList) {
-                                log.debug("Artifact: " + a);
-                                if (a.getCanonicalPath().endsWith(".jar")) {
-                                    addToClassPath.add(a.getCanonicalPath());
-                                }
-                            }
-                            artifactPaths.addAll(addToClassPath);
-                        }
-                    }
                 }
+
+                // update classpath for dependencies changes
+                compileArtifactPaths.clear();
+                compileArtifactPaths.addAll(project.getCompileClasspathElements());
+                testArtifactPaths.clear();
+                testArtifactPaths.addAll(project.getTestClasspathElements());
 
                 if (restartServer) {
                     // - stop Server
@@ -613,13 +576,13 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
-                    // pom.xml is changed but not affecting liberty:dev mode. return true with the updated 
-                    // project set in the session 
+                    // pom.xml is changed but not affecting liberty:dev mode. return true with the
+                    // updated
+                    // project set in the session
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (IOException | DependencyResolutionException | MojoExecutionException
-                    | ProjectBuildingException e) {
+            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -642,7 +605,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         featureElems[0] = element(name("acceptLicense"), "true");
                         String[] values = features.toArray(new String[features.size()]);
                         for (int i = 0; i < features.size(); i++) {
-                            featureElems[i+1] = element(name("feature"), values[i]);
+                            featureElems[i + 1] = element(name("feature"), values[i]);
                         }
                         runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
                         this.existingFeatures.addAll(features);
@@ -713,7 +676,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean isLooseApplication() {
-            // dev mode forces deploy with looseApplication=true, but it only takes effect if packaging is one of the supported loose app types
+            // dev mode forces deploy with looseApplication=true, but it only takes effect
+            // if packaging is one of the supported loose app types
             return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
         }
 
@@ -759,7 +723,7 @@ public class DevMojo extends StartDebugMojoSupport {
         runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
         runTestCompileMojoLogWarning();
         runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
-        
+
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
 
@@ -779,7 +743,9 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             runLibertyMojoCreate();
-            // If non-container, install features before starting server. Otherwise, user should have "RUN features.sh" in their Dockerfile if they want features to be installed.
+            // If non-container, install features before starting server. Otherwise, user
+            // should have "RUN features.sh" in their Dockerfile if they want features to be
+            // installed.
             if (!container) {
                 runLibertyMojoInstallFeature(null, null);
             }
@@ -804,12 +770,14 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory, configDirectory, project.getBasedir(), resourceDirs, compilerOptions, settings.getLocalRepository());
+        util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
+                configDirectory, project.getBasedir(), resourceDirs, compilerOptions, settings.getLocalRepository());
         util.addShutdownHook(executor);
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> artifactPaths = util.getArtifacts();
+        List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
+        List<String> testArtifactPaths = project.getTestClasspathElements();
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
@@ -828,13 +796,15 @@ public class DevMojo extends StartDebugMojoSupport {
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, artifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
+            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                    testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
-                // a proper message is included in the exception if the server has been stopped by another process
+                // a proper message is included in the exception if the server has been stopped
+                // by another process
                 log.info(e.getMessage());
             }
-            return; // enter shutdown hook 
+            return; // enter shutdown hook
         }
     }
 
@@ -867,16 +837,21 @@ public class DevMojo extends StartDebugMojoSupport {
             log.debug("Setting compiler release to " + release);
             compilerOptions.setRelease(release);
         }
-        
+
         return compilerOptions;
     }
 
     /**
-     * Gets a compiler option's value from maven-compiler-plugin's configuration or project properties.
+     * Gets a compiler option's value from maven-compiler-plugin's configuration or
+     * project properties.
      * 
-     * @param configuration The maven-compiler-plugin's configuration from pom.xml
-     * @param mavenParameterName The maven-compiler-plugin parameter name to look for
-     * @param projectPropertyName The project property name to look for, if the mavenParameterName's parameter could not be found in the plugin configuration.
+     * @param configuration       The maven-compiler-plugin's configuration from
+     *                            pom.xml
+     * @param mavenParameterName  The maven-compiler-plugin parameter name to look
+     *                            for
+     * @param projectPropertyName The project property name to look for, if the
+     *                            mavenParameterName's parameter could not be found
+     *                            in the plugin configuration.
      * @return The compiler option
      */
     private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName) {
@@ -885,7 +860,7 @@ public class DevMojo extends StartDebugMojoSupport {
         if (configuration != null) {
             Xpp3Dom child = configuration.getChild(mavenParameterName);
             if (child != null) {
-                option = child.getValue();                
+                option = child.getValue();
             }
         }
         if (option == null) {
@@ -899,48 +874,6 @@ public class DevMojo extends StartDebugMojoSupport {
             // this also sets the project property for use in DeployMojoSupport
             setContainer(true);
         }
-    }
-
-    private void addArtifacts(org.eclipse.aether.graph.DependencyNode root, List<File> artifacts) {
-        if (root.getArtifact() != null) {
-            artifacts.add(root.getArtifact().getFile());
-        }
-
-        for (org.eclipse.aether.graph.DependencyNode node : root.getChildren()) {
-            addArtifacts(node, artifacts);
-        }
-    }
-
-    private List<Artifact> getNewDependencies(List<Dependency> dependencies, List<Dependency> existingDependencies) {
-        List<Artifact> updatedArtifacts = new ArrayList<Artifact>();
-        for (Dependency dep : dependencies) {
-            boolean newDependency = true;
-            try {
-                // resolve new artifact
-                Artifact artifact = getArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getVersion());
-
-                // match dependencies based on artifactId, groupId, version and type
-                for (Dependency existingDep : existingDependencies) {
-                    Artifact existingArtifact = getArtifact(existingDep.getGroupId(), existingDep.getArtifactId(), existingDep.getType(), existingDep.getVersion());
-                    if (Objects.equals(artifact.getArtifactId(), existingArtifact.getArtifactId())
-                            && Objects.equals(artifact.getGroupId(), existingArtifact.getGroupId())
-                            && Objects.equals(artifact.getVersion(), existingArtifact.getVersion())
-                            && Objects.equals(artifact.getType(), existingArtifact.getType())) {
-                        newDependency = false;
-                        break;
-                    }
-                }
-                if (newDependency) {
-                    log.debug("New dependency found: " + artifact.toString());
-                    updatedArtifacts.add(artifact);
-                }
-            } catch (MojoExecutionException e) {
-                log.warn(e.getMessage());
-            } catch (IllegalArgumentException e) {
-                log.warn(dep.toString() + " is not valid: " + e.getMessage());
-            }
-        }
-        return updatedArtifacts;
     }
 
     private void runTestMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
@@ -1017,8 +950,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * Force change a property so that the checksum calculated by
      * AbstractSurefireMojo is different every time.
      *
-     * @param config
-     *            The configuration element
+     * @param config The configuration element
      */
     private void injectTestId(Xpp3Dom config) {
         Xpp3Dom properties = config.getChild("properties");
@@ -1033,10 +965,9 @@ public class DevMojo extends StartDebugMojoSupport {
     /**
      * Add Liberty system properties for tests to consume.
      *
-     * @param config
-     *            The configuration element
-     * @throws MojoExecutionException
-     *             if the userDirectory canonical path cannot be resolved
+     * @param config The configuration element
+     * @throws MojoExecutionException if the userDirectory canonical path cannot be
+     *                                resolved
      */
     private void injectLibertyProperties(Xpp3Dom config) throws MojoExecutionException {
         Xpp3Dom sysProps = config.getChild("systemPropertyVariables");
@@ -1067,8 +998,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private void runBoostMojo(String goal)
-            throws MojoExecutionException, ProjectBuildingException {
+    private void runBoostMojo(String goal) throws MojoExecutionException, ProjectBuildingException {
 
         MavenProject boostProject = this.project;
         MavenSession boostSession = this.session;
@@ -1139,8 +1069,8 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Executes Maven goal passed but sets failOnError to false
-     * All errors are logged as warning messages
+     * Executes Maven goal passed but sets failOnError to false All errors are
+     * logged as warning messages
      * 
      * @param goal Maven compile goal
      * @throws MojoExecutionException
@@ -1151,12 +1081,12 @@ public class DevMojo extends StartDebugMojoSupport {
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
         log.info("Running maven-compiler-plugin:" + goal);
         log.debug("configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config,
-                executionEnvironment(project, session, pluginManager));
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
     }
 
     /**
      * Executes maven:compile but logs errors as warning messages
+     * 
      * @throws MojoExecutionException
      */
     private void runCompileMojoLogWarning() throws MojoExecutionException {
@@ -1165,6 +1095,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     /**
      * Executes maven:testCompile but logs errors as warning messages
+     * 
      * @throws MojoExecutionException
      */
     private void runTestCompileMojoLogWarning() throws MojoExecutionException {
@@ -1173,6 +1104,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
     /**
      * Executes liberty:install-feature unless using Liberty in a container
+     * 
      * @throws MojoExecutionException
      */
     @Override
@@ -1181,7 +1113,9 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Executes liberty:create unless using a container, then just create the necessary server directories
+     * Executes liberty:create unless using a container, then just create the
+     * necessary server directories
+     * 
      * @throws MojoExecutionException
      */
     @Override
