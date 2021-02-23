@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2020.
+ * (C) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -577,8 +577,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
-                    // updated
-                    // project set in the session
+                    // updated project set in the session
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
@@ -743,6 +742,7 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             runLibertyMojoCreate();
+            runLibertyMojoGenerateFeatures();
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
@@ -1110,6 +1110,15 @@ public class DevMojo extends StartDebugMojoSupport {
     @Override
     protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
         super.runLibertyMojoInstallFeature(features, containerName);
+    }
+
+    /**
+     * Executes liberty:generate-features
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoGenerateFeatures() throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures();
     }
 
     /**
