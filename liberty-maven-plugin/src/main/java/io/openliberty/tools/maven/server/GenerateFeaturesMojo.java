@@ -76,7 +76,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             return;
         }
 
-        Set<String> visibleServerFeatures = util.getAllServerFeatures(0, openLibertyVersion);
+        Set<String> visibleServerFeatures = util.getAllServerFeatures();
         log.warn("feature count="+visibleServerFeatures.size());
 
         Set<String> libertyFeatureDependencies = getFeaturesFromDependencies(project);
