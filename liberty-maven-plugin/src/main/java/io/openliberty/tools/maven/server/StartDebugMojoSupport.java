@@ -554,19 +554,17 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         String[] specialProps = { "keystore_password" };
 
-        Map<String, String> mergedProps = new HashMap<String,String>();
-        
         // Clone to avoid side effects 
-        for (String key : envProps.keySet()) {
-            mergedProps.put(key, envProps.get(key));
-        }
-
+        Map<String, String> mergedProps = new HashMap<String,String>(envProps);
+        
         // From install (target) dir
         File serverEnv = new File(serverDirectory, "server.env");
         Map<String, String> serverEnvProps = convertServerEnvToProperties(serverEnv);
         
         for (String propertyName : specialProps) {
-            mergedProps.putIfAbsent(propertyName, serverEnvProps.get(propertyName));
+            if (serverEnvProps.containsKey(propertyName)) {
+                mergedProps.putIfAbsent(propertyName,serverEnvProps.get(propertyName));
+            }
         }
 
         return mergedProps;
