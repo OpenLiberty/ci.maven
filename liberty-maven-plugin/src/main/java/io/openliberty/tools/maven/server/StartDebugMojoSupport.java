@@ -17,14 +17,14 @@ package io.openliberty.tools.maven.server;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -493,10 +494,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
         else {
             if (!envMavenProps.isEmpty()) {
-                if (serverEnvPath != null) {
+                Map<String,String> envPropsToWrite = envMavenProps;
+                if (serverEnvFile == null && serverEnvPath == null) {
+                    // Do a special case merge but ONLY if there are no other config options present
+                    envPropsToWrite = mergeSpecialPropsFromInstallServerEnvIfAbsent(envMavenProps);
+                } else if (serverEnvPath != null) {
                     log.warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
                 }
-                writeServerEnvProperties(envFile, envMavenProps);
+                writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
             } else if (serverEnvFile != null && serverEnvFile.exists()) {
                 Copy copy = (Copy) ant.createTask("copy");
@@ -538,6 +543,31 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // Now process the copyDependencies configuration
         copyDependencies();
+    }
+
+    /**
+     * Merges envProps with special properties found in the install (target) server.env.  We return a clone/copy of
+     * envProps, to which any of a list of special properties found in server.env have been added.  We give precedence
+     * to properties already in envProps.
+     */
+    private Map<String, String> mergeSpecialPropsFromInstallServerEnvIfAbsent(Map<String, String> envProps) throws IOException {
+
+        String[] specialProps = { "keystore_password" };
+
+        // Clone to avoid side effects 
+        Map<String, String> mergedProps = new HashMap<String,String>(envProps);
+        
+        // From install (target) dir
+        File serverEnv = new File(serverDirectory, "server.env");
+        Map<String, String> serverEnvProps = convertServerEnvToProperties(serverEnv);
+        
+        for (String propertyName : specialProps) {
+            if (serverEnvProps.containsKey(propertyName)) {
+                mergedProps.putIfAbsent(propertyName,serverEnvProps.get(propertyName));
+            }
+        }
+
+        return mergedProps;
     }
 
     // Merges configured serverEnvFile with envMavenProps if specified, and returns the updated serverEnvPath
