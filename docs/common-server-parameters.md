@@ -111,6 +111,7 @@ Example of copying dependencies with the `copyDependencies` parameter:
 </project>
 ```
 
+##### Liberty configuration with Maven properties
 Starting with the 3.1 release of the liberty-maven-plugin, support is added to specify Liberty configuration with Maven properties. Use the following property name formats to update the desired Liberty configuration.
 
 | Property name format | Content generated | File generated | Additional info |
