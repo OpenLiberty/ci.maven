@@ -314,6 +314,15 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public void libertyGenerateFeatures() throws PluginExecutionException {
+            try {
+                runLibertyMojoGenerateFeatures();
+            } catch (MojoExecutionException e) {
+                throw new PluginExecutionException(e);
+            }
+        }
+
+        @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
                 runLibertyMojoInstallFeature(null, container ? super.getContainerName() : null);
@@ -557,6 +566,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
+                    // - generate the missing features
                     // - install feature
                     // - deploy app
                     // - start server
@@ -570,6 +580,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
+                    }
+                    if (createServer || installFeature) {
+                        runLibertyMojoGenerateFeatures();
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
