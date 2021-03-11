@@ -30,7 +30,7 @@ The `dependencyGroup` parameter within the `copyDependencies` can contain the fo
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | dependency | A collection of `dependency` parameters that specify the coordinate of the Maven dependency to copy. | Yes |
-| location | The optional directory to which the dependencies are copied. This can be an absolute path, or a relative path to the target server configuration directory. If not specified, the `location` from the `copyDependencies` is used.| No |
+| location | The optional directory to which the dependencies are copied. This can be an absolute path, or a path relative to the target server configuration directory. If not specified, the `location` from the `copyDependencies` is used.| No |
 | stripVersion | The optional boolean indicating whether to strip the artifact version when copying the dependency. If not specified, the `stripVersion` from the `copyDependencies` is used.| No |
 
 The `dependency` parameter within the `copyDependencies` or `dependencyGroup` can contain the following parameters.
