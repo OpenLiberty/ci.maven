@@ -115,7 +115,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         if (container) {
                 try {
                     // Set up the config to replace the absolute path names with ${variable}/target type references
-                    config.setProjectRoot(proj.getBasedir().getCanonicalPath());
+                    config.setProjectRoot(multiModuleProjectDirectory == null ? proj.getBasedir().getCanonicalPath() : multiModuleProjectDirectory.getCanonicalPath());
                     config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
                     if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
                         copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
@@ -161,7 +161,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         if (container) {
             try {
                 // Set up the config to replace the absolute path names with ${variable}/target type references
-                config.setProjectRoot(proj.getBasedir().getCanonicalPath());
+                config.setProjectRoot(multiModuleProjectDirectory == null ? proj.getBasedir().getCanonicalPath() : multiModuleProjectDirectory.getCanonicalPath());
                 config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
                 if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
                     copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);

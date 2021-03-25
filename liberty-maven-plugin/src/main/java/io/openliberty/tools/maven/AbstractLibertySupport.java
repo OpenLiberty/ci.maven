@@ -88,6 +88,9 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Parameter(property = "reactorProjects", required = true, readonly = true)
     protected List<MavenProject> reactorProjects;
     
+    @Parameter(defaultValue = "${maven.multiModuleProjectDirectory}", required = false, readonly = true)
+    protected File multiModuleProjectDirectory = null;
+
     protected MavenProject getProject() {
         return project;
     }

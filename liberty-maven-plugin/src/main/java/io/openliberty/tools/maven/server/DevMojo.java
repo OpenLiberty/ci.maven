@@ -681,6 +681,11 @@ public class DevMojo extends StartDebugMojoSupport {
             return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
         }
 
+        @Override
+        public File getMultiModuleProjectDirectory() {
+            return multiModuleProjectDirectory;
+        }
+
     }
 
     private boolean isUsingBoost() {
