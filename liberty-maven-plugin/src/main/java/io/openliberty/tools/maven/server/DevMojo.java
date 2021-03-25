@@ -158,6 +158,12 @@ public class DevMojo extends StartDebugMojoSupport {
     private File dockerfile;
 
     /**
+     * Context (directory) to use for the Docker build when building the container image
+     */
+    @Parameter(property = "dockerBuildContext")
+    private File dockerBuildContext;
+
+    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -234,7 +240,7 @@ public class DevMojo extends StartDebugMojoSupport {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
                     project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
                     dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
                     mavenCacheLocation);
 
