@@ -55,6 +55,9 @@ public class DeployMojoSupport extends PluginConfigSupport {
     @Parameter(property = "timeout", defaultValue = "40")
     protected long timeout = 40;
     
+    @Parameter(property = "exploded", defaultValue = "false")
+    protected boolean exploded = false;
+    
     /**
      * When deploying loose applications, the optional directory to which application dependencies are copied.
      */
@@ -138,7 +141,25 @@ public class DeployMojoSupport extends PluginConfigSupport {
             setLooseProjectRootForContainer(proj, config);
         }
 
+        if(exploded) {
+        	/*
+        	 * <archive>
+    				<dir sourceOnDisk="C:\app\target\myapp-1.0" targetInArchive="/"/>
+    				<file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
+				</archive>
+        	 */
+        	log.info("Use new exploded path");
+            LooseWarApplication looseWar = new LooseWarApplication(proj, config);
+            looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(MavenProjectUtil.getExplodedDir(proj)), "/");
+            File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
+            looseWar.addManifestFile(manifestFile);
+
+ 
+
+            // add Manifest file
+        } else {
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
+
         looseWar.addSourceDir(proj);
         looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
                 "/WEB-INF/classes");
@@ -158,6 +179,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
         looseWar.addManifestFile(manifestFile);
+        }
     }
 
     // install ear project artifact using loose application configuration file

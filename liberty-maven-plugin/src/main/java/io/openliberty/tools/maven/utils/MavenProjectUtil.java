@@ -211,4 +211,35 @@ public class MavenProjectUtil {
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }
 
+    
+    /*
+     * Should we get war plugin or exploded
+     */
+	public static String getExplodedDir(MavenProject proj) {
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
+        if (dom != null) {
+            Xpp3Dom web = dom.getChild("webResources");
+            if (web != null) {
+                Xpp3Dom resources[] = web.getChildren("resource");
+                if (resources != null) {
+                    Map<String, String> result = new HashMap<String, String>();
+                    for (int i = 0; i < resources.length; i++) {
+                        Xpp3Dom dir = resources[i].getChild("directory");
+                        if (dir != null) {
+                            Xpp3Dom target = resources[i].getChild("targetPath");
+                            if (target != null) {
+                                result.put(dir.getValue(), target.getValue());
+                            } else {
+                                result.put(dir.getValue(), null);
+                            }
+                        }
+                    }
+                    return result;
+                }
+            }
+        }
+        return null;
+ 
+	}
+
 }
