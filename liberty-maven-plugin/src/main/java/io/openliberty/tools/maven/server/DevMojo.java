@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
@@ -693,6 +694,19 @@ public class DevMojo extends StartDebugMojoSupport {
         if (skip) {
             getLog().info("\nSkipping dev goal.\n");
             return;
+        }
+
+        // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
+        // then skip dev mode on this module but only run compile.
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        if (graph != null) {
+            List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+            if (!downstreamProjects.isEmpty()) {
+                log.debug("Downstream projects: " + downstreamProjects);
+                log.info("Skipping dev goal for " + project.getBasedir().getName() + " module. Running compile only...");
+                runCompileMojoLogWarning();
+                return;
+            }
         }
 
         // skip unit tests for ear packaging
