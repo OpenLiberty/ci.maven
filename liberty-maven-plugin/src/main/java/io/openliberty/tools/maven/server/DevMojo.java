@@ -704,6 +704,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
                 log.info("Running compile for module " + project.getBasedir().getName() + "...");
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 runCompileMojoLogWarning();
                 return;
             }
@@ -741,10 +742,10 @@ public class DevMojo extends StartDebugMojoSupport {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
         } else {
-            runCompileMojoLogWarning();
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-            runTestCompileMojoLogWarning();
+            runCompileMojoLogWarning();
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
+            runTestCompileMojoLogWarning();
         }
 
         sourceDirectory = new File(sourceDirectoryString.trim());
