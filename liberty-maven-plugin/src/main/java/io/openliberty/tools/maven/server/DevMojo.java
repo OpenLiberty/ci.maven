@@ -703,14 +703,17 @@ public class DevMojo extends StartDebugMojoSupport {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
-                log.info("Skipping dev goal for " + project.getBasedir().getName() + " module. Running compile only...");
+                log.info("Running compile for module " + project.getBasedir().getName() + "...");
                 runCompileMojoLogWarning();
                 return;
             }
         }
 
-        // skip unit tests for ear packaging
+        boolean isEar = false;
         if (project.getPackaging().equals("ear")) {
+            isEar = true;
+
+            // skip unit tests for ear packaging
             skipUTs = true;
         }
 
@@ -734,10 +737,15 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runTestCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        if (isEar) {
+            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else {
+            runCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runTestCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
+        }
 
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
