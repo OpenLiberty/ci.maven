@@ -209,19 +209,23 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
     
     protected Plugin getLibertyPlugin() {
-        // Try getting the plugin from Maven 3's plugin descriptor
+        // Try getting the version from Maven 3's plugin descriptor
+        String version = null;
         if (plugin != null && plugin.getPlugin() != null) {
-            return plugin.getPlugin();
+            version = plugin.getVersion();
+            log.debug("Setting plugin version to " + version);
         }
-        // Otherwise fallback
-        Plugin fallbackPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
-        if (fallbackPlugin == null) {
-            fallbackPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        if (plugin == null) {
+            plugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         }
-        if (fallbackPlugin == null) {
-            fallbackPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
+        if (plugin == null) {
+            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
         }
-        return fallbackPlugin;
+        if (version != null) {
+            plugin.setVersion(version);
+        }
+        return plugin;
     }
 
     protected Plugin getPluginFromPluginManagement(String groupId, String artifactId) {
