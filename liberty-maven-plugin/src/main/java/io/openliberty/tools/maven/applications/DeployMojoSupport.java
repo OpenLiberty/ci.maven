@@ -148,6 +148,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     				<file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
 				</archive>
         	 */
+        	Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
         	log.info("Use new exploded path");
             LooseWarApplication looseWar = new LooseWarApplication(proj, config);
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(MavenProjectUtil.getExplodedDir(proj)), "/");

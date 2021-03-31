@@ -234,7 +234,7 @@ public class MavenProjectUtil {
                             }
                         }
                     }
-                    return result;
+                    return null;
                 }
             }
         }
