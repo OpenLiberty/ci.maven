@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
@@ -695,8 +696,25 @@ public class DevMojo extends StartDebugMojoSupport {
             return;
         }
 
-        // skip unit tests for ear packaging
+        // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
+        // then skip dev mode on this module but only run compile.
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        if (graph != null) {
+            List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+            if (!downstreamProjects.isEmpty()) {
+                log.debug("Downstream projects: " + downstreamProjects);
+                log.info("Running compile for module " + project.getBasedir().getName() + "...");
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                runCompileMojoLogWarning();
+                return;
+            }
+        }
+
+        boolean isEar = false;
         if (project.getPackaging().equals("ear")) {
+            isEar = true;
+
+            // skip unit tests for ear packaging
             skipUTs = true;
         }
 
@@ -720,10 +738,15 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runTestCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        if (isEar) {
+            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else {
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
+            runTestCompileMojoLogWarning();
+        }
 
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
