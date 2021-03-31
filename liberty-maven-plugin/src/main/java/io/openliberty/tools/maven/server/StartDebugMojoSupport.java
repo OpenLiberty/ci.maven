@@ -215,17 +215,17 @@ public class StartDebugMojoSupport extends BasicSupport {
             version = plugin.getVersion();
             log.debug("Setting plugin version to " + version);
         }
-        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
-        if (plugin == null) {
-            plugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        Plugin projectPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        if (projectPlugin == null) {
+            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         }
-        if (plugin == null) {
-            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
+        if (projectPlugin == null) {
+            projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
         }
         if (version != null) {
-            plugin.setVersion(version);
+            projectPlugin.setVersion(version);
         }
-        return plugin;
+        return projectPlugin;
     }
 
     protected Plugin getPluginFromPluginManagement(String groupId, String artifactId) {
