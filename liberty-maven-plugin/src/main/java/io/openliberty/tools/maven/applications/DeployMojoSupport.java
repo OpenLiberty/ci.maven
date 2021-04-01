@@ -24,17 +24,20 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
 import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
@@ -148,12 +151,12 @@ public class DeployMojoSupport extends PluginConfigSupport {
     				<file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
 				</archive>
         	 */
-        	Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
         	log.info("Use new exploded path");
             LooseWarApplication looseWar = new LooseWarApplication(proj, config);
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(MavenProjectUtil.getExplodedDir(proj)), "/");
             File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
             looseWar.addManifestFile(manifestFile);
+
 
  
 

@@ -216,6 +216,14 @@ public class MavenProjectUtil {
      * Should we get war plugin or exploded
      */
 	public static String getExplodedDir(MavenProject proj) {
+		
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
+            //Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+		/**
+		 *  //Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+            //Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+     
+		 */
         Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         if (dom != null) {
             Xpp3Dom web = dom.getChild("webResources");
