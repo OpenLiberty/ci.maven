@@ -106,7 +106,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     private void setLooseProjectRootForContainer(MavenProject proj, LooseConfigData config) throws MojoExecutionException {
         try {
             // Set up the config to replace the absolute path names with ${variable}/target type references
-            String projectRoot = multiModuleProjectDirectory == null ? proj.getBasedir().getCanonicalPath() : multiModuleProjectDirectory.getCanonicalPath();
+            String projectRoot = DevUtil.getLooseAppProjectRoot(proj.getBasedir(), multiModuleProjectDirectory).getCanonicalPath();
             config.setProjectRoot(projectRoot);
             config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
             if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
