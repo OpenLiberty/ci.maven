@@ -99,6 +99,9 @@ public class StartDebugMojoSupport extends BasicSupport {
     @Parameter
     protected CopyDependencies copyDependencies;
 
+    @Parameter(property = "exploded", defaultValue = "false")
+    protected boolean exploded = false;
+   
     /**
      * Location of customized configuration file server.xml
      */

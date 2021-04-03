@@ -549,6 +549,8 @@ public class DevMojo extends StartDebugMojoSupport {
                         redeployApp = true;
                     }
                 }
+                
+
 
                 // update classpath for dependencies changes
                 compileArtifactPaths.clear();
@@ -565,6 +567,17 @@ public class DevMojo extends StartDebugMojoSupport {
                     util.restartServer();
                     return true;
                 } else {
+
+                    if (exploded) {
+                    	Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+                    	Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+                    	
+                    	log.info("Running maven-war-plugin:exploded");
+                    	log.debug("configuration:\n" + config);
+                    	executeMojo(warPlugin, goal("exploded"), explodedConfig,
+                    			executionEnvironment(project, session, pluginManager));
+                    }
+                    
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
                         runBoostMojo("package");

@@ -59,6 +59,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     @Parameter(property = "looseApplication", defaultValue = "true")
     protected boolean looseApplication;
 
+ 
     /**
      * Packages to install. One of "all", "dependencies" or "project".
      */

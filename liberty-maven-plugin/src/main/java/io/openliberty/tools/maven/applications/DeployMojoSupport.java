@@ -63,9 +63,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
     @Parameter(property = "timeout", defaultValue = "40")
     protected long timeout = 40;
     
-    @Parameter(property = "exploded", defaultValue = "false")
-    protected boolean exploded = false;
-    
+
     /**
      * When deploying loose applications, the optional directory to which application dependencies are copied.
      */
