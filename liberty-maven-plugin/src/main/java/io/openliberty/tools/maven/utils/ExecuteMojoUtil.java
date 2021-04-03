@@ -138,6 +138,11 @@ public class ExecuteMojoUtil {
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/failsafe-report-only-mojo.html
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
 
+    private static final ArrayList<String> EXPLODED_PARAMS = new ArrayList<>(Arrays.asList(
+            "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
+            "overlays", "webResources"
+            ));
+
     private static final ArrayList<String> LIBERTY_COMMON_PARAMS = new ArrayList<>(Arrays.asList(
             "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
@@ -166,7 +171,7 @@ public class ExecuteMojoUtil {
     static {
         DEPLOY_PARAMS = new ArrayList<>(Arrays.asList(
                 "appsDirectory", "stripVersion", "deployPackages", "timeout", "looseApplication",
-                "copyLibsDirectory"
+                "copyLibsDirectory", "exploded"
                 // executeMojo can not use alias parameters:
                 // "installAppPackages"
                 ));
@@ -280,6 +285,9 @@ public class ExecuteMojoUtil {
             break;
         case "maven-surefire-report-plugin:failsafe-report-only":
             goalConfig = stripConfigElements(config, FAILSAFE_REPORT_ONLY_PARAMS);
+            break;
+        case "maven-war-plugin:exploded":
+            goalConfig = stripConfigElements(config, EXPLODED_PARAMS);
             break;
         default:
             goalConfig = config;

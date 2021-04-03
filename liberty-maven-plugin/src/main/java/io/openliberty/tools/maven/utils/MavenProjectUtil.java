@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -211,43 +212,22 @@ public class MavenProjectUtil {
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }
 
-    
-    /*
-     * Should we get war plugin or exploded
-     */
-	public static String getExplodedDir(MavenProject proj) {
-		
-        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
-            //Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
-		/**
-		 *  //Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
-            //Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
-     
-		 */
-        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
-        if (dom != null) {
-            Xpp3Dom web = dom.getChild("webResources");
-            if (web != null) {
-                Xpp3Dom resources[] = web.getChildren("resource");
-                if (resources != null) {
-                    Map<String, String> result = new HashMap<String, String>();
-                    for (int i = 0; i < resources.length; i++) {
-                        Xpp3Dom dir = resources[i].getChild("directory");
-                        if (dir != null) {
-                            Xpp3Dom target = resources[i].getChild("targetPath");
-                            if (target != null) {
-                                result.put(dir.getValue(), target.getValue());
-                            } else {
-                                result.put(dir.getValue(), null);
-                            }
-                        }
-                    }
-                    return null;
-                }
+	public static File getWebAppDirectory(MavenProject project, Xpp3Dom explodedConfig) {
+        String webAppDirStr = null;
+        if (explodedConfig != null) {
+            Xpp3Dom webAppDirConfig = explodedConfig.getChild("webappDirectory");
+            if (webAppDirConfig != null) {
+            	webAppDirStr = webAppDirConfig.getValue();
             }
+        } 
+        // Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
+        if (webAppDirStr != null) {
+        	return new File(webAppDirStr);
+        } else {
+        	File webAppDirBase = new File(project.getBuild().getDirectory());
+        	return new File(webAppDirBase, project.getBuild().getFinalName());
         }
-        return null;
- 
 	}
 
+    
 }
