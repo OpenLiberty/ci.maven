@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,8 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     private static boolean configFilesCopied = false;
 
-    protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
+    protected final String PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
+    protected final String PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML = "configDropins/defaults/liberty-plugin-variable-config.xml";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
@@ -529,12 +530,20 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
-        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
+        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML);
         if (pluginVariableConfig.exists()) {
             pluginVariableConfig.delete();
         }
-        if (!varMavenProps.isEmpty() || !defaultVarMavenProps.isEmpty()) {
-            writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, defaultVarMavenProps);  
+        if (!varMavenProps.isEmpty()) {
+            writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, false);  
+        }
+
+        pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML);
+        if (pluginVariableConfig.exists()) {
+            pluginVariableConfig.delete();
+        }
+        if (!defaultVarMavenProps.isEmpty()) {
+            writeConfigDropinsServerVariables(pluginVariableConfig, defaultVarMavenProps, true);  
         }
 
         // log info on the configuration files that get used
@@ -802,30 +811,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
-    private void writeConfigDropinsServerVariables(File file, Map<String,String> varMavenProps, Map<String,String> defaultVarMavenProps) throws IOException, TransformerException, ParserConfigurationException {
+    private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, TransformerException, ParserConfigurationException {
 
         ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
 
         configDocument.createComment(HEADER);
-        Set<String> existingVarNames = new HashSet<String>();
 
-        for (Map.Entry<String, String> entry : varMavenProps.entrySet()) {
-            String key = entry.getKey();
-            existingVarNames.add(key);
-            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), false);
-        }
-
-        for (Map.Entry<String, String> entry : defaultVarMavenProps.entrySet()) {
-            // check to see if a variable with a value already exists with the same name and log it
-            String key = entry.getKey();
-            if (existingVarNames.contains(key)) {
-                // since the defaultValue will only be used if no other value exists for the variable, 
-                // it does not make sense to generate the variable with a defaultValue when we know a value already exists.
-                log.warn("The variable with name "+key+" and defaultValue "+entry.getValue()+" is skipped since a variable with that name already exists with a value.");
-            } else {
-                // set boolean to true so the variable is created with a defaultValue instead of a value
-                configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), true);
-            }
+        for (Map.Entry<String, String> entry : props.entrySet()) {
+            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), isDefaultVar);
         }
 
         // write XML document to file
