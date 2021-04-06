@@ -123,7 +123,7 @@ Starting with the 3.1 release of the liberty-maven-plugin, support is added to s
 | liberty.env.{var} | var=value | server.env | None |
 | liberty.jvm.{var} | value | jvm.options | Merged with the `jvmOptions` parameter, but `jvmOptions` take precedence. Note that only the value is written to the file since JVM options do not all use the var=value format.|
 | liberty.var.{var} | `<variable name="var" value="value">` | liberty-plugin-variable-config.xml | The server configuration file is generated in the configDropins/overrides folder of the target server. |
-| liberty.defaultVar.{var} | `<variable name="var" defaultValue="value">` | liberty-plugin-variable-config.xml | The server configuration file is generated in the configDropins/overrides folder of the target server. |
+| liberty.defaultVar.{var} | `<variable name="var" defaultValue="value">` | liberty-plugin-variable-config.xml | The server configuration file is generated in the configDropins/defaults folder of the target server. |
 
 If Liberty configuration is specified with Maven properties, the above indicated files are created in the target Liberty server. By default there is no merging behavior for the Maven properties with files located in the `configDirectory` or the specific configuration file parameters such as `bootstrapPropertiesFile`, `jvmOptionsFile` and `serverEnvFile`. However, the `liberty.env.{var}` Maven properties can be merged with other configured `server.env` files by setting the `mergeServerEnv` parameter to `true`.   
 
