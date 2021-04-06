@@ -712,11 +712,9 @@ public class DevMojo extends StartDebugMojoSupport {
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
                 if (isEar) {
-                    log.info("Running ear:generate-application-xml for module " + project.getBasedir().getName() + "...");
                     runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 } else {
-                    log.info("Running compiler:compile for module " + project.getBasedir().getName() + "...");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
                 }
