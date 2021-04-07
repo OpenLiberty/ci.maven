@@ -696,6 +696,14 @@ public class DevMojo extends StartDebugMojoSupport {
             return;
         }
 
+        boolean isEar = false;
+        if (project.getPackaging().equals("ear")) {
+            isEar = true;
+
+            // skip unit tests for ear packaging
+            skipUTs = true;
+        }
+
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
@@ -703,19 +711,15 @@ public class DevMojo extends StartDebugMojoSupport {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
-                log.info("Running compile for module " + project.getBasedir().getName() + "...");
-                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                runCompileMojoLogWarning();
+                if (isEar) {
+                    runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                } else {
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    runCompileMojoLogWarning();
+                }
                 return;
             }
-        }
-
-        boolean isEar = false;
-        if (project.getPackaging().equals("ear")) {
-            isEar = true;
-
-            // skip unit tests for ear packaging
-            skipUTs = true;
         }
 
         // Check if this is a Boost application
