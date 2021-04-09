@@ -159,8 +159,7 @@ public class DevMojo extends StartDebugMojoSupport {
 	private File dockerfile;
 
 	/**
-	 * Context (directory) to use for the Docker build when building the container
-	 * image
+	 * Context (directory) to use for the Docker build when building the container image
 	 */
 	@Parameter(property = "dockerBuildContext")
 	private File dockerBuildContext;
@@ -237,15 +236,14 @@ public class DevMojo extends StartDebugMojoSupport {
 		Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
 
 		public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
-				File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
-				List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation)
-				throws IOException {
+				File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
+				JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
 			super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-					configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
-					skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-					((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
-					dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-					keepTempDockerfile, mavenCacheLocation);
+					configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
+					project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+					((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
+					dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
+					mavenCacheLocation);
 
 			ServerFeature servUtil = getServerFeatureUtil();
 			this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -400,7 +398,6 @@ public class DevMojo extends StartDebugMojoSupport {
 			}
 			return deps;
 		}
-
 		private List<Dependency> getCompileDependency(List<Dependency> dependencies) {
 			List<Dependency> deps = new ArrayList<Dependency>();
 			if (dependencies != null) {
@@ -473,6 +470,26 @@ public class DevMojo extends StartDebugMojoSupport {
 				return true;
 			}
 			return false;
+		}
+
+		@Override
+		protected void onAnyChange() throws PluginExecutionException {
+			// no-op - placeholder to override
+			if (exploded) {
+				try {
+					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+
+					log.info("Running maven-war-plugin:exploded");
+					log.debug("configuration:\n" + explodedConfig);
+					executeMojo(warPlugin, goal("exploded"), explodedConfig,
+							executionEnvironment(project, session, pluginManager));
+				} catch (MojoExecutionException e) {
+					log.error("Failed to run war:exploded goal", e);
+				}
+			}
+
+
 		}
 
 		@Override
@@ -553,6 +570,8 @@ public class DevMojo extends StartDebugMojoSupport {
 					}
 				}
 
+
+
 				// update classpath for dependencies changes
 				compileArtifactPaths.clear();
 				compileArtifactPaths.addAll(project.getCompileClasspathElements());
@@ -568,16 +587,6 @@ public class DevMojo extends StartDebugMojoSupport {
 					util.restartServer();
 					return true;
 				} else {
-
-					if (exploded) {
-						Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-						Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-
-						log.info("Running maven-war-plugin:exploded");
-						log.debug("configuration:\n" + config);
-						executeMojo(warPlugin, goal("exploded"), explodedConfig,
-								executionEnvironment(project, session, pluginManager));
-					}
 
 					if (isUsingBoost() && (createServer || runBoostPackage)) {
 						log.info("Running boost:package");
@@ -710,8 +719,7 @@ public class DevMojo extends StartDebugMojoSupport {
 			return;
 		}
 
-		// If there are downstream projects (e.g. other modules depend on this module in
-		// the Maven Reactor build order),
+		// If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
 		// then skip dev mode on this module but only run compile.
 		ProjectDependencyGraph graph = session.getProjectDependencyGraph();
 		if (graph != null) {
@@ -759,7 +767,7 @@ public class DevMojo extends StartDebugMojoSupport {
 		} else {
 			runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 			runCompileMojoLogWarning();
-			runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+			runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
 			runTestCompileMojoLogWarning();
 		}
 
@@ -810,13 +818,12 @@ public class DevMojo extends StartDebugMojoSupport {
 		JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
 		util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
-				configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-				settings.getLocalRepository());
+				configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions, settings.getLocalRepository());
 		util.addShutdownHook(executor);
 		util.startServer();
 
 		// collect artifacts canonical paths in order to build classpath
-		List<String> compileArtifactPaths = project.getCompileClasspathElements();
+		List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
 		List<String> testArtifactPaths = project.getTestClasspathElements();
 
 		if (hotTests && testSourceDirectory.exists()) {
