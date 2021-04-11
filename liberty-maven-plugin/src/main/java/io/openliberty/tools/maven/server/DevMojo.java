@@ -58,6 +58,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.DevUtil.DevUtilConfig;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
@@ -235,19 +236,12 @@ public class DevMojo extends StartDebugMojoSupport {
 		Set<String> existingFeatures;
 		Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
 
-		public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
-				File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-				JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
-			super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-					configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
-					project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-					((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
-					dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
-					mavenCacheLocation);
+		public DevMojoUtil(DevUtilConfig devUtilConfig) throws IOException {
+			
+			super(devUtilConfig);
 
 			ServerFeature servUtil = getServerFeatureUtil();
-			this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
-					serverDirectory);
+			this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
 			this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
 		}
 
@@ -817,8 +811,54 @@ public class DevMojo extends StartDebugMojoSupport {
 
 		JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-		util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
+		DevUtilConfig devUtilConfig = new DevUtilConfig().
+				setProjectDirectory(new File(project.getBuild().getDirectory())).
+				setServerDirectory(serverDirectory).
+				setSourceJavaDirectory(sourceDirectory).
+				setTestSourceDirectory(testSourceDirectory).
+				setConfigDirectory(configDirectory).
+				setProjectDirectory(project.getBasedir()).
+				setMultiModuleProjectDirectory(multiModuleProjectDirectory).
+				setResourceDirs(resourceDirs).
+				setHotTests(hotTests).
+				setSkipTests(skipTests).
+				setSkipUTs(skipUTs).
+				setSkipITs(skipITs).
+				setApplicationId(project.getArtifactId()).
+				setServerStartTimeout(serverStartTimeout).
+				setAppStartupTimeout(verifyTimeout).
+				setAppUpdateTimeout(verifyTimeout).
+				setCompileWaitMillis((long)compileWait * 1000L).
+				setLibertyDebug(libertyDebug).
+				setUseBuildRecompile(false).
+				setGradle(false).
+				setPollingTest(pollingTest).
+				setContainer(container).
+				setDockerfile(dockerfile).
+				setDockerBuildContext(dockerBuildContext).
+				setDockerRunOpts(dockerRunOpts).
+				setDockerBuildTimeout(dockerBuildTimeout).
+				setSkipDefaultPorts(skipDefaultPorts).
+				setCompilerOptions(compilerOptions).
+				setKeepTempDockerfile(keepTempDockerfile).
+				setMavenCacheLocation(settings.getLocalRepository());
+		
+		/*
+		 * 		util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
 				configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions, settings.getLocalRepository());
+				
+							/*super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
+					configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, 
+					 hotTests, skipTests, skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, 
+
+					? verifyTimeout, verifyTimeout,
+
+    					DONE ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile, mavenCacheLocation);
+*/
+
+
+		util = new DevMojoUtil(devUtilConfig);
+
 		util.addShutdownHook(executor);
 		util.startServer();
 
