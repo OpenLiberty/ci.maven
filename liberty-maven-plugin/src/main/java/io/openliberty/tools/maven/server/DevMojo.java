@@ -58,7 +58,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.util.DevUtil;
-import io.openliberty.tools.common.plugins.util.DevUtil.DevUtilConfig;
+import io.openliberty.tools.common.plugins.util.DevUtilConfig;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
@@ -67,6 +67,7 @@ import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
+import io.openliberty.tools.maven.utils.MavenProjectUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -467,7 +468,7 @@ public class DevMojo extends StartDebugMojoSupport {
 		}
 
 		@Override
-		protected void onAnyChange() throws PluginExecutionException {
+		protected void appChanged() throws PluginExecutionException {
 			// no-op - placeholder to override
 			if (exploded) {
 				try {
@@ -811,10 +812,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
 		JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
+		File warSourceDirectory = MavenProjectUtil.getWarSourceDirectory(project);
+				
 		DevUtilConfig devUtilConfig = new DevUtilConfig().
 				setProjectDirectory(new File(project.getBuild().getDirectory())).
 				setServerDirectory(serverDirectory).
-				setSourceJavaDirectory(sourceDirectory).
+				setSourceDirectory(sourceDirectory).
+				setWarSourceDirectory(warSourceDirectory).
 				setTestSourceDirectory(testSourceDirectory).
 				setConfigDirectory(configDirectory).
 				setProjectDirectory(project.getBasedir()).

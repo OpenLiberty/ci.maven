@@ -212,6 +212,21 @@ public class MavenProjectUtil {
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }
 
+	public static File getWarSourceDirectory(MavenProject project) { 
+        Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
+        if (dom != null) {
+            Xpp3Dom warSourceDirectory = dom.getChild("warSourceDirectory");
+            if (warSourceDirectory != null) {
+            	String warSourceDirectoryStr = warSourceDirectory.getValue();
+            	return new File(warSourceDirectoryStr);
+            } else {
+            	// Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
+            	return new File(project.getBasedir(), "src/main/webapp");
+            }
+        }
+        return null;
+	}
+	
 	public static File getWebAppDirectory(MavenProject project, Xpp3Dom explodedConfig) {
         String webAppDirStr = null;
         if (explodedConfig != null) {
@@ -220,10 +235,10 @@ public class MavenProjectUtil {
             	webAppDirStr = webAppDirConfig.getValue();
             }
         } 
-        // Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
         if (webAppDirStr != null) {
         	return new File(webAppDirStr);
         } else {
+        	// Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
         	File webAppDirBase = new File(project.getBuild().getDirectory());
         	return new File(webAppDirBase, project.getBuild().getFinalName());
         }
