@@ -259,9 +259,12 @@ public class StartDebugMojoSupport extends BasicSupport {
         if(forceLooseApp) {
             Xpp3Dom looseApp = config.getChild("looseApplication");
             if (looseApp != null && "false".equals(looseApp.getValue())) {
-                log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+                log.warn("Overriding liberty plugin parameter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
                 looseApp.setValue("true");
             }
+        }
+        if (exploded) {
+			runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
         }
         runLibertyMojo("deploy", config);
     }

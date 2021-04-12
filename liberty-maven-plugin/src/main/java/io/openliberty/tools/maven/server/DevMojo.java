@@ -322,6 +322,9 @@ public class DevMojo extends StartDebugMojoSupport {
 		@Override
 		public void libertyDeploy() throws PluginExecutionException {
 			try {
+				if (exploded) {
+					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+				}
 				runLibertyMojoDeploy();
 			} catch (MojoExecutionException e) {
 				throw new PluginExecutionException(e);
@@ -468,8 +471,7 @@ public class DevMojo extends StartDebugMojoSupport {
 		}
 
 		@Override
-		protected void appChanged() throws PluginExecutionException {
-			// no-op - placeholder to override
+		protected void updateLooseApp() throws PluginExecutionException {
 			if (exploded) {
 				try {
 					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
@@ -483,15 +485,48 @@ public class DevMojo extends StartDebugMojoSupport {
 					log.error("Failed to run war:exploded goal", e);
 				}
 			}
+			// else nothing to do, classes, etc. are already in the right place
+		}
 
-
+		@Override
+		protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+			if (exploded) {
+				try {
+					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+					executeMojo(warPlugin, goal("exploded"), explodedConfig,
+							executionEnvironment(project, session, pluginManager));
+				} catch (MojoExecutionException e) {
+					log.error("Failed to run goal(s)", e);
+				}
+			} else {
+				copyFile(fileChanged, resourceParent, outputDirectory, null);
+			}
+		}
+		
+		@Override
+	    protected void resourceDeleted(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+			if (exploded) {
+				try {
+					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+					executeMojo(warPlugin, goal("exploded"), explodedConfig,
+							executionEnvironment(project, session, pluginManager));
+				} catch (MojoExecutionException e) {
+					log.error("Failed to run goal(s)", e);
+				}
+			} else {
+				deleteFile(fileChanged, resourceParent, outputDirectory, null);
+			}
 		}
 
 		@Override
 		public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
 				List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
 			// monitoring project pom.xml file changes in dev mode:
-			// - liberty.* properites in project properties section
+			// - liberty.* properties in project properties section
 			// - changes in liberty plugin configuration in the build plugin section
 			// - project dependencies changes
 
@@ -589,7 +624,7 @@ public class DevMojo extends StartDebugMojoSupport {
 					} else if (createServer) {
 						runLibertyMojoCreate();
 					} else if (redeployApp) {
-						runLibertyMojoDeploy();
+						libertyDeploy();
 					}
 					if (installFeature) {
 						runLibertyMojoInstallFeature(null, super.getContainerName());
