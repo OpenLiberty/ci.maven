@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.Map;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -66,6 +66,22 @@ public class MavenProjectUtil {
     /**
      * Get directory and targetPath configuration values from the Maven WAR plugin
      * @param proj the Maven project
+     * @return a List of directories, each corresponding to a webResources/resource/directory, or "/" if directory isn't defined
+     */
+    public static List<File> getWebResourcesDirectories(MavenProject proj) {
+    	List<File> retVal = new ArrayList<File>();
+    	Map<String,String> webResources = getWebResourcesConfiguration(proj);
+    	if (webResources != null) {
+    		for (String directory : webResources.keySet()) {
+    			retVal.add(new File(proj.getBasedir().getAbsolutePath(), webResources.get(directory)));
+    		}
+    	}
+    	return retVal;
+    }
+
+    /**
+     * Get directory and targetPath configuration values from the Maven WAR plugin
+     * @param proj the Maven project
      * @return a Map of source and target directories corresponding to the configuration keys
      * or null if the war plugin or its webResources or resource elements are not used. 
      * The map will be empty if the directory element is not used. The value field of the 
@@ -96,6 +112,7 @@ public class MavenProjectUtil {
         }
         return null;
     }
+    
     
     /**
      * Get a configuration value from a goal from a plugin
