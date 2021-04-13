@@ -139,7 +139,7 @@ public class ExecuteMojoUtil {
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
 
     private static final ArrayList<String> EXPLODED_PARAMS = new ArrayList<>(Arrays.asList(
-            "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
+            "filteringDeploymentDescriptors", "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
             "overlays", "webResources"
             ));
 
