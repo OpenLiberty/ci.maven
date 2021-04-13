@@ -227,14 +227,15 @@ public class MavenProjectUtil {
         return null;
 	}
 	
-	public static File getWebAppDirectory(MavenProject project, Xpp3Dom explodedConfig) {
+	public static File getWebAppDirectory(MavenProject project) {
+        Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         String webAppDirStr = null;
-        if (explodedConfig != null) {
-            Xpp3Dom webAppDirConfig = explodedConfig.getChild("webappDirectory");
+        if (dom != null) {
+            Xpp3Dom webAppDirConfig = dom.getChild("webappDirectory");
             if (webAppDirConfig != null) {
             	webAppDirStr = webAppDirConfig.getValue();
             }
-        } 
+        }
         if (webAppDirStr != null) {
         	return new File(webAppDirStr);
         } else {

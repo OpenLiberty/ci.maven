@@ -489,6 +489,21 @@ public class DevMojo extends StartDebugMojoSupport {
 		}
 
 		@Override
+		protected void resourceDirectoryCreated() throws IOException {
+			if (exploded) {
+				try {
+					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+					executeMojo(warPlugin, goal("exploded"), explodedConfig,
+							executionEnvironment(project, session, pluginManager));
+				} catch (MojoExecutionException e) {
+					log.error("Failed to run goal(s)", e);
+				}
+			} 
+		}
+	
+		@Override
 		protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
 			if (exploded) {
 				try {
@@ -828,17 +843,15 @@ public class DevMojo extends StartDebugMojoSupport {
 			}
 			runLibertyMojoDeploy();
 		}
-		// resource directories
+
+		// Let's just add resources directories unconditionally, the dev util already checks the directories actually exist
+		// before adding them to the watch list.   If we avoid checking here we allow for creating them later on.
 		List<File> resourceDirs = new ArrayList<File>();
-		if (outputDirectory.exists()) {
-			List<Resource> resources = project.getResources();
-			for (Resource resource : resources) {
-				File resourceFile = new File(resource.getDirectory());
-				if (resourceFile.exists()) {
-					resourceDirs.add(resourceFile);
-				}
-			}
+		for (Resource resource : project.getResources()) {
+			File resourceFile = new File(resource.getDirectory());
+			resourceDirs.add(resourceFile);
 		}
+
 		if (resourceDirs.isEmpty()) {
 			File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
 			log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
