@@ -68,15 +68,16 @@ public class MavenProjectUtil {
     /**
      * Get directory and targetPath configuration values from the Maven WAR plugin
      * @param proj the Maven project
-     * @return a List of directories, each corresponding to a webResources/resource/directory, or "/" if directory isn't defined
+     * @return a List of directory Path objs, each corresponding to a webResources/resource/directory
      */
-    public static List<File> getWebResourcesDirectories(MavenProject proj) {
-    	List<File> retVal = new ArrayList<File>();
+    public static List<Path> getWebResourcesDirectories(MavenProject proj) {
+    	List<Path> retVal = new ArrayList<Path>();
+    	Path baseDirPath = Paths.get(proj.getBasedir().getAbsolutePath());
     	Map<String,String> webResources = getWebResourcesConfiguration(proj);
     	if (webResources != null) {
     		for (String directory : webResources.keySet()) {
-    			Path path = Paths.get(proj.getBasedir().getAbsolutePath(), directory);
-    			retVal.add(path.toFile());
+    			Path path = baseDirPath.resolve(directory);
+    			retVal.add(path);
     		}
     	}
     	return retVal;
@@ -232,21 +233,16 @@ public class MavenProjectUtil {
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }
 
-	public static File getWarSourceDirectory(MavenProject project) { 
-        Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
-        if (dom != null) {
-            Xpp3Dom warSourceDirectory = dom.getChild("warSourceDirectory");
-            if (warSourceDirectory != null) {
-            	String warSourceDirectoryStr = warSourceDirectory.getValue();
-            	return new File(warSourceDirectoryStr);
-            } else {
-            	// Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
-            	return new File(project.getBasedir(), "src/main/webapp");
-            }
-        }
-        return null;
+	public static Path getWarSourceDirectory(MavenProject project) { 
+        Path baseDir = Paths.get(project.getBasedir().getAbsolutePath());
+        String warSourceDir = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
+        if (warSourceDir == null) {
+        	warSourceDir = "src/main/webapp";
+        }  
+        // Use java.nio Paths to fix issue with absolute paths on Windows
+        return baseDir.resolve(warSourceDir);
 	}
-	
+		
 	public static File getWebAppDirectory(MavenProject project) {
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         String webAppDirStr = null;

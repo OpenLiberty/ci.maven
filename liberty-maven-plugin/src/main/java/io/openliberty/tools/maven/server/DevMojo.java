@@ -24,6 +24,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -860,7 +861,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
 		// Let's just add webResources directories unconditionally, the dev util already checks the directories actually exist
 		// before adding them to the watch list.   If we avoid checking here we allow for creating them later on.
-		List<File> webResourceDirs = MavenProjectUtil.getWebResourcesDirectories(project);
+		List<Path> webResourceDirs = MavenProjectUtil.getWebResourcesDirectories(project);
 		
 		// Treat war source dir identically as web resources dir
 		webResourceDirs.add(MavenProjectUtil.getWarSourceDirectory(project));

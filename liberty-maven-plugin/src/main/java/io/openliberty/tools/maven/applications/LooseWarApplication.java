@@ -1,12 +1,12 @@
 package io.openliberty.tools.maven.applications;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.maven.project.MavenProject;
 
-import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
+import io.openliberty.tools.maven.utils.MavenProjectUtil;
 
 public class LooseWarApplication extends LooseApplication {
     
@@ -18,11 +18,7 @@ public class LooseWarApplication extends LooseApplication {
     }
     
     public void addSourceDir(MavenProject proj) throws Exception {
-        File sourceDir = new File(proj.getBasedir().getAbsolutePath(), "src/main/webapp");
-        String path = MavenProjectUtil.getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
-        if (path != null) {
-            sourceDir = new File(proj.getBasedir().getAbsolutePath(), path);
-        } 
-        config.addDir(sourceDir, "/");
+        Path warSourceDir = MavenProjectUtil.getWarSourceDirectory(proj);
+        config.addDir(warSourceDir.toFile(), "/");
     }
 }
