@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020.
+ * (C) Copyright IBM Corporation 2020, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -217,7 +217,9 @@ public class InstallFeatureSupport extends BasicSupport {
                 log.debug("Skipping feature installation with installUtility because the "
                         + "features configuration element with an acceptLicense parameter "
                         + "was not specified for the install-feature goal.");
-            } else {
+            } else if(additionalJsons != null && !additionalJsons.isEmpty()) {
+            	log.debug("Skipping feature installation with installUtility because it is not supported for user feature");
+        	}else {
                 installFromAnt = true;
                 log.debug("Installing features from installUtility.");
             }

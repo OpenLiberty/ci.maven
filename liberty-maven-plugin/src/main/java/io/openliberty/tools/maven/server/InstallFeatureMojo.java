@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2020.
+ * (C) Copyright IBM Corporation 2015, 2020, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -85,7 +85,11 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         }
         else if(util != null) {
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
+        }else if(util == null) {
+        	throw new IllegalStateException(MessageFormat.format("Could not install feature", "install-feature"));
         }
+        
+       
     }
 
     @SuppressWarnings("deprecation")
