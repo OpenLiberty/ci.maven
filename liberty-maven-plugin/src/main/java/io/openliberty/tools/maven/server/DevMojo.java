@@ -511,16 +511,14 @@ public class DevMojo extends StartDebugMojoSupport {
 		
 		@Override
 	    protected void resourceDeleted(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+			deleteFile(fileChanged, resourceParent, outputDirectory, null);
 			if (exploded) {
 				try {
-					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 					runExplodedMojo();
 				} catch (MojoExecutionException e) {
 					log.error("Failed to run goal(s)", e);
 				}
-			} else {
-				deleteFile(fileChanged, resourceParent, outputDirectory, null);
-			}
+			} 
 		}
 
 		@Override

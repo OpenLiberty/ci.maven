@@ -33,10 +33,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -196,8 +196,10 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected void runExplodedMojo() throws MojoExecutionException {
         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
         Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+        explodedConfig.addChild(element(name("outdatedCheckPath"), "WEB-INF").toDom());
         log.info("Running maven-war-plugin:exploded");
         log.debug("configuration:\n" + explodedConfig);
+        session.getRequest().setStartTime(new Date());
         executeMojo(warPlugin, goal("exploded"), explodedConfig, executionEnvironment(project, session, pluginManager));
     }
     
