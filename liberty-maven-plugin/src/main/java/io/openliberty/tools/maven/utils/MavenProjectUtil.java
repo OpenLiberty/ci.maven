@@ -16,6 +16,8 @@
 package io.openliberty.tools.maven.utils;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,7 +75,8 @@ public class MavenProjectUtil {
     	Map<String,String> webResources = getWebResourcesConfiguration(proj);
     	if (webResources != null) {
     		for (String directory : webResources.keySet()) {
-    			retVal.add(new File(proj.getBasedir().getAbsolutePath(), webResources.get(directory)));
+    			Path path = Paths.get(proj.getBasedir().getAbsolutePath(), directory);
+    			retVal.add(path.toFile());
     		}
     	}
     	return retVal;

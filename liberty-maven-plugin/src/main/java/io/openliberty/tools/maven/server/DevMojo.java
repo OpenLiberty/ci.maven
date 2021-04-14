@@ -858,15 +858,20 @@ public class DevMojo extends StartDebugMojoSupport {
 			resourceDirs.add(defaultResourceDir);
 		}
 
+		// Let's just add webResources directories unconditionally, the dev util already checks the directories actually exist
+		// before adding them to the watch list.   If we avoid checking here we allow for creating them later on.
+		List<File> webResourceDirs = MavenProjectUtil.getWebResourcesDirectories(project);
+		
+		// Treat war source dir identically as web resources dir
+		webResourceDirs.add(MavenProjectUtil.getWarSourceDirectory(project));
+		
 		JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
-		File warSourceDirectory = MavenProjectUtil.getWarSourceDirectory(project);
-				
 		DevUtilConfig devUtilConfig = new DevUtilConfig().
 				setProjectDirectory(new File(project.getBuild().getDirectory())).
 				setServerDirectory(serverDirectory).
 				setSourceDirectory(sourceDirectory).
-				setWarSourceDirectory(warSourceDirectory).
+				setWebResourceDirs(webResourceDirs).
 				setTestSourceDirectory(testSourceDirectory).
 				setConfigDirectory(configDirectory).
 				setProjectDirectory(project.getBasedir()).
