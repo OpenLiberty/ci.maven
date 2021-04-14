@@ -21,6 +21,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -134,21 +135,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
     }
 
-	public static String getExplodedDir(MavenProject proj, Log log) {
-		
-		Plugin warPlugin = proj.getPlugin("org.apache.maven.plugins:maven-war-plugin");
-        Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-        
-        if (explodedConfig != null) {
-            Xpp3Dom webAppDir = explodedConfig.getChild("webappDirectory");
-            if (webAppDir != null) {
-            	return webAppDir.getValue();
-            }
-        }
-
-        return "${project.build.directory}/${project.build.finalName}";
-	}
-	
     // install war project artifact using loose application configuration file
     protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
         // return error if webapp contains java source but it is not compiled yet.
@@ -164,31 +150,20 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
         if(exploded) {
 
-            Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-            Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+        	runExplodedMojo();
      
-            log.info("Running maven-war-plugin:exploded");
-            log.debug("configuration:\n" + config);
-            executeMojo(warPlugin, goal("exploded"), explodedConfig,
-                    executionEnvironment(proj, session, pluginManager));
-     
-            File webAppDir = MavenProjectUtil.getWebAppDirectory(proj);
+            Path webAppDir = MavenProjectUtil.getWebAppDirectory(proj);
 
-            /* */
-        	
         	/*
         	 * <archive>
     				<dir sourceOnDisk="C:\app\target\myapp-1.0" targetInArchive="/"/>
     				<file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
 				</archive>
         	 */
-
-        	log.info("Use new exploded path");
             LooseWarApplication looseWar = new LooseWarApplication(proj, config);
-            looseWar.addOutputDir(looseWar.getDocumentRoot(), webAppDir, "/");
+            looseWar.addOutputDir(looseWar.getDocumentRoot(), webAppDir.toFile(), "/");
             File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
             looseWar.addManifestFile(manifestFile);
-            // add Manifest file
             
         } else {
         	LooseWarApplication looseWar = new LooseWarApplication(proj, config);

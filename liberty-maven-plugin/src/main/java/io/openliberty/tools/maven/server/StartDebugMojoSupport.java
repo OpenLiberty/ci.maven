@@ -193,6 +193,14 @@ public class StartDebugMojoSupport extends BasicSupport {
                 executionEnvironment(project, session, pluginManager));
     }
     
+    protected void runExplodedMojo() throws MojoExecutionException {
+        Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+        Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+        log.info("Running maven-war-plugin:exploded");
+        log.debug("configuration:\n" + explodedConfig);
+        executeMojo(warPlugin, goal("exploded"), explodedConfig, executionEnvironment(project, session, pluginManager));
+    }
+    
     /**
      * Given the groupId and artifactId get the corresponding plugin
      * 

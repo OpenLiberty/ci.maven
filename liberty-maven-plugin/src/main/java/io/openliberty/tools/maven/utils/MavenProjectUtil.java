@@ -243,7 +243,7 @@ public class MavenProjectUtil {
         return baseDir.resolve(warSourceDir);
 	}
 		
-	public static File getWebAppDirectory(MavenProject project) {
+	public static Path getWebAppDirectory(MavenProject project) {
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         String webAppDirStr = null;
         if (dom != null) {
@@ -252,12 +252,12 @@ public class MavenProjectUtil {
             	webAppDirStr = webAppDirConfig.getValue();
             }
         }
+
         if (webAppDirStr != null) {
-        	return new File(webAppDirStr);
+        	return Paths.get(webAppDirStr);
         } else {
         	// Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
-        	File webAppDirBase = new File(project.getBuild().getDirectory());
-        	return new File(webAppDirBase, project.getBuild().getFinalName());
+        	return Paths.get(project.getBuild().getDirectory(), project.getBuild().getFinalName());
         }
 	}
 

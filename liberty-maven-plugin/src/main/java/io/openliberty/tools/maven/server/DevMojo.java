@@ -475,13 +475,7 @@ public class DevMojo extends StartDebugMojoSupport {
 		protected void updateLooseApp() throws PluginExecutionException {
 			if (exploded) {
 				try {
-					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-
-					log.info("Running maven-war-plugin:exploded");
-					log.debug("configuration:\n" + explodedConfig);
-					executeMojo(warPlugin, goal("exploded"), explodedConfig,
-							executionEnvironment(project, session, pluginManager));
+					runExplodedMojo();
 				} catch (MojoExecutionException e) {
 					log.error("Failed to run war:exploded goal", e);
 				}
@@ -494,10 +488,7 @@ public class DevMojo extends StartDebugMojoSupport {
 			if (exploded) {
 				try {
 					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-					executeMojo(warPlugin, goal("exploded"), explodedConfig,
-							executionEnvironment(project, session, pluginManager));
+					runExplodedMojo();
 				} catch (MojoExecutionException e) {
 					log.error("Failed to run goal(s)", e);
 				}
@@ -509,10 +500,7 @@ public class DevMojo extends StartDebugMojoSupport {
 			if (exploded) {
 				try {
 					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-					executeMojo(warPlugin, goal("exploded"), explodedConfig,
-							executionEnvironment(project, session, pluginManager));
+					runExplodedMojo();
 				} catch (MojoExecutionException e) {
 					log.error("Failed to run goal(s)", e);
 				}
@@ -526,10 +514,7 @@ public class DevMojo extends StartDebugMojoSupport {
 			if (exploded) {
 				try {
 					runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-					Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-					Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
-					executeMojo(warPlugin, goal("exploded"), explodedConfig,
-							executionEnvironment(project, session, pluginManager));
+					runExplodedMojo();
 				} catch (MojoExecutionException e) {
 					log.error("Failed to run goal(s)", e);
 				}
