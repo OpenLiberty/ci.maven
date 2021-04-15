@@ -852,7 +852,7 @@ public class DevMojo extends StartDebugMojoSupport {
 		JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
 		DevUtilConfig devUtilConfig = new DevUtilConfig().
-				setProjectDirectory(new File(project.getBuild().getDirectory())).
+				setBuildDirectory(new File(project.getBuild().getDirectory())).
 				setServerDirectory(serverDirectory).
 				setSourceDirectory(sourceDirectory).
 				setWebResourceDirs(webResourceDirs).
