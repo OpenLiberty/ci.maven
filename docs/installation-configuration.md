@@ -69,7 +69,7 @@ Use the `runtimeArchive` parameter to specify a packaged server archive (created
 
 Use the `install` parameter to configure a runtime installation using the `install-liberty` Ant task. The Ant task allows you to install a Liberty runtime from a specified location (via `runtimeUrl`) or automatically resolve it from the [Wasdev Liberty repository](https://developer.ibm.com/wasdev/downloads/) or [Open Liberty repository](https://openliberty.io/downloads/) based on a version and a runtime type. 
 
-For full documentation of the usage and parameters, please read the [install-liberty](https://github.com/WASdev/ci.ant/blob/master/docs/install-liberty.md) Ant task documentation.
+For full documentation of the usage and parameters, please read the [install-liberty](https://github.com/WASdev/ci.ant/blob/main/docs/install-liberty.md) Ant task documentation.
 
 #### Ant Task Usage Examples
 

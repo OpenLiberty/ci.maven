@@ -33,7 +33,7 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://raw.github.com/OpenLiberty/ci.maven/master/LICENSE</url>
+            <url>https://raw.github.com/OpenLiberty/ci.maven/main/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
