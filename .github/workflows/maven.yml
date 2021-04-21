@@ -7,7 +7,7 @@ on:
   push:
     branches: '**'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -20,11 +20,11 @@ jobs:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         os: [ubuntu-18.04, windows-latest]
         RUNTIME: [ol, wlp]
-        RUNTIME_VERSION: [20.0.0.12, 20.0.0.9]
+        RUNTIME_VERSION: [21.0.0.3, 20.0.0.12]
         java: [11, 8]
         exclude:
         - java: 8
-          RUNTIME_VERSION: 20.0.0.9
+          RUNTIME_VERSION: 20.0.0.12
 
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, ${{ matrix.os }}
     steps:

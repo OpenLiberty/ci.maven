@@ -103,6 +103,28 @@ public class DeployMojoSupport extends PluginConfigSupport {
         verifyAppStarted(fileName);
     }
 
+    private void setLooseProjectRootForContainer(MavenProject proj, LooseConfigData config) throws MojoExecutionException {
+        try {
+            // Set up the config to replace the absolute path names with ${variable}/target type references
+            String projectRoot = DevUtil.getLooseAppProjectRoot(proj.getBasedir(), multiModuleProjectDirectory).getCanonicalPath();
+            config.setProjectRoot(projectRoot);
+            config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
+            if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
+                copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
+            } else {
+                // test the user defined copyLibsDirectory parameter for use in a container
+                String copyLibsPath = copyLibsDirectory.getCanonicalPath();
+                if (!copyLibsPath.startsWith(projectRoot)) {
+                    // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
+                    log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+                }
+            }
+        } catch (IOException e) {
+            // an IOException here should fail the build
+            throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
+        }
+    }
+
     // install war project artifact using loose application configuration file
     protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
         // return error if webapp contains java source but it is not compiled yet.
@@ -113,25 +135,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
 
         if (container) {
-                try {
-                    // Set up the config to replace the absolute path names with ${variable}/target type references
-                    config.setProjectRoot(proj.getBasedir().getCanonicalPath());
-                    config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
-                    if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
-                        copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
-                    } else {
-                        // test the user defined copyLibsDirectory parameter for use in a container
-                        String projectPath = proj.getBasedir().getCanonicalPath();
-                        String copyLibsPath = copyLibsDirectory.getCanonicalPath();
-                        if (!copyLibsPath.startsWith(projectPath)) {
-                            // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
-                            log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
-                        }
-                    }
-                } catch (IOException e) {
-                    // an IOException here should fail the build
-                    throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
-                }
+            setLooseProjectRootForContainer(proj, config);
         }
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
@@ -157,7 +161,11 @@ public class DeployMojoSupport extends PluginConfigSupport {
     }
 
     // install ear project artifact using loose application configuration file
-    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config) throws Exception {
+    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
+        if (container) {
+            setLooseProjectRootForContainer(proj, config);
+        }
+
         LooseEarApplication looseEar = new LooseEarApplication(proj, config);
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();

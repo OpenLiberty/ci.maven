@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2020.
+ * (C) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -37,9 +37,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
@@ -54,10 +54,6 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.aether.collection.CollectRequest;
-import org.eclipse.aether.resolution.DependencyRequest;
-import org.eclipse.aether.resolution.DependencyResolutionException;
-import org.eclipse.aether.resolution.DependencyResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -67,9 +63,9 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
-import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
-import io.openliberty.tools.maven.applications.DeployMojoSupport;
 import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.maven.applications.DeployMojoSupport;
+import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
@@ -163,6 +159,12 @@ public class DevMojo extends StartDebugMojoSupport {
     private File dockerfile;
 
     /**
+     * Context (directory) to use for the Docker build when building the container image
+     */
+    @Parameter(property = "dockerBuildContext")
+    private File dockerBuildContext;
+
+    /**
      * The directory for source files.
      */
     @Parameter(readonly = true, required = true, defaultValue = " ${project.build.sourceDirectory}")
@@ -234,12 +236,12 @@ public class DevMojo extends StartDebugMojoSupport {
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File projectDirectory, List<File> resourceDirs,
+                File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
                 JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-                    configDirectory, projectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
+                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
                     project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
                     dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
                     mavenCacheLocation);
 
@@ -694,9 +696,30 @@ public class DevMojo extends StartDebugMojoSupport {
             return;
         }
 
-        // skip unit tests for ear packaging
+        boolean isEar = false;
         if (project.getPackaging().equals("ear")) {
+            isEar = true;
+
+            // skip unit tests for ear packaging
             skipUTs = true;
+        }
+
+        // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
+        // then skip dev mode on this module but only run compile.
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        if (graph != null) {
+            List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+            if (!downstreamProjects.isEmpty()) {
+                log.debug("Downstream projects: " + downstreamProjects);
+                if (isEar) {
+                    runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                } else {
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    runCompileMojoLogWarning();
+                }
+                return;
+            }
         }
 
         // Check if this is a Boost application
@@ -719,10 +742,15 @@ public class DevMojo extends StartDebugMojoSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
-        runCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-        runTestCompileMojoLogWarning();
-        runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+        if (isEar) {
+            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else {
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runCompileMojoLogWarning();
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
+            runTestCompileMojoLogWarning();
+        }
 
         sourceDirectory = new File(sourceDirectoryString.trim());
         testSourceDirectory = new File(testSourceDirectoryString.trim());
@@ -771,7 +799,7 @@ public class DevMojo extends StartDebugMojoSupport {
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
-                configDirectory, project.getBasedir(), resourceDirs, compilerOptions, settings.getLocalRepository());
+                configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions, settings.getLocalRepository());
         util.addShutdownHook(executor);
         util.startServer();
 

@@ -213,8 +213,14 @@ public class DeployMojo extends DeployMojoSupport {
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
-                installLooseConfigEar(proj, config);
+                installLooseConfigEar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
+                if (proj.getProperties().containsKey("container")) {
+                    // install another copy that is container specific
+                    config = new LooseConfigData();
+                    installLooseConfigEar(proj, config, true);
+                    config.toXmlFile(devcLooseConfigFile);
+                }
                 break;
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {

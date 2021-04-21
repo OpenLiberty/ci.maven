@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.3.5-SNAPSHOT</version>
+        <version>3.3.5-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-maven-plugin</artifactId>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.14-SNAPSHOT</version>
+            <version>1.8.14</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
