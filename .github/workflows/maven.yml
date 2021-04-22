@@ -37,7 +37,8 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v2
       with:
-        repository: OpenLiberty/ci.common
+        repository: hermankailey/ci.common
+        ref: userFeature
         path: ci.common
     - name: Checkout ci.ant
       uses: actions/checkout@v2
