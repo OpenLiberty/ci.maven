@@ -150,43 +150,43 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
         if(exploded) {
 
-        	runExplodedMojo();
+            runExplodedMojo();
      
             Path webAppDir = MavenProjectUtil.getWebAppDirectory(proj);
 
-        	/*
-        	 * <archive>
-    				<dir sourceOnDisk="C:\app\target\myapp-1.0" targetInArchive="/"/>
-    				<file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
-				</archive>
-        	 */
+            /*
+             * <archive>
+                    <dir sourceOnDisk="C:\app\target\myapp-1.0" targetInArchive="/"/>
+                    <file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
+                </archive>
+             */
             LooseWarApplication looseWar = new LooseWarApplication(proj, config);
             looseWar.addOutputDir(looseWar.getDocumentRoot(), webAppDir.toFile(), "/");
             File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
             looseWar.addManifestFile(manifestFile);
             
         } else {
-        	LooseWarApplication looseWar = new LooseWarApplication(proj, config);
+            LooseWarApplication looseWar = new LooseWarApplication(proj, config);
 
-        	looseWar.addSourceDir(proj);
-        	looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
-        			"/WEB-INF/classes");
+            looseWar.addSourceDir(proj);
+            looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
+                    "/WEB-INF/classes");
 
-        	// retrieve the directories defined as resources in the maven war plugin
-        	Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
-        	if (webResources != null) {
-        		for (String directory : webResources.keySet()) {
-        			String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
-        			looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBasedir().getAbsolutePath(), directory), targetPath);
-        		}
-        	}
+            // retrieve the directories defined as resources in the maven war plugin
+            Map<Path,String> webResources = MavenProjectUtil.getWebResourcesConfigurationPaths(proj);
+            if (webResources != null) {
+                for (Path directory : webResources.keySet()) {
+                    String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
+                    looseWar.addOutputDir(looseWar.getDocumentRoot(), directory.toFile(), targetPath);
+                }
+            }
 
-        	// retrieves dependent library jar files
-        	addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
+            // retrieves dependent library jar files
+            addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
 
-        	// add Manifest file
-        	File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
-        	looseWar.addManifestFile(manifestFile);
+            // add Manifest file
+            File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
+            looseWar.addManifestFile(manifestFile);
         }
     }
 

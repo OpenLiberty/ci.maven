@@ -65,23 +65,6 @@ public class MavenProjectUtil {
         return null;
     }
 
-    /**
-     * Get directory and targetPath configuration values from the Maven WAR plugin
-     * @param proj the Maven project
-     * @return a List of directory Path objs, each corresponding to a webResources/resource/directory
-     */
-    public static List<Path> getWebResourcesDirectories(MavenProject proj) {
-    	List<Path> retVal = new ArrayList<Path>();
-    	Path baseDirPath = Paths.get(proj.getBasedir().getAbsolutePath());
-    	Map<String,String> webResources = getWebResourcesConfiguration(proj);
-    	if (webResources != null) {
-    		for (String directory : webResources.keySet()) {
-    			Path path = baseDirPath.resolve(directory);
-    			retVal.add(path);
-    		}
-    	}
-    	return retVal;
-    }
 
     /**
      * Get directory and targetPath configuration values from the Maven WAR plugin
@@ -91,31 +74,83 @@ public class MavenProjectUtil {
      * The map will be empty if the directory element is not used. The value field of the 
      * map is null when the targetPath element is not used.
      */
-    public static Map<String,String> getWebResourcesConfiguration(MavenProject proj) {
+    public static List<Xpp3Dom> getWebResourcesConfigurations(MavenProject proj) {
+        List<Xpp3Dom> retVal = new ArrayList<Xpp3Dom>();
         Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         if (dom != null) {
             Xpp3Dom web = dom.getChild("webResources");
             if (web != null) {
                 Xpp3Dom resources[] = web.getChildren("resource");
                 if (resources != null) {
-                    Map<String, String> result = new HashMap<String, String>();
                     for (int i = 0; i < resources.length; i++) {
                         Xpp3Dom dir = resources[i].getChild("directory");
+                        // put dir in List
                         if (dir != null) {
-                            Xpp3Dom target = resources[i].getChild("targetPath");
-                            if (target != null) {
-                                result.put(dir.getValue(), target.getValue());
-                            } else {
-                                result.put(dir.getValue(), null);
-                            }
+                            retVal.add(resources[i]);
                         }
                     }
-                    return result;
                 }
             }
         }
-        return null;
+        return retVal;
     }
+
+    public static Map<Path,String> getWebResourcesConfigurationPaths(MavenProject proj) {
+        Map<Path, String> result = new HashMap<Path, String>();
+        
+        Path baseDirPath = Paths.get(proj.getBasedir().getAbsolutePath());
+        
+        for (Xpp3Dom resource : getWebResourcesConfigurations(proj)) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom target = resource.getChild("targetPath");
+            Path resolvedDir = baseDirPath.resolve(dir.getValue());
+            if (target != null) {
+                result.put(resolvedDir, target.getValue());
+            } else {
+                result.put(resolvedDir, null);
+            }
+        }
+        return result;
+    }
+    
+
+    public static List<Path> getMonitoredWebSourceDirectories(MavenProject proj) {
+        List<Path> retVal = new ArrayList<Path>();
+        
+        Path baseDirPath = Paths.get(proj.getBasedir().getAbsolutePath());
+        
+        for (Xpp3Dom resource : getWebResourcesConfigurations(proj)) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom filtering = resource.getChild("filtering");
+            if (dir != null && filtering != null) {
+                boolean filtered = Boolean.parseBoolean(filtering.getValue());
+                if (filtered) {
+                    retVal.add(baseDirPath.resolve(dir.getValue()));
+                }
+            }
+        }
+        
+        // Now add warSourceDir
+        if (isFilteringDeploymentDescriptors(proj)) {
+            retVal.add(getWarSourceDirectory(proj));
+        }
+        
+        return retVal;
+    }
+    
+    private static boolean isFilteringDeploymentDescriptors(MavenProject proj) {
+        Boolean retVal = false;
+        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
+        if (dom != null) {
+            Xpp3Dom fdd = dom.getChild("filteringDeploymentDescriptors");
+            if (fdd != null) {
+                retVal = Boolean.parseBoolean(fdd.getValue());
+            }
+        }
+        return retVal;
+    }
+
+
     
     
     /**
@@ -233,33 +268,33 @@ public class MavenProjectUtil {
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }
 
-	public static Path getWarSourceDirectory(MavenProject project) { 
+    public static Path getWarSourceDirectory(MavenProject project) { 
         Path baseDir = Paths.get(project.getBasedir().getAbsolutePath());
         String warSourceDir = getPluginConfiguration(project, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
         if (warSourceDir == null) {
-        	warSourceDir = "src/main/webapp";
+            warSourceDir = "src/main/webapp";
         }  
         // Use java.nio Paths to fix issue with absolute paths on Windows
         return baseDir.resolve(warSourceDir);
-	}
-		
-	public static Path getWebAppDirectory(MavenProject project) {
+    }
+        
+    public static Path getWebAppDirectory(MavenProject project) {
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         String webAppDirStr = null;
         if (dom != null) {
             Xpp3Dom webAppDirConfig = dom.getChild("webappDirectory");
             if (webAppDirConfig != null) {
-            	webAppDirStr = webAppDirConfig.getValue();
+                webAppDirStr = webAppDirConfig.getValue();
             }
         }
 
         if (webAppDirStr != null) {
-        	return Paths.get(webAppDirStr);
+            return Paths.get(webAppDirStr);
         } else {
-        	// Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
-        	return Paths.get(project.getBuild().getDirectory(), project.getBuild().getFinalName());
+            // Match plugin default (we could get the default programmatically via webAppDirConfig.getAttribute("default-value") but don't
+            return Paths.get(project.getBuild().getDirectory(), project.getBuild().getFinalName());
         }
-	}
+    }
 
     
 }
