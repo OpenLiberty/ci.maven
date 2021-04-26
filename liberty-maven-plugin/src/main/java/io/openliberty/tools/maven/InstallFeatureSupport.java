@@ -134,6 +134,10 @@ public class InstallFeatureSupport extends BasicSupport {
         //with the features JSON artifactId which by prepare-feature convention is "features"
         List<String> result = new ArrayList<String>();
         org.apache.maven.model.DependencyManagement dependencyManagement = project.getDependencyManagement();
+        if(dependencyManagement == null) {
+        	log.debug("Feature-bom is not provided by the user");
+        	return null;
+        }
         List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
         for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
             if (("pom").equals(dependencyArtifact.getType())) {
