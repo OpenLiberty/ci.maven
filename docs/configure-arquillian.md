@@ -14,7 +14,7 @@ For more convenient integration with the Arquillian Liberty Managed/Remote conta
 
 For both Arquillian Liberty Managed and Remote containers, the `configure-arquillian` goal can automatically generate and configure the `arquillian.xml` that usually exists in the `src/test/resources` directory, eliminating the need for the user to manually create the file in projects with only a single Arquillian container. 
 
-Furthermore, when using the Arquillian Liberty Managed container, `configure-arquillian` will also automatically specify the three required configuration parameters: `wlpHome`, `serverName`, and `httpPort`. These are set to values specified in the `liberty-maven-plugin`. 
+Furthermore, when using the Arquillian Liberty Managed container, `configure-arquillian` will also automatically specify the three required configuration parameters: `wlpHome`, `serverName`, and `httpPort`. These are set to values specified in the `liberty-maven-plugin`. Also, if the `userDirectory` configuration parameter is specified, `configure-arquillian` will set the `usrDir` property to its value.
 
 The `configure-arquillian` goal will perform configuration for the Liberty Managed or Remote container based on which container exists on the classpath. Arquillian does not allow for more than one container on the classpath. In the event of neither container existing on the classpath, the `configure-arquillian` goal will default to providing configuration for the Liberty Managed container. 
 
@@ -22,7 +22,7 @@ The `configure-arquillian` goal will perform configuration for the Liberty Manag
 
 | Property | Type | Description | Default |
 -----------| ------------ | ------- | ------- |
-| `arquillianProperties` | Dictionary | Used to set key/value pairs of configuration parameters in `arquillian.xml`. | **Managed:** A dictionary containing values for `wlpHome`, `serverName`, and `httpPort` as specified in the `liberty-maven-plugin`.<br>**Remote:** An empty dictionary when using the Arquillian Liberty Remote container. |
+| `arquillianProperties` | Dictionary | Used to set key/value pairs of configuration parameters in `arquillian.xml`. | **Managed:** A dictionary containing values for `wlpHome`, `serverName`, and `httpPort` as specified in the `liberty-maven-plugin`. Optionally, `usrDir` is added if `userDirectory` is specified in the `liberty-maven-plugin`.<br>**Remote:** An empty dictionary when using the Arquillian Liberty Remote container. |
 | `skipIfArquillianXmlExists` | Boolean | Skips the `configure-arquillian` goal if `arquillian.xml` already exists in the `target` directory. | False |
 
 For documentation of the Liberty Arquillian Containers, please see the following links:
