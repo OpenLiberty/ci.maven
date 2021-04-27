@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -69,12 +70,13 @@ public class MavenProjectUtil {
     /**
      * Get directory and targetPath configuration values from the Maven WAR plugin
      * @param proj the Maven project
+     * @return ALLOWS DUPS
      * @return a Map of source and target directories corresponding to the configuration keys
      * or null if the war plugin or its webResources or resource elements are not used. 
      * The map will be empty if the directory element is not used. The value field of the 
      * map is null when the targetPath element is not used.
      */
-    public static List<Xpp3Dom> getWebResourcesConfigurations(MavenProject proj) {
+    private static List<Xpp3Dom> getWebResourcesConfigurations(MavenProject proj) {
         List<Xpp3Dom> retVal = new ArrayList<Xpp3Dom>();
         Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
         if (dom != null) {
@@ -95,7 +97,7 @@ public class MavenProjectUtil {
         return retVal;
     }
 
-    public static Map<Path,String> getWebResourcesConfigurationPaths(MavenProject proj) {
+    public static Map<Path,String> getWebResourcesConfigurationPaths(MavenProject proj, Log log) {
         Map<Path, String> result = new HashMap<Path, String>();
         
         Path baseDirPath = Paths.get(proj.getBasedir().getAbsolutePath());
@@ -104,10 +106,14 @@ public class MavenProjectUtil {
             Xpp3Dom dir = resource.getChild("directory");
             Xpp3Dom target = resource.getChild("targetPath");
             Path resolvedDir = baseDirPath.resolve(dir.getValue());
-            if (target != null) {
-                result.put(resolvedDir, target.getValue());
+            if (result.containsKey(resolvedDir)) {
+            	log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
             } else {
-                result.put(resolvedDir, null);
+                if (target != null) {
+                    result.put(resolvedDir, target.getValue());
+                } else {
+                    result.put(resolvedDir, null);
+                }
             }
         }
         return result;

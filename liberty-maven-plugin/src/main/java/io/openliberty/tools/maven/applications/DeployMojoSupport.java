@@ -15,10 +15,6 @@
  */
 package io.openliberty.tools.maven.applications;
 
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,14 +25,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -48,7 +41,6 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.maven.server.PluginConfigSupport;
 import io.openliberty.tools.maven.utils.CommonLogger;
-import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 
 /**
@@ -173,7 +165,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     "/WEB-INF/classes");
 
             // retrieve the directories defined as resources in the maven war plugin
-            Map<Path,String> webResources = MavenProjectUtil.getWebResourcesConfigurationPaths(proj);
+            Map<Path,String> webResources = MavenProjectUtil.getWebResourcesConfigurationPaths(proj, log);
             if (webResources != null) {
                 for (Path directory : webResources.keySet()) {
                     String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
