@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -473,13 +474,43 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public boolean recompileUpstreamProjectBuildFile(File buildFile, List<String> compileArtifactPaths,
+                ThreadPoolExecutor executor) throws PluginExecutionException {
+            boolean redeployApp = false;
+            ProjectBuildingResult build;
+            try {
+                log.info("calling maven project builder");
+                build = mavenProjectBuilder.build(buildFile,
+                        session.getProjectBuildingRequest().setResolveDependencies(true));
+            } catch (ProjectBuildingException e) {
+                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
+                log.debug(e);
+                return false;
+            }
+            try {
+                // TODO: need a way to get the backup project, from Maven Session?, in case of
+                // error
+                MavenProject upstreamProject = build.getProject();
+                // update classpath for dependencies changes on upstream project
+                compileArtifactPaths.clear();
+                compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
+                // should we delpy project?
+
+            } catch (DependencyResolutionRequiredException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+
+        @Override
         public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
                 List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properites in project properties section
             // - changes in liberty plugin configuration in the build plugin section
             // - project dependencies changes
-
             boolean restartServer = false;
             boolean createServer = false;
             boolean installFeature = false;
@@ -549,7 +580,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         redeployApp = true;
                     }
                 }
-
                 // update classpath for dependencies changes
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
@@ -706,6 +736,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
+        Set<MavenProject> upstreamProjects = new HashSet<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
@@ -719,6 +750,9 @@ public class DevMojo extends StartDebugMojoSupport {
                     runCompileMojoLogWarning();
                 }
                 return;
+            } else {
+                // get all upstream projects
+                upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
             }
         }
 
@@ -806,6 +840,13 @@ public class DevMojo extends StartDebugMojoSupport {
         // collect artifacts canonical paths in order to build classpath
         List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
         List<String> testArtifactPaths = project.getTestClasspathElements();
+        // log.info("--- ci.maven testArtifactPaths: " + testArtifactPaths);
+        if (!upstreamProjects.isEmpty()) {
+            for (MavenProject p : upstreamProjects) {
+                // log.info("--- project: " + p.getArtifactId());
+                // log.info("---- testArtifactPaths: " + p.getTestClasspathElements());
+            }
+        }
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
@@ -824,8 +865,15 @@ public class DevMojo extends StartDebugMojoSupport {
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                    testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
+            if (!upstreamProjects.isEmpty()) {
+                // watch upstream projects for hot compilation if they exist
+                util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, upstreamProjects);
+            } else {
+                util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, null);
+            }
+
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
                 // a proper message is included in the exception if the server has been stopped
