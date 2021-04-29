@@ -73,9 +73,9 @@
         
         <!-- Test properties -->
         <arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
-        <arquillian.managed.version>1.0.8-SNAPSHOT</arquillian.managed.version>
+        <arquillian.managed.version>1.0.8</arquillian.managed.version>
         <arquillian.remote.artifact>arquillian-liberty-remote</arquillian.remote.artifact>
-        <arquillian.remote.version>1.0.8-SNAPSHOT</arquillian.remote.version>
+        <arquillian.remote.version>1.0.8</arquillian.remote.version>
     </properties>
 
     <dependencyManagement>
