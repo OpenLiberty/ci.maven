@@ -102,6 +102,8 @@ public class BasicSupport extends AbstractLibertySupport {
     @Parameter(property = "userDirectory")
     protected File userDirectory = null;
 
+    protected boolean userDirectorySpecified = false;  // indicates whether userDirectory was configured
+
     /**
      * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
      */
@@ -255,6 +257,8 @@ public class BasicSupport extends AbstractLibertySupport {
             // Set user directory
             if (userDirectory == null) {
                 userDirectory = new File(installDirectory, "usr");
+            } else {
+                userDirectorySpecified = true;
             }
             
             File serversDirectory = new File(userDirectory, "servers");
