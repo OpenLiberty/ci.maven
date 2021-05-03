@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2018.
+ * (C) Copyright IBM Corporation 2017, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 
 import org.junit.Test;
 
-import net.wasdev.wlp.common.arquillian.util.Constants;
+import io.openliberty.tools.common.arquillian.util.Constants;
 
 /**
  * Only included in the skip-with-xml Maven profile.

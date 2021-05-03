@@ -73,9 +73,9 @@
         
         <!-- Test properties -->
         <arquillian.managed.artifact>arquillian-liberty-managed</arquillian.managed.artifact>
-        <arquillian.managed.version>1.0.6</arquillian.managed.version>
+        <arquillian.managed.version>1.0.8</arquillian.managed.version>
         <arquillian.remote.artifact>arquillian-liberty-remote</arquillian.remote.artifact>
-        <arquillian.remote.version>1.0.6</arquillian.remote.version>
+        <arquillian.remote.version>1.0.8</arquillian.remote.version>
     </properties>
 
     <dependencyManagement>
@@ -109,9 +109,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.wasdev.wlp.common</groupId>
+            <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.2.1</version>
+            <version>1.8.14</version>
             <scope>test</scope>
         </dependency>
         <dependency>
