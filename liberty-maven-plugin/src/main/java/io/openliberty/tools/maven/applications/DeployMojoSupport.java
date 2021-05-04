@@ -140,46 +140,50 @@ public class DeployMojoSupport extends PluginConfigSupport {
             setLooseProjectRootForContainer(proj, config);
         }
 
+        LooseWarApplication looseWar = new LooseWarApplication(proj, config, log);
+
         if(exploded) {
 
-            runExplodedMojo();
-     
-            Path webAppDir = MavenProjectUtil.getWebAppDirectory(proj);
+            //TODO - does order matter?
 
             /*
+             *  TODO - out of date !
              * <archive>
                     <dir sourceOnDisk="C:\app\target\myapp-1.0" targetInArchive="/"/>
                     <file sourceOnDisk="C:\app\target\tmp\META-INF\MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
                 </archive>
              */
-            LooseWarApplication looseWar = new LooseWarApplication(proj, config);
-            looseWar.addOutputDir(looseWar.getDocumentRoot(), webAppDir.toFile(), "/");
-            File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
-            looseWar.addManifestFile(manifestFile);
+
+            // If I'm filtering web.xml, etc., I want to monitor from the exploded dir, not via a source dir
+            if (!looseWar.isFilteringDeploymentDescriptors()) {
+                looseWar.addSourceDir();
+            }
+            
+            // Add source paths for non-filtered web resources. 
+            // We'll already have the runtime application monitor watching for file changes, and we 
+            // don't want to set up the more expensive dev mode type of watching.
+            looseWar.addNonFilteredWebResourcesConfigurationPaths();
+
+            // Don't especially need to run it exactly here, but in debugger we can see what we have
+            runExplodedMojo();
+            looseWar.addOutputDir(looseWar.getDocumentRoot(), looseWar.getWebAppDirectory(), "/");
             
         } else {
-            LooseWarApplication looseWar = new LooseWarApplication(proj, config);
 
-            looseWar.addSourceDir(proj);
+            looseWar.addSourceDir();
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
                     "/WEB-INF/classes");
 
             // retrieve the directories defined as resources in the maven war plugin
-            Map<Path,String> webResources = MavenProjectUtil.getWebResourcesConfigurationPaths(proj, log);
-            if (webResources != null) {
-                for (Path directory : webResources.keySet()) {
-                    String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
-                    looseWar.addOutputDir(looseWar.getDocumentRoot(), directory.toFile(), targetPath);
-                }
-            }
+            looseWar.addAllWebResourcesConfigurationPaths();
 
             // retrieves dependent library jar files
             addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
-
-            // add Manifest file
-            File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
-            looseWar.addManifestFile(manifestFile);
         }
+
+        // add Manifest file
+        File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
+        looseWar.addManifestFile(manifestFile);
     }
 
     // install ear project artifact using loose application configuration file

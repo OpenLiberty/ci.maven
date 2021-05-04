@@ -58,6 +58,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.DevUtilConfig;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
@@ -67,6 +68,7 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
+import io.openliberty.tools.maven.applications.LooseWarApplication;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 
@@ -842,7 +844,7 @@ public class DevMojo extends StartDebugMojoSupport {
             resourceDirs.add(defaultResourceDir);
         }
 
-        List<Path> webResourceDirs = MavenProjectUtil.getMonitoredWebSourceDirectories(project);
+        List<Path> webResourceDirs = LooseWarApplication.getDynamicWebSourceDirectories(project);
         
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
