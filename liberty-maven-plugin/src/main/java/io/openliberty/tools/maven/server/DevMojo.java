@@ -551,10 +551,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
 
                 // update classpath for dependencies changes
-                compileArtifactPaths.clear();
-                compileArtifactPaths.addAll(project.getCompileClasspathElements());
-                testArtifactPaths.clear();
-                testArtifactPaths.addAll(project.getTestClasspathElements());
+                if (compileArtifactPaths != null) {
+                    compileArtifactPaths.clear();
+                    compileArtifactPaths.addAll(project.getCompileClasspathElements());
+                }
+                if (testArtifactPaths != null) {
+                    testArtifactPaths.clear();
+                    testArtifactPaths.addAll(project.getTestClasspathElements());
+                }
 
                 if (restartServer) {
                     // - stop Server
