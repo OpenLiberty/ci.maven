@@ -551,14 +551,11 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
 
                 // update classpath for dependencies changes
-                if (compileArtifactPaths != null) {
-                    compileArtifactPaths.clear();
-                    compileArtifactPaths.addAll(project.getCompileClasspathElements());
-                }
-                if (testArtifactPaths != null) {
-                    testArtifactPaths.clear();
-                    testArtifactPaths.addAll(project.getTestClasspathElements());
-                }
+                compileArtifactPaths.clear();
+                compileArtifactPaths.addAll(project.getCompileClasspathElements());
+
+                testArtifactPaths.clear();
+                testArtifactPaths.addAll(project.getTestClasspathElements());
 
                 if (restartServer) {
                     // - stop Server
@@ -808,8 +805,11 @@ public class DevMojo extends StartDebugMojoSupport {
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
-        List<String> testArtifactPaths = project.getTestClasspathElements();
+        List<String> compileArtifactPaths = new ArrayList<String>();
+        compileArtifactPaths.addAll(project.getCompileClasspathElements());
+
+        List<String> testArtifactPaths = new ArrayList<String>();
+        testArtifactPaths.addAll(project.getTestClasspathElements());
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
