@@ -474,31 +474,19 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public boolean recompileUpstreamProjectBuildFile(File buildFile, List<String> compileArtifactPaths,
+        public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
                 ThreadPoolExecutor executor) throws PluginExecutionException {
-            boolean redeployApp = false;
             ProjectBuildingResult build;
             try {
-                log.info("calling maven project builder");
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
-            } catch (ProjectBuildingException e) {
-                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
-                log.debug(e);
-                return false;
-            }
-            try {
-                // TODO: need a way to get the backup project, from Maven Session?, in case of
-                // error
                 MavenProject upstreamProject = build.getProject();
-                // update classpath for dependencies changes on upstream project
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
                 // should we delpy project?
-
-            } catch (DependencyResolutionRequiredException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
+                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
+                log.debug(e);
                 return false;
             }
             return true;
@@ -840,13 +828,6 @@ public class DevMojo extends StartDebugMojoSupport {
         // collect artifacts canonical paths in order to build classpath
         List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
         List<String> testArtifactPaths = project.getTestClasspathElements();
-        // log.info("--- ci.maven testArtifactPaths: " + testArtifactPaths);
-        if (!upstreamProjects.isEmpty()) {
-            for (MavenProject p : upstreamProjects) {
-                // log.info("--- project: " + p.getArtifactId());
-                // log.info("---- testArtifactPaths: " + p.getTestClasspathElements());
-            }
-        }
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
