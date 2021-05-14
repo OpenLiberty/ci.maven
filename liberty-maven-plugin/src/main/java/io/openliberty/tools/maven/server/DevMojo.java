@@ -613,6 +613,27 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public List<File> getResourceDirectories(MavenProject project, File outputDir) {
+            // resource directories
+            List<File> resourceDirs = new ArrayList<File>();
+            if (outputDir.exists()) {
+                List<Resource> resources = project.getResources();
+                for (Resource resource : resources) {
+                    File resourceFile = new File(resource.getDirectory());
+                    if (resourceFile.exists()) {
+                        resourceDirs.add(resourceFile);
+                    }
+                }
+            }
+            if (resourceDirs.isEmpty()) {
+                File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
+                log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
+                resourceDirs.add(defaultResourceDir);
+            }
+            return resourceDirs;
+        }
+
+        @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = getServerFeatureUtil();
