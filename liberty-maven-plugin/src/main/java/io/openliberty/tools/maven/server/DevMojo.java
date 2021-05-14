@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
@@ -64,6 +65,7 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
+import io.openliberty.tools.common.plugins.util.UpstreamProject;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
@@ -229,6 +231,26 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // set project property for use in DeployMojoSupport
         project.getProperties().setProperty("container", Boolean.toString(container));
+    }
+
+    protected List<File> getResourceDirectories(MavenProject project, File outputDir) {
+        // resource directories
+        List<File> resourceDirs = new ArrayList<File>();
+        if (outputDir.exists()) {
+            List<Resource> resources = project.getResources();
+            for (Resource resource : resources) {
+                File resourceFile = new File(resource.getDirectory());
+                if (resourceFile.exists()) {
+                    resourceDirs.add(resourceFile);
+                }
+            }
+        }
+        if (resourceDirs.isEmpty()) {
+            File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
+            log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
+            resourceDirs.add(defaultResourceDir);
+        }
+        return resourceDirs;
     }
 
     private class DevMojoUtil extends DevUtil {
@@ -483,7 +505,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 MavenProject upstreamProject = build.getProject();
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
-                // should we delpy project?
             } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
@@ -613,27 +634,6 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public List<File> getResourceDirectories(MavenProject project, File outputDir) {
-            // resource directories
-            List<File> resourceDirs = new ArrayList<File>();
-            if (outputDir.exists()) {
-                List<Resource> resources = project.getResources();
-                for (Resource resource : resources) {
-                    File resourceFile = new File(resource.getDirectory());
-                    if (resourceFile.exists()) {
-                        resourceDirs.add(resourceFile);
-                    }
-                }
-            }
-            if (resourceDirs.isEmpty()) {
-                File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
-                log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
-                resourceDirs.add(defaultResourceDir);
-            }
-            return resourceDirs;
-        }
-
-        @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
                 ServerFeature servUtil = getServerFeatureUtil();
@@ -745,7 +745,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
-        Set<MavenProject> upstreamProjects = new HashSet<MavenProject>();
+        Set<MavenProject> upstreamMavenProjects = new HashSet<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
@@ -761,7 +761,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 return;
             } else {
                 // get all upstream projects
-                upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
+                upstreamMavenProjects.addAll(graph.getUpstreamProjects(project, true));
             }
         }
 
@@ -823,21 +823,7 @@ public class DevMojo extends StartDebugMojoSupport {
             runLibertyMojoDeploy();
         }
         // resource directories
-        List<File> resourceDirs = new ArrayList<File>();
-        if (outputDirectory.exists()) {
-            List<Resource> resources = project.getResources();
-            for (Resource resource : resources) {
-                File resourceFile = new File(resource.getDirectory());
-                if (resourceFile.exists()) {
-                    resourceDirs.add(resourceFile);
-                }
-            }
-        }
-        if (resourceDirs.isEmpty()) {
-            File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
-            log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
-            resourceDirs.add(defaultResourceDir);
-        }
+        List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
@@ -867,15 +853,27 @@ public class DevMojo extends StartDebugMojoSupport {
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            if (!upstreamProjects.isEmpty()) {
+            if (!upstreamMavenProjects.isEmpty()) {
+                Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
+                for (MavenProject p : upstreamMavenProjects) {
+                    List<String> compileArtifacts = new ArrayList<String>();
+                    Build build = p.getBuild();
+                    File upstreamSourceDir = new File(build.getSourceDirectory());
+                    File upstreamOutputDir = new File(build.getOutputDirectory());
+                    // resource directories
+                    List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
+
+                    UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
+                            compileArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamResourceDirs);
+                    upstreamProjects.add(upstreamProject);
+                }
                 // watch upstream projects for hot compilation if they exist
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, upstreamProjects);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, upstreamProjects);
             } else {
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, null);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, null);
             }
-
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
                 // a proper message is included in the exception if the server has been stopped
