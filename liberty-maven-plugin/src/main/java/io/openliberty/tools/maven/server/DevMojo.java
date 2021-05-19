@@ -497,12 +497,14 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                ThreadPoolExecutor executor) throws PluginExecutionException {
+                List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             ProjectBuildingResult build;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
                 MavenProject upstreamProject = build.getProject();
+                testArtifactPaths.clear();
+                testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
             } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
@@ -858,14 +860,18 @@ public class DevMojo extends StartDebugMojoSupport {
                 Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
                 for (MavenProject p : upstreamMavenProjects) {
                     List<String> compileArtifacts = new ArrayList<String>();
+                    List<String> testArtifacts = new ArrayList<String>();
                     Build build = p.getBuild();
                     File upstreamSourceDir = new File(build.getSourceDirectory());
                     File upstreamOutputDir = new File(build.getOutputDirectory());
+                    File upstreamTestSourceDir = new File(build.getTestSourceDirectory());
+                    File upstreamTestOutputDir = new File(build.getTestOutputDirectory());
                     // resource directories
                     List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
 
                     UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
-                            compileArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamResourceDirs);
+                            compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir,
+                            upstreamTestSourceDir, upstreamTestOutputDir, upstreamResourceDirs);
                     upstreamProjects.add(upstreamProject);
                 }
                 // watch upstream projects for hot compilation if they exist
