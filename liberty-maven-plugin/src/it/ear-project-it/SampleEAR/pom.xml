@@ -61,6 +61,7 @@
                         automatically have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
+                    <initializeInOrder>true</initializeInOrder>
                     <modules>
                         <webModule>
                             <groupId>io.openliberty.tools.it</groupId>
@@ -89,7 +90,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
-                    <looseApplication>true</looseApplication>
+                    <looseApplication>false</looseApplication>
                     <include>usr</include>
                 </configuration>
                 <executions>
