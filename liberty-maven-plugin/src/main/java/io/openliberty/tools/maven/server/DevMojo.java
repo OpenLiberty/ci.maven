@@ -246,7 +246,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         if (resourceDirs.isEmpty()) {
-            File defaultResourceDir = new File(project.getBasedir() + "/src/main/resources");
+            File defaultResourceDir = new File(project.getBasedir(), "src/main/resources");
             log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
             resourceDirs.add(defaultResourceDir);
         }
@@ -506,7 +506,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
             } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
-                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
+                log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
+                        + ": " + e.getMessage());
                 log.debug(e);
                 return false;
             }
@@ -967,7 +968,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
-                summaryFile = new File(project.getBuild().getDirectory() + "/failsafe-reports/failsafe-summary.xml");
+                summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
                 log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
