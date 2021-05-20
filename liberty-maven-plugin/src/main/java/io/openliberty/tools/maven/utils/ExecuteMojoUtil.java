@@ -148,17 +148,6 @@ public class ExecuteMojoUtil {
                     "packagingExcludes", "packagingIncludes", "skinnyModules", "skinnyWars", "skipClassPathModification", "unpackTypes",
                     "useBaseVersion", "useJvmChmod", "version"));
             
-    // https://maven.apache.org/plugins/maven-war-plugin/war-mojo.html
-    private static final ArrayList<String> WAR_PARAMS = new ArrayList<>(
-            Arrays.asList("outputDirectory", "warSourceDirectory", "webappDirectory", "workDirectory", "archive",
-                    "archiveClasses", "attachClasses", "classesClassifier", "classifier", "containerConfigXML", "delimiters",
-                    "dependentWarExcludes", "dependentWarIncludes", "escapeString", "escapedBackslashesInFilePath",
-                    "failOnMissingWebXml", "filteringDeploymentDescriptors", "filters", "includeEmptyDirectories",
-                    "nonFilteredFileExtensions", "outdatedCheckPath", "outputFileNameMapping", "outputTimestamp", "overlays", "packagingExcludes",
-                    "packagingIncludes", "primaryArtifact", "recompressZippedFiles", "resourceEncoding", "skip", "supportMultiLineFiltering",
-                    "useDefaultDelimiters", "useJvmChmod", "warSourceExcludes", "warSourceIncludes", "webResources", "webXml"));
-
-
     // https://maven.apache.org/plugins/maven-ear-plugin/generate-application-xml-mojo.html
     private static final ArrayList<String> EAR_GENERATE_APPLICATION_XML_PARAMS = new ArrayList<>(
             Arrays.asList("outputFileNameMapping", "tempFolder", "workDirectory", "applicationId", "applicationName",
@@ -271,7 +260,6 @@ public class ExecuteMojoUtil {
     private static Xpp3Dom validateConfiguration(Plugin plugin, String goal, Xpp3Dom config, Log log) {
         Xpp3Dom goalConfig;
         String executionGoal = plugin.getArtifactId() + ":" + goal;
-        System.out.println("ExecutionGoal: " + executionGoal);
         switch (executionGoal) {
         case "liberty-maven-plugin:create":
             config = convertLibertyAlias(config);
@@ -317,9 +305,6 @@ public class ExecuteMojoUtil {
             break;
         case "maven-ear-plugin:ear":
             goalConfig = stripConfigElements(config, EAR_PARAMS);
-            break;
-        case "maven-war-plugin:war":
-            goalConfig = stripConfigElements(config, WAR_PARAMS);
             break;
         default:
             goalConfig = config;
