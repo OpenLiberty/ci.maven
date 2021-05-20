@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>SampleEAR</artifactId>
+    <artifactId>SampleEAR_NonLooseApp</artifactId>
 
     <packaging>ear</packaging>
 
