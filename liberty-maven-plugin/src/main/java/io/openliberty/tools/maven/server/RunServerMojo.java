@@ -49,7 +49,7 @@ public class RunServerMojo extends PluginConfigSupport {
 
         runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
 
-        if(!looseApplication && projectPackaging.equals("ear")) {
+        if(projectPackaging.equals("ear")) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
         }
 
