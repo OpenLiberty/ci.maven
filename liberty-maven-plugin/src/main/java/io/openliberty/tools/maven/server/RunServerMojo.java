@@ -45,12 +45,18 @@ public class RunServerMojo extends PluginConfigSupport {
             getLog().info("\nSkipping run goal.\n");
             return;
         }
-        
+        String projectPackaging = project.getPackaging();
+
         runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+
+        if(projectPackaging.equals("ear")) {
+            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+        }
+
         runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
         
         if(!looseApplication) {
-            switch (project.getPackaging()) {
+            switch (projectPackaging) {
                 case "war":
                     runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
                     break;
