@@ -679,10 +679,11 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runUnitTests() throws PluginExecutionException, PluginScenarioException {
+        public void runUnitTests(File buildFile) throws PluginExecutionException, PluginScenarioException {
+            MavenProject currentProject = resolveMavenProject(buildFile);
             try {
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test");
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "report-only");
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "report-only", currentProject);
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause != null && cause instanceof MojoFailureException) {
@@ -694,11 +695,12 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
+        public void runIntegrationTests(File buildFile) throws PluginExecutionException, PluginScenarioException {
+            MavenProject currentProject = resolveMavenProject(buildFile);
             try {
-                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only");
-                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify", currentProject);
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause != null && cause instanceof MojoFailureException) {
@@ -838,18 +840,18 @@ public class DevMojo extends StartDebugMojoSupport {
         // collect artifacts canonical paths in order to build classpath
         List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
         List<String> testArtifactPaths = project.getTestClasspathElements();
+        // pom.xml
+        File pom = project.getFile();
 
         if (hotTests && testSourceDirectory.exists()) {
             // if hot testing, run tests on startup and then watch for
             // keypresses
-            util.runTestThread(false, executor, -1, false, false);
+            // TODO: run all tests
+            util.runTestThread(false, executor, -1, false, false, pom);
         } else {
             // else watch for keypresses immediately
             util.runHotkeyReaderThread(executor);
         }
-
-        // pom.xml
-        File pom = project.getFile();
 
         // Note that serverXmlFile can be null. DevUtil will automatically watch
         // all files in the configDirectory,
@@ -959,8 +961,30 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private void runTestMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
-        Plugin plugin = getPlugin(groupId, artifactId);
+    private MavenProject resolveMavenProject(File buildFile) {
+        ProjectBuildingResult build;
+        MavenProject currentProject = project; // default to main project
+        try {
+            // TODO consider using Files.isSameFile
+            if (buildFile != null && !project.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                build = mavenProjectBuilder.build(buildFile,
+                        session.getProjectBuildingRequest().setResolveDependencies(true));
+                // if we can reesolve the project associated with build file, run IT tests on
+                // corresponding project
+                if (build.getProject() != null) {
+                    currentProject = build.getProject();
+                }
+            }
+        } catch (ProjectBuildingException | IOException e) {
+            log.error("An unexpected error occurred when trying to run integration tests for "
+                    + buildFile.getAbsolutePath() + ": " + e.getMessage());
+            log.debug(e);
+        }
+        return currentProject;
+    }
+
+    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject currentProject) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, currentProject);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
 
         if (goal.equals("test")) {
@@ -974,7 +998,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
-                summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
+                summaryFile = new File(currentProject.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
                 log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
@@ -988,7 +1012,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Summary file doesn't exist");
             }
         } else if (goal.equals("failsafe-report-only")) {
-            Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
+            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", currentProject);
             Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
@@ -1006,7 +1030,7 @@ public class DevMojo extends StartDebugMojoSupport {
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         } else if (goal.equals("report-only")) {
-            Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
+            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", currentProject);
             Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
@@ -1025,8 +1049,11 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(linkXRef);
         }
 
-        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session.clone(), pluginManager));
+        log.debug("POM file: " + currentProject.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
+                + " configuration:\n" + config);
+        MavenSession testSession = session.clone();
+        testSession.setCurrentProject(currentProject);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(currentProject, testSession, pluginManager));
     }
 
     /**

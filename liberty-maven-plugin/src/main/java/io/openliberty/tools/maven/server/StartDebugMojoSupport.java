@@ -54,6 +54,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -206,7 +207,27 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
         return plugin;
     }
-    
+
+    /**
+     * Given the groupId and artifactId get the corresponding plugin for the
+     * specified project
+     * 
+     * @param groupId
+     * @param artifactId
+     * @param currentProject
+     * @return Plugin
+     */
+    protected Plugin getPluginForProject(String groupId, String artifactId, MavenProject currentProject) {
+        Plugin plugin = currentProject.getPlugin(groupId + ":" + artifactId);
+        if (plugin == null) {
+            plugin = getPluginFromPluginManagement(groupId, artifactId);
+        }
+        if (plugin == null) {
+            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
+        }
+        return plugin;
+    }
+
     protected Plugin getLibertyPlugin() {
         // Try getting the version from Maven 3's plugin descriptor
         String version = null;
