@@ -102,13 +102,15 @@ public class PrepareFeatureSupport extends BasicSupport {
     protected List<String> getDependencyBOMs() {
         List<String> result = new ArrayList<String>();
         org.apache.maven.model.DependencyManagement dependencyManagement = project.getDependencyManagement();
-        List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
-        for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
-            if (("pom").equals(dependencyArtifact.getType())) {
-            	String coordinate = String.format("%s:%s:%s",
-                		dependencyArtifact.getGroupId(), dependencyArtifact.getArtifactId(), dependencyArtifact.getVersion());
-                result.add(coordinate);
-                log.debug("Dependency BOM: " + coordinate);
+        if (dependencyManagement != null) {
+        	List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
+            for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
+                if (("pom").equals(dependencyArtifact.getType())) {
+                	String coordinate = String.format("%s:%s:%s",
+                    		dependencyArtifact.getGroupId(), dependencyArtifact.getArtifactId(), dependencyArtifact.getVersion());
+                    result.add(coordinate);
+                    log.debug("Dependency BOM: " + coordinate);
+                }
             }
         }
         return result;

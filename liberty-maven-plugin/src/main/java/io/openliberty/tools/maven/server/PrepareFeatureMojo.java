@@ -39,7 +39,7 @@ public class PrepareFeatureMojo extends PrepareFeatureSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
-            getLog().info("\nSkipping prepare-server goal.\n");
+            getLog().info("\nSkipping prepare-feature goal.\n");
             return;
         }
         
