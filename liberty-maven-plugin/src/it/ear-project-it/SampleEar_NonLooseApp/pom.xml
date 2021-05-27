@@ -9,11 +9,11 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>SampleEAR</artifactId>
+    <artifactId>SampleEAR_NonLooseApp</artifactId>
 
     <packaging>ear</packaging>
 
-    <name>ear-project-it:  SampleEAR Module</name>
+    <name>ear-project-it:  SampleEAR_NonLooseApp Module</name>
 
     <dependencies>
         <dependency>
@@ -90,7 +90,7 @@
                     </assemblyArtifact>
                     <serverName>test</serverName>
                     <appsDirectory>apps</appsDirectory>
-                    <looseApplication>true</looseApplication>
+                    <looseApplication>false</looseApplication>
                     <include>usr</include>
                 </configuration>
                 <executions>

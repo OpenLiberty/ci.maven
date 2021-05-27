@@ -138,6 +138,16 @@ public class ExecuteMojoUtil {
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/failsafe-report-only-mojo.html
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
 
+    // https://maven.apache.org/plugins/maven-ear-plugin/ear-mojo.html
+    private static final ArrayList<String> EAR_PARAMS = new ArrayList<>(
+            Arrays.asList("earSourceDirectory", "outputDirectory", "outputFileNameMapping", "tempFolder", "workDirectory",
+                    "applicationXml", "archive", "artifactTypeMappings", "classifier", "defaultLibBundleDir", "earSourceExcludes",
+                    "earSourceIncludes", "encoding", "escapeString", "escapedBackslashesInFilePath",
+                    "fileNameMapping", "filtering", "filters", "generatedDescriptorLocation",
+                    "includeLibInApplicationXml", "jboss", "mainArtifactId", "modules", "nonFilteredFileExtensions", "outputTimestamp",
+                    "packagingExcludes", "packagingIncludes", "skinnyModules", "skinnyWars", "skipClassPathModification", "unpackTypes",
+                    "useBaseVersion", "useJvmChmod", "version"));
+            
     // https://maven.apache.org/plugins/maven-ear-plugin/generate-application-xml-mojo.html
     private static final ArrayList<String> EAR_GENERATE_APPLICATION_XML_PARAMS = new ArrayList<>(
             Arrays.asList("outputFileNameMapping", "tempFolder", "workDirectory", "applicationId", "applicationName",
@@ -292,6 +302,9 @@ public class ExecuteMojoUtil {
             break;
         case "maven-ear-plugin:generate-application-xml":
             goalConfig = stripConfigElements(config, EAR_GENERATE_APPLICATION_XML_PARAMS);
+            break;
+        case "maven-ear-plugin:ear":
+            goalConfig = stripConfigElements(config, EAR_PARAMS);
             break;
         default:
             goalConfig = config;
