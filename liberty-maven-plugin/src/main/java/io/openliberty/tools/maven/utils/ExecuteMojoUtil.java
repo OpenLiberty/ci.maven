@@ -147,7 +147,29 @@ public class ExecuteMojoUtil {
                     "includeLibInApplicationXml", "jboss", "mainArtifactId", "modules", "nonFilteredFileExtensions", "outputTimestamp",
                     "packagingExcludes", "packagingIncludes", "skinnyModules", "skinnyWars", "skipClassPathModification", "unpackTypes",
                     "useBaseVersion", "useJvmChmod", "version"));
-            
+
+    // https://maven.apache.org/plugins/maven-jar-plugin/jar-mojo.html
+    private static final ArrayList<String> JAR_PARAMS = new ArrayList<>(
+            Arrays.asList("classesDirectory", "outputDirectory", "archive", "classifier", "excludes", "forceCreation",
+                    "includes", "outputTimestamp", "skipIfEmpty", "useDefaultManifestFile"));
+    
+    // https://maven.apache.org/plugins/maven-ejb-plugin/ejb-mojo.html
+    private static final ArrayList<String> EJB_PARAMS = new ArrayList<>(
+            Arrays.asList("sourceDirectory", "archive", "classifier", "clientClassifier", "clientExcludes",
+                    "clientIncludes", "ejbJar", "ejbVersion", "escapeBackslashesInFilePath", "escapeString", "excludes",
+                    "filterDeploymentDescriptor", "filters", "generateClient", "outputTimestamp"));
+
+    // https://maven.apache.org/plugins/maven-war-plugin/war-mojo.html
+    private static final ArrayList<String> WAR_PARAMS = new ArrayList<>(Arrays.asList("outputDirectory",
+            "warSourceDirectory", "webappDirectory", "workDirectory", "archive", "archiveClasses", "attachClasses",
+            "classesClassifier", "classifier", "containerConfigXML", "delimiters", "dependentWarExcludes",
+            "dependentWarIncludes", "escapeString", "escapedBackslashesInFilePath", "failOnMissingWebXml",
+            "filteringDeploymentDescriptors", "filters", "includeEmptyDirectories", "nonFilteredFileExtensions",
+            "outdatedCheckPath", "outputFileNameMapping", "outputTimestamp", "overlays", "packagingExcludes",
+            "packagingIncludes", "primaryArtifact", "recompressZippedFiles", "resourceEncoding", "skip",
+            "supportMultiLineFiltering", "useDefaultDelimiters", "useJvmChmod", "warSourceExcludes",
+            "warSourceIncludes", "webResources", "webXml"));
+
     // https://maven.apache.org/plugins/maven-ear-plugin/generate-application-xml-mojo.html
     private static final ArrayList<String> EAR_GENERATE_APPLICATION_XML_PARAMS = new ArrayList<>(
             Arrays.asList("outputFileNameMapping", "tempFolder", "workDirectory", "applicationId", "applicationName",
@@ -305,6 +327,15 @@ public class ExecuteMojoUtil {
             break;
         case "maven-ear-plugin:ear":
             goalConfig = stripConfigElements(config, EAR_PARAMS);
+            break;
+        case "maven-jar-plugin:jar":
+            goalConfig = stripConfigElements(config, JAR_PARAMS);
+            break;
+        case "maven-ejb-plugin:ejb":
+            goalConfig = stripConfigElements(config, EJB_PARAMS);
+            break;
+        case "maven-war-plugin:war":
+            goalConfig = stripConfigElements(config, WAR_PARAMS);
             break;
         default:
             goalConfig = config;
