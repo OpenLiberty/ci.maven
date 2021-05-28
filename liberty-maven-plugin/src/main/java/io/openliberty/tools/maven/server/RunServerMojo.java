@@ -60,15 +60,17 @@ public class RunServerMojo extends PluginConfigSupport {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
-                if (projectPackaging.equals("ear")) {
-                    runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                } else {
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
-                }
                 skipRunServer = true;
             }
+        }
+
+        // Proceed to build this module (regardless of whether Liberty will run on it afterwards)
+        if (projectPackaging.equals("ear")) {
+            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else {
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
         }
 
         if (!looseApplication) {
@@ -96,6 +98,7 @@ public class RunServerMojo extends PluginConfigSupport {
             }
         }
 
+        // Return if Liberty should not be run on this module
         if (skipRunServer) {
             return;
         }
