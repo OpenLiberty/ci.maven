@@ -92,7 +92,7 @@ public class RunServerMojo extends PluginConfigSupport {
             } catch (MojoExecutionException e) {
                 if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
                     // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
-                    log.warn("The looseApplication parameter was set to false for this module. Ensure all modules use the same value for this parameter by including -DlooseApplication=false in the Maven command from your multi module project.");
+                    log.warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
                     throw e;
                 }
             }
