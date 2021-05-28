@@ -260,9 +260,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-                JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
+                JavaCompilerOptions compilerOptions, String mavenCacheLocation, boolean forceSkipUTs) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
+                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, forceSkipUTs, skipITs,
                     project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
                     dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
@@ -741,11 +741,9 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         boolean isEar = false;
+        boolean forceSkipUTs = false;
         if (project.getPackaging().equals("ear")) {
             isEar = true;
-
-            // skip unit tests for ear packaging
-            skipUTs = true;
         }
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
@@ -763,11 +761,21 @@ public class DevMojo extends StartDebugMojoSupport {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
                 }
+                if (skipTests || skipITs || skipUTs) {
+                    log.warn("Values for the skipTest, skipUTs or skipITs parameters specified in the POM file of "
+                            + project.getArtifactId()
+                            + " will be ignored. Ensure that all modules use the same values for the corresponding test parameters by including -DskipTests=true, -DskipITs=true or -DskipUTs=true in the Maven command for your multi module project.");
+                }
                 return;
             } else {
                 // get all upstream projects
                 upstreamMavenProjects.addAll(graph.getUpstreamProjects(project, true));
             }
+        }
+
+        // skip unit tests for ear packaging
+        if (isEar) {
+            forceSkipUTs = true;
         }
 
         // Check if this is a Boost application
@@ -833,7 +841,8 @@ public class DevMojo extends StartDebugMojoSupport {
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
-                configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions, settings.getLocalRepository());
+                configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
+                settings.getLocalRepository(), forceSkipUTs);
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -871,9 +880,16 @@ public class DevMojo extends StartDebugMojoSupport {
                     // resource directories
                     List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
 
+                    // only force skipping unit test for ear modules otherwise honour existing skip
+                    // test params
+                    boolean upstreamSkipUTs = skipUTs;
+                    if (p.getPackaging().equals("ear")) {
+                        upstreamSkipUTs = true;
+                    }
+
                     UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
                             compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir,
-                            upstreamTestSourceDir, upstreamTestOutputDir, upstreamResourceDirs);
+                            upstreamTestSourceDir, upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipUTs);
                     upstreamProjects.add(upstreamProject);
                 }
                 // watch upstream projects for hot compilation if they exist
