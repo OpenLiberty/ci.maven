@@ -260,13 +260,13 @@ public class DevMojo extends StartDebugMojoSupport {
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-                JavaCompilerOptions compilerOptions, String mavenCacheLocation, boolean forceSkipUTs) throws IOException {
+                JavaCompilerOptions compilerOptions, String mavenCacheLocation, boolean forceSkipUTs, Set<UpstreamProject> upstreamProjects) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, forceSkipUTs, skipITs,
                     project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
                     dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
-                    mavenCacheLocation);
+                    mavenCacheLocation, upstreamProjects);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -840,9 +840,36 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
+        // collect upstream projects
+        Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
+        if (!upstreamMavenProjects.isEmpty()) {
+            for (MavenProject p : upstreamMavenProjects) {
+                List<String> compileArtifacts = new ArrayList<String>();
+                List<String> testArtifacts = new ArrayList<String>();
+                Build build = p.getBuild();
+                File upstreamSourceDir = new File(build.getSourceDirectory());
+                File upstreamOutputDir = new File(build.getOutputDirectory());
+                File upstreamTestSourceDir = new File(build.getTestSourceDirectory());
+                File upstreamTestOutputDir = new File(build.getTestOutputDirectory());
+                // resource directories
+                List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
+
+                // only force skipping unit test for ear modules otherwise honour existing skip
+                // test params
+                boolean upstreamSkipUTs = skipUTs;
+                if (p.getPackaging().equals("ear")) {
+                    upstreamSkipUTs = true;
+                }
+
+                UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
+                        compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir,
+                        upstreamTestSourceDir, upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipUTs);
+                upstreamProjects.add(upstreamProject);
+            }
+        }
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), forceSkipUTs);
+                settings.getLocalRepository(), forceSkipUTs, upstreamProjects);
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -852,13 +879,9 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
 
-        if (hotTests && testSourceDirectory.exists()) {
-            // if hot testing, run tests on startup and then watch for
-            // keypresses
-            // TODO: run all tests
-            util.runTestThread(false, executor, -1, false, false, pom);
-        } else {
-            // else watch for keypresses immediately
+
+        if (!(hotTests && testSourceDirectory.exists())) {
+            // if not hot testing, watch for keypresses immediately
             util.runHotkeyReaderThread(executor);
         }
 
@@ -867,37 +890,13 @@ public class DevMojo extends StartDebugMojoSupport {
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            if (!upstreamMavenProjects.isEmpty()) {
-                Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
-                for (MavenProject p : upstreamMavenProjects) {
-                    List<String> compileArtifacts = new ArrayList<String>();
-                    List<String> testArtifacts = new ArrayList<String>();
-                    Build build = p.getBuild();
-                    File upstreamSourceDir = new File(build.getSourceDirectory());
-                    File upstreamOutputDir = new File(build.getOutputDirectory());
-                    File upstreamTestSourceDir = new File(build.getTestSourceDirectory());
-                    File upstreamTestOutputDir = new File(build.getTestOutputDirectory());
-                    // resource directories
-                    List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
-
-                    // only force skipping unit test for ear modules otherwise honour existing skip
-                    // test params
-                    boolean upstreamSkipUTs = skipUTs;
-                    if (p.getPackaging().equals("ear")) {
-                        upstreamSkipUTs = true;
-                    }
-
-                    UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
-                            compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir,
-                            upstreamTestSourceDir, upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipUTs);
-                    upstreamProjects.add(upstreamProject);
-                }
+            if (!upstreamProjects.isEmpty()) {
                 // watch upstream projects for hot compilation if they exist
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, upstreamProjects);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             } else {
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, null);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             }
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
