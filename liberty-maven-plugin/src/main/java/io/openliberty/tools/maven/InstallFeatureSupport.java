@@ -144,7 +144,7 @@ public class InstallFeatureSupport extends BasicSupport {
                 String coordinate = String.format("%s:%s:%s",
                         dependencyArtifact.getGroupId(), FEATURES_JSON_ARTIFACT_ID, dependencyArtifact.getVersion());
                 result.add(coordinate);
-                log.info("Additional user feature json repsotiory: " + coordinate);
+                log.info("Additional user feature json coordinate: " + coordinate);
             }
         }
         return result;
