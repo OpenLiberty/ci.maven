@@ -90,7 +90,7 @@ public class PrepareFeatureSupport extends BasicSupport {
         try {
             util = new PrepareFeatureMojoUtil(openLibertyVersion);
         } catch (PluginScenarioException e) {
-            log.debug(e.getMessage());
+        	throw new PluginExecutionException(e);
         }
     }
     
