@@ -879,11 +879,8 @@ public class DevMojo extends StartDebugMojoSupport {
         // pom.xml
         File pom = project.getFile();
 
-
-        if (!(hotTests && testSourceDirectory.exists())) {
-            // if not hot testing, watch for keypresses immediately
-            util.runHotkeyReaderThread(executor);
-        }
+        // start watching for keypresses immediately
+        util.runHotkeyReaderThread(executor);
 
         // Note that serverXmlFile can be null. DevUtil will automatically watch
         // all files in the configDirectory,
@@ -980,7 +977,6 @@ public class DevMojo extends StartDebugMojoSupport {
         ProjectBuildingResult build;
         MavenProject currentProject = project; // default to main project
         try {
-            // TODO consider using Files.isSameFile
             if (buildFile != null && !project.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
