@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -260,7 +259,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-                JavaCompilerOptions compilerOptions, String mavenCacheLocation, Set<UpstreamProject> upstreamProjects) throws IOException {
+                JavaCompilerOptions compilerOptions, String mavenCacheLocation, List<UpstreamProject> upstreamProjects) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
                     project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
@@ -747,7 +746,7 @@ public class DevMojo extends StartDebugMojoSupport {
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
-        Set<MavenProject> upstreamMavenProjects = new HashSet<MavenProject>();
+        List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
@@ -830,7 +829,7 @@ public class DevMojo extends StartDebugMojoSupport {
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
         // collect upstream projects
-        Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
+        List<UpstreamProject> upstreamProjects = new ArrayList<UpstreamProject>();
         if (!upstreamMavenProjects.isEmpty()) {
             for (MavenProject p : upstreamMavenProjects) {
                 List<String> compileArtifacts = new ArrayList<String>();
