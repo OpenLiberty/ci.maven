@@ -256,21 +256,24 @@ public class DevMojo extends StartDebugMojoSupport {
 
         Set<String> existingFeatures;
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
+        List<MavenProject> upstreamMavenProjects;
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-                JavaCompilerOptions compilerOptions, String mavenCacheLocation, List<UpstreamProject> upstreamProjects) throws IOException {
+                File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
+                List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
+                List<UpstreamProject> upstreamProjects, List<MavenProject> upstreamMavenProjects) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
-                    project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
-                    dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
-                    mavenCacheLocation, upstreamProjects);
+                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
+                    skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
+                    dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
+                    keepTempDockerfile, mavenCacheLocation, upstreamProjects);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            this.upstreamMavenProjects = upstreamMavenProjects;
         }
 
         @Override
@@ -496,8 +499,9 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
+                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor) throws PluginExecutionException {
             ProjectBuildingResult build;
+            boolean redeployApp = false;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
@@ -506,7 +510,33 @@ public class DevMojo extends StartDebugMojoSupport {
                 testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
-            } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
+
+                // check if compile dependencies have changed and redeploy if they have
+                if (redeployCheck) {
+                    MavenProject backupUpstreamProject = upstreamProject;
+                    for (MavenProject p : upstreamMavenProjects) {
+                        if (buildFile != null && !p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                            backupUpstreamProject = p;
+                        }
+                    }
+                    // update upstream Maven projects list
+                    int index = upstreamMavenProjects.indexOf(backupUpstreamProject);
+                    upstreamMavenProjects.set(index, upstreamProject);
+
+                    List<Dependency> deps = upstreamProject.getDependencies();
+                    List<Dependency> oldDeps = backupUpstreamProject.getDependencies();
+                    if (!deps.equals(oldDeps)) {
+                        // detect compile dependency changes
+                        if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
+                            redeployApp = true;
+                        }
+                    }
+                    if (redeployApp) {
+                        runLibertyMojoDeploy();
+                    }
+                }
+            } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
+                    | MojoExecutionException e) {
                 log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
                         + ": " + e.getMessage());
                 log.debug(e);
@@ -868,7 +898,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), upstreamProjects);
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects);
         util.addShutdownHook(executor);
         util.startServer();
 
