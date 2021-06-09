@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -257,21 +256,24 @@ public class DevMojo extends StartDebugMojoSupport {
 
         Set<String> existingFeatures;
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
+        List<MavenProject> upstreamMavenProjects;
 
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
-                File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory, List<File> resourceDirs,
-                JavaCompilerOptions compilerOptions, String mavenCacheLocation) throws IOException {
+                File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
+                List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
+                List<UpstreamProject> upstreamProjects, List<MavenProject> upstreamMavenProjects) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests, skipUTs, skipITs,
-                    project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile, dockerBuildContext,
-                    dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions, keepTempDockerfile,
-                    mavenCacheLocation);
+                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
+                    skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
+                    dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
+                    keepTempDockerfile, mavenCacheLocation, upstreamProjects);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            this.upstreamMavenProjects = upstreamMavenProjects;
         }
 
         @Override
@@ -497,15 +499,40 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                ThreadPoolExecutor executor) throws PluginExecutionException {
+                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor) throws PluginExecutionException {
             ProjectBuildingResult build;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
                 MavenProject upstreamProject = build.getProject();
+                testArtifactPaths.clear();
+                testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
                 compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
-            } catch (ProjectBuildingException | DependencyResolutionRequiredException e) {
+
+                // check if compile dependencies have changed and redeploy if they have
+                if (redeployCheck) {
+                    MavenProject backupUpstreamProject = upstreamProject;
+                    for (MavenProject p : upstreamMavenProjects) {
+                        if (buildFile != null && !p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                            backupUpstreamProject = p;
+                        }
+                    }
+                    // update upstream Maven projects list
+                    int index = upstreamMavenProjects.indexOf(backupUpstreamProject);
+                    upstreamMavenProjects.set(index, upstreamProject);
+
+                    List<Dependency> deps = upstreamProject.getDependencies();
+                    List<Dependency> oldDeps = backupUpstreamProject.getDependencies();
+                    if (!deps.equals(oldDeps)) {
+                        // detect compile dependency changes
+                        if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
+                            runLibertyMojoDeploy();
+                        }
+                    }
+                }
+            } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
+                    | MojoExecutionException e) {
                 log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
                         + ": " + e.getMessage());
                 log.debug(e);
@@ -677,10 +704,11 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runUnitTests() throws PluginExecutionException, PluginScenarioException {
+        public void runUnitTests(File buildFile) throws PluginExecutionException, PluginScenarioException {
+            MavenProject currentProject = resolveMavenProject(buildFile);
             try {
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test");
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "report-only");
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-plugin", "test", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "report-only", currentProject);
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause != null && cause instanceof MojoFailureException) {
@@ -692,11 +720,12 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void runIntegrationTests() throws PluginExecutionException, PluginScenarioException {
+        public void runIntegrationTests(File buildFile) throws PluginExecutionException, PluginScenarioException {
+            MavenProject currentProject = resolveMavenProject(buildFile);
             try {
-                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test");
-                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only");
-                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify");
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "integration-test", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-surefire-report-plugin", "failsafe-report-only", currentProject);
+                runTestMojo("org.apache.maven.plugins", "maven-failsafe-plugin", "verify", currentProject);
             } catch (MojoExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause != null && cause instanceof MojoFailureException) {
@@ -739,14 +768,11 @@ public class DevMojo extends StartDebugMojoSupport {
         boolean isEar = false;
         if (project.getPackaging().equals("ear")) {
             isEar = true;
-
-            // skip unit tests for ear packaging
-            skipUTs = true;
         }
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
-        Set<MavenProject> upstreamMavenProjects = new HashSet<MavenProject>();
+        List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
@@ -828,52 +854,71 @@ public class DevMojo extends StartDebugMojoSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
 
+        // collect upstream projects
+        List<UpstreamProject> upstreamProjects = new ArrayList<UpstreamProject>();
+        if (!upstreamMavenProjects.isEmpty()) {
+            for (MavenProject p : upstreamMavenProjects) {
+                List<String> compileArtifacts = new ArrayList<String>();
+                List<String> testArtifacts = new ArrayList<String>();
+                Build build = p.getBuild();
+                File upstreamSourceDir = new File(build.getSourceDirectory());
+                File upstreamOutputDir = new File(build.getOutputDirectory());
+                File upstreamTestSourceDir = new File(build.getTestSourceDirectory());
+                File upstreamTestOutputDir = new File(build.getTestOutputDirectory());
+                // resource directories
+                List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
+
+                Properties props = p.getProperties();
+
+                // true or false, returns false if property is null
+                boolean upstreamSkipTests = Boolean.parseBoolean(props.getProperty("skipTests"));
+                boolean upstreamSkipITs = Boolean.parseBoolean(props.getProperty("skipITs"));
+
+                // only force skipping unit test for ear modules otherwise honour existing skip
+                // test params
+                boolean upstreamSkipUTs = skipUTs;
+                if (p.getPackaging().equals("ear")) {
+                    upstreamSkipUTs = true;
+                }
+
+                UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
+                        testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
+                        upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
+                        upstreamSkipITs);
+                upstreamProjects.add(upstreamProject);
+            }
+        }
+        // skip unit tests for ear applications
+        if (isEar) {
+            skipUTs = true;
+        }
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
-                configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions, settings.getLocalRepository());
+                configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects);
         util.addShutdownHook(executor);
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
         List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
         List<String> testArtifactPaths = project.getTestClasspathElements();
-
-        if (hotTests && testSourceDirectory.exists()) {
-            // if hot testing, run tests on startup and then watch for
-            // keypresses
-            util.runTestThread(false, executor, -1, false, false);
-        } else {
-            // else watch for keypresses immediately
-            util.runHotkeyReaderThread(executor);
-        }
-
         // pom.xml
         File pom = project.getFile();
+
+        // start watching for keypresses immediately
+        util.runHotkeyReaderThread(executor);
 
         // Note that serverXmlFile can be null. DevUtil will automatically watch
         // all files in the configDirectory,
         // which is where the server.xml is located if a specific serverXmlFile
         // configuration parameter is not specified.
         try {
-            if (!upstreamMavenProjects.isEmpty()) {
-                Set<UpstreamProject> upstreamProjects = new HashSet<UpstreamProject>();
-                for (MavenProject p : upstreamMavenProjects) {
-                    List<String> compileArtifacts = new ArrayList<String>();
-                    Build build = p.getBuild();
-                    File upstreamSourceDir = new File(build.getSourceDirectory());
-                    File upstreamOutputDir = new File(build.getOutputDirectory());
-                    // resource directories
-                    List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
-
-                    UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(),
-                            compileArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamResourceDirs);
-                    upstreamProjects.add(upstreamProject);
-                }
+            if (!upstreamProjects.isEmpty()) {
                 // watch upstream projects for hot compilation if they exist
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, upstreamProjects);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             } else {
                 util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
-                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile, null);
+                        testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             }
         } catch (PluginScenarioException e) {
             if (e.getMessage() != null) {
@@ -953,8 +998,29 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private void runTestMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
-        Plugin plugin = getPlugin(groupId, artifactId);
+    private MavenProject resolveMavenProject(File buildFile) {
+        ProjectBuildingResult build;
+        MavenProject currentProject = project; // default to main project
+        try {
+            if (buildFile != null && !project.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                build = mavenProjectBuilder.build(buildFile,
+                        session.getProjectBuildingRequest().setResolveDependencies(true));
+                // if we can reesolve the project associated with build file, run IT tests on
+                // corresponding project
+                if (build.getProject() != null) {
+                    currentProject = build.getProject();
+                }
+            }
+        } catch (ProjectBuildingException | IOException e) {
+            log.error("An unexpected error occurred when trying to run integration tests for "
+                    + buildFile.getAbsolutePath() + ": " + e.getMessage());
+            log.debug(e);
+        }
+        return currentProject;
+    }
+
+    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject currentProject) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, currentProject);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
 
         if (goal.equals("test")) {
@@ -968,7 +1034,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
-                summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
+                summaryFile = new File(currentProject.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
                 log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
@@ -982,7 +1048,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Summary file doesn't exist");
             }
         } else if (goal.equals("failsafe-report-only")) {
-            Plugin failsafePlugin = getPlugin("org.apache.maven.plugins", "maven-failsafe-plugin");
+            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", currentProject);
             Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
@@ -1000,7 +1066,7 @@ public class DevMojo extends StartDebugMojoSupport {
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         } else if (goal.equals("report-only")) {
-            Plugin surefirePlugin = getPlugin("org.apache.maven.plugins", "maven-surefire-plugin");
+            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", currentProject);
             Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
@@ -1019,8 +1085,11 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(linkXRef);
         }
 
-        log.debug(groupId + ":" + artifactId + " " + goal + " configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session.clone(), pluginManager));
+        log.debug("POM file: " + currentProject.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
+                + " configuration:\n" + config);
+        MavenSession testSession = session.clone();
+        testSession.setCurrentProject(currentProject);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(currentProject, testSession, pluginManager));
     }
 
     /**
