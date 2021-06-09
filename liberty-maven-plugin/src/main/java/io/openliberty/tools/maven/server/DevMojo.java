@@ -501,7 +501,6 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
                 List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor) throws PluginExecutionException {
             ProjectBuildingResult build;
-            boolean redeployApp = false;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
@@ -528,11 +527,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (!deps.equals(oldDeps)) {
                         // detect compile dependency changes
                         if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
-                            redeployApp = true;
+                            runLibertyMojoDeploy();
                         }
-                    }
-                    if (redeployApp) {
-                        runLibertyMojoDeploy();
                     }
                 }
             } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
