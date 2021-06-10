@@ -876,11 +876,10 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // only force skipping unit test for ear modules otherwise honour existing skip
                 // test params
-                boolean upstreamSkipUTs = skipUTs;
+                boolean upstreamSkipUTs = Boolean.parseBoolean(props.getProperty("skipUTs"));
                 if (p.getPackaging().equals("ear")) {
                     upstreamSkipUTs = true;
                 }
-
                 UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
                         testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
