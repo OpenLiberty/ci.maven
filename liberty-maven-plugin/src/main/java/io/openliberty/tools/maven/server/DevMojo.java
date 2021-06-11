@@ -868,18 +868,30 @@ public class DevMojo extends StartDebugMojoSupport {
                 // resource directories
                 List<File> upstreamResourceDirs = getResourceDirectories(p, upstreamOutputDir);
 
+                // properties that are set in the pom file
                 Properties props = p.getProperties();
 
-                // true or false, returns false if property is null
-                boolean upstreamSkipTests = Boolean.parseBoolean(props.getProperty("skipTests"));
-                boolean upstreamSkipITs = Boolean.parseBoolean(props.getProperty("skipITs"));
+                // properties that are set by user via CLI parameters
+                Properties userProps = session.getUserProperties();
+
+                // CLI properties should always take precedence, otherwise use the values set in
+                // the pom file
+                boolean upstreamSkipTests = Boolean
+                        .parseBoolean(userProps.getProperty("skipTests") != null ? userProps.getProperty("skipTests")
+                                : props.getProperty("skipTests"));
+                boolean upstreamSkipITs = Boolean
+                        .parseBoolean(userProps.getProperty("skipITs") != null ? userProps.getProperty("skipITs")
+                                : props.getProperty("skipITs"));
+                boolean upstreamSkipUTs = Boolean
+                        .parseBoolean(userProps.getProperty("skipUTs") != null ? userProps.getProperty("skipUTs")
+                                : props.getProperty("skipUTs"));
 
                 // only force skipping unit test for ear modules otherwise honour existing skip
                 // test params
-                boolean upstreamSkipUTs = Boolean.parseBoolean(props.getProperty("skipUTs"));
                 if (p.getPackaging().equals("ear")) {
                     upstreamSkipUTs = true;
                 }
+
                 UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
                         testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
