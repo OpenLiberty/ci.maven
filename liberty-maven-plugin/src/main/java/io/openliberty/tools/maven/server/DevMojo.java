@@ -876,15 +876,15 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // CLI properties should always take precedence, otherwise use the values set in
                 // the pom file
-                boolean upstreamSkipTests = userProps.getProperty("skipTests") != null
-                        ? Boolean.parseBoolean(userProps.getProperty("skipTests"))
-                        : Boolean.parseBoolean(props.getProperty("skipTests"));
-                boolean upstreamSkipITs = userProps.getProperty("skipITs") != null
-                        ? Boolean.parseBoolean(userProps.getProperty("skipITs"))
-                        : Boolean.parseBoolean(props.getProperty("skipITs"));
-                boolean upstreamSkipUTs = userProps.getProperty("skipUTs") != null
-                        ? Boolean.parseBoolean(userProps.getProperty("skipUTs"))
-                        : Boolean.parseBoolean(props.getProperty("skipUTs"));
+                boolean upstreamSkipTests = Boolean
+                        .parseBoolean(userProps.getProperty("skipTests") != null ? userProps.getProperty("skipTests")
+                                : props.getProperty("skipTests"));
+                boolean upstreamSkipITs = Boolean
+                        .parseBoolean(userProps.getProperty("skipITs") != null ? userProps.getProperty("skipITs")
+                                : props.getProperty("skipITs"));
+                boolean upstreamSkipUTs = Boolean
+                        .parseBoolean(userProps.getProperty("skipUTs") != null ? userProps.getProperty("skipUTs")
+                                : props.getProperty("skipUTs"));
 
                 // only force skipping unit test for ear modules otherwise honour existing skip
                 // test params
