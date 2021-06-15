@@ -429,6 +429,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
             case "ear":
             case "war":
             case "liberty-assembly":
+            case "pom":
                 supported = true;
                 break;
             default:
