@@ -63,8 +63,31 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
-    protected void installApp(Artifact artifact) throws Exception {
+    private Artifact getMatchingClassifierArtifact() throws IOException {
+    	//TODO - check for multiple extensions?
+    	for (Artifact a : project.getAttachedArtifacts()) {
+    		String ext = project.getPackaging();
+    		if (a.hasClassifier() && a.getFile().getCanonicalPath().endsWith(ext)) {
+    			return a;
+    		}
+    	}
+    	return null;
+    }
+
+    protected void installApp(Artifact projectArtifact) throws Exception {
     
+        Artifact artifact = null;
+        
+        // If File not set, see if there is a matching classifier artifact attached
+        if (projectArtifact.getFile() == null) {
+        	artifact = getMatchingClassifierArtifact();
+        } 
+
+        // If nothing attached, proceed with main project artifact
+        if (artifact == null) {
+        	artifact = projectArtifact;
+        }
+
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
             String warName = getAppFileName(project);
             File f = new File(project.getBuild().getDirectory() + "/" + warName);
@@ -341,9 +364,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
         return getAppFileName(project) + ".xml";
     }
 
-    // get loose application configuration file name for project artifact
+    // get loose application file name for project artifact
     protected String getAppFileName(MavenProject project) {
         String name = project.getBuild().getFinalName() + "." + project.getPackaging();
+
         if (project.getPackaging().equals("liberty-assembly")) {
             name = project.getBuild().getFinalName() + ".war";
         }
