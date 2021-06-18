@@ -64,11 +64,14 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
     private Artifact getMatchingClassifierArtifact() throws IOException {
-    	//TODO - check for multiple extensions?
+    	//TODO - warning if there is a second match?
     	for (Artifact a : project.getAttachedArtifacts()) {
     		String ext = project.getPackaging();
-    		if (a.hasClassifier() && a.getFile().getCanonicalPath().endsWith(ext)) {
-    			return a;
+    		if (a.hasClassifier()) {
+    			String suffix = "-" + a.getClassifier() + "." + ext;
+    			if (a.getFile().getCanonicalPath().endsWith(suffix)) {
+    				return a;
+    			}
     		}
     	}
     	return null;
@@ -95,6 +98,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
 
         if (!artifact.getFile().exists()) {
+        	// Could be because this app uses a classifier and the ear:ear, war:war goal was not
+        	// run on this invocation 
+        	//    OR
+        	// For 
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
 
