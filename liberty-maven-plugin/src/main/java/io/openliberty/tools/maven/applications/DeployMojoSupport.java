@@ -63,45 +63,15 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
-    private Artifact getMatchingClassifierArtifact() throws IOException {
-    	//TODO - warning if there is a second match?
-    	for (Artifact a : project.getAttachedArtifacts()) {
-    		String ext = project.getPackaging();
-    		if (a.hasClassifier()) {
-    			String suffix = "-" + a.getClassifier() + "." + ext;
-    			if (a.getFile().getCanonicalPath().endsWith(suffix)) {
-    				return a;
-    			}
-    		}
-    	}
-    	return null;
-    }
-
-    protected void installApp(Artifact projectArtifact) throws Exception {
+    protected void installApp(Artifact artifact) throws Exception {
     
-        Artifact artifact = null;
-        
-        // If File not set, see if there is a matching classifier artifact attached
-        if (projectArtifact.getFile() == null) {
-        	artifact = getMatchingClassifierArtifact();
-        } 
-
-        // If nothing attached, proceed with main project artifact
-        if (artifact == null) {
-        	artifact = projectArtifact;
-        }
-
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getAppFileName(project);
-            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            String appFileName = getPreDeployAppFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + appFileName);
             artifact.setFile(f);
         }
 
         if (!artifact.getFile().exists()) {
-        	// Could be because this app uses a classifier and the ear:ear, war:war goal was not
-        	// run on this invocation 
-        	//    OR
-        	// For 
             throw new MojoExecutionException(messages.getString("error.install.app.missing"));
         }
 
@@ -368,19 +338,38 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     // get loose application configuration file name for project artifact
     protected String getLooseConfigFileName(MavenProject project) {
-        return getAppFileName(project) + ".xml";
+        return getPostDeployAppFileName(project) + ".xml";
     }
 
     // get loose application file name for project artifact
-    protected String getAppFileName(MavenProject project) {
-        String name = project.getBuild().getFinalName() + "." + project.getPackaging();
+    protected String getPostDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, true);
+    }
+    
+    // target ear/war produced by war:war, ear:ear, haven't stripped version yet
+    protected String getPreDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, false);
+    }
+    
+    protected String getAppFileName(MavenProject project, boolean stripVersionIfConfigured) {
 
-        if (project.getPackaging().equals("liberty-assembly")) {
-            name = project.getBuild().getFinalName() + ".war";
-        }
-        if (stripVersion) {
+        String name = project.getBuild().getFinalName();
+
+        if (stripVersionIfConfigured &&  stripVersion) {
             name = stripVersionFromName(name, project.getVersion());
         }
+
+        String classifier = MavenProjectUtil.getAppNameClassifier(project);
+        if (classifier != null) {
+            name += "-" + classifier;
+        } 
+
+        if (project.getPackaging().equals("liberty-assembly")) {
+            name += ".war";
+        } else {
+            name += "." + project.getPackaging();
+        }
+
         return name;
     }
 
