@@ -123,7 +123,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
         if (looseApplication) {
             undeployApp(new File(installDir, getLooseConfigFileName(project)));
         } else {
-            undeployApp(new File(installDir, getAppFileName(project)));
+            undeployApp(new File(installDir, getPostDeployAppFileName(project)));
         }
     }
 

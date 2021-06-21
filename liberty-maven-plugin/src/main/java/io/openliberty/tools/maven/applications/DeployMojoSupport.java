@@ -66,8 +66,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected void installApp(Artifact artifact) throws Exception {
     
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getAppFileName(project);
-            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            String appFileName = getPreDeployAppFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + appFileName);
             artifact.setFile(f);
         }
 
@@ -338,18 +338,38 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     // get loose application configuration file name for project artifact
     protected String getLooseConfigFileName(MavenProject project) {
-        return getAppFileName(project) + ".xml";
+        return getPostDeployAppFileName(project) + ".xml";
     }
 
-    // get loose application configuration file name for project artifact
-    protected String getAppFileName(MavenProject project) {
-        String name = project.getBuild().getFinalName() + "." + project.getPackaging();
-        if (project.getPackaging().equals("liberty-assembly")) {
-            name = project.getBuild().getFinalName() + ".war";
-        }
-        if (stripVersion) {
+    // get loose application file name for project artifact
+    protected String getPostDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, true);
+    }
+    
+    // target ear/war produced by war:war, ear:ear, haven't stripped version yet
+    protected String getPreDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, false);
+    }
+    
+    protected String getAppFileName(MavenProject project, boolean stripVersionIfConfigured) {
+
+        String name = project.getBuild().getFinalName();
+
+        if (stripVersionIfConfigured &&  stripVersion) {
             name = stripVersionFromName(name, project.getVersion());
         }
+
+        String classifier = MavenProjectUtil.getAppNameClassifier(project);
+        if (classifier != null) {
+            name += "-" + classifier;
+        } 
+
+        if (project.getPackaging().equals("liberty-assembly")) {
+            name += ".war";
+        } else {
+            name += "." + project.getPackaging();
+        }
+
         return name;
     }
 
