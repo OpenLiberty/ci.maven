@@ -852,12 +852,15 @@ public class DevMojo extends StartDebugMojoSupport {
         // resource directories
         List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
 
-        JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
+        JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
         // collect upstream projects
         List<UpstreamProject> upstreamProjects = new ArrayList<UpstreamProject>();
         if (!upstreamMavenProjects.isEmpty()) {
             for (MavenProject p : upstreamMavenProjects) {
+                // get compiler options for upstream project
+                JavaCompilerOptions upstreamCompilerOptions = getMavenCompilerOptions(p);
+
                 List<String> compileArtifacts = new ArrayList<String>();
                 List<String> testArtifacts = new ArrayList<String>();
                 Build build = p.getBuild();
@@ -895,7 +898,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
                         testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
-                        upstreamSkipITs);
+                        upstreamSkipITs, upstreamCompilerOptions);
                 upstreamProjects.add(upstreamProject);
             }
         }
@@ -941,31 +944,31 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private JavaCompilerOptions getMavenCompilerOptions() {
-        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+    private JavaCompilerOptions getMavenCompilerOptions(MavenProject currentProject) {
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
         Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", log);
         JavaCompilerOptions compilerOptions = new JavaCompilerOptions();
 
-        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings");
+        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings", currentProject);
         if (showWarnings != null) {
             boolean showWarningsBoolean = Boolean.parseBoolean(showWarnings);
             log.debug("Setting showWarnings to " + showWarningsBoolean);
             compilerOptions.setShowWarnings(showWarningsBoolean);
         }
 
-        String source = getCompilerOption(configuration, "source", "maven.compiler.source");
+        String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
         if (source != null) {
             log.debug("Setting compiler source to " + source);
             compilerOptions.setSource(source);
         }
 
-        String target = getCompilerOption(configuration, "target", "maven.compiler.target");
+        String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
         if (target != null) {
             log.debug("Setting compiler target to " + target);
             compilerOptions.setTarget(target);
         }
 
-        String release = getCompilerOption(configuration, "release", "maven.compiler.release");
+        String release = getCompilerOption(configuration, "release", "maven.compiler.release", currentProject);
         if (release != null) {
             log.debug("Setting compiler release to " + release);
             compilerOptions.setRelease(release);
@@ -985,9 +988,11 @@ public class DevMojo extends StartDebugMojoSupport {
      * @param projectPropertyName The project property name to look for, if the
      *                            mavenParameterName's parameter could not be found
      *                            in the plugin configuration.
+     * @param currentProject      The current Maven Project
      * @return The compiler option
      */
-    private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName) {
+    private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName,
+            MavenProject currentProject) {
         // Plugin configuration takes precedence over project property
         String option = null;
         if (configuration != null) {
@@ -997,7 +1002,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
         if (option == null) {
-            option = project.getProperties().getProperty(projectPropertyName);
+            option = currentProject.getProperties().getProperty(projectPropertyName);
         }
         return option;
     }
