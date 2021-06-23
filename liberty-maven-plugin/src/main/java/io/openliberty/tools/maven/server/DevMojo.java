@@ -996,8 +996,8 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Gets a compiler option's value from maven-compiler-plugin's configuration or
-     * project properties.
+     * Gets a compiler option's value from CLI paramaters, maven-compiler-plugin's
+     * configuration or project properties.
      * 
      * @param configuration       The maven-compiler-plugin's configuration from
      *                            pom.xml
@@ -1011,9 +1011,12 @@ public class DevMojo extends StartDebugMojoSupport {
      */
     private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName,
             MavenProject currentProject) {
-        // Plugin configuration takes precedence over project property
         String option = null;
-        if (configuration != null) {
+        // CLI parameter takes precedence over plugin configuration
+        option = session.getUserProperties().getProperty(projectPropertyName);
+
+        // Plugin configuration takes precedence over project property
+        if (option == null && configuration != null) {
             Xpp3Dom child = configuration.getChild(mavenParameterName);
             if (child != null) {
                 option = child.getValue();
