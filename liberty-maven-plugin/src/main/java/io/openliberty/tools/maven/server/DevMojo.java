@@ -499,12 +499,28 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor) throws PluginExecutionException {
+                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor)
+                throws PluginExecutionException {
             ProjectBuildingResult build;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
                 MavenProject upstreamProject = build.getProject();
+                MavenProject backupUpstreamProject = upstreamProject;
+                for (MavenProject p : upstreamMavenProjects) {
+                    if (buildFile != null && p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                        backupUpstreamProject = p;
+                    }
+                }
+
+                // TODO rebuild the corresponding module if the compiler options have changed
+                JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupUpstreamProject);
+                JavaCompilerOptions compilerOptions = getMavenCompilerOptions(upstreamProject);
+                if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
+                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    util.getUpstreamProject(buildFile).setCompilerOptions(compilerOptions);
+                }
+
                 testArtifactPaths.clear();
                 testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
                 compileArtifactPaths.clear();
@@ -512,12 +528,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // check if compile dependencies have changed and redeploy if they have
                 if (redeployCheck) {
-                    MavenProject backupUpstreamProject = upstreamProject;
-                    for (MavenProject p : upstreamMavenProjects) {
-                        if (buildFile != null && !p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
-                            backupUpstreamProject = p;
-                        }
-                    }
                     // update upstream Maven projects list
                     int index = upstreamMavenProjects.indexOf(backupUpstreamProject);
                     upstreamMavenProjects.set(index, upstreamProject);
@@ -572,6 +582,14 @@ public class DevMojo extends StartDebugMojoSupport {
             Plugin libertyPlugin = getLibertyPlugin();
 
             try {
+                // TODO rebuild the corresponding module if the compiler options have changed
+                JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupProject);
+                JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
+                if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
+                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    util.updateJavaCompilerOptions(compilerOptions);
+                }
+
                 // Monitoring liberty properties in the pom.xml
                 if (hasServerPropertyChanged(project, backupProject)) {
                     restartServer = true;
