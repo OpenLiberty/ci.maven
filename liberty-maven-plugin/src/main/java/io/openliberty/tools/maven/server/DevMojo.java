@@ -499,12 +499,28 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor) throws PluginExecutionException {
+                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor)
+                throws PluginExecutionException {
             ProjectBuildingResult build;
             try {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
                 MavenProject upstreamProject = build.getProject();
+                MavenProject backupUpstreamProject = upstreamProject;
+                for (MavenProject p : upstreamMavenProjects) {
+                    if (buildFile != null && p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
+                        backupUpstreamProject = p;
+                    }
+                }
+
+                // TODO rebuild the corresponding module if the compiler options have changed
+                JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupUpstreamProject);
+                JavaCompilerOptions compilerOptions = getMavenCompilerOptions(upstreamProject);
+                if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
+                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    util.getUpstreamProject(buildFile).setCompilerOptions(compilerOptions);
+                }
+
                 testArtifactPaths.clear();
                 testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
                 compileArtifactPaths.clear();
@@ -512,12 +528,6 @@ public class DevMojo extends StartDebugMojoSupport {
 
                 // check if compile dependencies have changed and redeploy if they have
                 if (redeployCheck) {
-                    MavenProject backupUpstreamProject = upstreamProject;
-                    for (MavenProject p : upstreamMavenProjects) {
-                        if (buildFile != null && !p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
-                            backupUpstreamProject = p;
-                        }
-                    }
                     // update upstream Maven projects list
                     int index = upstreamMavenProjects.indexOf(backupUpstreamProject);
                     upstreamMavenProjects.set(index, upstreamProject);
@@ -572,6 +582,14 @@ public class DevMojo extends StartDebugMojoSupport {
             Plugin libertyPlugin = getLibertyPlugin();
 
             try {
+                // TODO rebuild the corresponding module if the compiler options have changed
+                JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupProject);
+                JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
+                if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
+                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    util.updateJavaCompilerOptions(compilerOptions);
+                }
+
                 // Monitoring liberty properties in the pom.xml
                 if (hasServerPropertyChanged(project, backupProject)) {
                     restartServer = true;
@@ -852,12 +870,15 @@ public class DevMojo extends StartDebugMojoSupport {
         // resource directories
         List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
 
-        JavaCompilerOptions compilerOptions = getMavenCompilerOptions();
+        JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
         // collect upstream projects
         List<UpstreamProject> upstreamProjects = new ArrayList<UpstreamProject>();
         if (!upstreamMavenProjects.isEmpty()) {
             for (MavenProject p : upstreamMavenProjects) {
+                // get compiler options for upstream project
+                JavaCompilerOptions upstreamCompilerOptions = getMavenCompilerOptions(p);
+
                 List<String> compileArtifacts = new ArrayList<String>();
                 List<String> testArtifacts = new ArrayList<String>();
                 Build build = p.getBuild();
@@ -895,7 +916,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
                         testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
-                        upstreamSkipITs);
+                        upstreamSkipITs, upstreamCompilerOptions);
                 upstreamProjects.add(upstreamProject);
             }
         }
@@ -941,31 +962,31 @@ public class DevMojo extends StartDebugMojoSupport {
         }
     }
 
-    private JavaCompilerOptions getMavenCompilerOptions() {
-        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+    private JavaCompilerOptions getMavenCompilerOptions(MavenProject currentProject) {
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
         Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", log);
         JavaCompilerOptions compilerOptions = new JavaCompilerOptions();
 
-        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings");
+        String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings", currentProject);
         if (showWarnings != null) {
             boolean showWarningsBoolean = Boolean.parseBoolean(showWarnings);
             log.debug("Setting showWarnings to " + showWarningsBoolean);
             compilerOptions.setShowWarnings(showWarningsBoolean);
         }
 
-        String source = getCompilerOption(configuration, "source", "maven.compiler.source");
+        String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
         if (source != null) {
             log.debug("Setting compiler source to " + source);
             compilerOptions.setSource(source);
         }
 
-        String target = getCompilerOption(configuration, "target", "maven.compiler.target");
+        String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
         if (target != null) {
             log.debug("Setting compiler target to " + target);
             compilerOptions.setTarget(target);
         }
 
-        String release = getCompilerOption(configuration, "release", "maven.compiler.release");
+        String release = getCompilerOption(configuration, "release", "maven.compiler.release", currentProject);
         if (release != null) {
             log.debug("Setting compiler release to " + release);
             compilerOptions.setRelease(release);
@@ -975,8 +996,8 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Gets a compiler option's value from maven-compiler-plugin's configuration or
-     * project properties.
+     * Gets a compiler option's value from CLI paramaters, maven-compiler-plugin's
+     * configuration or project properties.
      * 
      * @param configuration       The maven-compiler-plugin's configuration from
      *                            pom.xml
@@ -985,19 +1006,24 @@ public class DevMojo extends StartDebugMojoSupport {
      * @param projectPropertyName The project property name to look for, if the
      *                            mavenParameterName's parameter could not be found
      *                            in the plugin configuration.
+     * @param currentProject      The current Maven Project
      * @return The compiler option
      */
-    private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName) {
-        // Plugin configuration takes precedence over project property
+    private String getCompilerOption(Xpp3Dom configuration, String mavenParameterName, String projectPropertyName,
+            MavenProject currentProject) {
         String option = null;
-        if (configuration != null) {
+        // CLI parameter takes precedence over plugin configuration
+        option = session.getUserProperties().getProperty(projectPropertyName);
+
+        // Plugin configuration takes precedence over project property
+        if (option == null && configuration != null) {
             Xpp3Dom child = configuration.getChild(mavenParameterName);
             if (child != null) {
                 option = child.getValue();
             }
         }
         if (option == null) {
-            option = project.getProperties().getProperty(projectPropertyName);
+            option = currentProject.getProperties().getProperty(projectPropertyName);
         }
         return option;
     }

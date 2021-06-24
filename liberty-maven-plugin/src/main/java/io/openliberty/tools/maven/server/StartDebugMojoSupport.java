@@ -198,14 +198,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * @return Plugin
      */
     protected Plugin getPlugin(String groupId, String artifactId) {
-        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
-        if (plugin == null) {
-            plugin = getPluginFromPluginManagement(groupId, artifactId);
-        }
-        if (plugin == null) {
-            plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
-        }
-        return plugin;
+       return getPluginForProject(groupId, artifactId, project);
     }
 
     /**
@@ -220,7 +213,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected Plugin getPluginForProject(String groupId, String artifactId, MavenProject currentProject) {
         Plugin plugin = currentProject.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
-            plugin = getPluginFromPluginManagement(groupId, artifactId);
+            plugin = getPluginFromPluginManagement(groupId, artifactId, currentProject);
         }
         if (plugin == null) {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
@@ -237,7 +230,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
         Plugin projectPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (projectPlugin == null) {
-            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, project);
         }
         if (projectPlugin == null) {
             projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
@@ -248,9 +241,9 @@ public class StartDebugMojoSupport extends BasicSupport {
         return projectPlugin;
     }
 
-    protected Plugin getPluginFromPluginManagement(String groupId, String artifactId) {
+    protected Plugin getPluginFromPluginManagement(String groupId, String artifactId, MavenProject currentProject) {
         Plugin retVal = null;
-        PluginManagement pm = project.getPluginManagement();
+        PluginManagement pm = currentProject.getPluginManagement();
         if (pm != null) {
             for (Plugin p : pm.getPlugins()) {
                 if (groupId.equals(p.getGroupId()) && artifactId.equals(p.getArtifactId())) {
