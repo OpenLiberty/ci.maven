@@ -28,6 +28,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
+
 public class DevTest extends BaseDevTest {
 
    @BeforeClass
@@ -208,4 +210,27 @@ public class DevTest extends BaseDevTest {
       assertTrue(systemHealthTarget.exists());
    }
 
+   @Test
+   public void mpVersionTest() throws Exception {
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpHealth-2.0"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.3"), 2);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.4"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.5"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.1"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.2"), 2);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.3"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.4"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.5"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.1"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.2"), 3);
+      // Error testing
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclientX-1.5"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient1.5"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.5a"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-10"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("Xmprestclient-1.0"), 0);
+   }
 }
