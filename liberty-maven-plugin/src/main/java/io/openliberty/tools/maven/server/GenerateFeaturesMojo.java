@@ -19,8 +19,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -28,6 +39,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.logging.Log;
 
 import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
@@ -88,16 +100,32 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         log.warn("maven dependencies that are VALID liberty features:"+visibleLibertyProjectDependencies);
 
         File newServerXml = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        log.warn("New server xml file:"+newServerXml+". Now to delete this file if it exists.");
-        newServerXml.delete(); // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
+        log.warn("New server xml file:"+newServerXml);
+        Path tempDir = null;
+        Path newServerXmlCopy = null;
+        // newServerXml.delete(); 
+        // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
 
         Map<String, File> libertyDirPropertyFiles;
         try {
+            tempDir = Files.createTempDirectory("liberty-plugin-added-features");
+            newServerXmlCopy = Files.move(newServerXml.toPath(), tempDir.resolve(newServerXml.getName()), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
+            log.warn("Deleting "+newServerXmlCopy);
+            log.warn("Deleting "+tempDir);
+            Files.delete(newServerXmlCopy); // delete the saved file
+            Files.delete(tempDir);
         } catch (IOException e) {
-            // TODO restore the xml file just deleted above
+            if (newServerXmlCopy != null) {
+                try {
+                    // restore the xml file just moved aside above
+                    Files.move(newServerXmlCopy, newServerXml.toPath());
+                } catch (IOException f) {
+                    log.debug("Exception trying to restore file: "+PLUGIN_ADDED_FEATURES_FILE+". "+f);
+                }
+            }
             log.debug("Exception reading the server property files", e);
-            log.error("Error attempting to generate server feature list. Ensure you can read the property files in the server installation directory.");
+            log.error("Error attempting to generate server feature list. Ensure your id has read permission to the property files in the server installation directory.");
             return;
         }
         Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
@@ -106,21 +134,50 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         Set<String> missingLibertyFeatures = getMissingLibertyFeatures(visibleLibertyProjectDependencies,
 				existingFeatures);
         log.warn("maven dependencies that are VALID liberty features but are missing from server.xml:"+missingLibertyFeatures);
-
-        // Create specialized server.xml
-        try {
-            ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
-            configDocument.createComment(HEADER);
-            for (String missing : missingLibertyFeatures) {
-                log.warn("adding missing feature:"+missing);
-                configDocument.createFeature(missing);
+        //
+        // Scan for features after processing the POM. POM features take priority over scannned features
+        Set<String> scannedFeatureList = runBinaryScannerReflect();
+        if (scannedFeatureList != null) {
+            // filter features 
+            Map<String, String> existingFeatureMap = new HashMap();
+            for (String existingFeature : existingFeatures) {
+                String[] nameAndVersion = getNameAndVersion(existingFeature);
+                existingFeatureMap.put(nameAndVersion[0], nameAndVersion[1]);
             }
-            configDocument.writeXMLDocument(newServerXml);
-            log.warn("Created file "+newServerXml);
-        } catch(ParserConfigurationException | TransformerException | IOException e) {
-            log.debug("Exception creating the server features file", e);
-            log.error("Error attempting to create the server feature file. Ensure you can write to the server installation directory.");
-            return;
+            for (String missingLibertyFeature : missingLibertyFeatures) {
+                String[] nameAndVersion = getNameAndVersion(missingLibertyFeature);
+                existingFeatureMap.put(nameAndVersion[0], nameAndVersion[1]);
+            }
+            for (String scannedFeature : scannedFeatureList) {
+                String[] scannedNameAndVersion = getNameAndVersion(scannedFeature);
+                String existingFeatureVersion = existingFeatureMap.get(scannedNameAndVersion[0]);
+                if (existingFeatureVersion != null) {
+                    if (existingFeatureVersion.compareTo(scannedNameAndVersion[1]) < 0) {
+                        log.warn(String.format("The binary scanner detected a dependency on %s but the project's POM or server.xml specified the dependency %s-%s.", scannedFeature, scannedNameAndVersion[0], existingFeatureVersion));
+                    }
+                } else {
+                    // scanned feature not found in server.xml or POM
+                    missingLibertyFeatures.add(scannedFeature);
+                    log.debug(String.format("Adding feature %s to server.xml because it was detected by binary scanner.", scannedFeature));
+                }
+            }
+        }
+        if (missingLibertyFeatures.size() > 0) {
+            // Create specialized server.xml
+            try {
+                ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
+                configDocument.createComment(HEADER);
+                for (String missing : missingLibertyFeatures) {
+                    log.debug(String.format("Adding missing feature %s to %s.", missing, PLUGIN_ADDED_FEATURES_FILE));
+                    configDocument.createFeature(missing);
+                }
+                configDocument.writeXMLDocument(newServerXml);
+                log.debug("Created file "+newServerXml);
+            } catch(ParserConfigurationException | TransformerException | IOException e) {
+                log.debug("Exception creating the server features file", e);
+                log.error("Error attempting to create the server feature file. Ensure your id has write permission to the server installation directory.");
+                return;
+            }
         }
     }
 
@@ -173,5 +230,296 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             return mavenDependency.getArtifactId();
         }
         return null;
+    }
+
+    private Set<String> runBinaryScannerReflect() {
+        log.warn("Run binary scanner using reflection");
+        // Add code to copy binaryAppScanner.jar from web address https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wamt/ApplicationBinaryTP/binaryAppScannerInstaller.jar
+        // to a known location locally. Possibly pick up jar from Maven Central.
+        File jarDir = project.getBasedir();
+        File binaryScanner = new File(jarDir, "../binaryAppScanner.jar");
+        if (binaryScanner.exists()) {
+            ClassLoader cl = this.getClass().getClassLoader();
+            try {
+                URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
+                Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
+                //Set<String> features = DriveScan.DriveScanMavenFeaureList(new String[] {"/Users/cjobinab@us.ibm.com/Downloads/demo-devmode/target/classes/"}, "ee8", "mp4", Locale.getDefault());
+                // args: String[], String, String, java.util.Locale  ...  new String[0].getClass()
+                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("DriveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
+                log.warn("new method, driveScanMavenFeaureList="+driveScanMavenFeaureList.getName()+" parameter count="+ driveScanMavenFeaureList.getParameterCount());
+                String[] directoryList = { project.getBuild().getDirectory() + "/classes" };
+                log.warn(" scanning directory "+ directoryList[0]);
+                String eeVersion = getEEVersion(project); 
+                String mpVersion = getMPVersion(project);
+                log.warn("eeVersion="+eeVersion+" mpVersion="+mpVersion);
+                log.debug("The following messages are from the application binary scanner used to generate Liberty features");
+                Set<String> featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, java.util.Locale.getDefault());
+                log.debug("End of messages from application binary scanner");
+                log.warn("runBinaryScannerReflect, Features recommended :");
+                for (String s : featureList) {log.warn(s);};
+                return featureList;
+            } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
+                // TODO Figure out what to do when there is a problem scanning the features
+                log.error("Exception:"+x.getClass().getName());
+                Object o = x.getCause();
+                if (o != null) {
+                    log.warn("Exception:"+x.getCause().getClass().getName());
+                    log.warn("Exception message:"+x.getCause().getMessage());
+                }
+                log.error(x.getMessage());
+            }
+            return null;
+        } else {
+            log.debug("Unable to load the binary scanner jar");
+            return null;
+        }
+    }
+
+    private String getEEVersion(MavenProject project) {
+        return "ee8"; // figure out if we need 7 or 9
+    }
+
+    public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
+        List<Dependency> dependencies = project.getDependencies();
+        int mpVersion = 0;
+        for (Dependency d : dependencies) {
+            if (!d.getScope().equals("provided")) {
+                continue;
+            }
+            if (d.getGroupId().equals("org.eclipse.microprofile") &&
+                d.getArtifactId().equals("microprofile")) {
+                String version = d.getVersion();
+                log.debug("dep=org.eclipse.microprofile:microprofile version="+version);
+                if (version.startsWith("1")) {
+                    return "mp1";
+                } else if (version.startsWith("2")) {
+                    return "mp2";
+                }
+                return "mp3"; // add support for future versions of MicroProfile here
+            }
+            if (d.getGroupId().equals("io.openliberty.features")) {
+                mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
+                log.debug("dep=io.openliberty.features:"+d.getArtifactId()+" mpVersion="+mpVersion);
+            }
+        }
+        if (mpVersion == 1) {
+            return "mp1";
+        } else if (mpVersion == 2) {
+            return "mp2";
+        }
+        return "mp3";
+    }
+
+    public static int getMPVersion(String shortName) {
+        final int MP_VERSIONS = 3; // number of version columns in table
+        String[][] mpComponents = {
+            // Name, MP1 version, MP2 version, MP3 version
+            { "mpconfig", "1.3", "1.3", "1.4" },
+            { "mpfaulttolerance", "1.1", "2.0", "2.1" },
+            { "mphealth", "1.0", "1.0", "2.2" },
+            { "mpjwt", "1.1", "1.1", "1.1" },
+            { "mpmetrics", "1.1", "1.1", "2.3" },
+            { "mpopenapi", "1.0", "1.1", "1.1" },
+            { "mpopentracing", "1.1", "1.3", "1.3" },
+            { "mprestclient", "1.1", "1.2", "1.4" },
+        };
+        if (shortName == null) {
+            return 0;
+        }
+        if (!shortName.startsWith("mp")) { // efficiency
+            return 0;
+        }
+        String[] nameAndVersion = getNameAndVersion(shortName);
+        if (nameAndVersion == null) {
+            return 0;
+        }
+        String name = nameAndVersion[0];
+        String version = nameAndVersion[1];
+        for (int i = 0; i < mpComponents.length; i++) {
+            if (mpComponents[i][0].equals(name)) {
+                for (int j = MP_VERSIONS; j >= 0; j--) { // use highest compatible version
+                    if (mpComponents[i][j].compareTo(version) < 0 ) {
+                        return (j == MP_VERSIONS) ? MP_VERSIONS : j+1; // in case of error just return max version
+                    }
+                    if (mpComponents[i][j].compareTo(version) == 0 ) {
+                        return j;
+                    }
+                }
+                return 1; // version specified is between 1.0 and max version number in MicroProfile 1.2
+            }
+        }
+        return 0; // the dependency name is not one of the Microprofile components
+    }
+
+    public static String[] getNameAndVersion(String featureName) {
+        if (featureName == null) {
+            return null;
+        }
+        String[] nameAndVersion = featureName.split("-", 2);
+        if (nameAndVersion.length != 2) {
+            return null;
+        }
+        if (nameAndVersion[1] == null) {
+            return null;
+        }
+        nameAndVersion[0] = nameAndVersion[0].toLowerCase();
+        if (nameAndVersion[1] == null || nameAndVersion[1].length() != 3) {
+            return null;
+        }
+        return nameAndVersion;
+    }
+
+    private void runBinaryScannerReflectStaticMain() {
+        log.warn("Run binary scanner using reflection");
+        log.warn("projectDirectory="+project.getBasedir());
+        // Add code to copy binaryAppScanner.jar from web address https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wamt/ApplicationBinaryTP/binaryAppScannerInstaller.jar
+        // to a known location locally. 
+        File jarDir = project.getBasedir();
+        File binaryScanner = new File(jarDir, "../binaryAppScanner.jar");
+        if (binaryScanner.exists()) {
+            ClassLoader cl = this.getClass().getClassLoader();
+            try {
+                URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
+                log.warn("new url class loader");
+                Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
+                java.lang.reflect.Method main = driveScan.getMethod("main", new String[0].getClass());
+                log.warn("new method, main="+main.getName()+" parameter count="+ main.getParameterCount());
+                ArrayList<String> args = new ArrayList<String>();
+                args.add(getAppName(project));
+                args.add("--generateConfig");
+                args.add("--targetJavaEE=ee8");
+                args.add("--hiddenJunitFlag"); // needed to avoid System.exit() in the scannner
+                for (String s : args) {log.warn(s);};
+                // String[] args = { "target/demo-devmode-maven.war", "--generateConfig", "--hiddenJunitFlag"}; // needed to avoid System.exit() in the scannner
+                log.info("The following messages are from the application binary scanner used to generate Liberty features");
+                main.invoke(null, (Object) args.toArray(new String[args.size()])); // static method, 1st arg null
+                log.info("End of messages from application binary scanner");
+
+            } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
+                // Figure out what to do when there is a problem generating the new server.xml
+                log.warn("Exception:"+x.getClass().getName());
+                Object o = x.getCause();
+                if (o != null) {
+                    log.warn("Exception:"+x.getCause().getClass().getName());
+                    log.warn("Exception message:"+x.getCause().getMessage());
+                }
+                log.warn(x.getMessage());
+            }
+        }
+    }
+
+    public static String getAppName(MavenProject project) {
+        String appJarName = project.getBuild().getDirectory() + "/";
+        if (project.getPackaging().equals("liberty-assembly")) {
+            appJarName += project.getBuild().getFinalName() + ".war";
+        } else {
+            appJarName += project.getBuild().getFinalName() + "." + project.getPackaging();
+        }
+        return appJarName;
+    }
+
+    private void runBinaryScannerNewJVM() throws InterruptedException, IOException {
+        log.warn("Run binary scanner");
+        log.warn("projectDirectory="+project.getBasedir());
+        // Add code to copy binaryAppScanner.jar from https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wamt/ApplicationBinaryTP/binaryAppScannerInstaller.jar
+        File jarDir = project.getBasedir();
+        File binaryScanner = new File(jarDir, "../binaryAppScanner.jar");
+        if (binaryScanner.exists()) {
+            log.warn("jar found");
+            String appJarName = getAppName(project);
+            log.warn("name="+appJarName);
+    
+            ArrayList<String> command = new ArrayList<String>();
+            command.add("java"); command.add("-jar");
+            command.add(binaryScanner.getCanonicalPath());
+            command.add(appJarName); command.add("--generateConfig");
+            command.add("--output="+serverDirectory.getCanonicalPath()+"/generated-server.xml");
+            // command.add(${FEATURE_GENERATOR_ENV_OPTIONS});
+            // String[] command = new String[] {
+            //     "java", "-jar", binaryScanner.getCanonicalPath(), 
+            //     appJarName, "--generateConfig",
+            //     "--output="+serverDirectory.getCanonicalPath()+"/generated-server.xml"
+            //     // add option to add more args to binary scanner here
+            // };
+            // /Users/paulg/WAS/devExperience/java-jdk8u292-b10/Contents/Home/jre
+            for (String s : command) {log.warn(s);};
+            Process p = getRunProcess(command.toArray(new String[command.size()]));
+            log.warn("process created");
+            int timeout = 20; // seconds
+            execCmdAndLog(p, log, timeout);
+            log.warn("command completed");
+        }
+    }
+
+    public static Process getRunProcess(String[] command) throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(command);
+        // add environment variables here before calling start.
+        return processBuilder.start();
+    }
+
+    public static void execCmdAndLog(final Process startingProcess, final Log log, int timeout) throws InterruptedException {
+        Thread logCopyInputThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                copyStreamToBuildLog(startingProcess.getInputStream(), log, true);
+            }
+        });
+        logCopyInputThread.start();
+
+        final StringBuilder firstErrorLine = new StringBuilder();
+        Thread logCopyErrorThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                firstErrorLine.append(copyStreamToBuildLog(startingProcess.getErrorStream(), log, true));
+            }
+        });
+        logCopyErrorThread.start();
+
+        if (timeout == 0) {
+            startingProcess.waitFor();
+        } else {
+            startingProcess.waitFor(timeout, TimeUnit.SECONDS);
+        }
+        if (startingProcess.exitValue() != 0) {
+            log.debug("Unexpected exit running command, return value=" + startingProcess.exitValue());
+            // show first message from standard err
+            String errorMessage = new String(firstErrorLine).trim() + " RC=" + startingProcess.exitValue();
+            throw new RuntimeException(errorMessage);
+        }
+    }
+    /**
+     * Copies the process output to the Maven/Gradle logs
+     * 
+     * @param stream The stream to copy
+     * @param log The logger to print in
+     * @param info If true, log as info. Else log as error.
+     * @throws RuntimeException if there was an error reading the process output
+     * @return The first line from the stream
+     */
+    public static String copyStreamToBuildLog(InputStream stream, Log log, boolean info) {
+        String firstLine = null;
+        BufferedReader inputReader = new BufferedReader(new InputStreamReader(stream));
+        try {
+            for (String line; (line = inputReader.readLine()) != null;) {
+                if (firstLine == null) {
+                    firstLine = line;
+                }
+                if (info) {
+                    log.info(line);
+                } else {
+                    log.error(line);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading process output: " + e.getMessage());
+        } finally {
+            try {
+                inputReader.close();
+            } catch (IOException e) {
+                // nothing to do
+            }
+        }
+        return firstLine;
     }
 }
