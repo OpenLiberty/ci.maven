@@ -457,7 +457,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         VersionRangeResult rangeResult = this.repositorySystem.resolveVersionRange(this.repoSession, rangeRequest);
         
         if (rangeResult == null || rangeResult.getHighestVersion() == null) {
-            throw new VersionRangeResolutionException(rangeResult, "Unable to resolve version range fram " + groupId
+            throw new VersionRangeResolutionException(rangeResult, "Unable to resolve version range from " + groupId
                     + ":" + artifactId + ":" + extension + ":" + version);
         }
         getLog().debug("Available versions: " + rangeResult.getVersions());
