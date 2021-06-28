@@ -794,6 +794,7 @@ public class DevMojo extends StartDebugMojoSupport {
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
                 if (isEar) {
@@ -807,6 +808,35 @@ public class DevMojo extends StartDebugMojoSupport {
             } else {
                 // get all upstream projects
                 upstreamMavenProjects.addAll(graph.getUpstreamProjects(project, true));
+            }
+
+            // If there was a previous module without downstream projects, assume dev mode already ran.
+            // Then if THIS module is a top-level multi module pom that includes that other module, skip THIS module.
+            List<MavenProject> allReactorProjects = graph.getAllProjects();
+            MavenProject mostDownstreamModule = null;
+            for (MavenProject reactorProject : allReactorProjects) {
+                if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
+                    mostDownstreamModule = reactorProject;
+                    break;
+                }
+                // Stop if reach the current module in Reactor build order
+                if (reactorProject.equals(project)) {
+                    break;
+                }
+            }
+            log.debug("Module without downstream dependencies: " + mostDownstreamModule);
+            if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
+                log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies.");
+                List<String> multiModules = project.getModules();
+                if (multiModules != null) {
+                    for (String module : multiModules) {
+                        // If this multi module pom contains the previous module which does not have downstream dependencies
+                        if (new File(project.getBasedir(), module).equals(mostDownstreamModule.getBasedir())) {
+                            log.debug("Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping dev goal on this module.");
+                            return;
+                        }
+                    }
+                }
             }
         }
 
