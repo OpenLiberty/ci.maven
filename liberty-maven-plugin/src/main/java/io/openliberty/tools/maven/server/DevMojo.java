@@ -793,6 +793,11 @@ public class DevMojo extends StartDebugMojoSupport {
         List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
+            if (hasMultipleLibertyModules(graph)) {
+                // skip all modules
+                return;
+            }
+
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
 
             if (!downstreamProjects.isEmpty()) {
@@ -810,7 +815,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 upstreamMavenProjects.addAll(graph.getUpstreamProjects(project, true));
             }
 
-            if (containsPreviousDownstreamModule(graph)) {
+            if (containsPreviousLibertyModule(graph)) {
+                // skip this module
                 return;
             }
         }

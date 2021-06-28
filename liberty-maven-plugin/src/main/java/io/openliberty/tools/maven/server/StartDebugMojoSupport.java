@@ -35,6 +35,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +57,7 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -851,6 +853,61 @@ public class StartDebugMojoSupport extends BasicSupport {
         return configFilesCopied;
     }
 
+    protected boolean hasMultipleLibertyModules(ProjectDependencyGraph graph) {
+        List<MavenProject> allReactorProjects = graph.getAllProjects();
+        Set<MavenProject> conflicts = new HashSet<MavenProject>();
+
+        // We define a leaf as a module without any downstream modules depending on it.
+        List<MavenProject> leaves = new ArrayList<MavenProject>();
+        for (MavenProject reactorProject : allReactorProjects) {
+            if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
+                leaves.add(reactorProject);
+            }
+        }
+
+        // We define a conflict as multiple leaves that are not submodules of each other.
+        // For example, if the Reactor tree looks like:
+        // - ear
+        //   - war
+        //     - jar
+        // - jar2
+        // - pom
+        // Then ear and jar2 conflict with each other, but pom does not conflict because ear and jar2 are sub-modules of it
+        for (MavenProject leaf1 : leaves) {
+            for (MavenProject leaf2 : leaves) {
+                if (leaf1 != leaf2 && !(isSubModule(leaf2, leaf1) || isSubModule(leaf1, leaf2))) {
+                    conflicts.add(leaf2);
+                    conflicts.add(leaf1);
+                }
+            }
+        }
+
+        List<String> conflictModuleDirs = new ArrayList<String>();
+        for (MavenProject conflict : conflicts) {
+            conflictModuleDirs.add(conflict.getBasedir().getAbsolutePath());
+        }
+        log.info("Found multiple separate downstream modules in the Reactor build order: " + conflictModuleDirs);
+        log.info("Specify the module containing Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+
+        return !conflicts.isEmpty();
+    }
+
+    /**
+     * Returns whether potentialTopModule is a multi module project that has potentialSubModule as one of its sub-modules.
+     */
+    private static boolean isSubModule(MavenProject potentialTopModule, MavenProject potentialSubModule) {
+        List<String> multiModules = potentialTopModule.getModules();
+        if (multiModules != null) {
+            for (String module : multiModules) {
+                File subModuleDir = new File(potentialTopModule.getBasedir(), module);
+                if (subModuleDir.equals(potentialSubModule.getBasedir())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * If there was a previous module without downstream projects, assume Liberty
      * already ran. Then if THIS module is a top-level multi module pom that
@@ -859,7 +916,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      * @param graph The project dependency graph containing Reactor build order
      * @return Whether this module should be skipped
      */
-    protected boolean containsPreviousDownstreamModule(ProjectDependencyGraph graph) {
+    protected boolean containsPreviousLibertyModule(ProjectDependencyGraph graph) {
         List<MavenProject> allReactorProjects = graph.getAllProjects();
         MavenProject mostDownstreamModule = null;
         for (MavenProject reactorProject : allReactorProjects) {
@@ -874,17 +931,10 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
         if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
             log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies: " + mostDownstreamModule);
-            List<String> multiModules = project.getModules();
-            if (multiModules != null) {
-                for (String module : multiModules) {
-                    // If this multi module pom contains the previous module which does not have
-                    // downstream dependencies
-                    if (new File(project.getBasedir(), module).equals(mostDownstreamModule.getBasedir())) {
-                        log.debug(
-                                "Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping goal on this module.");
-                        return true;
-                    }
-                }
+            if (isSubModule(project, mostDownstreamModule)) {
+                log.debug(
+                        "Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping goal on this module.");
+                return true;
             }
         }
         return false;
