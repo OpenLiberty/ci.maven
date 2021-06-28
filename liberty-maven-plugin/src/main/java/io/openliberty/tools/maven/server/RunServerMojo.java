@@ -62,6 +62,12 @@ public class RunServerMojo extends PluginConfigSupport {
                 log.debug("Downstream projects: " + downstreamProjects);
                 skipRunServer = true;
             }
+
+            if (containsPreviousDownstreamModule(graph)) {
+                // Assuming Liberty already ran on a previous module without downstream
+                // dependencies, return immediately.
+                return;
+            }
         }
 
         // Proceed to build this module (regardless of whether Liberty will run on it afterwards)

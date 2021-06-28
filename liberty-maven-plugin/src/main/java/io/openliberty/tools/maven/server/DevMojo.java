@@ -794,6 +794,7 @@ public class DevMojo extends StartDebugMojoSupport {
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
                 if (isEar) {
@@ -807,6 +808,10 @@ public class DevMojo extends StartDebugMojoSupport {
             } else {
                 // get all upstream projects
                 upstreamMavenProjects.addAll(graph.getUpstreamProjects(project, true));
+            }
+
+            if (containsPreviousDownstreamModule(graph)) {
+                return;
             }
         }
 
