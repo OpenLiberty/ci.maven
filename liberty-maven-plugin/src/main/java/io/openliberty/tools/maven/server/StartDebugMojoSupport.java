@@ -863,18 +863,17 @@ public class StartDebugMojoSupport extends BasicSupport {
         List<MavenProject> allReactorProjects = graph.getAllProjects();
         MavenProject mostDownstreamModule = null;
         for (MavenProject reactorProject : allReactorProjects) {
+            // Stop if reached the current module in Reactor build order
+            if (reactorProject.equals(project)) {
+                break;
+            }
             if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
                 mostDownstreamModule = reactorProject;
                 break;
             }
-            // Stop if reach the current module in Reactor build order
-            if (reactorProject.equals(project)) {
-                break;
-            }
         }
-        log.debug("Module without downstream dependencies: " + mostDownstreamModule);
         if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
-            log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies.");
+            log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies: " + mostDownstreamModule);
             List<String> multiModules = project.getModules();
             if (multiModules != null) {
                 for (String module : multiModules) {
