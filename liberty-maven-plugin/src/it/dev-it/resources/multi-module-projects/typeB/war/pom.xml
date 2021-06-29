@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>SUB_VERSION</version>
+                <version>3.3.1</version>
                 <configuration>
                     <modules>
                         <jarModule>
@@ -91,7 +91,7 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>SUB_VERSION</version>
+                <version>3.3.1</version>
             </plugin>
 
             <!-- Since the package type is ear,
