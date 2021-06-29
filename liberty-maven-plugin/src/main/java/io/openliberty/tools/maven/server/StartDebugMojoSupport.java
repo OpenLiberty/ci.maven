@@ -35,7 +35,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,7 +57,6 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -870,7 +869,7 @@ public class StartDebugMojoSupport extends BasicSupport {
      */
     protected void checkMultiModuleConflicts(ProjectDependencyGraph graph) throws MojoExecutionException {
         List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
-        Set<MavenProject> conflicts = new HashSet<MavenProject>();
+        Set<MavenProject> conflicts = new LinkedHashSet<MavenProject>(); // keeps the order of items added in
 
         // a leaf here is a module without any downstream modules depending on it
         List<MavenProject> leaves = new ArrayList<MavenProject>();
@@ -883,23 +882,23 @@ public class StartDebugMojoSupport extends BasicSupport {
         for (MavenProject leaf1 : leaves) {
             for (MavenProject leaf2 : leaves) {
                 if (leaf1 != leaf2 && !(isSubModule(leaf2, leaf1) || isSubModule(leaf1, leaf2))) {
-                    conflicts.add(leaf2);
                     conflicts.add(leaf1);
+                    conflicts.add(leaf2);
                 }
             }
         }
 
-        List<String> conflictModuleDirs = new ArrayList<String>();
+        List<String> conflictModuleRelativeDirs = new ArrayList<String>();
         for (MavenProject conflict : conflicts) {
-            // TODO make these relative to the top level multi module project directory
-            conflictModuleDirs.add(conflict.getBasedir().getAbsolutePath());
+            // make the module path relative to the multi module project directory
+            conflictModuleRelativeDirs.add(multiModuleProjectDirectory.toPath().relativize(conflict.getBasedir().toPath()).toString());
         }
 
         boolean hasMultipleLibertyModules = !conflicts.isEmpty();
 
         if (hasMultipleLibertyModules) {
             throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
-                    + conflictModuleDirs
+                    + conflictModuleRelativeDirs
                     + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
         }
     }
@@ -912,8 +911,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (multiModules != null) {
             for (String module : multiModules) {
                 File subModuleDir = new File(potentialTopModule.getBasedir(), module);
-                if (subModuleDir.equals(potentialSubModule.getBasedir())) {
-                    return true;
+                try {
+                    if (subModuleDir.getCanonicalFile().equals(potentialSubModule.getBasedir().getCanonicalFile())) {
+                        return true;
+                    }    
+                } catch (IOException e) {
+                    if (subModuleDir.getAbsoluteFile().equals(potentialSubModule.getBasedir().getAbsoluteFile())) {
+                        return true;
+                    }   
                 }
             }
         }
