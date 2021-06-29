@@ -61,14 +61,14 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
    }
 
-   public void manualTestsInvocationTest() throws Exception {
+   public void manualTestsInvocationTest(String libertyModuleArtifactId) throws Exception {
       assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
 
       writer.write("\n");
       writer.flush();
 
-      assertTrue(verifyLogMessageExists(".*Unit tests .* finished.", 10000));
-      assertTrue(verifyLogMessageExists(".*Integration tests .* finished.", 2000));
+      assertTrue(verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
+      assertTrue(verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
 
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment", verifyLogMessageExists("CWWKM2179W", 2000));
    }

@@ -213,7 +213,7 @@ public class BaseDevTest {
       String line = br.readLine();
       try {
          while (line != null) {
-            if (line.contains(str) || line.matches(str)) {
+            if (line.contains(str)) {
                return true;
             }
             line = br.readLine();

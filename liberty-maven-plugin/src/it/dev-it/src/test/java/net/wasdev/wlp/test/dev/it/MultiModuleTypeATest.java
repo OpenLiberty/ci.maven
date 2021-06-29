@@ -39,7 +39,7 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      super.manualTestsInvocationTest();
+      super.manualTestsInvocationTest("guide-maven-multimodules-ear");
    }
 
 }
