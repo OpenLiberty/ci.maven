@@ -57,15 +57,16 @@ public class RunServerMojo extends PluginConfigSupport {
         boolean skipRunServer = false;
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
+            checkMultiModuleConflicts(graph);
+
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
                 skipRunServer = true;
             }
 
-            if (containsPreviousDownstreamModule(graph)) {
-                // Assuming Liberty already ran on a previous module without downstream
-                // dependencies, return immediately.
+            if (containsPreviousLibertyModule(graph)) {
+                // skip this module
                 return;
             }
         }
