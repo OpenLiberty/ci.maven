@@ -34,11 +34,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -151,7 +154,7 @@ public class BaseDevTest {
 
       // check that the server has started
       Thread.sleep(5000);
-      assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       }
@@ -163,6 +166,35 @@ public class BaseDevTest {
          targetDir = new File(new File(tempProj, customLibertyModule), "target");
       }
       assertTrue(targetDir.exists());
+   }
+
+   protected static String getLogTail() throws IOException {
+      int numLines = 100;
+      ReversedLinesFileReader object = null;
+      try {
+         object = new ReversedLinesFileReader(logFile, StandardCharsets.UTF_8);
+         List<String> reversedLines = new ArrayList<String>();
+
+         for (int i = 0; i < numLines; i++) {
+            String line = object.readLine();
+            if (line == null) {
+               break;
+            }
+            reversedLines.add(line);
+         }
+         StringBuilder result = new StringBuilder();
+         for (int i = reversedLines.size() - 1; i >=0; i--) {
+            result.append(reversedLines.get(i) + "\n");
+         }
+         return "Last "+numLines+" lines of log:\n" + 
+            "===================== START =======================\n" + 
+            result.toString() +
+            "====================== END ========================\n";
+      } finally {
+         if (object != null) {
+            object.close();
+         }
+      }
    }
 
    protected static void cleanUpAfterClass() throws Exception {
@@ -260,7 +292,6 @@ public class BaseDevTest {
    protected static void replaceString(String str, String replacement, File file) throws IOException {
       Path path = file.toPath();
       Charset charset = StandardCharsets.UTF_8;
-
       String content = new String(Files.readAllBytes(path), charset);
 
       content = content.replaceAll(str, replacement);
