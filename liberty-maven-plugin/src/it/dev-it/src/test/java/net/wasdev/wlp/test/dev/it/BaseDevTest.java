@@ -50,6 +50,8 @@ public class BaseDevTest {
 
    static boolean startProcessDuringSetup = true;
    static String libertyConfigModule;
+   static String pomModule;
+
    static File tempProj;
    static File basicDevProj;
    static File logFile;
@@ -84,7 +86,11 @@ public class BaseDevTest {
       logFile = new File(basicDevProj, "logFile.txt");
       assertTrue(logFile.createNewFile());
 
-      pom = new File(tempProj, "pom.xml");
+      if (pomModule == null) {
+         pom = new File(tempProj, "pom.xml");
+      } else {
+         pom = new File(new File(tempProj, pomModule), "pom.xml");
+      }
       assertTrue(pom.exists());
 
       replaceVersion();
@@ -115,6 +121,9 @@ public class BaseDevTest {
 
       builder.redirectOutput(logFile);
       builder.redirectError(logFile);
+      if (pomModule != null) {
+         builder.directory(new File(tempProj, pomModule));
+      }
       process = builder.start();
       assertTrue(process.isAlive());
 

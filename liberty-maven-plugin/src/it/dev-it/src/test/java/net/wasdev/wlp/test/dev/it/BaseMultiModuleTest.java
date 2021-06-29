@@ -29,21 +29,22 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MultiModuleTest extends BaseDevTest {
+public class BaseMultiModuleTest extends BaseDevTest {
 
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
+   public static void setUpMultiModule(String testcaseFolder, String libertyModule) throws Exception {
       startProcessDuringSetup = false;
 
-      setUpBeforeClass(null, "../resources/multi-module-projects/typeA");
-      libertyConfigModule = "ear";
+      setUpBeforeClass(null, "../resources/multi-module-projects/" + testcaseFolder);
+      libertyConfigModule = libertyModule;
 
       optionalReplaceVersion(tempProj);
       optionalReplaceVersion(new File(tempProj, "pom"));
       optionalReplaceVersion(new File(tempProj, "ear"));
       optionalReplaceVersion(new File(tempProj, "war"));
       optionalReplaceVersion(new File(tempProj, "war2"));
+   }
 
+   protected static void run() throws Exception {
       startProcess(null, true, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
    }
 
@@ -63,7 +64,6 @@ public class MultiModuleTest extends BaseDevTest {
       }
    }
 
-   @Test
    public void manualTestsInvocationTest() throws Exception {
       assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
 
