@@ -67,7 +67,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
       writer.write("\n");
       writer.flush();
 
-      assertTrue(verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
+      if (!libertyModuleArtifactId.endsWith("ear")) {
+         assertTrue(verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
+      }
       assertTrue(verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
 
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment", verifyLogMessageExists("CWWKM2179W", 2000));
