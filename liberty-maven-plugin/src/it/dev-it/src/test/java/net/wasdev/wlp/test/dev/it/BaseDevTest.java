@@ -48,6 +48,8 @@ import org.junit.Test;
 
 public class BaseDevTest {
 
+   static boolean startProcessDuringSetup = true;
+   static String libertyConfigModule;
    static File tempProj;
    static File basicDevProj;
    static File logFile;
@@ -87,10 +89,16 @@ public class BaseDevTest {
 
       replaceVersion();
 
-      startProcess(params, isDevMode);
+      if (startProcessDuringSetup) {
+         startProcess(params, isDevMode);
+      }
    }
 
-   private static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+   protected static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      startProcess(params, isDevMode, "mvn liberty:");
+   }
+
+   protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
       String goal;
       if(isDevMode) {
@@ -99,7 +107,7 @@ public class BaseDevTest {
          goal = "run";
       }
 
-      StringBuilder command = new StringBuilder("mvn liberty:" + goal);
+      StringBuilder command = new StringBuilder(mavenPluginCommand + goal);
       if (params != null) {
          command.append(" " + params);
       }
@@ -122,7 +130,11 @@ public class BaseDevTest {
       }
 
       // verify that the target directory was created
-      targetDir = new File(tempProj, "target");
+      if (libertyConfigModule == null) {
+         targetDir = new File(tempProj, "target");
+      } else {
+         targetDir = new File(new File(tempProj, libertyConfigModule), "target");
+      }
       assertTrue(targetDir.exists());
    }
 
@@ -187,7 +199,7 @@ public class BaseDevTest {
       String line = br.readLine();
       try {
          while (line != null) {
-            if (line.contains(str)) {
+            if (line.contains(str) || line.matches(str)) {
                return true;
             }
             line = br.readLine();
@@ -241,4 +253,5 @@ public class BaseDevTest {
       }
       return false;
    }
+   
 }
