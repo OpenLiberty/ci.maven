@@ -49,7 +49,7 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3.5-SNAPSHOT</version>
+                <version>SUB_VERSION</version>
                 <extensions>true</extensions>
                 <configuration>
                     <deployPackages>dependencies</deployPackages>

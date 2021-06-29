@@ -42,7 +42,7 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3.3</version>
+                <version>SUB_VERSION</version>
                 <extensions>true</extensions>
                 <configuration>
                     <looseApplication>true</looseApplication>

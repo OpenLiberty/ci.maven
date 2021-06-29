@@ -72,7 +72,7 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>SUB_VERSION</version>
             </plugin>
 
             <!-- Since the package type is ear,
