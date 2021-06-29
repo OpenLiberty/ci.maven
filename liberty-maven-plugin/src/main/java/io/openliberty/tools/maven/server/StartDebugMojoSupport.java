@@ -853,26 +853,33 @@ public class StartDebugMojoSupport extends BasicSupport {
         return configFilesCopied;
     }
 
-    protected boolean hasMultipleLibertyModules(ProjectDependencyGraph graph) {
-        List<MavenProject> allReactorProjects = graph.getAllProjects();
+    /*-
+     * Check the Reactor build order for multi module conflicts.
+     * 
+     * A conflict is multiple modules that do not have downstream modules depending on them, and are not submodules of each other.
+     * For example, if the Reactor tree looks like:
+     *   - ear
+     *     - war
+     *        - jar
+     *   - jar2
+     *   - pom (top level multi module pom.xml containing ear, war, jar, jar2 as modules)
+     * Then ear and jar2 conflict with each other, but pom does not conflict because ear and jar2 are sub-modules of it.
+     * 
+     * @param graph The project dependency graph
+     * @throws MojoExecutionException If there are multiple modules that conflict
+     */
+    protected void checkMultiModuleConflicts(ProjectDependencyGraph graph) throws MojoExecutionException {
+        List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
         Set<MavenProject> conflicts = new HashSet<MavenProject>();
 
-        // We define a leaf as a module without any downstream modules depending on it.
+        // a leaf here is a module without any downstream modules depending on it
         List<MavenProject> leaves = new ArrayList<MavenProject>();
-        for (MavenProject reactorProject : allReactorProjects) {
+        for (MavenProject reactorProject : sortedReactorProjects) {
             if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
                 leaves.add(reactorProject);
             }
         }
 
-        // We define a conflict as multiple leaves that are not submodules of each other.
-        // For example, if the Reactor tree looks like:
-        // - ear
-        //   - war
-        //     - jar
-        // - jar2
-        // - pom
-        // Then ear and jar2 conflict with each other, but pom does not conflict because ear and jar2 are sub-modules of it
         for (MavenProject leaf1 : leaves) {
             for (MavenProject leaf2 : leaves) {
                 if (leaf1 != leaf2 && !(isSubModule(leaf2, leaf1) || isSubModule(leaf1, leaf2))) {
@@ -884,12 +891,17 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         List<String> conflictModuleDirs = new ArrayList<String>();
         for (MavenProject conflict : conflicts) {
+            // TODO make these relative to the top level multi module project directory
             conflictModuleDirs.add(conflict.getBasedir().getAbsolutePath());
         }
-        log.info("Found multiple separate downstream modules in the Reactor build order: " + conflictModuleDirs);
-        log.info("Specify the module containing Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
 
-        return !conflicts.isEmpty();
+        boolean hasMultipleLibertyModules = !conflicts.isEmpty();
+
+        if (hasMultipleLibertyModules) {
+            throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
+                    + conflictModuleDirs
+                    + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+        }
     }
 
     /**
@@ -917,9 +929,9 @@ public class StartDebugMojoSupport extends BasicSupport {
      * @return Whether this module should be skipped
      */
     protected boolean containsPreviousLibertyModule(ProjectDependencyGraph graph) {
-        List<MavenProject> allReactorProjects = graph.getAllProjects();
+        List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
         MavenProject mostDownstreamModule = null;
-        for (MavenProject reactorProject : allReactorProjects) {
+        for (MavenProject reactorProject : sortedReactorProjects) {
             // Stop if reached the current module in Reactor build order
             if (reactorProject.equals(project)) {
                 break;

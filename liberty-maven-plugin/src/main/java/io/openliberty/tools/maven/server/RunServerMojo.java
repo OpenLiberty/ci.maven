@@ -57,10 +57,7 @@ public class RunServerMojo extends PluginConfigSupport {
         boolean skipRunServer = false;
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
-            if (hasMultipleLibertyModules(graph)) {
-                // skip all modules
-                return;
-            }
+            checkMultiModuleConflicts(graph);
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {

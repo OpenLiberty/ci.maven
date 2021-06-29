@@ -793,10 +793,7 @@ public class DevMojo extends StartDebugMojoSupport {
         List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
-            if (hasMultipleLibertyModules(graph)) {
-                // skip all modules
-                return;
-            }
+            checkMultiModuleConflicts(graph);
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
 
