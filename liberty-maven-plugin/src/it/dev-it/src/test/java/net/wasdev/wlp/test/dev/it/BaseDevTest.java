@@ -48,10 +48,8 @@ import org.junit.Test;
 
 public class BaseDevTest {
 
-   static boolean startProcessDuringSetup = true;
-   static String libertyConfigModule;
-   static String pomModule;
-
+   static String customLibertyModule;
+   static String customPomModule;
    static File tempProj;
    static File basicDevProj;
    static File logFile;
@@ -73,6 +71,13 @@ public class BaseDevTest {
    }
 
    protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(params, projectRoot, isDevMode, true, null, null);
+   }
+
+   protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode, boolean startProcessDuringSetup, String libertyConfigModule, String pomModule) throws IOException, InterruptedException, FileNotFoundException {
+      customLibertyModule = libertyConfigModule;
+      customPomModule = pomModule;
+
       basicDevProj = new File(projectRoot);
 
       tempProj = Files.createTempDirectory("temp").toFile();
@@ -86,10 +91,10 @@ public class BaseDevTest {
       logFile = new File(basicDevProj, "logFile.txt");
       assertTrue(logFile.createNewFile());
 
-      if (pomModule == null) {
+      if (customPomModule == null) {
          pom = new File(tempProj, "pom.xml");
       } else {
-         pom = new File(new File(tempProj, pomModule), "pom.xml");
+         pom = new File(new File(tempProj, customPomModule), "pom.xml");
       }
       assertTrue(pom.exists());
 
@@ -121,8 +126,8 @@ public class BaseDevTest {
 
       builder.redirectOutput(logFile);
       builder.redirectError(logFile);
-      if (pomModule != null) {
-         builder.directory(new File(tempProj, pomModule));
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
       }
       process = builder.start();
       assertTrue(process.isAlive());
@@ -139,10 +144,10 @@ public class BaseDevTest {
       }
 
       // verify that the target directory was created
-      if (libertyConfigModule == null) {
+      if (customLibertyModule == null) {
          targetDir = new File(tempProj, "target");
       } else {
-         targetDir = new File(new File(tempProj, libertyConfigModule), "target");
+         targetDir = new File(new File(tempProj, customLibertyModule), "target");
       }
       assertTrue(targetDir.exists());
    }

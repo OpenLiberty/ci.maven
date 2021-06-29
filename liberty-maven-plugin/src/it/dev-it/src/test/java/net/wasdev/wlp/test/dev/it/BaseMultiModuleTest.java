@@ -31,11 +31,8 @@ import org.junit.Test;
 
 public class BaseMultiModuleTest extends BaseDevTest {
 
-   public static void setUpMultiModule(String testcaseFolder, String libertyModule) throws Exception {
-      startProcessDuringSetup = false;
-
-      setUpBeforeClass(null, "../resources/multi-module-projects/" + testcaseFolder);
-      libertyConfigModule = libertyModule;
+   public static void setUpMultiModule(String testcaseFolder, String libertyModule, String pomModule) throws Exception {
+      setUpBeforeClass(null, "../resources/multi-module-projects/" + testcaseFolder, true, false, libertyModule, pomModule);
 
       optionalReplaceVersion(tempProj);
       optionalReplaceVersion(new File(tempProj, "pom"));

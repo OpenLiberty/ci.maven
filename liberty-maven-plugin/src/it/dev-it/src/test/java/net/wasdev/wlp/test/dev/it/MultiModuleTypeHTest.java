@@ -33,8 +33,7 @@ public class MultiModuleTypeHTest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      pomModule = "pom";
-      setUpMultiModule("typeH", "pom");
+      setUpMultiModule("typeH", "pom", "pom");
       run();
    }
 

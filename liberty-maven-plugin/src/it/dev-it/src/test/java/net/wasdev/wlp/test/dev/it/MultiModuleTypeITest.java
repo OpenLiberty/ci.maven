@@ -33,7 +33,7 @@ public class MultiModuleTypeITest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpMultiModule("typeI", "ear");
+      setUpMultiModule("typeI", "ear", null);
       run();
    }
 
