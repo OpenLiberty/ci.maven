@@ -42,7 +42,11 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    protected static void run() throws Exception {
-      startProcess(null, true, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
+      run(true);
+   }
+
+   protected static void run(boolean devMode) throws Exception {
+      startProcess(null, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
    }
 
    private static void replaceVersion(File dir) throws IOException {

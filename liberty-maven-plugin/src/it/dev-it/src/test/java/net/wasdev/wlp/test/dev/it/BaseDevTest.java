@@ -74,6 +74,19 @@ public class BaseDevTest {
       setUpBeforeClass(params, projectRoot, isDevMode, true, null, null);
    }
 
+   /**
+    * Setup and optionally start dev/run
+    *
+    * @param params Params for the dev/run goal
+    * @param projectRoot The Maven project root
+    * @param isDevMode Use dev if true, use run if false.  Ignored if startProcessDuringSetup is false.
+    * @param startProcessDuringSetup If this method should start the actual dev/run process
+    * @param libertyConfigModule For multi module project, the module where Liberty configuration is located
+    * @param pomModule For multi module project, the module where the pom is located.  If null, use the project root.
+    * @throws IOException
+    * @throws InterruptedException
+    * @throws FileNotFoundException
+    */
    protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode, boolean startProcessDuringSetup, String libertyConfigModule, String pomModule) throws IOException, InterruptedException, FileNotFoundException {
       customLibertyModule = libertyConfigModule;
       customPomModule = pomModule;
