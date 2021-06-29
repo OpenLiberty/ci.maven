@@ -188,13 +188,13 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MavenProject dependencyProject = getReactorMavenProject(artifact);
                     switch (artifact.getType()) {
                     case "jar":
-                        looseEar.addJarModule(dependencyProject);
+                        looseEar.addJarModule(dependencyProject, artifact);
                         break;
                     case "ejb":
-                        looseEar.addEjbModule(dependencyProject);
+                        looseEar.addEjbModule(dependencyProject, artifact);
                         break;
                     case "war":
-                        Element warArchive = looseEar.addWarModule(dependencyProject,
+                        Element warArchive = looseEar.addWarModule(dependencyProject, artifact,
                                 getWarSourceDirectory(dependencyProject));
                         if (looseEar.isEarSkinnyWars()) {
                             // add embedded lib only if they are not a compile dependency in the ear
@@ -205,7 +205,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                         }
                         break;
                     case "rar":
-                        Element rarArchive = looseEar.addRarModule(dependencyProject);
+                        Element rarArchive = looseEar.addRarModule(dependencyProject, artifact);
                         addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
                         break;
                     default:
@@ -288,7 +288,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         {
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
-                Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
+                Element archive = looseApp.addArchive(parent, dir + artifact.getFile().getName());
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
                 
                 File manifestFile = MavenProjectUtil.getManifestFile(dependProject, "maven-jar-plugin");
