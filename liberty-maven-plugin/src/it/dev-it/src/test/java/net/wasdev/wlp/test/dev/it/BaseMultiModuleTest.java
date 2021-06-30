@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -52,7 +53,23 @@ public class BaseMultiModuleTest extends BaseDevTest {
 
    protected static void run(boolean devMode) throws Exception {
       // TODO remove mvn install when https://github.com/OpenLiberty/ci.maven/issues/1176 is fixed 
-      startProcess(null, devMode, "mvn install && mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
+      runMvnInstall();
+      startProcess(null, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
+   }
+
+   private static void runMvnInstall() throws Exception {
+      StringBuilder command = new StringBuilder("mvn install");
+      ProcessBuilder builder = buildProcess(command.toString());
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
+      }
+      Process mvnInstallProcess = builder.start();
+      assertTrue(mvnInstallProcess.isAlive());
+      mvnInstallProcess.waitFor(120, TimeUnit.SECONDS);
+      assertEquals(0, mvnInstallProcess.exitValue());
    }
 
    private static void replaceVersion(File dir) throws IOException {

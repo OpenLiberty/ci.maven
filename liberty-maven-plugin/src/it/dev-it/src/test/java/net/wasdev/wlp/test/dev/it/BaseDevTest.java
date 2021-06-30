@@ -269,7 +269,7 @@ public class BaseDevTest {
       return false;
    }
 
-   private static ProcessBuilder buildProcess(String processCommand) {
+   protected static ProcessBuilder buildProcess(String processCommand) {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
 
