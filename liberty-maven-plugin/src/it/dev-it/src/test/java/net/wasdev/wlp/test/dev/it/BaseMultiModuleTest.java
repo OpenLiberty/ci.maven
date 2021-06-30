@@ -99,7 +99,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
       assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
 
-      assertFalse("Found CWWKM2179W message indicating incorrect app deployment", verifyLogMessageExists("CWWKM2179W", 2000));
+      assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
    }
 
    public void assertEndpointContent(String url, String assertResponseContains) throws IOException, HttpException {
@@ -109,11 +109,11 @@ public class BaseMultiModuleTest extends BaseDevTest {
       try {
          int statusCode = client.executeMethod(method);
 
-         assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+         assertEquals("HTTP GET failed. " + getLogTail(), HttpStatus.SC_OK, statusCode);
 
          String response = method.getResponseBodyAsString();
 
-         assertTrue("Unexpected response body: " + response, response.contains(assertResponseContains));
+         assertTrue("Unexpected response body: " + response + ". " + getLogTail(), response.contains(assertResponseContains));
       } finally {
          method.releaseConnection();
       }

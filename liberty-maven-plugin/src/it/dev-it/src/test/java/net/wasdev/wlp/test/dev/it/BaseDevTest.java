@@ -186,7 +186,7 @@ public class BaseDevTest {
          for (int i = reversedLines.size() - 1; i >=0; i--) {
             result.append(reversedLines.get(i) + "\n");
          }
-         return "Last "+numLines+" lines of log:\n" + 
+         return "Last "+numLines+" lines of log at "+logFile.getAbsolutePath()+":\n" + 
             "===================== START =======================\n" + 
             result.toString() +
             "====================== END ========================\n";
