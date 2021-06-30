@@ -119,6 +119,21 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
    }
 
+   protected static void modifyJarClass() throws IOException, InterruptedException {
+      // modify a java file
+      File srcClass = new File(tempProj, "jar/src/main/java/io/openliberty/guides/multimodules/lib/Converter.java");
+      File targetClass = new File(tempProj, "jar/target/classes/io/openliberty/guides/multimodules/lib/Converter.class");
+      assertTrue(srcClass.exists());
+      assertTrue(targetClass.exists());
+
+      long lastModified = targetClass.lastModified();
+      replaceString("return feet;", "return feet*2;", srcClass);
+
+      Thread.sleep(5000); // wait for compilation
+      boolean wasModified = targetClass.lastModified() > lastModified;
+      assertTrue(wasModified);
+   }
+
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
       BaseDevTest.cleanUpAfterClass();

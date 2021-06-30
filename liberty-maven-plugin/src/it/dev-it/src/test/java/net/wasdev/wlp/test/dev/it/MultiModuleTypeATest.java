@@ -50,6 +50,10 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
    @Test
    public void invokeJarCodeTest() throws Exception {
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
+
+      // test modify a Java file in an upstream module
+      modifyJarClass();
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
    }
 
 }
