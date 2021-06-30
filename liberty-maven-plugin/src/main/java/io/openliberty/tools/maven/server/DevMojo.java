@@ -64,7 +64,7 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
-import io.openliberty.tools.common.plugins.util.UpstreamProject;
+import io.openliberty.tools.common.plugins.util.ProjectModule;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
@@ -107,6 +107,15 @@ public class DevMojo extends StartDebugMojoSupport {
 
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
+
+    /**
+     * Whether to recompile dependencies. Defaults to false for single module
+     * projects and true for multi module projects. Since the default behavior
+     * changes between single module and multi module projects, need to accept param
+     * as a string.
+     */
+    @Parameter(property = "recompileDependencies")
+    private String recompileDependencies;
 
     /**
      * Time in seconds to wait before processing Java changes and deletions.
@@ -261,13 +270,14 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
-                List<UpstreamProject> upstreamProjects, List<MavenProject> upstreamMavenProjects) throws IOException {
+                List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects,
+                boolean recompileDeps) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-                    keepTempDockerfile, mavenCacheLocation, upstreamProjects);
+                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -518,7 +528,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 JavaCompilerOptions compilerOptions = getMavenCompilerOptions(upstreamProject);
                 if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
                     log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
-                    util.getUpstreamProject(buildFile).setCompilerOptions(compilerOptions);
+                    util.getProjectModule(buildFile).setCompilerOptions(compilerOptions);
                 }
 
                 testArtifactPaths.clear();
@@ -555,7 +565,7 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
                 List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
-            // - liberty.* properites in project properties section
+            // - liberty.* properties in project properties section
             // - changes in liberty plugin configuration in the build plugin section
             // - project dependencies changes
             boolean restartServer = false;
@@ -820,6 +830,25 @@ public class DevMojo extends StartDebugMojoSupport {
             }
         }
 
+        // default behavior of recompileDependencies
+        if (recompileDependencies == null) {
+            if (upstreamMavenProjects.isEmpty()) {
+                // single module project default to false
+                log.debug(
+                        "The recompileDependencies parameter was not explicitly set. The default value -DrecompileDependencies=false will be used.");
+                recompileDependencies = "false";
+            } else {
+                // multi module project default to true
+                log.debug(
+                        "The recompileDependencies parameter was not explicitly set. The default value for multi module projects -DrecompileDependencies=true will be used.");
+                recompileDependencies = "true";
+            }
+        } else if (!recompileDependencies.equals("true") || !recompileDependencies.equals("false")) {
+            log.warn(
+                    "A value other than \"true\" or \"false\" was specified for the recompileDependencies parameter, recompileDependencies will be set to \"false\".");
+        }
+        boolean recompileDeps = Boolean.parseBoolean(recompileDependencies);
+
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");
 
@@ -883,7 +912,7 @@ public class DevMojo extends StartDebugMojoSupport {
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
         // collect upstream projects
-        List<UpstreamProject> upstreamProjects = new ArrayList<UpstreamProject>();
+        List<ProjectModule> upstreamProjects = new ArrayList<ProjectModule>();
         if (!upstreamMavenProjects.isEmpty()) {
             for (MavenProject p : upstreamMavenProjects) {
                 // get compiler options for upstream project
@@ -923,25 +952,35 @@ public class DevMojo extends StartDebugMojoSupport {
                     upstreamSkipUTs = true;
                 }
 
-                UpstreamProject upstreamProject = new UpstreamProject(p.getFile(), p.getArtifactId(), compileArtifacts,
+                // build list of dependent modules
+                List<MavenProject> dependentProjects = graph.getDownstreamProjects(p, true);
+                List<File> dependentModules = new ArrayList<File>();
+                for (MavenProject depProj : dependentProjects) {
+                    dependentModules.add(depProj.getFile());
+                }
+
+                ProjectModule upstreamProject = new ProjectModule(p.getFile(), p.getArtifactId(), compileArtifacts,
                         testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
-                        upstreamSkipITs, upstreamCompilerOptions);
+                        upstreamSkipITs, upstreamCompilerOptions, dependentModules);
+
                 upstreamProjects.add(upstreamProject);
             }
         }
+
         // skip unit tests for ear applications
         if (isEar) {
             skipUTs = true;
         }
+
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects);
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps);
         util.addShutdownHook(executor);
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> compileArtifactPaths = project.getCompileClasspathElements(); 
+        List<String> compileArtifactPaths = project.getCompileClasspathElements();
         List<String> testArtifactPaths = project.getTestClasspathElements();
         // pom.xml
         File pom = project.getFile();
@@ -1006,7 +1045,7 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Gets a compiler option's value from CLI paramaters, maven-compiler-plugin's
+     * Gets a compiler option's value from CLI parameters, maven-compiler-plugin's
      * configuration or project properties.
      * 
      * @param configuration       The maven-compiler-plugin's configuration from
@@ -1052,7 +1091,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (buildFile != null && !project.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
-                // if we can reesolve the project associated with build file, run IT tests on
+                // if we can resolve the project associated with build file, run IT tests on
                 // corresponding project
                 if (build.getProject() != null) {
                     currentProject = build.getProject();
