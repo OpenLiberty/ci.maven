@@ -42,5 +42,15 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
       super.manualTestsInvocationTest("guide-maven-multimodules-ear");
    }
 
+   @Test
+   public void endpointTest() throws Exception {
+      assertEndpointContent("http://localhost:9080/converter", "Height Converter");
+   }
+
+   @Test
+   public void invokeJarCodeTest() throws Exception {
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
+   }
+
 }
 

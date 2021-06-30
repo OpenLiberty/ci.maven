@@ -29,7 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MultiModuleTypeA2Test extends BaseMultiModuleTest {
+public class MultiModuleTypeA2Test extends MultiModuleTypeATest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {

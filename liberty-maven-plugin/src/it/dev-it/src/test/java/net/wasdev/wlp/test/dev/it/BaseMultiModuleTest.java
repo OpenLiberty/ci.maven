@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.dev.it;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -24,6 +25,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,17 +72,34 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    public void manualTestsInvocationTest(String libertyModuleArtifactId) throws Exception {
-      assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
+      assertTrue(getLogTail(), verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
 
       writer.write("\n");
       writer.flush();
 
       if (!libertyModuleArtifactId.endsWith("ear")) {
-         assertTrue(verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
+         assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
       }
-      assertTrue(verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
 
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment", verifyLogMessageExists("CWWKM2179W", 2000));
+   }
+
+   public void assertEndpointContent(String url, String assertResponseContains) throws IOException, HttpException {
+      HttpClient client = new HttpClient();
+
+      GetMethod method = new GetMethod(url);
+      try {
+         int statusCode = client.executeMethod(method);
+
+         assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+
+         String response = method.getResponseBodyAsString();
+
+         assertTrue("Unexpected response body: " + response, response.contains(assertResponseContains));
+      } finally {
+         method.releaseConnection();
+      }
    }
 
    @AfterClass

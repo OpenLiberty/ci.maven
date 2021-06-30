@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 
@@ -44,20 +45,12 @@ public class MultiModuleRunTest extends BaseMultiModuleTest {
 
    @Test
    public void endpointTest() throws Exception {
-      HttpClient client = new HttpClient();
+      assertEndpointContent("http://localhost:9080/converter", "Height Converter");
+   }
 
-      GetMethod method = new GetMethod("http://localhost:9080/converter");
-      try {
-         int statusCode = client.executeMethod(method);
-
-         assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
-
-         String response = method.getResponseBodyAsString();
-
-         assertTrue("Unexpected response body", response.contains("Height Converter"));
-      } finally {
-         method.releaseConnection();
-      }
+   @Test
+   public void invokeJarCodeTest() throws Exception {
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
    }
 
    @AfterClass
