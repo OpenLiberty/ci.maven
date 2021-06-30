@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,6 +51,8 @@ import org.junit.Test;
 
 public class BaseDevTest {
 
+   static String customLibertyModule;
+   static String customPomModule;
    static File tempProj;
    static File basicDevProj;
    static File logFile;
@@ -69,6 +74,26 @@ public class BaseDevTest {
    }
 
    protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      setUpBeforeClass(params, projectRoot, isDevMode, true, null, null);
+   }
+
+   /**
+    * Setup and optionally start dev/run
+    *
+    * @param params Params for the dev/run goal
+    * @param projectRoot The Maven project root
+    * @param isDevMode Use dev if true, use run if false.  Ignored if startProcessDuringSetup is false.
+    * @param startProcessDuringSetup If this method should start the actual dev/run process
+    * @param libertyConfigModule For multi module project, the module where Liberty configuration is located
+    * @param pomModule For multi module project, the module where the pom is located.  If null, use the project root.
+    * @throws IOException
+    * @throws InterruptedException
+    * @throws FileNotFoundException
+    */
+   protected static void setUpBeforeClass(String params, String projectRoot, boolean isDevMode, boolean startProcessDuringSetup, String libertyConfigModule, String pomModule) throws IOException, InterruptedException, FileNotFoundException {
+      customLibertyModule = libertyConfigModule;
+      customPomModule = pomModule;
+
       basicDevProj = new File(projectRoot);
 
       tempProj = Files.createTempDirectory("temp").toFile();
@@ -82,15 +107,25 @@ public class BaseDevTest {
       logFile = new File(basicDevProj, "logFile.txt");
       assertTrue(logFile.createNewFile());
 
-      pom = new File(tempProj, "pom.xml");
+      if (customPomModule == null) {
+         pom = new File(tempProj, "pom.xml");
+      } else {
+         pom = new File(new File(tempProj, customPomModule), "pom.xml");
+      }
       assertTrue(pom.exists());
 
       replaceVersion();
 
-      startProcess(params, isDevMode);
+      if (startProcessDuringSetup) {
+         startProcess(params, isDevMode);
+      }
    }
 
-   private static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+   protected static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
+      startProcess(params, isDevMode, "mvn liberty:");
+   }
+
+   protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
       String goal;
       if(isDevMode) {
@@ -99,7 +134,7 @@ public class BaseDevTest {
          goal = "run";
       }
 
-      StringBuilder command = new StringBuilder("mvn liberty:" + goal);
+      StringBuilder command = new StringBuilder(mavenPluginCommand + goal);
       if (params != null) {
          command.append(" " + params);
       }
@@ -107,6 +142,9 @@ public class BaseDevTest {
 
       builder.redirectOutput(logFile);
       builder.redirectError(logFile);
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
+      }
       process = builder.start();
       assertTrue(process.isAlive());
 
@@ -116,14 +154,47 @@ public class BaseDevTest {
 
       // check that the server has started
       Thread.sleep(5000);
-      assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
       if (isDevMode) {
          assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       }
 
       // verify that the target directory was created
-      targetDir = new File(tempProj, "target");
+      if (customLibertyModule == null) {
+         targetDir = new File(tempProj, "target");
+      } else {
+         targetDir = new File(new File(tempProj, customLibertyModule), "target");
+      }
       assertTrue(targetDir.exists());
+   }
+
+   protected static String getLogTail() throws IOException {
+      int numLines = 100;
+      ReversedLinesFileReader object = null;
+      try {
+         object = new ReversedLinesFileReader(logFile, StandardCharsets.UTF_8);
+         List<String> reversedLines = new ArrayList<String>();
+
+         for (int i = 0; i < numLines; i++) {
+            String line = object.readLine();
+            if (line == null) {
+               break;
+            }
+            reversedLines.add(line);
+         }
+         StringBuilder result = new StringBuilder();
+         for (int i = reversedLines.size() - 1; i >=0; i--) {
+            result.append(reversedLines.get(i) + "\n");
+         }
+         return "Last "+numLines+" lines of log:\n" + 
+            "===================== START =======================\n" + 
+            result.toString() +
+            "====================== END ========================\n";
+      } finally {
+         if (object != null) {
+            object.close();
+         }
+      }
    }
 
    protected static void cleanUpAfterClass() throws Exception {
@@ -221,7 +292,6 @@ public class BaseDevTest {
    protected static void replaceString(String str, String replacement, File file) throws IOException {
       Path path = file.toPath();
       Charset charset = StandardCharsets.UTF_8;
-
       String content = new String(Files.readAllBytes(path), charset);
 
       content = content.replaceAll(str, replacement);
@@ -241,4 +311,5 @@ public class BaseDevTest {
       }
       return false;
    }
+   
 }
