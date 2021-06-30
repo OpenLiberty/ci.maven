@@ -38,22 +38,10 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
    }
 
    @Test
-   public void manualTestsInvocationTest() throws Exception {
-      super.manualTestsInvocationTest("guide-maven-multimodules-ear");
-   }
+   public void runTest() throws Exception {
+      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
-   @Test
-   public void endpointTest() throws Exception {
-      assertEndpointContent("http://localhost:9080/converter", "Height Converter");
-   }
-
-   @Test
-   public void invokeJarCodeTest() throws Exception {
-      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
-
-      // test modify a Java file in an upstream module
-      modifyJarClass();
-      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
+      testEndpointsAndUpstreamRecompile();
    }
 
 }

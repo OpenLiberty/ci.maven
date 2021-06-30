@@ -29,7 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MultiModuleTypeITest extends MultiModuleTypeATest {
+public class MultiModuleTypeITest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
@@ -39,7 +39,9 @@ public class MultiModuleTypeITest extends MultiModuleTypeATest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      super.manualTestsInvocationTest("guide-maven-multimodules-ear");
+      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war", "guide-maven-multimodules-ear");
+
+      testEndpointsAndUpstreamRecompile();
    }
 
 }

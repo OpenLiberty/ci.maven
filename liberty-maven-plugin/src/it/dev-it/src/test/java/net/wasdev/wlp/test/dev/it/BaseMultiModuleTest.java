@@ -88,16 +88,19 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
    }
 
-   public void manualTestsInvocationTest(String libertyModuleArtifactId) throws Exception {
+   public void manualTestsInvocationTest(String... moduleArtifactIds) throws Exception {
       assertTrue(getLogTail(), verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
 
       writer.write("\n");
       writer.flush();
 
-      if (!libertyModuleArtifactId.endsWith("ear")) {
-         assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + libertyModuleArtifactId + " finished.", 10000));
+      for (String moduleArtifactId : moduleArtifactIds) {
+         if (!moduleArtifactId.endsWith("ear")) {
+            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 10000));
+         }
+         assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 10000));
+  
       }
-      assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + libertyModuleArtifactId + " finished.", 10000));
 
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
    }
@@ -132,6 +135,18 @@ public class BaseMultiModuleTest extends BaseDevTest {
       Thread.sleep(5000); // wait for compilation
       boolean wasModified = targetClass.lastModified() > lastModified;
       assertTrue(wasModified);
+   }
+
+   protected void testEndpointsAndUpstreamRecompile() throws Exception {
+      // check main endpoint
+      assertEndpointContent("http://localhost:9080/converter", "Height Converter");
+
+      // invoke upstream java code
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
+
+      // test modify a Java file in an upstream module
+      modifyJarClass();
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
    }
 
    @AfterClass
