@@ -257,10 +257,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
     }
 
-    private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir)
+    private void addEmbeddedLib(Element parent, MavenProject warProject, LooseApplication looseApp, String dir)
             throws Exception {
-        Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+        Set<Artifact> artifacts = warProject.getArtifacts();
+        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
@@ -270,9 +270,9 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
     }
 
-    private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+    private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws Exception {
+        Set<Artifact> artifacts = warProject.getArtifacts();
+        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear
@@ -288,7 +288,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
         {
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
-                Element archive = looseApp.addArchive(parent, dir + artifact.getFile().getName());
+                String artifactFileName = getPreDeployAppFileName(dependProject);
+                Element archive = looseApp.addArchive(parent, dir + artifactFileName);
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
                 
                 File manifestFile = MavenProjectUtil.getManifestFile(dependProject, "maven-jar-plugin");
