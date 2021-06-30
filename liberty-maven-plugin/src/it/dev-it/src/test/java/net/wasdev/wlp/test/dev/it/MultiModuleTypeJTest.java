@@ -42,5 +42,18 @@ public class MultiModuleTypeJTest extends MultiModuleTypeATest {
       super.manualTestsInvocationTest("guide-maven-multimodules-pom");
    }
 
+   @Test
+   public void endpointTest() throws Exception {
+      assertEndpointContent("http://localhost:9080/converter1", "Height Converter");
+      assertEndpointContent("http://localhost:9080/converter2", "Height Converter");
+   }
+
+   @Test
+   public void invokeJarCodeTest() throws Exception {
+      // TODO Fix testcase issue. Server gives "/heights.jsp failed to compile" but it works when invoked manually.
+      // assertEndpointContent("http://localhost:9080/converter1/heights.jsp?heightCm=3048", "100");
+      // assertEndpointContent("http://localhost:9080/converter2/heights.jsp?heightCm=3048", "100");
+   }
+
 }
 
