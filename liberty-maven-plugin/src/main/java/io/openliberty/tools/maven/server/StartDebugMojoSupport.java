@@ -915,7 +915,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         return multiModuleProjectDirectory.toPath().relativize(module.getBasedir().toPath()).toString();
     }
 
-    protected void installEarToM2(MavenProject earProject) throws MojoExecutionException {
+    /**
+     * If the ear artifact is not in .m2, install an empty ear as a workaround so that downstream modules can build.
+     * Only needed if using loose application.
+     * 
+     * @param earProject
+     * @throws MojoExecutionException If the empty ear artifact could not be installed. Prompts the user to run a manual command as a workaround.
+     */
+    protected void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
         log.debug("Installing empty EAR artifact to .m2 directory...");
 
         String goal = "install-file";
