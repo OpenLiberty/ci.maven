@@ -802,6 +802,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 if (isEar) {
                     runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+
+                    // if the ear artifact is not in .m2, install a dummy ear as a workaround so that downstream modules can build
+                    installEarToM2(project);
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();

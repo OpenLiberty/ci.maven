@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -891,7 +893,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         List<String> conflictModuleRelativeDirs = new ArrayList<String>();
         for (MavenProject conflict : conflicts) {
             // make the module path relative to the multi module project directory
-            conflictModuleRelativeDirs.add(multiModuleProjectDirectory.toPath().relativize(conflict.getBasedir().toPath()).toString());
+            conflictModuleRelativeDirs.add(getModuleRelativePath(conflict));
         }
 
         boolean hasMultipleLibertyModules = !conflicts.isEmpty();
@@ -900,6 +902,44 @@ public class StartDebugMojoSupport extends BasicSupport {
             throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
                     + conflictModuleRelativeDirs
                     + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+        }
+    }
+
+    /**
+     * Gets the module's relative path (i.e. the module name) relative to the multi module project directory.
+     * 
+     * @param module The module for which you want to get the path
+     * @return The module path relative to the multi module project directory
+     */
+    private String getModuleRelativePath(MavenProject module) {
+        return multiModuleProjectDirectory.toPath().relativize(module.getBasedir().toPath()).toString();
+    }
+
+    protected void installEarToM2(MavenProject earProject) throws MojoExecutionException {
+        log.debug("Installing empty EAR artifact to .m2 directory...");
+
+        String goal = "install-file";
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
+        log.debug("Running maven-install-plugin:" + goal);
+
+        File tempFile;
+        try {
+            tempFile = File.createTempFile(earProject.getArtifactId(), ".ear");
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not install empty EAR artifact for " + earProject.toString() + ". Run 'mvn install -pl " + getModuleRelativePath(earProject) + " -am' once before running Liberty dev mode.", e);
+        }
+
+        Xpp3Dom config = configuration(
+            element(name("file"), tempFile.getAbsolutePath()),
+            element(name("pomFile"), earProject.getFile().getAbsolutePath())
+        );
+
+        log.debug("configuration:\n" + config);
+        try {
+            executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+        } catch (MojoExecutionException e) {
+            throw new MojoExecutionException("Could not install empty EAR artifact for " + earProject.toString() + ". Run 'mvn install -pl " + getModuleRelativePath(earProject) + " -am' once before running Liberty dev mode.", e);
         }
     }
 
