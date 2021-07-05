@@ -77,7 +77,7 @@ public class RunServerMojo extends PluginConfigSupport {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 
             if (hasDownstreamProjects && looseApplication) {
-                installEmptyEAR(project);
+                installEmptyEarIfNotFound(project);
             }
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");

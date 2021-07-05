@@ -61,6 +61,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -922,9 +923,18 @@ public class StartDebugMojoSupport extends BasicSupport {
      * @param earProject
      * @throws MojoExecutionException If the empty ear artifact could not be installed. Prompts the user to run a manual command as a workaround.
      */
-    protected void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
-        log.debug("Installing empty EAR artifact to .m2 directory...");
+    protected void installEmptyEarIfNotFound(MavenProject earProject) throws MojoExecutionException {
+        ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
+        try {
+            Artifact existingEarArtifact = getArtifact(existingEarItem);
+            log.debug("EAR artifact already exists at " + existingEarArtifact.getFile());
+        } catch (MojoExecutionException e) {
+            log.debug("Installing empty EAR artifact to .m2 directory...");
+            installEmptyEAR(earProject);
+        }
+    }
 
+    private void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
         String goal = "install-file";
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
         log.debug("Running maven-install-plugin:" + goal);

@@ -803,7 +803,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 
-                    installEmptyEAR(project);
+                    installEmptyEarIfNotFound(project);
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
