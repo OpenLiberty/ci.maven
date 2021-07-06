@@ -54,7 +54,7 @@ public class RunServerMojo extends PluginConfigSupport {
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip running Liberty on this module but only build it.
-        boolean skipRunServer = false;
+        boolean hasDownstreamProjects = false;
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
             checkMultiModuleConflicts(graph);
@@ -62,7 +62,7 @@ public class RunServerMojo extends PluginConfigSupport {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 log.debug("Downstream projects: " + downstreamProjects);
-                skipRunServer = true;
+                hasDownstreamProjects = true;
             }
 
             if (containsPreviousLibertyModule(graph)) {
@@ -75,6 +75,10 @@ public class RunServerMojo extends PluginConfigSupport {
         if (projectPackaging.equals("ear")) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+
+            if (hasDownstreamProjects && looseApplication) {
+                installEmptyEarIfNotFound(project);
+            }
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
@@ -106,7 +110,7 @@ public class RunServerMojo extends PluginConfigSupport {
         }
 
         // Return if Liberty should not be run on this module
-        if (skipRunServer) {
+        if (hasDownstreamProjects) {
             return;
         }
         

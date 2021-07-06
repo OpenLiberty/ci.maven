@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -59,6 +61,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -891,7 +894,7 @@ public class StartDebugMojoSupport extends BasicSupport {
         List<String> conflictModuleRelativeDirs = new ArrayList<String>();
         for (MavenProject conflict : conflicts) {
             // make the module path relative to the multi module project directory
-            conflictModuleRelativeDirs.add(multiModuleProjectDirectory.toPath().relativize(conflict.getBasedir().toPath()).toString());
+            conflictModuleRelativeDirs.add(getModuleRelativePath(conflict));
         }
 
         boolean hasMultipleLibertyModules = !conflicts.isEmpty();
@@ -900,6 +903,64 @@ public class StartDebugMojoSupport extends BasicSupport {
             throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
                     + conflictModuleRelativeDirs
                     + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+        }
+    }
+
+    /**
+     * Gets the module's relative path (i.e. the module name) relative to the multi module project directory.
+     * 
+     * @param module The module for which you want to get the path
+     * @return The module path relative to the multi module project directory
+     */
+    private String getModuleRelativePath(MavenProject module) {
+        return multiModuleProjectDirectory.toPath().relativize(module.getBasedir().toPath()).toString();
+    }
+
+    /**
+     * If the ear artifact is not in .m2, install an empty ear as a workaround so that downstream modules can build.
+     * Only needed if using loose application.
+     * 
+     * @param earProject
+     * @throws MojoExecutionException If the empty ear artifact could not be installed. Prompts the user to run a manual command as a workaround.
+     */
+    protected void installEmptyEarIfNotFound(MavenProject earProject) throws MojoExecutionException {
+        ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
+        try {
+            Artifact existingEarArtifact = getArtifact(existingEarItem);
+            log.debug("EAR artifact already exists at " + existingEarArtifact.getFile());
+        } catch (MojoExecutionException e) {
+            log.debug("Installing empty EAR artifact to .m2 directory...");
+            installEmptyEAR(earProject);
+        }
+    }
+
+    private void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
+        String goal = "install-file";
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
+        log.debug("Running maven-install-plugin:" + goal);
+
+        File tempFile;
+        try {
+            tempFile = File.createTempFile(earProject.getArtifactId(), ".ear");
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
+        }
+
+        Xpp3Dom config = configuration(
+            element(name("file"), tempFile.getAbsolutePath()),
+            element(name("pomFile"), earProject.getFile().getAbsolutePath())
+        );
+
+        log.debug("configuration:\n" + config);
+        try {
+            executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+        } catch (MojoExecutionException e) {
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
     }
 
