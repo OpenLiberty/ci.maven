@@ -944,7 +944,9 @@ public class StartDebugMojoSupport extends BasicSupport {
             tempFile = File.createTempFile(earProject.getArtifactId(), ".ear");
             tempFile.deleteOnExit();
         } catch (IOException e) {
-            throw new MojoExecutionException("Could not install empty EAR artifact for " + earProject.toString() + ". Run 'mvn install -pl " + getModuleRelativePath(earProject) + " -am' once before running Liberty dev mode.", e);
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
 
         Xpp3Dom config = configuration(
@@ -956,7 +958,9 @@ public class StartDebugMojoSupport extends BasicSupport {
         try {
             executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
         } catch (MojoExecutionException e) {
-            throw new MojoExecutionException("Could not install empty EAR artifact for " + earProject.toString() + ". Run 'mvn install -pl " + getModuleRelativePath(earProject) + " -am' once before running Liberty dev mode.", e);
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
     }
 
