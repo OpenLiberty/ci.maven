@@ -1,5 +1,10 @@
 ## Multi module project layouts
 
+multipleLibertyModules)  pom, ear1+war+jar, ear2+war+jar
+- Server info in ear1 and ear2 modules
+- Main pom: ./pom.xml
+- Tests exist in every module
+
 a)  pom, ear+war+jar
 - Server info in ear module
 - Main pom: ./pom.xml
