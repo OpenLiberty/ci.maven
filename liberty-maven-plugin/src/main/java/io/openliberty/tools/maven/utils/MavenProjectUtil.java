@@ -99,7 +99,9 @@ public class MavenProjectUtil {
     public static String getAppNameClassifier(MavenProject proj) {
         String pluginName = null;
 
-        if (proj.getPackaging().equals("war")) {
+        if (proj.getPackaging().equals("jar")) {
+            pluginName = "maven-jar-plugin";
+        } else if (proj.getPackaging().equals("war")) {
             pluginName = "maven-war-plugin";
         } else if (proj.getPackaging().equals("ear")) {
             pluginName = "maven-ear-plugin";

@@ -20,6 +20,8 @@
         <module>SampleEar_NonLooseApp</module>
         <module>SampleEAR</module>
         <module>SampleWLP</module>
+        <module>SampleEAR-classifier-app</module>
+        <module>SampleEJB-classifier-dep</module>
         <module>skinnywar-ear</module>
         <module>skinnywar-wlp</module>
         <module>helloworld-impl</module>
