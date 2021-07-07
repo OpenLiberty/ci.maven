@@ -67,8 +67,6 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
 
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000, logFile));
-      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000, logFile));
 
 
       // Start second project
@@ -89,7 +87,12 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
 
       writer2 = new BufferedWriter(new OutputStreamWriter(stdin2));
 
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000, logFile2));
+
+      // Check both dev mode instances
+      assertTrue(getLogTail(logFile), verifyLogMessageExists("CWWKF0011I", 120000, logFile));
+      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000, logFile));
+
+      assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKF0011I", 120000, logFile2));
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000, logFile2));
 
 
@@ -103,6 +106,10 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
 
       // test modify a Java file in an upstream module
       modifyJarClass();
+
+      // wait to avoid timing issues
+      Thread.sleep(2000);
+
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200");
    }

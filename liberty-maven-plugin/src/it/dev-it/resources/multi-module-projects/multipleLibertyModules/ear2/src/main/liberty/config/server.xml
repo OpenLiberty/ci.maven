@@ -10,7 +10,7 @@
     <httpEndpoint host="*" httpPort="${default.http.port}"
         httpsPort="${default.https.port}" id="defaultHttpEndpoint" />
 
-    <enterpriseApplication id="guide-maven-multimodules-ear"
-        location="guide-maven-multimodules-ear.ear"
-        name="guide-maven-multimodules-ear" />
+    <enterpriseApplication id="guide-maven-multimodules-ear2"
+        location="guide-maven-multimodules-ear2.ear"
+        name="guide-maven-multimodules-ear2" />
 </server>

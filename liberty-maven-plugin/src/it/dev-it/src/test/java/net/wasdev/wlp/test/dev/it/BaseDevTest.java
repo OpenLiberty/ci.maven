@@ -169,10 +169,14 @@ public class BaseDevTest {
    }
 
    protected static String getLogTail() throws IOException {
+      return getLogTail(logFile);
+   }
+
+   protected static String getLogTail(File log) throws IOException {
       int numLines = 100;
       ReversedLinesFileReader object = null;
       try {
-         object = new ReversedLinesFileReader(logFile, StandardCharsets.UTF_8);
+         object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
          List<String> reversedLines = new ArrayList<String>();
 
          for (int i = 0; i < numLines; i++) {
@@ -186,7 +190,7 @@ public class BaseDevTest {
          for (int i = reversedLines.size() - 1; i >=0; i--) {
             result.append(reversedLines.get(i) + "\n");
          }
-         return "Last "+numLines+" lines of log at "+logFile.getAbsolutePath()+":\n" + 
+         return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" + 
             "===================== START =======================\n" + 
             result.toString() +
             "====================== END ========================\n";
