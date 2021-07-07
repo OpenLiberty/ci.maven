@@ -43,6 +43,8 @@ public class BaseMultiModuleTest extends BaseDevTest {
       optionalReplaceVersion(tempProj);
       optionalReplaceVersion(new File(tempProj, "pom"));
       optionalReplaceVersion(new File(tempProj, "ear"));
+      optionalReplaceVersion(new File(tempProj, "ear1"));
+      optionalReplaceVersion(new File(tempProj, "ear2"));
       optionalReplaceVersion(new File(tempProj, "war"));
       optionalReplaceVersion(new File(tempProj, "war2"));
    }
