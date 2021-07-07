@@ -169,10 +169,14 @@ public class BaseDevTest {
    }
 
    protected static String getLogTail() throws IOException {
+      return getLogTail(logFile);
+   }
+
+   protected static String getLogTail(File log) throws IOException {
       int numLines = 100;
       ReversedLinesFileReader object = null;
       try {
-         object = new ReversedLinesFileReader(logFile, StandardCharsets.UTF_8);
+         object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
          List<String> reversedLines = new ArrayList<String>();
 
          for (int i = 0; i < numLines; i++) {
@@ -186,7 +190,7 @@ public class BaseDevTest {
          for (int i = reversedLines.size() - 1; i >=0; i--) {
             result.append(reversedLines.get(i) + "\n");
          }
-         return "Last "+numLines+" lines of log at "+logFile.getAbsolutePath()+":\n" + 
+         return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" + 
             "===================== START =======================\n" + 
             result.toString() +
             "====================== END ========================\n";
@@ -253,7 +257,7 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
-   private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+   protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
       try {
@@ -300,12 +304,17 @@ public class BaseDevTest {
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
          throws InterruptedException, FileNotFoundException, IOException {
+      return verifyLogMessageExists(message, timeout, logFile);
+   }
+
+   protected static boolean verifyLogMessageExists(String message, int timeout, File log)
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
       int sleep = 10;
       while (waited <= timeout) {
          Thread.sleep(sleep);
          waited += sleep;
-         if (readFile(message, logFile)) {
+         if (readFile(message, log)) {
             return true;
          }
       }

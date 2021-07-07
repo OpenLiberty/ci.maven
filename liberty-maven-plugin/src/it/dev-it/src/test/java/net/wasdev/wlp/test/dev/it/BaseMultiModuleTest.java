@@ -91,13 +91,17 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    public void assertEndpointContent(String url, String assertResponseContains) throws IOException, HttpException {
+      assertEndpointContent(url, assertResponseContains, logFile); 
+   }
+
+   public void assertEndpointContent(String url, String assertResponseContains, File log) throws IOException, HttpException {
       HttpClient client = new HttpClient();
 
       GetMethod method = new GetMethod(url);
       try {
          int statusCode = client.executeMethod(method);
 
-         assertEquals("HTTP GET failed. " + getLogTail(), HttpStatus.SC_OK, statusCode);
+         assertEquals("HTTP GET failed. " + getLogTail(log), HttpStatus.SC_OK, statusCode);
 
          String response = method.getResponseBodyAsString();
 
