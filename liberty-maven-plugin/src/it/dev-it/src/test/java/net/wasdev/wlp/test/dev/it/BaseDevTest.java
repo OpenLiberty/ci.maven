@@ -257,6 +257,22 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
+   protected static void testModifyWithRecompileDeps() throws IOException, InterruptedException {
+      File targetHelloLogger = getTargetFile("src/main/java/com/demo/HelloLogger.java",
+            "classes/com/demo/HelloLogger.class");
+      long helloLoggerLastModified = targetHelloLogger.lastModified();
+
+      File targetHelloServlet = getTargetFile("src/main/java/com/demo/HelloServlet.java",
+            "classes/com/demo/HelloServlet.class");
+      long helloServletLastModified = targetHelloServlet.lastModified();
+
+      testModifyJavaFile();
+
+      // check that all files were recompiled
+      assertTrue(targetHelloLogger.lastModified() > helloLoggerLastModified);
+      assertTrue(targetHelloServlet.lastModified() > helloServletLastModified);
+   }
+
    protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
@@ -320,5 +336,12 @@ public class BaseDevTest {
       }
       return false;
    }
-   
+
+   protected static File getTargetFile(String srcFilePath, String targetFilePath) throws IOException, InterruptedException {
+      File srcClass = new File(tempProj, srcFilePath);
+      File targetClass = new File(targetDir, targetFilePath);
+      assertTrue(srcClass.exists());
+      assertTrue(targetClass.exists());
+      return targetClass;
+   }
 }

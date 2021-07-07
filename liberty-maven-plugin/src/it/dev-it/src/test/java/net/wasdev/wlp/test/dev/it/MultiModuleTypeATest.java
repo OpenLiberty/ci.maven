@@ -39,9 +39,31 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
 
    @Test
    public void runTest() throws Exception {
-      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war", "guide-maven-multimodules-ear");
+      assertTrue(verifyLogMessageExists(
+            "The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.",
+            20000));
+
+      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            "guide-maven-multimodules-ear");
+
+      // // verify that when modifying a jar class, classes in dependent modules are
+      // recompiled as well
+      File targetWebClass = getTargetFileForModule("war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
+            "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
+      long webLastModified = targetWebClass.lastModified();
+
+      File targetEarClass = getTargetFileForModule(
+            "ear/src/test/java/it/io/openliberty/guides/multimodules/ConverterAppIT.java",
+            "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
+      long targetLastModified = targetEarClass.lastModified();
 
       testEndpointsAndUpstreamRecompile();
+
+      // verify a source class in the war module was compiled
+      assertTrue(targetWebClass.lastModified() > webLastModified);
+
+      // verify a test class in the ear module was compiled
+      assertTrue(targetEarClass.lastModified() > targetLastModified);
    }
 
 }

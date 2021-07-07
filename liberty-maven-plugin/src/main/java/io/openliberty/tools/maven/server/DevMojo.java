@@ -843,11 +843,17 @@ public class DevMojo extends StartDebugMojoSupport {
                         "The recompileDependencies parameter was not explicitly set. The default value for multi module projects -DrecompileDependencies=true will be used.");
                 recompileDependencies = "true";
             }
-        } else if (!recompileDependencies.equals("true") || !recompileDependencies.equals("false")) {
-            log.warn(
-                    "A value other than \"true\" or \"false\" was specified for the recompileDependencies parameter, recompileDependencies will be set to \"false\".");
         }
         boolean recompileDeps = Boolean.parseBoolean(recompileDependencies);
+        if (recompileDeps) {
+            if (!upstreamMavenProjects.isEmpty()) {
+                log.info("The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.");
+            } else {
+                log.info("The recompileDependencies parameter is set to \"true\". On a file change the entire project will be recompiled.");
+            }
+        } else {
+            log.info("The recompileDependencies parameter is set to \"false\". On a file change only the affected classes will be recompiled.");
+        }
 
         // Check if this is a Boost application
         boostPlugin = project.getPlugin("org.microshed.boost:boost-maven-plugin");

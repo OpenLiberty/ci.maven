@@ -38,7 +38,8 @@ import org.junit.Test;
 public class BaseMultiModuleTest extends BaseDevTest {
 
    public static void setUpMultiModule(String testcaseFolder, String libertyModule, String pomModule) throws Exception {
-      setUpBeforeClass(null, "../resources/multi-module-projects/" + testcaseFolder, true, false, libertyModule, pomModule);
+      setUpBeforeClass(null, "../resources/multi-module-projects/" + testcaseFolder, true, false,
+            libertyModule, pomModule);
 
       optionalReplaceVersion(tempProj);
       optionalReplaceVersion(new File(tempProj, "pom"));
@@ -49,12 +50,20 @@ public class BaseMultiModuleTest extends BaseDevTest {
       optionalReplaceVersion(new File(tempProj, "war2"));
    }
 
-   protected static void run() throws Exception {
-      run(true);
+   protected static void run(String params) throws Exception {
+      run(params, true);
    }
 
    protected static void run(boolean devMode) throws Exception {
-      startProcess(null, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
+      run(null, devMode);
+   }
+
+   protected static void run() throws Exception {
+      run(null, true);
+   }
+
+   protected static void run(String params, boolean devMode) throws Exception {
+      startProcess(params, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
    }
 
    private static void replaceVersion(File dir) throws IOException {
@@ -141,6 +150,14 @@ public class BaseMultiModuleTest extends BaseDevTest {
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
       BaseDevTest.cleanUpAfterClass();
+   }
+
+   protected static File getTargetFileForModule(String srcFilePath, String targetFilePath) throws IOException, InterruptedException {
+      File srcClass = new File(tempProj, srcFilePath);
+      File targetClass = new File(tempProj, targetFilePath);
+      assertTrue(srcClass.exists());
+      assertTrue(targetClass.exists());
+      return targetClass;
    }
 }
 
