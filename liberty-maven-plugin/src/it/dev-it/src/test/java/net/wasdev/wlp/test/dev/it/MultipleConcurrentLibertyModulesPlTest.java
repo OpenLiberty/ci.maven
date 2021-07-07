@@ -53,7 +53,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
    @Test
    public void multipleLibertyModulesPlTest() throws Exception {
       // Start first project
-      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear1 -am";
+      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear1 -am -DdebugPort=7777";
 
       StringBuilder command = new StringBuilder(mavenPluginCommand);
       ProcessBuilder builder = buildProcess(command.toString());
@@ -73,7 +73,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       logFile2 = new File(basicDevProj, "logFile2.txt");
       assertTrue(logFile2.createNewFile());
 
-      String mavenPluginCommand2 = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear2 -am";
+      String mavenPluginCommand2 = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear2 -am -DdebugPort=7778";
 
       StringBuilder command2 = new StringBuilder(mavenPluginCommand2);
       ProcessBuilder builder2 = buildProcess(command2.toString());
@@ -95,6 +95,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKF0011I", 120000, logFile2));
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000, logFile2));
 
+      Thread.sleep(5000);
 
       // check endpoints on both projects
       assertEndpointContent("http://localhost:9080/converter", "Height Converter");
@@ -107,8 +108,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       // test modify a Java file in an upstream module
       modifyJarClass();
 
-      // wait to avoid timing issues
-      Thread.sleep(2000);
+      Thread.sleep(5000);
 
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200");
