@@ -253,7 +253,7 @@ public class BaseDevTest {
       assertTrue(wasModified);
    }
 
-   private static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+   protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
       String line = br.readLine();
       try {
@@ -300,12 +300,17 @@ public class BaseDevTest {
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
          throws InterruptedException, FileNotFoundException, IOException {
+      return verifyLogMessageExists(message, timeout, logFile);
+   }
+
+   protected static boolean verifyLogMessageExists(String message, int timeout, File log)
+         throws InterruptedException, FileNotFoundException, IOException {
       int waited = 0;
       int sleep = 10;
       while (waited <= timeout) {
          Thread.sleep(sleep);
          waited += sleep;
-         if (readFile(message, logFile)) {
+         if (readFile(message, log)) {
             return true;
          }
       }

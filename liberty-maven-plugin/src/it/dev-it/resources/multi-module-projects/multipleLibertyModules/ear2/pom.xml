@@ -15,8 +15,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!-- Liberty configuration -->
-        <liberty.var.default.http.port>9080</liberty.var.default.http.port>
-        <liberty.var.default.https.port>9443</liberty.var.default.https.port>
+        <liberty.var.default.http.port>9081</liberty.var.default.http.port>
+        <liberty.var.default.https.port>9444</liberty.var.default.https.port>
         <!-- Test Configuration -->
         <!-- <skipTests>true</skipTests> -->
         <!-- <skipITs>true</skipITs> -->
