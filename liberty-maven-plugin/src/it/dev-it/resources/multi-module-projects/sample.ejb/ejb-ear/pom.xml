@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>sample</groupId>
+        <artifactId>ejb</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>ejb-ear</artifactId>
+
+    <packaging>ear</packaging>
+
+    <name>EAR Module</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>sample</groupId>
+            <artifactId>ejb-ejb</artifactId>
+            <version>1.0</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>sample</groupId>
+            <artifactId>ejb-war</artifactId>
+            <version>1.0</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>2.10.1</version>
+                <configuration>
+                    <version>7</version>
+                    <fileNameMapping>no-version</fileNameMapping>
+                    <generateApplicationXml>true</generateApplicationXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>SUB_VERSION</version>
+                <configuration>
+                    <serverName>ejbServer</serverName>
+                    <configFile>src/main/liberty/config/server.xml</configFile>
+                    <appsDirectory>apps</appsDirectory>
+                    <looseApplication>true</looseApplication>
+                    <installAppPackages>project</installAppPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
