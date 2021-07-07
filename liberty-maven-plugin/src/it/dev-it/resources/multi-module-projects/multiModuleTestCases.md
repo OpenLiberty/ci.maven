@@ -5,6 +5,9 @@ multipleLibertyModules)  pom, ear1+war+jar, ear2+war+jar
 - Main pom: ./pom.xml
 - Tests exist in every module
 
+sample.ejb) pom, ear+war+ejb
+- Based on https://github.com/WASdev/sample.ejb
+
 a)  pom, ear+war+jar
 - Server info in ear module
 - Main pom: ./pom.xml
