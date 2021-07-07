@@ -41,6 +41,8 @@ public class MultiModuleEjbTest extends BaseMultiModuleTest {
    public void runTest() throws Exception {
       assertEndpointContent("http://localhost:9080/ejb-war/ejbservlet", "Hello EJB World.");
 
+      manualTestsInvocationTest("ejb-ejb", "ejb-war", "ejb-ear");
+
       modifyEjb();
 
       assertEndpointContent("http://localhost:9080/ejb-war/ejbservlet", "Hello EJB World 1.");
