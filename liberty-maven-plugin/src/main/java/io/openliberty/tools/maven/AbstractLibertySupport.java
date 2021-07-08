@@ -273,10 +273,13 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                         ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion()); 
                         artifact = getArtifact(item);
                     }
-                    log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
+                    // Ignore test-scoped artifacts, by design
+                    if (!"test".equals(artifact.getScope())) {
+                        log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
                             + artifact.getArtifactId() + ":" + artifact.getVersion());
-                    resolvedDependencies.add(artifact);
-                    findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
+                        resolvedDependencies.add(artifact);
+                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
+                    }
                 }
             }
 
@@ -291,26 +294,20 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                          (dependency.getArtifactId().equals(compareArtifactId)))) {
                         ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()); 
                         Artifact artifact = getArtifact(item);
-                        log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
+                        // Ignore test-scoped artifacts, by design
+                        if (!"test".equals(artifact.getScope())) {
+                            log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
-                        resolvedDependencies.add(artifact);
-                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
+                            resolvedDependencies.add(artifact);
+                            findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
+                        }
                     }
                 }
             }
 
-            // Remove test scoped dependencies
-            Set<Artifact> dependenciesWithoutTest = new HashSet<Artifact>();
-            for (Artifact artifact : resolvedDependencies) {
-                if (!"test".equals(artifact.getScope())) {
-                    dependenciesWithoutTest.add(artifact);
-                }
-            }
-            resolvedDependencies = dependenciesWithoutTest;
-
             if (resolvedDependencies.isEmpty()) {
                 // No matching artifacts were found in the resolved dependencies. Send warning.
-                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", and version "+version+" in either project dependencies or in project dependencyManagement.");
+                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+" of any version in either project dependencies or in project dependencyManagement (note test-scoped dependencies are excluded).");
             }
         }
 
