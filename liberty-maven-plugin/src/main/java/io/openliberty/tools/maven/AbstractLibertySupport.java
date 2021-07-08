@@ -225,7 +225,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
     /**
      * Find resolved dependencies with matching groupId:artifactId:version. Also collect transitive dependencies for those
-     * resolved dependencies. The groupId is required. The artifactId and version are optional. 
+     * resolved dependencies. The groupId is required. The artifactId and version are optional.
+     * If version is null, then test scoped dependencies are omitted.
      * The artifactId can also end with a '*' to indicate a wildcard match.
      *
      * @param groupId String specifying the groupId of the Maven artifact to copy.
@@ -297,6 +298,15 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                     }
                 }
             }
+
+            // Remove test scoped dependencies
+            Set<Artifact> dependenciesWithoutTest = new HashSet<Artifact>();
+            for (Artifact artifact : resolvedDependencies) {
+                if (!"test".equals(artifact.getScope())) {
+                    dependenciesWithoutTest.add(artifact);
+                }
+            }
+            resolvedDependencies = dependenciesWithoutTest;
 
             if (resolvedDependencies.isEmpty()) {
                 // No matching artifacts were found in the resolved dependencies. Send warning.
