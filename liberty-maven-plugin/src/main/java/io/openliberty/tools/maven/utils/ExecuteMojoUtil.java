@@ -138,6 +138,47 @@ public class ExecuteMojoUtil {
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/failsafe-report-only-mojo.html
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
 
+    // https://maven.apache.org/plugins/maven-ear-plugin/ear-mojo.html
+    private static final ArrayList<String> EAR_PARAMS = new ArrayList<>(
+            Arrays.asList("earSourceDirectory", "outputDirectory", "outputFileNameMapping", "tempFolder", "workDirectory",
+                    "applicationXml", "archive", "artifactTypeMappings", "classifier", "defaultLibBundleDir", "earSourceExcludes",
+                    "earSourceIncludes", "encoding", "escapeString", "escapedBackslashesInFilePath",
+                    "fileNameMapping", "filtering", "filters", "generatedDescriptorLocation",
+                    "includeLibInApplicationXml", "jboss", "mainArtifactId", "modules", "nonFilteredFileExtensions", "outputTimestamp",
+                    "packagingExcludes", "packagingIncludes", "skinnyModules", "skinnyWars", "skipClassPathModification", "unpackTypes",
+                    "useBaseVersion", "useJvmChmod", "version"));
+
+    // https://maven.apache.org/plugins/maven-jar-plugin/jar-mojo.html
+    private static final ArrayList<String> JAR_PARAMS = new ArrayList<>(
+            Arrays.asList("classesDirectory", "outputDirectory", "archive", "classifier", "excludes", "forceCreation",
+                    "includes", "outputTimestamp", "skipIfEmpty", "useDefaultManifestFile"));
+    
+    // https://maven.apache.org/plugins/maven-ejb-plugin/ejb-mojo.html
+    private static final ArrayList<String> EJB_PARAMS = new ArrayList<>(
+            Arrays.asList("sourceDirectory", "archive", "classifier", "clientClassifier", "clientExcludes",
+                    "clientIncludes", "ejbJar", "ejbVersion", "escapeBackslashesInFilePath", "escapeString", "excludes",
+                    "filterDeploymentDescriptor", "filters", "generateClient", "outputTimestamp"));
+
+    // https://maven.apache.org/plugins/maven-war-plugin/war-mojo.html
+    private static final ArrayList<String> WAR_PARAMS = new ArrayList<>(Arrays.asList("outputDirectory",
+            "warSourceDirectory", "webappDirectory", "workDirectory", "archive", "archiveClasses", "attachClasses",
+            "classesClassifier", "classifier", "containerConfigXML", "delimiters", "dependentWarExcludes",
+            "dependentWarIncludes", "escapeString", "escapedBackslashesInFilePath", "failOnMissingWebXml",
+            "filteringDeploymentDescriptors", "filters", "includeEmptyDirectories", "nonFilteredFileExtensions",
+            "outdatedCheckPath", "outputFileNameMapping", "outputTimestamp", "overlays", "packagingExcludes",
+            "packagingIncludes", "primaryArtifact", "recompressZippedFiles", "resourceEncoding", "skip",
+            "supportMultiLineFiltering", "useDefaultDelimiters", "useJvmChmod", "warSourceExcludes",
+            "warSourceIncludes", "webResources", "webXml"));
+
+    // https://maven.apache.org/plugins/maven-ear-plugin/generate-application-xml-mojo.html
+    private static final ArrayList<String> EAR_GENERATE_APPLICATION_XML_PARAMS = new ArrayList<>(
+            Arrays.asList("outputFileNameMapping", "tempFolder", "workDirectory", "applicationId", "applicationName",
+                    "artifactTypeMappings", "defaultLibBundleDir", "description", "displayName", "ejbRefs", "encoding",
+                    "envEntries", "fileNameMapping", "generateApplicationXml", "generateModuleId",
+                    "generatedDescriptorLocation", "includeLibInApplicationXml", "initializeInOrder", "jboss",
+                    "libraryDirectoryMode", "mainArtifactId", "modules", "resourceRefs", "security", "useBaseVersion",
+                    "version"));
+
     private static final ArrayList<String> LIBERTY_COMMON_PARAMS = new ArrayList<>(Arrays.asList(
             "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
@@ -289,6 +330,21 @@ public class ExecuteMojoUtil {
             break;
         case "maven-surefire-report-plugin:failsafe-report-only":
             goalConfig = stripConfigElements(config, FAILSAFE_REPORT_ONLY_PARAMS);
+            break;
+        case "maven-ear-plugin:generate-application-xml":
+            goalConfig = stripConfigElements(config, EAR_GENERATE_APPLICATION_XML_PARAMS);
+            break;
+        case "maven-ear-plugin:ear":
+            goalConfig = stripConfigElements(config, EAR_PARAMS);
+            break;
+        case "maven-jar-plugin:jar":
+            goalConfig = stripConfigElements(config, JAR_PARAMS);
+            break;
+        case "maven-ejb-plugin:ejb":
+            goalConfig = stripConfigElements(config, EJB_PARAMS);
+            break;
+        case "maven-war-plugin:war":
+            goalConfig = stripConfigElements(config, WAR_PARAMS);
             break;
         default:
             goalConfig = config;

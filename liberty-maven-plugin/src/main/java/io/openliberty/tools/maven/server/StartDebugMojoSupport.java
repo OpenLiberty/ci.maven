@@ -17,25 +17,27 @@ package io.openliberty.tools.maven.server;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,14 +50,18 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -77,7 +83,8 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     private static boolean configFilesCopied = false;
 
-    protected final String PLUGIN_VARIABLE_CONFIG_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
+    protected final String PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
+    protected final String PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML = "configDropins/defaults/liberty-plugin-variable-config.xml";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
@@ -120,6 +127,12 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     @Parameter
     protected List<String> jvmOptions;
+
+    /**
+     * The current plugin's descriptor. This is auto-filled by Maven 3.
+     */
+    @Parameter( defaultValue = "${plugin}", readonly = true )
+    private PluginDescriptor plugin;
 
     private enum PropertyType {
         BOOTSTRAP("liberty.bootstrap."),
@@ -190,30 +203,52 @@ public class StartDebugMojoSupport extends BasicSupport {
      * @return Plugin
      */
     protected Plugin getPlugin(String groupId, String artifactId) {
-        Plugin plugin = project.getPlugin(groupId + ":" + artifactId);
+       return getPluginForProject(groupId, artifactId, project);
+    }
+
+    /**
+     * Given the groupId and artifactId get the corresponding plugin for the
+     * specified project
+     * 
+     * @param groupId
+     * @param artifactId
+     * @param currentProject
+     * @return Plugin
+     */
+    protected Plugin getPluginForProject(String groupId, String artifactId, MavenProject currentProject) {
+        Plugin plugin = currentProject.getPlugin(groupId + ":" + artifactId);
         if (plugin == null) {
-            plugin = getPluginFromPluginManagement(groupId, artifactId);
+            plugin = getPluginFromPluginManagement(groupId, artifactId, currentProject);
         }
         if (plugin == null) {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
     }
-    
+
     protected Plugin getLibertyPlugin() {
-        Plugin plugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
-        if (plugin == null) {
-            plugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        // Try getting the version from Maven 3's plugin descriptor
+        String version = null;
+        if (plugin != null && plugin.getPlugin() != null) {
+            version = plugin.getVersion();
+            log.debug("Setting plugin version to " + version);
         }
-        if (plugin == null) {
-            plugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
+        Plugin projectPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        if (projectPlugin == null) {
+            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, project);
         }
-        return plugin;
+        if (projectPlugin == null) {
+            projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
+        }
+        if (version != null) {
+            projectPlugin.setVersion(version);
+        }
+        return projectPlugin;
     }
 
-    protected Plugin getPluginFromPluginManagement(String groupId, String artifactId) {
+    protected Plugin getPluginFromPluginManagement(String groupId, String artifactId, MavenProject currentProject) {
         Plugin retVal = null;
-        PluginManagement pm = project.getPluginManagement();
+        PluginManagement pm = currentProject.getPluginManagement();
         if (pm != null) {
             for (Plugin p : pm.getPlugins()) {
                 if (groupId.equals(p.getGroupId()) && artifactId.equals(p.getArtifactId())) {
@@ -498,10 +533,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
         else {
             if (!envMavenProps.isEmpty()) {
-                if (serverEnvPath != null) {
+                Map<String,String> envPropsToWrite = envMavenProps;
+                if (serverEnvFile == null && serverEnvPath == null) {
+                    // Do a special case merge but ONLY if there are no other config options present
+                    envPropsToWrite = mergeSpecialPropsFromInstallServerEnvIfAbsent(envMavenProps);
+                } else if (serverEnvPath != null) {
                     log.warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
                 }
-                writeServerEnvProperties(envFile, envMavenProps);
+                writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
             } else if (serverEnvFile != null && serverEnvFile.exists()) {
                 Copy copy = (Copy) ant.createTask("copy");
@@ -513,12 +552,20 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
         }
 
-        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_XML);
+        File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML);
         if (pluginVariableConfig.exists()) {
             pluginVariableConfig.delete();
         }
-        if (!varMavenProps.isEmpty() || !defaultVarMavenProps.isEmpty()) {
-            writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, defaultVarMavenProps);  
+        if (!varMavenProps.isEmpty()) {
+            writeConfigDropinsServerVariables(pluginVariableConfig, varMavenProps, false);  
+        }
+
+        pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML);
+        if (pluginVariableConfig.exists()) {
+            pluginVariableConfig.delete();
+        }
+        if (!defaultVarMavenProps.isEmpty()) {
+            writeConfigDropinsServerVariables(pluginVariableConfig, defaultVarMavenProps, true);  
         }
 
         // log info on the configuration files that get used
@@ -543,6 +590,31 @@ public class StartDebugMojoSupport extends BasicSupport {
 
         // Now process the copyDependencies configuration
         copyDependencies();
+    }
+
+    /**
+     * Merges envProps with special properties found in the install (target) server.env.  We return a clone/copy of
+     * envProps, to which any of a list of special properties found in server.env have been added.  We give precedence
+     * to properties already in envProps.
+     */
+    private Map<String, String> mergeSpecialPropsFromInstallServerEnvIfAbsent(Map<String, String> envProps) throws IOException {
+
+        String[] specialProps = { "keystore_password" };
+
+        // Clone to avoid side effects 
+        Map<String, String> mergedProps = new HashMap<String,String>(envProps);
+        
+        // From install (target) dir
+        File serverEnv = new File(serverDirectory, "server.env");
+        Map<String, String> serverEnvProps = convertServerEnvToProperties(serverEnv);
+        
+        for (String propertyName : specialProps) {
+            if (serverEnvProps.containsKey(propertyName)) {
+                mergedProps.putIfAbsent(propertyName,serverEnvProps.get(propertyName));
+            }
+        }
+
+        return mergedProps;
     }
 
     // Merges configured serverEnvFile with envMavenProps if specified, and returns the updated serverEnvPath
@@ -761,30 +833,14 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
-    private void writeConfigDropinsServerVariables(File file, Map<String,String> varMavenProps, Map<String,String> defaultVarMavenProps) throws IOException, TransformerException, ParserConfigurationException {
+    private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, TransformerException, ParserConfigurationException {
 
         ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
 
         configDocument.createComment(HEADER);
-        Set<String> existingVarNames = new HashSet<String>();
 
-        for (Map.Entry<String, String> entry : varMavenProps.entrySet()) {
-            String key = entry.getKey();
-            existingVarNames.add(key);
-            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), false);
-        }
-
-        for (Map.Entry<String, String> entry : defaultVarMavenProps.entrySet()) {
-            // check to see if a variable with a value already exists with the same name and log it
-            String key = entry.getKey();
-            if (existingVarNames.contains(key)) {
-                // since the defaultValue will only be used if no other value exists for the variable, 
-                // it does not make sense to generate the variable with a defaultValue when we know a value already exists.
-                log.warn("The variable with name "+key+" and defaultValue "+entry.getValue()+" is skipped since a variable with that name already exists with a value.");
-            } else {
-                // set boolean to true so the variable is created with a defaultValue instead of a value
-                configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), true);
-            }
+        for (Map.Entry<String, String> entry : props.entrySet()) {
+            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), isDefaultVar);
         }
 
         // write XML document to file
@@ -802,5 +858,168 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     public static boolean isConfigCopied() {
         return configFilesCopied;
+    }
+
+    /*-
+     * Check the Reactor build order for multi module conflicts.
+     * 
+     * A conflict is multiple modules that do not have downstream modules depending on them, and are not submodules of each other.
+     * For example, if the Reactor tree looks like:
+     *   - ear
+     *     - war
+     *        - jar
+     *   - jar2
+     *   - pom (top level multi module pom.xml containing ear, war, jar, jar2 as modules)
+     * Then ear and jar2 conflict with each other, but pom does not conflict because ear and jar2 are sub-modules of it.
+     * 
+     * @param graph The project dependency graph
+     * @throws MojoExecutionException If there are multiple modules that conflict
+     */
+    protected void checkMultiModuleConflicts(ProjectDependencyGraph graph) throws MojoExecutionException {
+        List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
+        Set<MavenProject> conflicts = new LinkedHashSet<MavenProject>(); // keeps the order of items added in
+
+        // a leaf here is a module without any downstream modules depending on it
+        List<MavenProject> leaves = new ArrayList<MavenProject>();
+        for (MavenProject reactorProject : sortedReactorProjects) {
+            if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
+                leaves.add(reactorProject);
+            }
+        }
+
+        for (MavenProject leaf1 : leaves) {
+            for (MavenProject leaf2 : leaves) {
+                if (leaf1 != leaf2 && !(isSubModule(leaf2, leaf1) || isSubModule(leaf1, leaf2))) {
+                    conflicts.add(leaf1);
+                    conflicts.add(leaf2);
+                }
+            }
+        }
+
+        List<String> conflictModuleRelativeDirs = new ArrayList<String>();
+        for (MavenProject conflict : conflicts) {
+            // make the module path relative to the multi module project directory
+            conflictModuleRelativeDirs.add(getModuleRelativePath(conflict));
+        }
+
+        boolean hasMultipleLibertyModules = !conflicts.isEmpty();
+
+        if (hasMultipleLibertyModules) {
+            throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
+                    + conflictModuleRelativeDirs
+                    + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+        }
+    }
+
+    /**
+     * Gets the module's relative path (i.e. the module name) relative to the multi module project directory.
+     * 
+     * @param module The module for which you want to get the path
+     * @return The module path relative to the multi module project directory
+     */
+    private String getModuleRelativePath(MavenProject module) {
+        return multiModuleProjectDirectory.toPath().relativize(module.getBasedir().toPath()).toString();
+    }
+
+    /**
+     * If the ear artifact is not in .m2, install an empty ear as a workaround so that downstream modules can build.
+     * Only needed if using loose application.
+     * 
+     * @param earProject
+     * @throws MojoExecutionException If the empty ear artifact could not be installed. Prompts the user to run a manual command as a workaround.
+     */
+    protected void installEmptyEarIfNotFound(MavenProject earProject) throws MojoExecutionException {
+        ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
+        try {
+            Artifact existingEarArtifact = getArtifact(existingEarItem);
+            log.debug("EAR artifact already exists at " + existingEarArtifact.getFile());
+        } catch (MojoExecutionException e) {
+            log.debug("Installing empty EAR artifact to .m2 directory...");
+            installEmptyEAR(earProject);
+        }
+    }
+
+    private void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
+        String goal = "install-file";
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
+        log.debug("Running maven-install-plugin:" + goal);
+
+        File tempFile;
+        try {
+            tempFile = File.createTempFile(earProject.getArtifactId(), ".ear");
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
+        }
+
+        Xpp3Dom config = configuration(
+            element(name("file"), tempFile.getAbsolutePath()),
+            element(name("pomFile"), earProject.getFile().getAbsolutePath())
+        );
+
+        log.debug("configuration:\n" + config);
+        try {
+            executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+        } catch (MojoExecutionException e) {
+            String module = getModuleRelativePath(earProject);
+            log.debug(e);
+            throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
+        }
+    }
+
+    /**
+     * Returns whether potentialTopModule is a multi module project that has potentialSubModule as one of its sub-modules.
+     */
+    private static boolean isSubModule(MavenProject potentialTopModule, MavenProject potentialSubModule) {
+        List<String> multiModules = potentialTopModule.getModules();
+        if (multiModules != null) {
+            for (String module : multiModules) {
+                File subModuleDir = new File(potentialTopModule.getBasedir(), module);
+                try {
+                    if (subModuleDir.getCanonicalFile().equals(potentialSubModule.getBasedir().getCanonicalFile())) {
+                        return true;
+                    }    
+                } catch (IOException e) {
+                    if (subModuleDir.getAbsoluteFile().equals(potentialSubModule.getBasedir().getAbsoluteFile())) {
+                        return true;
+                    }   
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * If there was a previous module without downstream projects, assume Liberty
+     * already ran. Then if THIS module is a top-level multi module pom that
+     * includes that other module, skip THIS module.
+     * 
+     * @param graph The project dependency graph containing Reactor build order
+     * @return Whether this module should be skipped
+     */
+    protected boolean containsPreviousLibertyModule(ProjectDependencyGraph graph) {
+        List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
+        MavenProject mostDownstreamModule = null;
+        for (MavenProject reactorProject : sortedReactorProjects) {
+            // Stop if reached the current module in Reactor build order
+            if (reactorProject.equals(project)) {
+                break;
+            }
+            if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
+                mostDownstreamModule = reactorProject;
+                break;
+            }
+        }
+        if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
+            log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies: " + mostDownstreamModule);
+            if (isSubModule(project, mostDownstreamModule)) {
+                log.debug(
+                        "Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping goal on this module.");
+                return true;
+            }
+        }
+        return false;
     }
 }

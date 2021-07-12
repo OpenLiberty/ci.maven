@@ -31,9 +31,9 @@ public class MicroCleanAfterTest {
 
     @Test
     public void verifyBeforeLibertyPluginVariableConfig() throws Exception {
-        File libertyPluginVariableConfig = new File("liberty/usr/servers/test/configDropins/overrides/liberty-plugin-variable-config.xml");
+        File libertyPluginVariableConfig = new File("liberty/usr/servers/test/configDropins/defaults/liberty-plugin-variable-config.xml");
 
-        assertTrue("liberty variable xml wasn't created in before state", new File("liberty/usr/servers/test/configDropins/overrides").exists());
+        assertTrue("liberty variable xml wasn't created in before state", new File("liberty/usr/servers/test/configDropins/defaults").exists());
         assertTrue("liberty variable xml should not exist", !libertyPluginVariableConfig.exists());
     }
 }

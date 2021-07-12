@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>ear-project-it</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>SampleEAR_NonLooseApp</artifactId>
+
+    <packaging>ear</packaging>
+
+    <name>ear-project-it:  SampleEAR_NonLooseApp Module</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>SampleEJB</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>SampleWAR</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>SampleWAR2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <!-- Tell Maven we are using Java EE 7 -->
+                    <version>7</version>
+                    <!-- Use Java EE ear libraries as needed. Java EE ear 
+                        libraries are in easy way to package any libraries needed in the ear, and 
+                        automatically have any modules (EJB-JARs and WARs) use them -->
+                    <defaultLibBundleDir>lib</defaultLibBundleDir>
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
+                    <initializeInOrder>true</initializeInOrder>
+                    <modules>
+                        <webModule>
+                            <groupId>io.openliberty.tools.it</groupId>
+                            <artifactId>SampleWAR</artifactId>
+                            <uri>/modules/web.war</uri>
+                        </webModule>
+                        <webModule>
+                            <groupId>io.openliberty.tools.it</groupId>
+                            <artifactId>SampleWAR2</artifactId>
+                            <!-- uri and bundleDir elements not included to test issue 264 -->
+                        </webModule>
+                    </modules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>@pom.version@</version>
+                <configuration>
+                    <stripVersion>true</stripVersion>
+                    <assemblyArtifact>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <version>${runtimeVersion}</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                    <serverName>test</serverName>
+                    <appsDirectory>apps</appsDirectory>
+                    <looseApplication>false</looseApplication>
+                    <include>usr</include>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>stop-server-before-clean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>stop-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-server</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>install-server</goal>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>install-apps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>package-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-start-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>test-start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-stop-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>test-stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <forkMode>once</forkMode>
+                    <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+                    <argLine>-enableassertions</argLine>
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

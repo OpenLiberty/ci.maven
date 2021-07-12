@@ -140,6 +140,7 @@
       <version>1.2.3</version>
       <scope>runtime</scope>
     </dependency>
+    <!-- ADDITIONAL_DEPENDENCIES -->
   </dependencies>
 
   <build>
@@ -190,6 +191,7 @@
             <default.https.port>${testServerHttpsPort}</default.https.port>
             <com.ibm.ws.logging.message.format>json</com.ibm.ws.logging.message.format>
           </bootstrapProperties>
+          <!-- ADDITIONAL_CONFIGURATION -->
         </configuration>
       </plugin>
       <!-- Plugin to run functional tests -->

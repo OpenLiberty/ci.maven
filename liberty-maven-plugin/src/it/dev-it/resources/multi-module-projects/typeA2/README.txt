@@ -1,0 +1,1 @@
+Server info in ear module

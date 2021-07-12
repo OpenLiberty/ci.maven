@@ -20,7 +20,8 @@ import static junit.framework.Assert.*;
 public class PluginConfigXmlIT {
     
     public final String CONFIG_XML = "target/liberty-plugin-config.xml";
-    public final String CONFIG_VAR_XML = "target/liberty/usr/servers/test/configDropins/overrides/liberty-plugin-variable-config.xml";
+    public final String CONFIG_VAR_OVERRIDES_XML = "target/liberty/usr/servers/test/configDropins/overrides/liberty-plugin-variable-config.xml";
+    public final String CONFIG_VAR_DEFAULTS_XML = "target/liberty/usr/servers/test/configDropins/defaults/liberty-plugin-variable-config.xml";
     public final String TARGET_BOOTSTRAP_PROPERTIES = "target/liberty/usr/servers/test/bootstrap.properties";
     public final String TARGET_JVM_OPTIONS = "target/liberty/usr/servers/test/jvm.options";
     public final String SOURCE_SERVER_ENV = "src/main/liberty/config/server.env";
@@ -35,8 +36,10 @@ public class PluginConfigXmlIT {
     }
     
     @Test
-    public void testConfigVarFileExist() throws Exception {
-        File f = new File(CONFIG_VAR_XML);
+    public void testConfigVarFilesExist() throws Exception {
+        File f = new File(CONFIG_VAR_OVERRIDES_XML);
+        assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
+        f = new File(CONFIG_VAR_DEFAULTS_XML);
         assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
     
@@ -152,8 +155,8 @@ public class PluginConfigXmlIT {
     }
 
     @Test
-    public void testServerConfigDropinsVarElements() throws Exception {
-        File in = new File(CONFIG_VAR_XML);
+    public void testServerConfigDropinsOverridesVarElements() throws Exception {
+        File in = new File(CONFIG_VAR_OVERRIDES_XML);
         FileInputStream input = new FileInputStream(in);
         
         // get input XML Document
@@ -169,14 +172,13 @@ public class PluginConfigXmlIT {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/server/variable";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of variable elements ==>", 5, nodes.getLength());
+        assertEquals("Number of variable elements ==>", 3, nodes.getLength());
 
         // iterate through nodes and verify their values
         for (int i=0; i < nodes.getLength(); i++) {
             Element el = (Element) nodes.item(i);
             String varName = el.getAttribute("name");
             String varValue = el.getAttribute("value");
-            String varDefaultValue = el.getAttribute("defaultValue");
 
             switch (varName) {
                 case "someVariable1":
@@ -188,13 +190,50 @@ public class PluginConfigXmlIT {
                 case "new.CmdLine.Var":
                             assertEquals("Unexpected variable value for "+varName,"newCmdLineValue",varValue);
                             break;
+                default: fail("Found unexpected variable in generated configDropins/overrides/liberty-plugin-variable-config.xml file.");
+            }
+ 
+        }
+                
+    }
+
+    @Test
+    public void testServerConfigDropinsDefaultsVarElements() throws Exception {
+        File in = new File(CONFIG_VAR_DEFAULTS_XML);
+        FileInputStream input = new FileInputStream(in);
+        
+        // get input XML Document
+        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+        inputBuilderFactory.setIgnoringComments(true);
+        inputBuilderFactory.setCoalescing(true);
+        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+        inputBuilderFactory.setValidating(false);
+        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+        Document inputDoc = inputBuilder.parse(input);
+        
+        // parse input XML Document
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/server/variable";
+        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of variable elements ==>", 3, nodes.getLength());
+
+        // iterate through nodes and verify their values
+        for (int i=0; i < nodes.getLength(); i++) {
+            Element el = (Element) nodes.item(i);
+            String varName = el.getAttribute("name");
+            String varDefaultValue = el.getAttribute("defaultValue");
+
+            switch (varName) {
                 case "someDefaultVar1":
                             assertEquals("Unexpected variable value for "+varName,"someDefaultValue1", varDefaultValue);
                             break;
                 case "someDefaultVar2":
                             assertEquals("Unexpected variable value for "+varName,"someDefaultValue2", varDefaultValue);
                             break;
-                default: fail("Found unexpected variable in generated liberty-plugin-variable-config.xml file.");
+                case "someVariable1":
+                            assertEquals("Unexpected variable value for "+varName,"ignoredDefaultValue", varDefaultValue);
+                            break;
+                default: fail("Found unexpected variable in generated configDropins/defaults/liberty-plugin-variable-config.xml file.");
             }
  
         }

@@ -66,8 +66,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
     protected void installApp(Artifact artifact) throws Exception {
     
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
-            String warName = getAppFileName(project);
-            File f = new File(project.getBuild().getDirectory() + "/" + warName);
+            String appFileName = getPreDeployAppFileName(project);
+            File f = new File(project.getBuild().getDirectory() + "/" + appFileName);
             artifact.setFile(f);
         }
 
@@ -103,6 +103,28 @@ public class DeployMojoSupport extends PluginConfigSupport {
         verifyAppStarted(fileName);
     }
 
+    private void setLooseProjectRootForContainer(MavenProject proj, LooseConfigData config) throws MojoExecutionException {
+        try {
+            // Set up the config to replace the absolute path names with ${variable}/target type references
+            String projectRoot = DevUtil.getLooseAppProjectRoot(proj.getBasedir(), multiModuleProjectDirectory).getCanonicalPath();
+            config.setProjectRoot(projectRoot);
+            config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
+            if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
+                copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
+            } else {
+                // test the user defined copyLibsDirectory parameter for use in a container
+                String copyLibsPath = copyLibsDirectory.getCanonicalPath();
+                if (!copyLibsPath.startsWith(projectRoot)) {
+                    // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
+                    log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+                }
+            }
+        } catch (IOException e) {
+            // an IOException here should fail the build
+            throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
+        }
+    }
+
     // install war project artifact using loose application configuration file
     protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
         // return error if webapp contains java source but it is not compiled yet.
@@ -113,25 +135,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
 
         if (container) {
-                try {
-                    // Set up the config to replace the absolute path names with ${variable}/target type references
-                    config.setProjectRoot(proj.getBasedir().getCanonicalPath());
-                    config.setSourceOnDiskName("${"+DevUtil.DEVMODE_PROJECT_ROOT+"}");
-                    if (copyLibsDirectory == null) { // in container mode, copy dependencies from .m2 dir to the target dir to mount in container
-                        copyLibsDirectory = new File(proj.getBasedir(), PROJECT_ROOT_TARGET_LIBS);
-                    } else {
-                        // test the user defined copyLibsDirectory parameter for use in a container
-                        String projectPath = proj.getBasedir().getCanonicalPath();
-                        String copyLibsPath = copyLibsDirectory.getCanonicalPath();
-                        if (!copyLibsPath.startsWith(projectPath)) {
-                            // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
-                            log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
-                        }
-                    }
-                } catch (IOException e) {
-                    // an IOException here should fail the build
-                    throw new MojoExecutionException("Could not resolve the canonical path of the Maven project or the directory specified in the copyLibsDirectory parameter. Exception message:" + e.getMessage(), e);
-                }
+            setLooseProjectRootForContainer(proj, config);
         }
 
         LooseWarApplication looseWar = new LooseWarApplication(proj, config);
@@ -157,7 +161,11 @@ public class DeployMojoSupport extends PluginConfigSupport {
     }
 
     // install ear project artifact using loose application configuration file
-    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config) throws Exception {
+    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
+        if (container) {
+            setLooseProjectRootForContainer(proj, config);
+        }
+
         LooseEarApplication looseEar = new LooseEarApplication(proj, config);
         looseEar.addSourceDir();
         looseEar.addApplicationXmlFile();
@@ -180,13 +188,13 @@ public class DeployMojoSupport extends PluginConfigSupport {
                     MavenProject dependencyProject = getReactorMavenProject(artifact);
                     switch (artifact.getType()) {
                     case "jar":
-                        looseEar.addJarModule(dependencyProject);
+                        looseEar.addJarModule(dependencyProject, artifact);
                         break;
                     case "ejb":
-                        looseEar.addEjbModule(dependencyProject);
+                        looseEar.addEjbModule(dependencyProject, artifact);
                         break;
                     case "war":
-                        Element warArchive = looseEar.addWarModule(dependencyProject,
+                        Element warArchive = looseEar.addWarModule(dependencyProject, artifact,
                                 getWarSourceDirectory(dependencyProject));
                         if (looseEar.isEarSkinnyWars()) {
                             // add embedded lib only if they are not a compile dependency in the ear
@@ -197,7 +205,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
                         }
                         break;
                     case "rar":
-                        Element rarArchive = looseEar.addRarModule(dependencyProject);
+                        Element rarArchive = looseEar.addRarModule(dependencyProject, artifact);
                         addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
                         break;
                     default:
@@ -249,10 +257,10 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
     }
 
-    private void addEmbeddedLib(Element parent, MavenProject proj, LooseApplication looseApp, String dir)
+    private void addEmbeddedLib(Element parent, MavenProject warProject, LooseApplication looseApp, String dir)
             throws Exception {
-        Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+        Set<Artifact> artifacts = warProject.getArtifacts();
+        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
@@ -262,9 +270,9 @@ public class DeployMojoSupport extends PluginConfigSupport {
         }
     }
 
-    private void addSkinnyWarLib(Element parent, MavenProject proj, LooseEarApplication looseEar) throws Exception {
-        Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+    private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws Exception {
+        Set<Artifact> artifacts = warProject.getArtifacts();
+        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear
@@ -280,7 +288,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
         {
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
-                Element archive = looseApp.addArchive(parent, dir + dependProject.getBuild().getFinalName() + ".jar");
+                String artifactFileName = getPreDeployAppFileName(dependProject);
+                Element archive = looseApp.addArchive(parent, dir + artifactFileName);
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
                 
                 File manifestFile = MavenProjectUtil.getManifestFile(dependProject, "maven-jar-plugin");
@@ -330,18 +339,38 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
     // get loose application configuration file name for project artifact
     protected String getLooseConfigFileName(MavenProject project) {
-        return getAppFileName(project) + ".xml";
+        return getPostDeployAppFileName(project) + ".xml";
     }
 
-    // get loose application configuration file name for project artifact
-    protected String getAppFileName(MavenProject project) {
-        String name = project.getBuild().getFinalName() + "." + project.getPackaging();
-        if (project.getPackaging().equals("liberty-assembly")) {
-            name = project.getBuild().getFinalName() + ".war";
-        }
-        if (stripVersion) {
+    // get loose application file name for project artifact
+    protected String getPostDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, true);
+    }
+    
+    // target ear/war produced by war:war, ear:ear, haven't stripped version yet
+    protected String getPreDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, false);
+    }
+    
+    protected String getAppFileName(MavenProject project, boolean stripVersionIfConfigured) {
+
+        String name = project.getBuild().getFinalName();
+
+        if (stripVersionIfConfigured &&  stripVersion) {
             name = stripVersionFromName(name, project.getVersion());
         }
+
+        String classifier = MavenProjectUtil.getAppNameClassifier(project);
+        if (classifier != null) {
+            name += "-" + classifier;
+        } 
+
+        if (project.getPackaging().equals("liberty-assembly")) {
+            name += ".war";
+        } else {
+            name += "." + project.getPackaging();
+        }
+
         return name;
     }
 
@@ -421,6 +450,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
             case "ear":
             case "war":
             case "liberty-assembly":
+            case "pom":
                 supported = true;
                 break;
             default:

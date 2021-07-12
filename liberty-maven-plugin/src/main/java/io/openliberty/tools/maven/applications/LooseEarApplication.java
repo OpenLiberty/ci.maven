@@ -63,17 +63,17 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public Element addJarModule(MavenProject proj) throws Exception {
-        return addModule(proj, "maven-jar-plugin");
+    public Element addJarModule(MavenProject proj, Artifact artifact) throws Exception {
+        return addModule(proj, artifact, "maven-jar-plugin");
     }
 
-    public Element addEjbModule(MavenProject proj) throws Exception {
-        return addModule(proj, "maven-ejb-plugin");
+    public Element addEjbModule(MavenProject proj, Artifact artifact) throws Exception {
+        return addModule(proj, artifact, "maven-ejb-plugin");
     }
 
-    public Element addModule(MavenProject proj, String pluginId) throws Exception {
+    public Element addModule(MavenProject proj, Artifact artifact, String pluginId) throws Exception {
         File outputDirectory = new File(proj.getBuild().getOutputDirectory());
-        Element moduleArchive = config.addArchive(getModuleUri(proj));
+        Element moduleArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(moduleArchive, outputDirectory, "/");
         // add manifest.mf
         File manifestFile = MavenProjectUtil.getManifestFile(proj, pluginId);
@@ -83,17 +83,17 @@ public class LooseEarApplication extends LooseApplication {
         return moduleArchive;
     }
 
-    public Element addWarModule(MavenProject proj, File warSourceDir) throws Exception {
-        Element warArchive = config.addArchive(getModuleUri(proj));
+    public Element addWarModule(MavenProject proj, Artifact artifact, File warSourceDir) throws Exception {
+        Element warArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
         // add Manifest file
-        addWarManifestFile(warArchive, proj);
+        addWarManifestFile(warArchive, artifact, proj);
         return warArchive;
     }
 
-    public Element addRarModule(MavenProject proj) throws Exception {
-        Element rarArchive = config.addArchive(getModuleUri(proj));
+    public Element addRarModule(MavenProject proj, Artifact artifact) throws Exception {
+        Element rarArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(rarArchive, getRarSourceDirectory(proj), "/");
 
         // get raXmlFile optional rar plugin parameter
@@ -118,10 +118,6 @@ public class LooseEarApplication extends LooseApplication {
         } else {
             return new File(proj.getBasedir(), "src/main/rar");
         }
-    }
-
-    public String getModuleUri(MavenProject proj) throws Exception {
-        return getModuleUri(proj.getArtifact());
     }
 
     public String getModuleUri(Artifact artifact) throws Exception {
@@ -272,10 +268,10 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public void addWarManifestFile(Element parent, MavenProject proj) throws Exception {
+    public void addWarManifestFile(Element parent, Artifact artifact, MavenProject proj) throws Exception {
         // the ear plug-in modify the skinnyWar module manifest file in
         // ${project.build.directory}/temp
-        File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(proj) + "/META-INF");
+        File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(artifact) + "/META-INF");
         if (isEarSkinnyWars() && newMf.exists()) {
             config.addDir(parent, newMf, "/META-INF");
         } else {

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2020.
+ * (C) Copyright IBM Corporation 2017, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,8 +117,9 @@ public class ConfigureArquillianMojo extends BasicSupport {
 
     private void configureArquillianManaged(File arquillianXml) throws MojoExecutionException {
         try {
+            String userDir = userDirectorySpecified ? userDirectory.getCanonicalPath() : null;
             LibertyManagedObject arquillianManaged = new LibertyManagedObject(installDirectory.getCanonicalPath(),
-                    serverName, getHttpPort(), LibertyProperty.getArquillianProperties(arquillianProperties,
+                    serverName, userDir, getHttpPort(), LibertyProperty.getArquillianProperties(arquillianProperties,
                             LibertyManagedObject.LibertyManagedProperty.class));
             arquillianManaged.build(arquillianXml);
         } catch (Exception e) {
