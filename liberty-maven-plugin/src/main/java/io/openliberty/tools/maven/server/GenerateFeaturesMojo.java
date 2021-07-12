@@ -41,6 +41,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.execution.ProjectDependencyGraph;
 
 import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
@@ -252,8 +253,13 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 // args: String[], String, String, java.util.Locale
                 java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("DriveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
                 log.warn("new method, driveScanMavenFeaureList="+driveScanMavenFeaureList.getName()+" parameter count="+ driveScanMavenFeaureList.getParameterCount());
-                String[] directoryList = { project.getBuild().getDirectory() + "/classes" };
-                log.warn(" scanning directory "+ directoryList[0]);
+                String[] directoryList = getClassesDirectories();
+                if (directoryList == null || directoryList.length == 0) {
+                    log.warn("Error collecting list of directories to send to binary scanner, list is null or empty.");
+                    log.debug("Error collecting list of directories to send to binary scanner, list is null or empty.");
+                    return null;
+                }
+                for (String s : directoryList) {log.warn(" scanning directory "+ s);}
                 String eeVersion = getEEVersion(project); 
                 String mpVersion = getMPVersion(project);
                 log.warn("eeVersion="+eeVersion+" mpVersion="+mpVersion);
@@ -278,6 +284,53 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             log.debug("Unable to load the binary scanner jar");
             return null;
         }
+    }
+
+    // Return a list containing the classes directory of the current project and any module projects
+    private String[] getClassesDirectories() {
+        log.warn("getClassesDirectories");
+        List<String> dirs = new ArrayList();
+        String classesDirName = null;
+        classesDirName = getClassesDirectory(project.getBuild().getOutputDirectory());
+        log.warn("this project's dir name:"+classesDirName);
+        if (classesDirName != null) {
+            dirs.add(classesDirName);
+            log.warn("added "+classesDirName);
+        }
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        List<MavenProject> upstreamProjects = graph.getUpstreamProjects(project, true);
+        log.warn("upstreamProjects.size()="+upstreamProjects.size());
+        List<MavenProject> allProjects = graph.getSortedProjects();
+        log.warn("allProjects.size()="+allProjects.size());
+        for (MavenProject aProject : allProjects) {
+            log.warn("aProject id="+aProject.getId());
+        }
+        for (MavenProject upstreamProject : upstreamProjects) {
+            classesDirName = getClassesDirectory(upstreamProject.getBuild().getOutputDirectory());
+            log.warn("upstream project classesdir "+classesDirName);
+            if (classesDirName != null) {
+                dirs.add(classesDirName);
+                log.warn("added "+classesDirName);
+            }
+        }
+        return dirs.toArray(new String[dirs.size()]);
+    }
+
+    private String getClassesDirectory(String outputDir) {
+        log.warn("get one dir name:"+outputDir);
+        File classesDir = new File(outputDir);
+        log.warn("File classesDir:"+classesDir+" exists:"+classesDir.exists());
+        try {
+            if (classesDir.exists()) {
+                log.warn("1. returning:"+ classesDir.getCanonicalPath());
+                return classesDir.getCanonicalPath();
+            }
+        } catch (IOException x) {
+            log.debug("IOException obtaining canonical path name for project classes directory: " + classesDir.getAbsolutePath());
+            log.warn("2. returning:"+ classesDir.getAbsolutePath());
+            return classesDir.getAbsolutePath();
+        }
+        return null; // directory does not exist.
     }
 
     private String getEEVersion(MavenProject project) {
