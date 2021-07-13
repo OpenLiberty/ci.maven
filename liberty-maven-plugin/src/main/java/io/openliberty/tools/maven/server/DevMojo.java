@@ -277,7 +277,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps);
+                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging());
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -965,8 +965,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     dependentModules.add(depProj.getFile());
                 }
 
-                ProjectModule upstreamProject = new ProjectModule(p.getFile(), p.getArtifactId(), compileArtifacts,
-                        testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
+                ProjectModule upstreamProject = new ProjectModule(p.getFile(), p.getArtifactId(), p.getPackaging(),
+                        compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
                         upstreamSkipITs, upstreamCompilerOptions, dependentModules);
 
