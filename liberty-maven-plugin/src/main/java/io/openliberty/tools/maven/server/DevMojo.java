@@ -814,6 +814,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 
                     installEmptyEarIfNotFound(project);
+                } else if (project.getPackaging().equals("pom")) {
+                    log.debug("Skipping compile/resources on module with pom packaging type");
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
@@ -878,6 +880,8 @@ public class DevMojo extends StartDebugMojoSupport {
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else if (project.getPackaging().equals("pom")) {
+            log.debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runCompileMojoLogWarning();
