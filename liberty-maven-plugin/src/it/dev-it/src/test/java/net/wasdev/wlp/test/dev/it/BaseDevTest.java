@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -214,6 +215,13 @@ public class BaseDevTest {
 
       if (logFile != null && logFile.exists()) {
          assertTrue(logFile.delete());
+      }
+   }
+
+   protected static void clearLogFile() throws Exception {
+      if (logFile != null && logFile.exists()) {
+         BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile));
+         logWriter.close();
       }
    }
 

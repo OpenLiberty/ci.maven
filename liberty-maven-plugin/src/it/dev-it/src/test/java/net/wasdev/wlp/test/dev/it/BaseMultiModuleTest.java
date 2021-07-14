@@ -84,7 +84,17 @@ public class BaseMultiModuleTest extends BaseDevTest {
 
    public void manualTestsInvocationTest(String... moduleArtifactIds) throws Exception {
       assertTrue(getLogTail(), verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
+      manualTestsInvocation(moduleArtifactIds);
+   }
 
+   public void manualTestsInvocationTestHotTests(String... moduleArtifactIds) throws Exception {
+      assertTrue(getLogTail(), verifyLogMessageExists(
+            "Tests will run automatically when changes are detected. You can also press the Enter key to run tests on demand.",
+            30000));
+            manualTestsInvocation(moduleArtifactIds);
+   }
+
+   public void manualTestsInvocation(String... moduleArtifactIds) throws Exception {
       writer.write("\n");
       writer.flush();
 
@@ -131,6 +141,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
       replaceString("return feet;", "return feet*2;", srcClass);
 
       Thread.sleep(5000); // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I: The application guide-maven-multimodules-ear updated", 10000));
       boolean wasModified = targetClass.lastModified() > lastModified;
       assertTrue(wasModified);
    }
