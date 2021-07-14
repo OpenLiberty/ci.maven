@@ -141,7 +141,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
       replaceString("return feet;", "return feet*2;", srcClass);
 
       Thread.sleep(5000); // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I: The application guide-maven-multimodules-ear updated", 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I", 10000));
       boolean wasModified = targetClass.lastModified() > lastModified;
       assertTrue(wasModified);
    }
