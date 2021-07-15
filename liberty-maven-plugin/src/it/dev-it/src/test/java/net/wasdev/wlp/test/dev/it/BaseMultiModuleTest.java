@@ -170,5 +170,11 @@ public class BaseMultiModuleTest extends BaseDevTest {
       assertTrue(targetClass.exists());
       return targetClass;
    }
+
+   protected static void modifyFileForModule(String srcFilePath, String str, String replacement) throws IOException {
+      File srcClass = new File(tempProj, srcFilePath);
+      assertTrue(srcClass.exists());
+      replaceString(str, replacement, srcClass);
+   }
 }
 
