@@ -170,5 +170,20 @@ public class BaseMultiModuleTest extends BaseDevTest {
       assertTrue(targetClass.exists());
       return targetClass;
    }
+
+   protected static void runCommand(String commandLineString) throws Exception {
+      StringBuilder command = new StringBuilder(commandLineString);
+      ProcessBuilder builder = buildProcess(command.toString());
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
+      }
+      Process process = builder.start();
+      assertTrue(process.isAlive());
+      process.waitFor(120, TimeUnit.SECONDS);
+      assertEquals(0, process.exitValue());
+   }
 }
 
