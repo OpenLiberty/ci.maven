@@ -964,6 +964,20 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
+    protected void purgeLocalRepositoryModule(MavenProject project) throws MojoExecutionException {
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-dependency-plugin");
+        String goal = "purge-local-repository";
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        config = Xpp3Dom.mergeXpp3Dom(configuration(
+            element(name("reResolve"), "false"), 
+            element(name("actTransitively"), "false"), 
+            element(name("manualIncludes"), project.getGroupId()+":"+project.getArtifactId())
+            ), config);
+        log.info("Running maven-dependency-plugin:" + goal);
+        log.debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+    }
+
     /**
      * Returns whether potentialTopModule is a multi module project that has potentialSubModule as one of its sub-modules.
      */
