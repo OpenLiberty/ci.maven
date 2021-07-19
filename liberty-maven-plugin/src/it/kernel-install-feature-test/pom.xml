@@ -38,6 +38,7 @@
         <module>install-features-server-already-installed-lowercase-it</module>
         <module>install-features-server-it</module>
         <module>install-ol-features-no-accept-license-it</module>
+        <module>prepare-feature-it</module>
     </modules>
     
     <!-- Profiles for WLP vs OL -->

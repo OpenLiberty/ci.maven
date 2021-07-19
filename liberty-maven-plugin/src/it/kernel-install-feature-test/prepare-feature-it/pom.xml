@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>kernel-install-feature-tests</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>prepare-feature-it</artifactId>
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+        	<plugin>
+	            <artifactId>maven-resources-plugin</artifactId>
+	            <version>3.1.0</version>
+	            <executions>
+	                <execution>
+	                    <id>copy-resource-one</id>
+	                    <phase>process-test-resources</phase>
+	                    <goals>
+	                        <goal>copy-resources</goal>
+	                    </goals>
+	
+	                    <configuration>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/features/features-bom/19.0.0.8</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>src/test/resources</directory>
+			                        <includes>
+			                            <include>features-bom-19.0.0.8.pom</include>
+			                        </includes>
+			                    </resource>
+			                </resources>
+			            </configuration>
+	                </execution>
+	                <execution>
+	                    <id>copy-resource-two</id>
+	                    <phase>process-test-resources</phase>
+	                    <goals>
+	                        <goal>copy-resources</goal>
+	                    </goals>
+	
+	                    <configuration>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/features/testesa1/19.0.0.8</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>src/test/resources</directory>
+			                        <includes>
+			                            <include>testesa1-19.0.0.8.esa</include>
+			                        </includes>
+			                    </resource>
+			                </resources>
+			            </configuration>
+	                </execution>
+	           </executions>
+	        </plugin>
+	        
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.3.5-M2-SNAPSHOT</version>
+                <configuration>
+                    <assemblyArtifact>
+                        <groupId>${runtimeGroupId}</groupId>
+                        <artifactId>${runtimeKernelId}</artifactId>
+                        <!--  this goal is only available with ol 21.0.0.6 or later -->
+                        <version>21.0.0.6</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-liberty-server</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>install-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>prepare-feature</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>prepare-feature</goal>
+                        </goals>
+                        <configuration>
+                            <features>
+                            	<acceptLicense>true</acceptLicense>
+                            	<feature>testesa1</feature>
+                        </features>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>test.user.test.features</groupId>
+        <artifactId>features-bom</artifactId>
+        <version>19.0.0.8</version>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
