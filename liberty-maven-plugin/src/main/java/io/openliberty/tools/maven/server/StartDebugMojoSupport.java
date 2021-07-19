@@ -31,8 +31,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -49,7 +47,9 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginManagement;
@@ -964,7 +964,15 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
-    protected void purgeLocalRepositoryModule(MavenProject project) throws MojoExecutionException {
+    /**
+     * Purge the installed artifact for the current project from the local .m2
+     * repository, so that any downstream modules (when using loose application)
+     * will not rely on the installed artifact for their compilation.
+     * 
+     * @throws MojoExecutionException If an exception occurred while running
+     *                                dependency:purge-local-repository
+     */
+    protected void purgeLocalRepositoryArtifact() throws MojoExecutionException {
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-dependency-plugin");
         String goal = "purge-local-repository";
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
