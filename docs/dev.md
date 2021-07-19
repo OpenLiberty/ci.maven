@@ -162,6 +162,17 @@ The following limitations apply to Linux:
 * In dev mode, the Open Liberty server runs in the container on the UID (user identifier) of the current user. This is so that the server can access the configuration files from your project and you can access the Open Liberty log files. Outside of dev mode, the Open Liberty server will run on the UID specified in the Docker image.
 * Use of editors like `vim`: when you edit a configuration file with `vim` it will delete the file and rewrite it when you save. This necessitates a container restart. To avoid the restart edit your .vimrc file and add the line `set backupcopy=yes`
 
+###### Multiple Modules
+
+The `devc` goal is supported with multi module Maven projects in the same way as the [`dev` goal](#multiple-modules).  For example, from the directory containing the multi module `pom.xml`, run:
+```
+$ mvn liberty:devc
+```
+or
+```
+$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:devc
+```
+
 ###### Examples
 
 Start dev mode with the server in a container using the Dockerfile in the project root.
@@ -175,7 +186,7 @@ Customizing the container configuration in `pom.xml`.  Note that changing these 
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3.3</version>
+                <version>3.4</version>
                 <configuration>
                     <container>true</container>
                     <dockerRunOpts>-e key=value</dockerRunOpts>
