@@ -244,7 +244,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
     private Set<String> runBinaryScanner() {
         log.warn("Run binary scanner using reflection");
-        log.debug("binaryScanner="+binaryScanner);
+        Set<String> featureList = null;
         if (binaryScanner != null && binaryScanner.exists()) {
             ClassLoader cl = this.getClass().getClassLoader();
             try {
@@ -259,16 +259,14 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     log.debug("Error collecting list of directories to send to binary scanner, list is null or empty.");
                     return null;
                 }
-                for (String s : directoryList) {log.warn(" scanning directory "+ s);}
                 String eeVersion = getEEVersion(project); 
                 String mpVersion = getMPVersion(project);
                 log.warn("eeVersion="+eeVersion+" mpVersion="+mpVersion);
                 log.debug("The following messages are from the application binary scanner used to generate Liberty features");
-                Set<String> featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, java.util.Locale.getDefault());
-                log.debug("End of messages from application binary scanner");
-                log.warn("runBinaryScanner, Features recommended :");
+                featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, java.util.Locale.getDefault());
+                log.debug("End of messages from application binary scanner. Features recommended :");
+                for (String s : featureList) {log.debug(s);};
                 for (String s : featureList) {log.warn(s);};
-                return featureList;
             } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
                 // TODO Figure out what to do when there is a problem scanning the features
                 log.error("Exception:"+x.getClass().getName());
@@ -279,56 +277,47 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 }
                 log.error(x.getMessage());
             }
-            return null;
         } else {
             log.debug("Unable to load the binary scanner jar");
-            return null;
         }
+        return featureList;
     }
 
-    // Return a list containing the classes directory of the current project and any module projects
+    // Return a list containing the classes directory of the current project and any upstream module projects
     private String[] getClassesDirectories() {
-        log.warn("getClassesDirectories");
         List<String> dirs = new ArrayList();
         String classesDirName = null;
+        // First check the Java build output directory (target/classes) for the current project
         classesDirName = getClassesDirectory(project.getBuild().getOutputDirectory());
-        log.warn("this project's dir name:"+classesDirName);
         if (classesDirName != null) {
             dirs.add(classesDirName);
-            log.warn("added "+classesDirName);
         }
+
+        // Use graph to find upstream projects and look for classes directories. Some projects have no Java.
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         List<MavenProject> upstreamProjects = graph.getUpstreamProjects(project, true);
-        log.warn("upstreamProjects.size()="+upstreamProjects.size());
-        List<MavenProject> allProjects = graph.getSortedProjects();
-        log.warn("allProjects.size()="+allProjects.size());
-        for (MavenProject aProject : allProjects) {
-            log.warn("aProject id="+aProject.getId());
-        }
+        log.debug("For binary scanner gathering Java build output directories for upstream projects, size=" + upstreamProjects.size());
         for (MavenProject upstreamProject : upstreamProjects) {
             classesDirName = getClassesDirectory(upstreamProject.getBuild().getOutputDirectory());
-            log.warn("upstream project classesdir "+classesDirName);
             if (classesDirName != null) {
                 dirs.add(classesDirName);
-                log.warn("added "+classesDirName);
             }
         }
+        for (String s : dirs) {log.debug("Found dir:"+s);};
         return dirs.toArray(new String[dirs.size()]);
     }
 
+    // Check one directory and if it exists return its canonical path (or absolute path if error).
     private String getClassesDirectory(String outputDir) {
-        log.warn("get one dir name:"+outputDir);
         File classesDir = new File(outputDir);
-        log.warn("File classesDir:"+classesDir+" exists:"+classesDir.exists());
         try {
             if (classesDir.exists()) {
-                log.warn("1. returning:"+ classesDir.getCanonicalPath());
                 return classesDir.getCanonicalPath();
             }
         } catch (IOException x) {
-            log.debug("IOException obtaining canonical path name for project classes directory: " + classesDir.getAbsolutePath());
-            log.warn("2. returning:"+ classesDir.getAbsolutePath());
-            return classesDir.getAbsolutePath();
+            String classesDirAbsPath = classesDir.getAbsolutePath();
+            log.debug("IOException obtaining canonical path name for a project's classes directory: " + classesDirAbsPath);
+            return classesDirAbsPath;
         }
         return null; // directory does not exist.
     }
