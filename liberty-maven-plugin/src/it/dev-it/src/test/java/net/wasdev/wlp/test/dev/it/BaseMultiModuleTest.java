@@ -171,6 +171,21 @@ public class BaseMultiModuleTest extends BaseDevTest {
       return targetClass;
    }
 
+   protected static void runCommand(String commandLineString) throws Exception {
+      StringBuilder command = new StringBuilder(commandLineString);
+      ProcessBuilder builder = buildProcess(command.toString());
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
+      }
+      Process process = builder.start();
+      assertTrue(process.isAlive());
+      process.waitFor(120, TimeUnit.SECONDS);
+      assertEquals(0, process.exitValue());
+   }
+
    protected static void modifyFileForModule(String srcFilePath, String str, String replacement) throws IOException {
       File srcClass = new File(tempProj, srcFilePath);
       assertTrue(srcClass.exists());

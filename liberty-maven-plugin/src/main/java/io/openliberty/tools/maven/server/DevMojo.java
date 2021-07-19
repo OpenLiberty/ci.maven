@@ -817,6 +817,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 } else if (project.getPackaging().equals("pom")) {
                     log.debug("Skipping compile/resources on module with pom packaging type");
                 } else {
+                    purgeLocalRepositoryArtifact();
+
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
                 }
