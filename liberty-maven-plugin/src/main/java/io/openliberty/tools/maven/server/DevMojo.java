@@ -732,6 +732,25 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
+        public boolean compile(File dir, ProjectModule project) {
+            MavenProject mavenProj = resolveMavenProject(project.getBuildFile());
+            try {
+                if (dir.equals(project.getSourceDirectory())) {
+                    runMojoForProject("org.apache.maven.plugins", "maven-compiler-plugin", "compile", mavenProj);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "resources", mavenProj);
+                }
+                if (dir.equals(project.getTestSourceDirectory())) {
+                    runMojoForProject("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", mavenProj);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "testResources", mavenProj);
+                }
+                return true;
+            } catch (MojoExecutionException e) {
+                log.error("Unable to compile", e);
+                return false;
+            }
+        }
+
+        @Override
         public void runUnitTests(File buildFile) throws PluginExecutionException, PluginScenarioException {
             MavenProject currentProject = resolveMavenProject(buildFile);
             try {
@@ -1115,8 +1134,8 @@ public class DevMojo extends StartDebugMojoSupport {
         return currentProject;
     }
 
-    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject currentProject) throws MojoExecutionException {
-        Plugin plugin = getPluginForProject(groupId, artifactId, currentProject);
+    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject project) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, project);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
 
         if (goal.equals("test")) {
@@ -1130,7 +1149,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
-                summaryFile = new File(currentProject.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
+                summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
                 log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
@@ -1144,7 +1163,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Summary file doesn't exist");
             }
         } else if (goal.equals("failsafe-report-only")) {
-            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", currentProject);
+            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", project);
             Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
@@ -1162,7 +1181,7 @@ public class DevMojo extends StartDebugMojoSupport {
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         } else if (goal.equals("report-only")) {
-            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", currentProject);
+            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", project);
             Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
@@ -1181,11 +1200,11 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(linkXRef);
         }
 
-        log.debug("POM file: " + currentProject.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
+        log.debug("POM file: " + project.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
                 + " configuration:\n" + config);
-        MavenSession testSession = session.clone();
-        testSession.setCurrentProject(currentProject);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(currentProject, testSession, pluginManager));
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
     }
 
     /**
