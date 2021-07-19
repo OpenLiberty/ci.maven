@@ -49,6 +49,12 @@ Otherwise, from the directory containing the multi module `pom.xml`, run:
 $ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
 ```
 
+Liberty server configuration files (such as server.xml) will be used from the module that does not have any other modules depending on it.  If there is more than one module without other modules depending on it, specify which module with Liberty configuration that you want to use by including the parameters `-pl <module-with-liberty-config> -am`.  
+For example, to use Liberty configuration from a module named "ear", run:
+```
+mvn liberty:dev -pl ear -am
+```
+
 ###### Examples
 
 The examples below apply regardless of whether you are using a single module or multi module project.  
