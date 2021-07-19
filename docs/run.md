@@ -3,6 +3,10 @@
 Start a Liberty server in the foreground. The run goal implicitly creates the server, installs features referenced by the server.xml file, and deploys the application before starting the Liberty server. 
 **Note:** This goal is designed to be executed directly from the Maven command line.
 
+###### Multiple Modules
+
+The `run` goal is supported with multi module Maven projects in the same way as the [`dev` goal](dev.md#multiple-modules) but substitute `dev` for `run` in the examples.  This will build the multi module project and start the Liberty server in the foreground, using Liberty configuration from the module that does not have other modules depending on it.
+
 ###### Additional Parameters
 
 The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
