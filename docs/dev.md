@@ -25,8 +25,33 @@ The following are dev mode supported code changes. Changes to your server such a
 * Resource file changes are detected and copied into your `target` directory. 
 * Configuration directory and configuration file changes are detected and copied into your `target` directory, which are hot deployed to the server.  Added features to your `server.xml` will be installed and picked up by your running server.  Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
 
+###### Multiple Modules
+
+Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.
+
+If you want to start dev mode with the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
+1. In `~.m2/settings.xml`, add:
+```
+<pluginGroups>
+  <pluginGroup>io.openliberty.tools</pluginGroup>
+</pluginGroups> 
+```
+2. or define the Liberty Maven plugin in the parent pom.xml of every module,  
+3. or define the Liberty Maven plugin in pom.xml of every module.
+
+Then from the directory containing the multi module `pom.xml`, run:
+```
+$ mvn liberty:dev
+```
+
+Otherwise, from the directory containing the multi module `pom.xml`, run:
+```
+$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
+```
 
 ###### Examples
+
+The examples below apply regardless of whether you are using a single module or multi module project.  
 
 Start dev mode.
 ```
