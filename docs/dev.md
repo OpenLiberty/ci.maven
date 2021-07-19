@@ -164,14 +164,7 @@ The following limitations apply to Linux:
 
 ###### Multiple Modules
 
-The `devc` goal is supported with multi module Maven projects in the same way as the [`dev` goal](#multiple-modules).  For example, from the directory containing the multi module `pom.xml`, run:
-```
-$ mvn liberty:devc
-```
-or
-```
-$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:devc
-```
+The `devc` goal is supported with multi module Maven projects in the same way as the [`dev` goal](#multiple-modules) but substitute `dev` for `devc` in the examples.
 
 ###### Examples
 
