@@ -20,14 +20,14 @@ Dev mode provides three key features. Code changes are detected, recompiled, and
 
 The following are dev mode supported code changes. Changes to your server such as changes to the port, server name, hostname, etc. will require restarting dev mode to be detected.  Changes other than those listed below may also require restarting dev mode to be detected.
 
-* Java source file changes and Java test file changes are detected, recompiled, and picked up by your running server.  
+* Java source file changes and Java test file changes are detected, recompiled, and picked up by your running server.
 * Added dependencies to your `pom.xml` are detected and added to your classpath.  Dependencies that are Liberty features will be installed via the `install-feature` goal.  Any other changes to your `pom.xml` will require restarting dev mode to be detected.
 * Resource file changes are detected and copied into your `target` directory. 
 * Configuration directory and configuration file changes are detected and copied into your `target` directory, which are hot deployed to the server.  Added features to your `server.xml` will be installed and picked up by your running server.  Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
 
 ###### Multiple Modules
 
-Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.
+Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.  Note that any modules that other modules rely on as a compile dependency must have a Java source folder with existing Java file(s), otherwise the other modules may fail to compile.
 
 If you want to start dev mode with the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
 1. In `~.m2/settings.xml`, add:
