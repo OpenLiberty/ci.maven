@@ -185,5 +185,11 @@ public class BaseMultiModuleTest extends BaseDevTest {
       process.waitFor(120, TimeUnit.SECONDS);
       assertEquals(0, process.exitValue());
    }
+
+   protected static void modifyFileForModule(String srcFilePath, String str, String replacement) throws IOException {
+      File srcClass = new File(tempProj, srcFilePath);
+      assertTrue(srcClass.exists());
+      replaceString(str, replacement, srcClass);
+   }
 }
 
