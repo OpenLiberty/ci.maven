@@ -194,7 +194,18 @@ public class StartDebugMojoSupport extends BasicSupport {
         executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
-    
+
+    protected void runMojoForProject(String groupId, String artifactId, String goal, MavenProject project)
+            throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, project);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        log.info("Running " + artifactId + ":" + goal + " on " + project.getFile());
+        log.debug("configuration:\n" + config);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
+    }
+
     /**
      * Given the groupId and artifactId get the corresponding plugin
      * 
