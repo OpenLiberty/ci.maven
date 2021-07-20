@@ -27,7 +27,7 @@ The following are dev mode supported code changes. Changes to your server such a
 
 ###### Multiple Modules
 
-Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.  Note that any modules that other modules rely on as a compile dependency must have a Java source folder with existing Java file(s), otherwise the other modules may fail to compile.
+Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.  Note that any modules that other modules rely on as a compile dependency must have a non-empty Java source folder with Java file(s) before starting dev mode, otherwise the other modules may fail to compile.
 
 If you want to start dev mode with the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
 1. In `~.m2/settings.xml`, add:
