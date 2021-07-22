@@ -309,6 +309,26 @@ public class BaseDevTest {
       return false;
    }
 
+   /**
+    * Count number of lines that contain the given string
+    */
+   protected static int countOccurrences(String str, File file) throws FileNotFoundException, IOException {
+      int occurrences = 0;
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            if (line.contains(str)) {
+               occurrences++;
+            }
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return occurrences;
+   }
+
    protected static ProcessBuilder buildProcess(String processCommand) {
       ProcessBuilder builder = new ProcessBuilder();
       builder.directory(tempProj);
