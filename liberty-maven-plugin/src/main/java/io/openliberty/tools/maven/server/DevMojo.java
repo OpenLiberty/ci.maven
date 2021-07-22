@@ -1340,17 +1340,11 @@ public class DevMojo extends StartDebugMojoSupport {
      *                     default project is to be used
      * @throws MojoExecutionException
      */
-    private void runCompileMojo(String goal, MavenProject currentProject) throws MojoExecutionException {
-        Plugin plugin;
+    private void runCompileMojo(String goal, MavenProject mavenProject) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", mavenProject);
         MavenSession tempSession = session.clone();
-        MavenProject tempProject = project;
-        if (currentProject != null) {
-            plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
-            tempSession.setCurrentProject(currentProject);
-            tempProject = currentProject;
-        } else {
-            plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
-        }
+        tempSession.setCurrentProject(mavenProject);
+        MavenProject tempProject = mavenProject;
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
         log.info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
@@ -1364,7 +1358,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("compile", null);
+        runCompileMojo("compile", project);
     }
 
     /**
@@ -1382,7 +1376,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runTestCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("testCompile", null);
+        runCompileMojo("testCompile", project);
     }
 
     /**
