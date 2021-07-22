@@ -82,10 +82,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     }
 
     private void generateFeatures() throws PluginExecutionException {
-        log.warn("warn");
         List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-        log.warn("version:"+openLibertyVersion);
 
         InstallFeatureMojoUtil util;
         try {
@@ -97,53 +95,47 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         }
 
         Set<String> visibleServerFeatures = util.getAllServerFeatures();
-        log.warn("feature count="+visibleServerFeatures.size());
 
         Set<String> libertyFeatureDependencies = getFeaturesFromDependencies(project);
-        log.warn("maven dependencies that are liberty features:"+libertyFeatureDependencies);
+        log.debug("maven dependencies that are liberty features:"+libertyFeatureDependencies);
 
         // Remove project dependency features which are hidden.
         Set<String> visibleLibertyProjectDependencies = new HashSet<String>(libertyFeatureDependencies);
         visibleLibertyProjectDependencies.retainAll(visibleServerFeatures);
-        log.warn("maven dependencies that are VALID liberty features:"+visibleLibertyProjectDependencies);
+        log.debug("maven dependencies that are VALID liberty features:"+visibleLibertyProjectDependencies);
 
-        File newServerXml = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        log.warn("New server xml file:"+newServerXml);
-
-        Path tempDir = null;
-        Path newServerXmlCopy = null;
+        File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
+        File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
         Map<String, File> libertyDirPropertyFiles;
         try {
-            if (newServerXml.exists()) {  // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
-                tempDir = Files.createTempDirectory("liberty-plugin-added-features");
-                newServerXmlCopy = Files.move(newServerXml.toPath(), tempDir.resolve(newServerXml.getName()), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            if (newServerXmlTarget.exists()) {  // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
+                newServerXmlTarget.delete();
             }
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
-            if (newServerXmlCopy != null) {
-                Files.delete(newServerXmlCopy); // delete the saved file
-                Files.delete(tempDir);
-            }
         } catch (IOException e) {
-            if (newServerXmlCopy != null) {
-                try {
-                    // restore the xml file just moved aside above
-                    Files.move(newServerXmlCopy, newServerXml.toPath());
-                    Files.delete(tempDir);
-                } catch (IOException f) {
-                    log.debug("Exception trying to restore file: "+PLUGIN_ADDED_FEATURES_FILE+". "+f);
+            if (!newServerXmlTarget.exists()) { // restore the xml file just deleted
+                if (newServerXmlSrc.exists()) {
+                    try {
+                        Files.copy(newServerXmlSrc.toPath(), newServerXmlTarget.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException f) {
+                        log.debug("Exception trying to restore file: "+PLUGIN_ADDED_FEATURES_FILE+". "+f);
+                    }
                 }
             }
             log.debug("Exception reading the server property files", e);
-            log.error("Error attempting to generate server feature list. Ensure your id has read permission to the property files in the server installation directory.");
+            log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
         }
         Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
-        log.warn("Features in server.xml:"+existingFeatures);
+        if (existingFeatures == null) {
+            existingFeatures = new HashSet<String>();
+        }
+        log.debug("Features in server.xml:"+existingFeatures);
 
         // The Liberty features missing from server.xml
         Set<String> missingLibertyFeatures = getMissingLibertyFeatures(visibleLibertyProjectDependencies,
 				existingFeatures);
-        log.warn("maven dependencies that are VALID liberty features but are missing from server.xml:"+missingLibertyFeatures);
+        log.debug("maven dependencies that are not hidden liberty features but are missing from server.xml:"+missingLibertyFeatures);
         //
         // Scan for features after processing the POM. POM features take priority over scannned features
         Set<String> scannedFeatureList = runBinaryScanner();
@@ -181,8 +173,9 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     log.debug(String.format("Adding missing feature %s to %s.", missing, PLUGIN_ADDED_FEATURES_FILE));
                     configDocument.createFeature(missing);
                 }
-                configDocument.writeXMLDocument(newServerXml);
-                log.debug("Created file "+newServerXml);
+                configDocument.writeXMLDocument(newServerXmlSrc);
+                Files.copy(newServerXmlSrc.toPath(), newServerXmlTarget.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                log.debug("Created file "+newServerXmlSrc);
             } catch(ParserConfigurationException | TransformerException | IOException e) {
                 log.debug("Exception creating the server features file", e);
                 log.error("Error attempting to create the server feature file. Ensure your id has write permission to the server installation directory.");
@@ -236,14 +229,13 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 	 * @return the Liberty feature name if the input is a Liberty feature otherwise return null.
 	 */
     private String getFeatureName(Dependency mavenDependency) {
-        if (mavenDependency.getGroupId().equals("io.openliberty.features")) {
+        if ("esa".contentEquals(mavenDependency.getType())) {
             return mavenDependency.getArtifactId();
         }
         return null;
     }
 
     private Set<String> runBinaryScanner() {
-        log.warn("Run binary scanner using reflection");
         Set<String> featureList = null;
         if (binaryScanner != null && binaryScanner.exists()) {
             ClassLoader cl = this.getClass().getClassLoader();
@@ -252,33 +244,33 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
                 // args: String[], String, String, java.util.Locale
                 java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("DriveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
-                log.warn("new method, driveScanMavenFeaureList="+driveScanMavenFeaureList.getName()+" parameter count="+ driveScanMavenFeaureList.getParameterCount());
+                if (driveScanMavenFeaureList == null) {
+                    log.debug("Error finding binary scanner method using reflection");
+                    return null;
+                }
                 String[] directoryList = getClassesDirectories();
                 if (directoryList == null || directoryList.length == 0) {
-                    log.warn("Error collecting list of directories to send to binary scanner, list is null or empty.");
                     log.debug("Error collecting list of directories to send to binary scanner, list is null or empty.");
                     return null;
                 }
                 String eeVersion = getEEVersion(project); 
                 String mpVersion = getMPVersion(project);
-                log.warn("eeVersion="+eeVersion+" mpVersion="+mpVersion);
                 log.debug("The following messages are from the application binary scanner used to generate Liberty features");
                 featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, java.util.Locale.getDefault());
                 log.debug("End of messages from application binary scanner. Features recommended :");
                 for (String s : featureList) {log.debug(s);};
-                for (String s : featureList) {log.warn(s);};
             } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
                 // TODO Figure out what to do when there is a problem scanning the features
                 log.error("Exception:"+x.getClass().getName());
                 Object o = x.getCause();
                 if (o != null) {
-                    log.warn("Exception:"+x.getCause().getClass().getName());
-                    log.warn("Exception message:"+x.getCause().getMessage());
+                    log.warn("Caused by exception:"+x.getCause().getClass().getName());
+                    log.warn("Caused by exception message:"+x.getCause().getMessage());
                 }
                 log.error(x.getMessage());
             }
         } else {
-            log.debug("Unable to load the binary scanner jar");
+            log.debug("Unable to find the binary scanner jar");
         }
         return featureList;
     }
