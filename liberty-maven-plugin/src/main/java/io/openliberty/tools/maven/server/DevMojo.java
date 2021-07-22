@@ -717,11 +717,11 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+                    runCompileMojoLogWarning();
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+                    runTestCompileMojoLogWarning();
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 }
                 return true;
@@ -733,15 +733,15 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public boolean compile(File dir, ProjectModule project) {
-            MavenProject mavenProj = resolveMavenProject(project.getBuildFile());
+            MavenProject mavenProject = resolveMavenProject(project.getBuildFile());
             try {
                 if (dir.equals(project.getSourceDirectory())) {
-                    runMojoForProject("org.apache.maven.plugins", "maven-compiler-plugin", "compile", mavenProj);
-                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "resources", mavenProj);
+                    runCompileMojoLogWarning(mavenProject);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "resources", mavenProject);
                 }
                 if (dir.equals(project.getTestSourceDirectory())) {
-                    runMojoForProject("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile", mavenProj);
-                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "testResources", mavenProj);
+                    runTestCompileMojoLogWarning(mavenProject);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "testResources", mavenProject);
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -1335,16 +1335,27 @@ public class DevMojo extends StartDebugMojoSupport {
      * Executes Maven goal passed but sets failOnError to false All errors are
      * logged as warning messages
      * 
-     * @param goal Maven compile goal
+     * @param goal         Maven compile goal
+     * @param MavenProject Maven project to run compile goal against, null if
+     *                     default project is to be used
      * @throws MojoExecutionException
      */
-    private void runCompileMojo(String goal) throws MojoExecutionException {
-        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+    private void runCompileMojo(String goal, MavenProject currentProject) throws MojoExecutionException {
+        Plugin plugin;
+        MavenSession tempSession = session.clone();
+        MavenProject tempProject = project;
+        if (currentProject != null) {
+            plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
+            tempSession.setCurrentProject(currentProject);
+            tempProject = currentProject;
+        } else {
+            plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+        }
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
-        log.info("Running maven-compiler-plugin:" + goal);
+        log.info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         log.debug("configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+        executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
     }
 
     /**
@@ -1353,7 +1364,16 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("compile");
+        runCompileMojo("compile", null);
+    }
+
+    /**
+     * Executes maven:compile but logs errors as warning messages
+     * 
+     * @throws MojoExecutionException
+     */
+    private void runCompileMojoLogWarning(MavenProject mavenProject) throws MojoExecutionException {
+        runCompileMojo("compile", mavenProject);
     }
 
     /**
@@ -1362,7 +1382,16 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runTestCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("testCompile");
+        runCompileMojo("testCompile", null);
+    }
+
+    /**
+     * Executes maven:testCompile but logs errors as warning messages
+     * 
+     * @throws MojoExecutionException
+     */
+    private void runTestCompileMojoLogWarning(MavenProject mavenProject) throws MojoExecutionException {
+        runCompileMojo("testCompile", mavenProject);
     }
 
     /**
