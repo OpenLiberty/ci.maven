@@ -32,7 +32,7 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
       public static void setUpBeforeClass() throws Exception {
             setUpMultiModule("typeA", "ear", null);
             // test setting recompileDependencies to false for a multi module project
-            run("-DrecompileDependencies=false");
+            run("-DrecompileDependencies=false -DhotTests=true");
       }
 
       @Test
@@ -41,7 +41,7 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
                         "The recompileDependencies parameter is set to \"false\". On a file change only the affected classes will be recompiled.",
                         20000));
 
-            super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            verifyStartupHotTests("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
                         "guide-maven-multimodules-ear");
 
             // verify that when modifying a jar class, classes in dependent modules are
@@ -51,6 +51,8 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
                         "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
             long webLastModified = targetWebClass.lastModified();
             testEndpointsAndUpstreamRecompile();
+
+            // TODO verify that tests ran
 
             // verify a source class in the war module was not compiled
             assertTrue(targetWebClass.lastModified() == webLastModified);
@@ -74,5 +76,9 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
             assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-jar source compilation had errors.", 10000));
             assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation was successful.", 10000));
             assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
+
+            // verify that tests did not run
+            verifyTestsDidNotRun("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            "guide-maven-multimodules-ear");
       }
 }
