@@ -82,22 +82,21 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
    }
 
-   public void manualTestsInvocationTest(String... moduleArtifactIds) throws Exception {
+   public void manualTestsInvocation(String... moduleArtifactIds) throws Exception {
       assertTrue(getLogTail(), verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
-      manualTestsInvocation(moduleArtifactIds);
+      writer.write("\n");
+      writer.flush();
+      verifyTestsRan(moduleArtifactIds);
    }
 
-   public void manualTestsInvocationTestHotTests(String... moduleArtifactIds) throws Exception {
+   public void verifyStartupHotTests(String... moduleArtifactIds) throws Exception {
       assertTrue(getLogTail(), verifyLogMessageExists(
             "Tests will run automatically when changes are detected. You can also press the Enter key to run tests on demand.",
             30000));
-            manualTestsInvocation(moduleArtifactIds);
+            verifyTestsRan(moduleArtifactIds);
    }
 
-   public void manualTestsInvocation(String... moduleArtifactIds) throws Exception {
-      writer.write("\n");
-      writer.flush();
-
+   public void verifyTestsRan(String... moduleArtifactIds) throws Exception {
       for (String moduleArtifactId : moduleArtifactIds) {
          if (!moduleArtifactId.endsWith("ear")) {
             assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 10000));
@@ -107,6 +106,15 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
 
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
+   }
+
+   public void verifyTestsDidNotRun(String... moduleArtifactIds) throws Exception {
+      for (String moduleArtifactId : moduleArtifactIds) {
+         if (!moduleArtifactId.endsWith("ear")) {
+            assertFalse(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 1000));
+         }
+         assertFalse(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 1000));
+      }
    }
 
    public void assertEndpointContent(String url, String assertResponseContains) throws IOException, HttpException {

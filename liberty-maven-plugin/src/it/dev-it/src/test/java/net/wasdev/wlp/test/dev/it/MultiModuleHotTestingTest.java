@@ -37,7 +37,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
 
     @Test
     public void runTest() throws Exception {
-        super.manualTestsInvocationTestHotTests("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+        verifyStartupHotTests("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
                 "guide-maven-multimodules-ear");
         clearLogFile();
         File targetWebClass = getTargetFileForModule(
@@ -60,11 +60,23 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
 
         // check tests running message for jar since we expect jar unit tests to fail (after modifying)
         assertTrue(verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 2000));
+        
+        verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
-        assertTrue(verifyLogMessageExists("Unit tests for guide-maven-multimodules-war finished.", 2000));
+        // create compilation error in jar module
+        modifyFileForModule("jar/src/main/java/io/openliberty/guides/multimodules/lib/Converter.java", "return inches;", "return inches");
+        Thread.sleep(5000); // wait for compilation
+        assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-jar source compilation had errors.", 10000));
+        
+        clearLogFile(); // need to clear log file so that we are checking for the correct compilation messages below
 
-        assertTrue(verifyLogMessageExists("Integration tests for guide-maven-multimodules-war finished.", 2000));
-
-        assertTrue(verifyLogMessageExists("Integration tests for guide-maven-multimodules-ear finished.", 2000));
+        // create compilation error in war module
+        modifyFileForModule("war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java", "return heightCm;", "return heightCm" );
+        Thread.sleep(5000); // wait for compilation
+        assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation had errors.", 10000));
+        
+        // verify that tests did not run
+        verifyTestsDidNotRun("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+        "guide-maven-multimodules-ear");
     }
 }
