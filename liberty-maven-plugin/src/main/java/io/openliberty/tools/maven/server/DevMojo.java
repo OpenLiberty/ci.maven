@@ -965,17 +965,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 // properties that are set by user via CLI parameters
                 Properties userProps = session.getUserProperties();
 
-                // CLI properties should always take precedence, otherwise use the values set in
-                // the pom file
-                boolean upstreamSkipTests = Boolean
-                        .parseBoolean(userProps.getProperty("skipTests") != null ? userProps.getProperty("skipTests")
-                                : props.getProperty("skipTests"));
-                boolean upstreamSkipITs = Boolean
-                        .parseBoolean(userProps.getProperty("skipITs") != null ? userProps.getProperty("skipITs")
-                                : props.getProperty("skipITs"));
-                boolean upstreamSkipUTs = Boolean
-                        .parseBoolean(userProps.getProperty("skipUTs") != null ? userProps.getProperty("skipUTs")
-                                : props.getProperty("skipUTs"));
+                Plugin libertyPlugin = getLibertyPluginForProject(p);
+                // use "dev" goal, although we don't expect the skip tests flags to be bound to any goal
+                Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "dev", log);
+                
+                boolean upstreamSkipTests = getBooleanFlag(config, userProps, props, "skipTests");
+                boolean upstreamSkipITs = getBooleanFlag(config, userProps, props, "skipITs");
+                boolean upstreamSkipUTs = getBooleanFlag(config, userProps, props, "skipUTs");
 
                 // only force skipping unit test for ear modules otherwise honour existing skip
                 // test params
@@ -1040,6 +1036,69 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             return; // enter shutdown hook
         }
+    }
+
+    /**
+     * Use the following priority ordering for skip test flags: <br>
+     * 1. within Liberty Maven plugin’s configuration in a module <br>
+     * 2. within Liberty Maven plugin’s configuration in a parent pom’s pluginManagement <br>
+     * 3. by command line with -D <br>
+     * 4. within a module’s properties <br>
+     * 5. within a parent pom’s properties <br>
+     * 
+     * @param config the config xml that might contain the param as an attribute
+     * @param userProps the Maven user properties
+     * @param props the Maven project's properties
+     * @param param the Boolean parameter to look for
+     * @return a boolean in priority order, or null if the param was not found anywhere
+     */
+    public static boolean getBooleanFlag(Xpp3Dom config, Properties userProps, Properties props, String param) {
+        // this handles 1 and 2
+        Boolean pluginConfig = parseBooleanIfDefined(getConfigValue(config, param));
+        
+        // this handles 3
+        Boolean userProp = parseBooleanIfDefined(userProps.getProperty(param));
+        
+        // this handles 4 and 5
+        Boolean prop = parseBooleanIfDefined(props.getProperty(param));
+        
+        return getFirstNonNullValue(pluginConfig, userProp, prop);
+    }
+
+    /**
+     * Gets the value of the given attribute, or null if the attribute is not found.
+     * @param config
+     * @param attribute
+     * @return
+     */
+    private static String getConfigValue(Xpp3Dom config, String attribute) {
+        return (config.getChild(attribute) == null ? null : config.getChild(attribute).getValue());
+    }
+
+    /**
+     * Parses a Boolean from a String if the String is not null.  Otherwise returns null.
+     * @param value the String to parse
+     * @return a Boolean, or null if value is null
+     */
+    private static Boolean parseBooleanIfDefined(String value) {
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the value of the first Boolean object that is not null, in order from lowest to highest index.
+     * @param booleans an array of Boolean objects, some of which may be null
+     * @return the value of the first non-null Boolean, or false if everything is null
+     */
+    public static boolean getFirstNonNullValue(Boolean... booleans) {
+        for (Boolean b : booleans) {
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
+        return false;
     }
 
     private JavaCompilerOptions getMavenCompilerOptions(MavenProject currentProject) {

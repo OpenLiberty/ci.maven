@@ -238,15 +238,19 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected Plugin getLibertyPlugin() {
+        return getLibertyPluginForProject(project);
+    }
+
+    protected Plugin getLibertyPluginForProject(MavenProject currentProject) {
         // Try getting the version from Maven 3's plugin descriptor
         String version = null;
         if (plugin != null && plugin.getPlugin() != null) {
             version = plugin.getVersion();
             log.debug("Setting plugin version to " + version);
         }
-        Plugin projectPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        Plugin projectPlugin = currentProject.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (projectPlugin == null) {
-            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, project);
+            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, currentProject);
         }
         if (projectPlugin == null) {
             projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
