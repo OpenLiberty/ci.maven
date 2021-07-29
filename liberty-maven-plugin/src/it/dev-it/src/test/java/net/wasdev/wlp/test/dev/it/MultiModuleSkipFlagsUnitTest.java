@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.util.Properties;
 
 import org.apache.maven.shared.utils.io.FileUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,8 +40,11 @@ import org.junit.Test;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import io.openliberty.tools.maven.server.DevMojo;
 
-public class MultiModuleSkipUnitTest extends BaseMultiModuleTest {
+public class MultiModuleSkipFlagsUnitTest {
 
+   /**
+    * Unit test for DevMojo.getFirstNonNullValue
+    */
    @Test
    public void getFirstNonNullValueTest() throws Exception {
       assertTrue(DevMojo.getFirstNonNullValue(null, null, Boolean.valueOf(true)));
@@ -51,6 +55,9 @@ public class MultiModuleSkipUnitTest extends BaseMultiModuleTest {
       assertFalse(DevMojo.getFirstNonNullValue(null, null, null));
    }
 
+   /**
+    * Unit test for DevMojo.getBooleanFlag
+    */
    @Test
    public void getBooleanFlagTest() throws Exception {
       testFlag("skipTests");
