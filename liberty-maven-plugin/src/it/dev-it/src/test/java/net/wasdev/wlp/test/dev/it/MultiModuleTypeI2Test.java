@@ -66,10 +66,10 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
             "<dependency> <groupId>jakarta.platform</groupId> <artifactId>jakarta.jakartaee-api</artifactId> <version>8.0.0</version> <scope>provided</scope> </dependency>",
             parent2Pom);
       Thread.sleep(5000); // wait for compilation
-      assertTrue(targetWarClass.exists());
-      assertFalse(targetEarClass.exists()); // verify ear class is still failing to resolve
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation was successful.", 10000));
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
+      assertTrue(targetWarClass.exists());
+      assertFalse(targetEarClass.exists()); // verify ear class is still failing to resolve
 
       File parent1Pom = new File(tempProj, "parent1/pom.xml");
       assertTrue(parent1Pom.exists());

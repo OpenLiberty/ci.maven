@@ -46,17 +46,18 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
 
             // verify that when modifying a jar class, classes in dependent modules are
             // not recompiled as well
-            File targetWebClass = getTargetFileForModule(
+            File targetWarClass = getTargetFileForModule(
                         "war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
                         "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
-            long webLastModified = targetWebClass.lastModified();
+            long warLastModified = targetWarClass.lastModified();
             clearLogFile();
             testEndpointsAndUpstreamRecompile();
-            verifyTestsRan("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
-            "guide-maven-multimodules-ear");
+            // verify jar unit tests failed
+            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests failed: There are test failures.", 10000));
+            verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
             // verify a source class in the war module was not compiled
-            assertTrue(targetWebClass.lastModified() == webLastModified);
+            assertTrue(targetWarClass.lastModified() == warLastModified);
 
             // Verify that with recompileDependencies=false, failing classes from upstream and downstream modules are still
             // re-tried for compilation on source file change
