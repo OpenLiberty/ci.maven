@@ -1330,7 +1330,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     // assume this is the main module
                     testArtifacts = util.getTestArtifacts();
                 }
-                if (goal.equals("test") || goal.equals("integration-test") {
+                if (goal.equals("test") || goal.equals("integration-test")) {
                     injectClasspathElements(config, testArtifacts, project.getTestClasspathElements());
                 }
             } catch (IOException | DependencyResolutionRequiredException e) {

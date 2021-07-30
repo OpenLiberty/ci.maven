@@ -50,9 +50,10 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
                         "war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
                         "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
             long webLastModified = targetWebClass.lastModified();
+            clearLogFile();
             testEndpointsAndUpstreamRecompile();
-
-            // TODO verify that tests ran
+            verifyTestsRan("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            "guide-maven-multimodules-ear");
 
             // verify a source class in the war module was not compiled
             assertTrue(targetWebClass.lastModified() == webLastModified);

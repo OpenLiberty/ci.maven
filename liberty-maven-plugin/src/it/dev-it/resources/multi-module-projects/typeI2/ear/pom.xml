@@ -11,9 +11,9 @@
 
     <parent>
         <groupId>io.openliberty.guides</groupId>
-        <artifactId>guide-maven-multimodules-parent</artifactId>
+        <artifactId>guide-maven-multimodules-parent1</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <relativePath>../parent1/pom.xml</relativePath>
     </parent>
 
     <properties>

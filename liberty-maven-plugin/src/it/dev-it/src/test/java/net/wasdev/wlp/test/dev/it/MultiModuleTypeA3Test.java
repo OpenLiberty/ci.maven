@@ -39,25 +39,26 @@ public class MultiModuleTypeA3Test extends BaseMultiModuleTest {
 
    @Test
    public void runTest() throws Exception {
-       assertTrue(verifyLogMessageExists(
-               "The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.",
-               20000));
+           assertTrue(verifyLogMessageExists(
+                           "The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.",
+                           20000));
+           // verify ear test class did not compile successfully
+           File targetEarClass = new File(tempProj,
+                           "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
+           assertFalse(targetEarClass.exists());
 
-       File targetEarClass = new File(tempProj,
-               "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
-       assertFalse(targetEarClass.exists());
+           // add a dependency to parent pom and check that it resolves compile errors in
+           // child modules
+           File parentPom = new File(tempProj, "pom.xml");
+           assertTrue(parentPom.exists());
+           replaceString("<!-- SUB JUNIT -->",
+                           "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
+                           parentPom);
+           Thread.sleep(5000); // wait for compilation
+           assertTrue(targetEarClass.exists());
 
-       // add a dependency to parent pom and check that it resolves compile errors in
-       // child modules
-       File parentPom = new File(tempProj, "pom.xml");
-       assertTrue(parentPom.exists());
-       replaceString("<!-- SUB JUNIT -->",
-               "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
-               parentPom);
-       Thread.sleep(5000); // wait for compilation
-       assertTrue(targetEarClass.exists());
-
-       super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war", "guide-maven-multimodules-ear");
+           super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+                           "guide-maven-multimodules-ear");
    }
 
 }
