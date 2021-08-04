@@ -946,7 +946,7 @@ public class DevMojo extends StartDebugMojoSupport {
         // get all parent poms
         Map<String, List<String>> parentPoms = new HashMap<String, List<String>>();
         for (MavenProject proj : graph.getAllProjects()) {
-            getParentPoms(parentPoms, proj);
+            updateParentPoms(parentPoms, proj);
         }
 
         // default behavior of recompileDependencies
@@ -1198,8 +1198,14 @@ public class DevMojo extends StartDebugMojoSupport {
         return false;
     }
 
-    // update map with list of parent poms and their subsequent child poms
-    private void getParentPoms(Map<String, List<String>> parentPoms, MavenProject proj) throws IOException {
+    /**
+     * Update map with list of parent poms and their subsequent child poms
+     * 
+     * @param parentPoms Map of parent poms and subsequent child poms
+     * @param proj       MavenProject
+     * @throws IOException
+     */
+    private void updateParentPoms(Map<String, List<String>> parentPoms, MavenProject proj) throws IOException {
         MavenProject parentProject = proj.getParent();
         if (parentProject != null) {
             // append to existing list
@@ -1215,7 +1221,7 @@ public class DevMojo extends StartDebugMojoSupport {
             }
             if (parentProject.getParent() != null) {
                 // recursively search for top most parent project
-                getParentPoms(parentPoms, parentProject);
+                updateParentPoms(parentPoms, parentProject);
             }
         }
     }
@@ -1334,8 +1340,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     injectClasspathElements(config, testArtifacts, project.getTestClasspathElements());
                 }
             } catch (IOException | DependencyResolutionRequiredException e) {
-                log.warn(
-                        "Unable to resolve test artifact paths, test compilation may not include parent dependencies. Restart dev mode to ensure classpaths are properly resolved.");
+                log.error(
+                        "Unable to resolve test artifact paths for " + project.getFile() + ". Restart dev mode to ensure classpaths are properly resolved.");
                 log.debug(e);
             }
         }
