@@ -6,8 +6,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.openliberty.guides</groupId>
-    <artifactId>guide-maven-multimodules-parent</artifactId>
+    <parent>
+        <groupId>io.openliberty.guides</groupId>
+        <artifactId>guide-maven-multimodules-parent2</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../parent2/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>guide-maven-multimodules-parent1</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 

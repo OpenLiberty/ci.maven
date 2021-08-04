@@ -102,9 +102,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
             assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 10000));
          }
          assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 10000));
-  
       }
-
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
    }
 
