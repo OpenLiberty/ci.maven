@@ -1203,26 +1203,32 @@ public class DevMojo extends StartDebugMojoSupport {
      * 
      * @param parentPoms Map of parent poms and subsequent child poms
      * @param proj       MavenProject
-     * @throws IOException
      */
-    private void updateParentPoms(Map<String, List<String>> parentPoms, MavenProject proj) throws IOException {
+    private void updateParentPoms(Map<String, List<String>> parentPoms, MavenProject proj) {
         MavenProject parentProject = proj.getParent();
-        if (parentProject != null) {
-            // append to existing list
-            List<String> childPoms = parentPoms.get(parentProject.getFile().getCanonicalPath());
-            if (childPoms == null) {
-                childPoms = new ArrayList<String>();
-                childPoms.add(proj.getFile().getCanonicalPath());
-                parentPoms.put(parentProject.getFile().getCanonicalPath(), childPoms);
-            } else {
-                if (!childPoms.contains(proj.getFile().getCanonicalPath())) {
-                    childPoms.add(proj.getFile().getCanonicalPath());
+        try {
+            if (parentProject != null) {
+                // append to existing list
+                if (parentProject.getFile() != null) {
+                    List<String> childPoms = parentPoms.get(parentProject.getFile().getCanonicalPath());
+                    if (childPoms == null) {
+                        childPoms = new ArrayList<String>();
+                        childPoms.add(proj.getFile().getCanonicalPath());
+                        parentPoms.put(parentProject.getFile().getCanonicalPath(), childPoms);
+                    } else {
+                        if (!childPoms.contains(proj.getFile().getCanonicalPath())) {
+                            childPoms.add(proj.getFile().getCanonicalPath());
+                        }
+                    }
+                    if (parentProject.getParent() != null) {
+                        // recursively search for top most parent project
+                        updateParentPoms(parentPoms, parentProject);
+                    }
                 }
             }
-            if (parentProject.getParent() != null) {
-                // recursively search for top most parent project
-                updateParentPoms(parentPoms, parentProject);
-            }
+        } catch (IOException e) {
+            log.error("An unexpected error occurred when trying to resolve " + proj.getFile() + ": " + e.getMessage());
+            log.debug(e);
         }
     }
 
