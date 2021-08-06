@@ -29,24 +29,24 @@ The following are dev mode supported code changes. Changes to your server such a
 
 Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.  Note that any modules that other modules rely on as a compile dependency must have a non-empty Java source folder with Java file(s) before starting dev mode, otherwise the other modules may fail to compile.
 
-If you want to start dev mode with the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
+To start dev mode on a multi module project, run the following from the directory containing the multi module `pom.xml`:
+```
+$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
+```
+
+To start dev mode on a multi module project by using the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
 1. In `~.m2/settings.xml`, add:
 ```
 <pluginGroups>
   <pluginGroup>io.openliberty.tools</pluginGroup>
 </pluginGroups> 
 ```
-2. or define the Liberty Maven plugin in the parent pom.xml of every module,  
-3. or define the Liberty Maven plugin in pom.xml of every module.
+2. or define the Liberty Maven plugin in the parent `pom.xml` of every module,  
+3. or define the Liberty Maven plugin in `pom.xml` of every module.
 
-Then from the directory containing the multi module `pom.xml`, run:
+If the Liberty Maven plugin is defined in your `pom.xml` file(s), ensure it is at version `3.4` or later.  Then from the directory containing the multi module `pom.xml`, run:
 ```
 $ mvn liberty:dev
-```
-
-Otherwise, from the directory containing the multi module `pom.xml`, run:
-```
-$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
 ```
 
 Liberty server configuration files (such as `server.xml`) will be used from the module that does not have any other modules depending on it.  If there is more than one module without other modules depending on it, specify which module with Liberty configuration that you want to use by including the parameters `-pl <module-with-liberty-config> -am`.  
