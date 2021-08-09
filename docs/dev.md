@@ -34,17 +34,19 @@ To start dev mode on a multi module project, run the following from the director
 $ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
 ```
 
-To start dev mode on a multi module project by using the short-form `liberty` name for the Liberty Maven plugin, do one of the following:
-1. In `~.m2/settings.xml`, add:
+To start dev mode on a multi module project by using the short-form `liberty` name for the Liberty Maven plugin:
+1. Do one of the following:
+  * In `~.m2/settings.xml`, add:
 ```
 <pluginGroups>
   <pluginGroup>io.openliberty.tools</pluginGroup>
 </pluginGroups> 
-```
-2. or define the Liberty Maven plugin in the parent `pom.xml` of every module,  
-3. or define the Liberty Maven plugin in `pom.xml` of every module.
+```  
+  * or define the Liberty Maven plugin in the parent `pom.xml` of every module,  
+  * or define the Liberty Maven plugin in `pom.xml` of every module.
 
-If the Liberty Maven plugin is defined in your `pom.xml` file(s), ensure it is at version `3.4` or later.  Then from the directory containing the multi module `pom.xml`, run:
+2. If the Liberty Maven plugin is defined in your `pom.xml` file(s), ensure it is at version `3.4` or later.
+3. From the directory containing the multi module `pom.xml`, run:
 ```
 $ mvn liberty:dev
 ```
