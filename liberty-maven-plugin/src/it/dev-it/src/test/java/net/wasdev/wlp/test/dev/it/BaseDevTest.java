@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -126,6 +127,10 @@ public class BaseDevTest {
    }
 
    protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand) throws IOException, InterruptedException, FileNotFoundException {
+      startProcess(params, isDevMode, mavenPluginCommand, true);
+   }
+
+   protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand, boolean verifyServerStart) throws IOException, InterruptedException, FileNotFoundException {
       // run dev mode on project
       String goal;
       if(isDevMode) {
@@ -152,20 +157,22 @@ public class BaseDevTest {
 
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
-      // check that the server has started
-      Thread.sleep(5000);
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
-      if (isDevMode) {
-         assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
-      }
+      if (verifyServerStart) {
+         // check that the server has started
+         Thread.sleep(5000);
+         assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
+         if (isDevMode) {
+            assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
+         }
 
-      // verify that the target directory was created
-      if (customLibertyModule == null) {
-         targetDir = new File(tempProj, "target");
-      } else {
-         targetDir = new File(new File(tempProj, customLibertyModule), "target");
+         // verify that the target directory was created
+         if (customLibertyModule == null) {
+            targetDir = new File(tempProj, "target");
+         } else {
+            targetDir = new File(new File(tempProj, customLibertyModule), "target");
+         }
+         assertTrue(targetDir.exists());
       }
-      assertTrue(targetDir.exists());
    }
 
    protected static String getLogTail() throws IOException {
@@ -206,7 +213,11 @@ public class BaseDevTest {
    }
 
    protected static void cleanUpAfterClass(boolean isDevMode) throws Exception {
-      stopProcess(isDevMode);
+      cleanUpAfterClass(isDevMode, true);
+   }
+
+   protected static void cleanUpAfterClass(boolean isDevMode, boolean checkForShutdownMessage) throws Exception {
+      stopProcess(isDevMode, checkForShutdownMessage);
 
       if (tempProj != null && tempProj.exists()) {
          FileUtils.deleteDirectory(tempProj);
@@ -217,7 +228,14 @@ public class BaseDevTest {
       }
    }
 
-   private static void stopProcess(boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
+   protected static void clearLogFile() throws Exception {
+      if (logFile != null && logFile.exists()) {
+         BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile));
+         logWriter.close();
+      }
+   }
+
+   private static void stopProcess(boolean isDevMode, boolean checkForShutdownMessage) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
          if(isDevMode) {
@@ -232,8 +250,10 @@ public class BaseDevTest {
          process.waitFor(120, TimeUnit.SECONDS);
          process.exitValue();
 
-         // test that dev mode has stopped running
-         assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+         // test that the server has shut down
+         if (checkForShutdownMessage) {
+            assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+         }
       }
    }
 
@@ -287,6 +307,26 @@ public class BaseDevTest {
          br.close();
       }
       return false;
+   }
+
+   /**
+    * Count number of lines that contain the given string
+    */
+   protected static int countOccurrences(String str, File file) throws FileNotFoundException, IOException {
+      int occurrences = 0;
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line = br.readLine();
+      try {
+         while (line != null) {
+            if (line.contains(str)) {
+               occurrences++;
+            }
+            line = br.readLine();
+         }
+      } finally {
+         br.close();
+      }
+      return occurrences;
    }
 
    protected static ProcessBuilder buildProcess(String processCommand) {

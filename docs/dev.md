@@ -20,13 +20,46 @@ Dev mode provides three key features. Code changes are detected, recompiled, and
 
 The following are dev mode supported code changes. Changes to your server such as changes to the port, server name, hostname, etc. will require restarting dev mode to be detected.  Changes other than those listed below may also require restarting dev mode to be detected.
 
-* Java source file changes and Java test file changes are detected, recompiled, and picked up by your running server.  
+* Java source file changes and Java test file changes are detected, recompiled, and picked up by your running server.
 * Added dependencies to your `pom.xml` are detected and added to your classpath.  Dependencies that are Liberty features will be installed via the `install-feature` goal.  Any other changes to your `pom.xml` will require restarting dev mode to be detected.
 * Resource file changes are detected and copied into your `target` directory. 
 * Configuration directory and configuration file changes are detected and copied into your `target` directory, which are hot deployed to the server.  Added features to your `server.xml` will be installed and picked up by your running server.  Adding a configuration directory or configuration file that did not previously exist while dev mode is running will require restarting dev mode to be detected.
 
+###### Multiple Modules
+
+Dev mode can be run on a single Maven module or on a multi module Maven project (a project consisting of multiple modules specified in the `<modules>` section of its `pom.xml`).  When run on a single Maven module, only changes within that module are detected and hot deployed.  When run on a multi module Maven project, changes in all modules are detected and hot deployed according to the Maven Reactor build order.  Note that any modules that other modules rely on as a compile dependency must have a non-empty Java source folder with Java file(s) before starting dev mode, otherwise the other modules may fail to compile.
+
+To start dev mode on a multi module project, run the following from the directory containing the multi module `pom.xml`:
+```
+$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
+```
+
+To start dev mode on a multi module project by using the short-form `liberty` name for the Liberty Maven plugin:
+1. Do one of the following:
+  * In `~.m2/settings.xml`, add:
+```
+<pluginGroups>
+  <pluginGroup>io.openliberty.tools</pluginGroup>
+</pluginGroups> 
+```  
+  * or define the Liberty Maven plugin in the parent `pom.xml` of every module,  
+  * or define the Liberty Maven plugin in `pom.xml` of every module.
+
+2. If the Liberty Maven plugin is defined in your `pom.xml` file(s), ensure it is at version `3.4` or later.
+3. From the directory containing the multi module `pom.xml`, run:
+```
+$ mvn liberty:dev
+```
+
+Liberty server configuration files (such as `server.xml`) will be used from the module that does not have any other modules depending on it.  If there is more than one module without other modules depending on it, specify which module with Liberty configuration that you want to use by including the parameters `-pl <module-with-liberty-config> -am`.  
+For example, to use Liberty configuration from a module named `ear`, run:
+```
+$ mvn liberty:dev -pl ear -am
+```
 
 ###### Examples
+
+The examples below apply regardless of whether you are using a single module or multi module project.  
 
 Start dev mode.
 ```
@@ -63,6 +96,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `90` seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
+| recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
 
 ###### System Properties for Integration Tests
 
@@ -130,6 +164,10 @@ The following limitations apply to Linux:
 * In dev mode, the Open Liberty server runs in the container on the UID (user identifier) of the current user. This is so that the server can access the configuration files from your project and you can access the Open Liberty log files. Outside of dev mode, the Open Liberty server will run on the UID specified in the Docker image.
 * Use of editors like `vim`: when you edit a configuration file with `vim` it will delete the file and rewrite it when you save. This necessitates a container restart. To avoid the restart edit your .vimrc file and add the line `set backupcopy=yes`
 
+###### Multiple Modules
+
+The `devc` goal is supported with multi module Maven projects in the same way as the [`dev` goal](#multiple-modules) but substitute `dev` for `devc` in the examples.
+
 ###### Examples
 
 Start dev mode with the server in a container using the Dockerfile in the project root.
@@ -143,7 +181,7 @@ Customizing the container configuration in `pom.xml`.  Note that changing these 
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.3.3</version>
+                <version>3.4</version>
                 <configuration>
                     <container>true</container>
                     <dockerRunOpts>-e key=value</dockerRunOpts>

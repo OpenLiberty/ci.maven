@@ -39,7 +39,7 @@ public class MultiModuleTypeJTest extends BaseMultiModuleTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war1", "guide-maven-multimodules-war2", "guide-maven-multimodules-pom");
+      super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war1", "guide-maven-multimodules-war2", "guide-maven-multimodules-pom");
    }
 
    @Test

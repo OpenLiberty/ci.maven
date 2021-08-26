@@ -46,7 +46,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.3.4,)</version>
+                <version>3.3.4</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>

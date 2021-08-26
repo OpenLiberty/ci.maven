@@ -82,21 +82,37 @@ public class BaseMultiModuleTest extends BaseDevTest {
       }
    }
 
-   public void manualTestsInvocationTest(String... moduleArtifactIds) throws Exception {
+   public void manualTestsInvocation(String... moduleArtifactIds) throws Exception {
       assertTrue(getLogTail(), verifyLogMessageExists("To run tests on demand, press Enter.", 30000));
-
       writer.write("\n");
       writer.flush();
+      verifyTestsRan(moduleArtifactIds);
+   }
 
+   public void verifyStartupHotTests(String... moduleArtifactIds) throws Exception {
+      assertTrue(getLogTail(), verifyLogMessageExists(
+            "Tests will run automatically when changes are detected. You can also press the Enter key to run tests on demand.",
+            30000));
+            verifyTestsRan(moduleArtifactIds);
+   }
+
+   public void verifyTestsRan(String... moduleArtifactIds) throws Exception {
       for (String moduleArtifactId : moduleArtifactIds) {
          if (!moduleArtifactId.endsWith("ear")) {
             assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 10000));
          }
          assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 10000));
-  
       }
-
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
+   }
+
+   public void verifyTestsDidNotRun(String... moduleArtifactIds) throws Exception {
+      for (String moduleArtifactId : moduleArtifactIds) {
+         if (!moduleArtifactId.endsWith("ear")) {
+            assertFalse(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 1000));
+         }
+         assertFalse(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 1000));
+      }
    }
 
    public void assertEndpointContent(String url, String assertResponseContains) throws IOException, HttpException {
@@ -131,6 +147,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
       replaceString("return feet;", "return feet*2;", srcClass);
 
       Thread.sleep(5000); // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I", 10000));
       boolean wasModified = targetClass.lastModified() > lastModified;
       assertTrue(wasModified);
    }
@@ -158,6 +175,27 @@ public class BaseMultiModuleTest extends BaseDevTest {
       assertTrue(srcClass.exists());
       assertTrue(targetClass.exists());
       return targetClass;
+   }
+
+   protected static void runCommand(String commandLineString) throws Exception {
+      StringBuilder command = new StringBuilder(commandLineString);
+      ProcessBuilder builder = buildProcess(command.toString());
+
+      builder.redirectOutput(logFile);
+      builder.redirectError(logFile);
+      if (customPomModule != null) {
+         builder.directory(new File(tempProj, customPomModule));
+      }
+      Process process = builder.start();
+      assertTrue(process.isAlive());
+      process.waitFor(120, TimeUnit.SECONDS);
+      assertEquals(0, process.exitValue());
+   }
+
+   protected static void modifyFileForModule(String srcFilePath, String str, String replacement) throws IOException {
+      File srcClass = new File(tempProj, srcFilePath);
+      assertTrue(srcClass.exists());
+      replaceString(str, replacement, srcClass);
    }
 }
 

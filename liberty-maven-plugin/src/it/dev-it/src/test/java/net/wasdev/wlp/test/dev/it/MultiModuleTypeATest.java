@@ -43,7 +43,7 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
             "The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.",
             20000));
 
-      super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+      super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
             "guide-maven-multimodules-ear");
 
       // // verify that when modifying a jar class, classes in dependent modules are
