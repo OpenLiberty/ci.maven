@@ -18,14 +18,11 @@ package net.wasdev.wlp.test.dev.it;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,38 +31,56 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
       @BeforeClass
       public static void setUpBeforeClass() throws Exception {
             setUpMultiModule("typeA", "ear", null);
-            run("-DrecompileDependencies=false");
+            // test setting recompileDependencies to false for a multi module project
+            run("-DrecompileDependencies=false -DhotTests=true");
       }
 
       @Test
       public void runTest() throws Exception {
-            // test setting recompileDependencies to false for a multi module project
             assertTrue(verifyLogMessageExists(
                         "The recompileDependencies parameter is set to \"false\". On a file change only the affected classes will be recompiled.",
                         20000));
 
-            super.manualTestsInvocationTest("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            verifyStartupHotTests("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
                         "guide-maven-multimodules-ear");
 
             // verify that when modifying a jar class, classes in dependent modules are
             // not recompiled as well
-            File targetWebClass = getTargetFileForModule(
+            File targetWarClass = getTargetFileForModule(
                         "war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
                         "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
-            long webLastModified = targetWebClass.lastModified();
-
-            File targetEarClass = getTargetFileForModule(
-                        "ear/src/test/java/it/io/openliberty/guides/multimodules/ConverterAppIT.java",
-                        "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
-            long targetLastModified = targetEarClass.lastModified();
-
+            long warLastModified = targetWarClass.lastModified();
+            clearLogFile();
             testEndpointsAndUpstreamRecompile();
+            // verify jar unit tests failed
+            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests failed: There are test failures.", 10000));
+            verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
             // verify a source class in the war module was not compiled
-            assertTrue(targetWebClass.lastModified() == webLastModified);
+            assertTrue(targetWarClass.lastModified() == warLastModified);
 
-            // verify a test class in the ear module was not compiled
-            assertTrue(targetEarClass.lastModified() == targetLastModified);
+            // Verify that with recompileDependencies=false, failing classes from upstream and downstream modules are still
+            // re-tried for compilation on source file change
+
+            // create compilation error in jar module
+            modifyFileForModule("jar/src/main/java/io/openliberty/guides/multimodules/lib/Converter.java", "return inches;", "return invalid");
+            Thread.sleep(5000); // wait for compilation
+            assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-jar source compilation had errors.", 10000));
+
+            // create compilation error in ear module
+            modifyFileForModule("ear/src/test/java/it/io/openliberty/guides/multimodules/ConverterAppIT.java", "String war", "invalid");
+            Thread.sleep(5000); // wait for compilation
+            assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
+
+            clearLogFile(); // need to clear log file so that we are checking for the correct compilation messages below
+
+            modifyFileForModule("war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java", "return heightCm;", "return \"24\";");
+            assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-jar source compilation had errors.", 10000));
+            assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation was successful.", 10000));
+            assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
+
+            // verify that tests did not run
+            verifyTestsDidNotRun("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
+            "guide-maven-multimodules-ear");
       }
-
 }

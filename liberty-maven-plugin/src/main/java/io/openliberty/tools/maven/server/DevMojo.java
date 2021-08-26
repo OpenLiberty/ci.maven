@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -270,14 +271,15 @@ public class DevMojo extends StartDebugMojoSupport {
         public DevMojoUtil(File installDir, File userDir, File serverDirectory, File sourceDirectory,
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
-                List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects,
-                boolean recompileDeps) throws IOException {
+                List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
+                File pom, Map<String, List<String>> parentPoms) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps);
+                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
+                    pom, parentPoms);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -517,14 +519,10 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public boolean updateArtifactPaths(File buildFile, List<String> compileArtifactPaths,
-                List<String> testArtifactPaths, boolean redeployCheck, ThreadPoolExecutor executor)
+        public boolean updateArtifactPaths(ProjectModule projectModule, boolean redeployCheck, ThreadPoolExecutor executor)
                 throws PluginExecutionException {
-            ProjectBuildingResult build;
             try {
-                build = mavenProjectBuilder.build(buildFile,
-                        session.getProjectBuildingRequest().setResolveDependencies(true));
-                MavenProject upstreamProject = build.getProject();
+                MavenProject upstreamProject = getMavenProject(projectModule.getBuildFile());
                 MavenProject backupUpstreamProject = upstreamProject;
                 for (MavenProject p : upstreamMavenProjects) {
                     if (buildFile != null && p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
@@ -540,10 +538,28 @@ public class DevMojo extends StartDebugMojoSupport {
                     util.getProjectModule(buildFile).setCompilerOptions(compilerOptions);
                 }
 
-                testArtifactPaths.clear();
+                Set<String> testArtifactPaths = projectModule.getTestArtifacts();
+                Set<String> compileArtifactPaths = projectModule.getCompileArtifacts();
+
+                if (this.parentBuildFiles.isEmpty()) {
+                    compileArtifactPaths.clear();
+                    testArtifactPaths.clear();
+                } else {
+                    // remove past artifacts and add the newest calculated (covers the case where a
+                    // dependency was deleted)
+                    // do not clear list as it may contain dependencies from parent projects
+                    // update classpath for dependencies changes
+                    testArtifactPaths.removeAll(backupUpstreamProject.getTestClasspathElements());
+                    compileArtifactPaths.removeAll(backupUpstreamProject.getCompileClasspathElements());
+                }
                 testArtifactPaths.addAll(upstreamProject.getTestClasspathElements());
-                compileArtifactPaths.clear();
                 compileArtifactPaths.addAll(upstreamProject.getCompileClasspathElements());
+
+                // check if project module is a parent project and update child modules' artifacts
+                if (!this.parentBuildFiles.isEmpty()
+                        && this.parentBuildFiles.containsKey(projectModule.getBuildFile().getCanonicalPath())) {
+                    updateArtifactPaths(projectModule.getBuildFile());
+                }
 
                 // check if compile dependencies have changed and redeploy if they have
                 if (redeployCheck) {
@@ -571,8 +587,73 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public boolean recompileBuildFile(File buildFile, List<String> compileArtifactPaths,
-                List<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
+        public boolean updateArtifactPaths(File buildFile) {
+            try {
+                MavenProject parentProject = getMavenProject(buildFile);
+                updateChildProjectArtifactPaths(buildFile, parentProject.getCompileClasspathElements(),
+                        parentProject.getTestClasspathElements());
+            } catch (ProjectBuildingException | IOException | DependencyResolutionRequiredException e) {
+                log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
+                        + ": " + e.getMessage());
+                log.debug(e);
+                return false;
+            }
+            return true;
+        }
+
+        private void updateChildProjectArtifactPaths(File parentBuildFile, List<String> compileClasspathElements,
+                List<String> testClasspathElements) throws IOException, ProjectBuildingException, DependencyResolutionRequiredException {
+            // search for child projects
+            List<String> childBuildFiles = this.parentBuildFiles.get(parentBuildFile.getCanonicalPath());
+            if (childBuildFiles != null) {
+                for (String childBuildPath : childBuildFiles) {
+                    if (this.parentBuildFiles.containsKey(childBuildPath)) {
+                        MavenProject project = getMavenProject(new File(childBuildPath));
+                        if (project != null) {
+                            compileClasspathElements.addAll(project.getCompileClasspathElements());
+                            testClasspathElements.addAll(project.getTestClasspathElements());
+                        }
+                        updateChildProjectArtifactPaths(new File(childBuildPath), compileClasspathElements,
+                                testClasspathElements);
+                    } else {
+                        // update artifacts on this project
+                        Set<String> compileArtifacts = null;
+                        Set<String> testArtifacts = null;
+                        MavenProject project = null;
+                        if (childBuildPath.equals(this.buildFile.getCanonicalPath())) {
+                            compileArtifacts = util.getCompileArtifacts();
+                            testArtifacts = util.getTestArtifacts();
+                            project = getMavenProject(this.buildFile);
+                        } else if (getProjectModule(new File(childBuildPath)) != null) {
+                            ProjectModule projectModule = getProjectModule(new File(childBuildPath));
+                            compileArtifacts = projectModule.getCompileArtifacts();
+                            testArtifacts = projectModule.getTestArtifacts();
+                            project = getMavenProject(projectModule.getBuildFile());
+                        }
+                        if (compileArtifacts != null && testArtifacts != null && project != null) {
+                            compileArtifacts.clear();
+                            testArtifacts.clear();
+                            // TODO if a dependency is deleted from a parent project, it will still be in
+                            // the child projects classpath elements
+                            compileClasspathElements.addAll(project.getCompileClasspathElements());
+                            testClasspathElements.addAll(project.getTestClasspathElements());
+                            compileArtifacts.addAll(compileClasspathElements);
+                            testArtifacts.addAll(testClasspathElements);
+                        }
+                    }
+                }
+            }
+        }
+
+        private MavenProject getMavenProject(File buildFile) throws ProjectBuildingException {
+            ProjectBuildingResult build = mavenProjectBuilder.build(buildFile,
+                        session.getProjectBuildingRequest().setResolveDependencies(true));
+            return build.getProject();
+        }
+
+        @Override
+        public boolean recompileBuildFile(File buildFile, Set<String> compileArtifactPaths,
+                Set<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properties in project properties section
             // - changes in liberty plugin configuration in the build plugin section
@@ -655,9 +736,18 @@ public class DevMojo extends StartDebugMojoSupport {
                     }
                 }
                 // update classpath for dependencies changes
-                compileArtifactPaths.clear();
+                if (this.parentBuildFiles.isEmpty()) {
+                    compileArtifactPaths.clear();
+                    testArtifactPaths.clear();
+                } else {
+                    // remove past artifacts and add the newest calculated (covers the case where a
+                    // dependency was deleted)
+                    // do not clear list as it may contain dependencies from parent projects
+                    testArtifactPaths.removeAll(backupProject.getTestClasspathElements());
+                    compileArtifactPaths.removeAll(backupProject.getCompileClasspathElements());
+                }
+
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
-                testArtifactPaths.clear();
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
                 if (restartServer) {
@@ -729,12 +819,31 @@ public class DevMojo extends StartDebugMojoSupport {
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+                    runCompileMojoLogWarning();
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                 }
                 if (dir.equals(testSourceDirectory)) {
-                    runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "testCompile");
+                    runTestCompileMojoLogWarning();
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+                }
+                return true;
+            } catch (MojoExecutionException e) {
+                log.error("Unable to compile", e);
+                return false;
+            }
+        }
+
+        @Override
+        public boolean compile(File dir, ProjectModule project) {
+            MavenProject mavenProject = resolveMavenProject(project.getBuildFile());
+            try {
+                if (dir.equals(project.getSourceDirectory())) {
+                    runCompileMojoLogWarning(mavenProject);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "resources", mavenProject);
+                }
+                if (dir.equals(project.getTestSourceDirectory())) {
+                    runTestCompileMojoLogWarning(mavenProject);
+                    runMojoForProject("org.apache.maven.plugins", "maven-resources-plugin", "testResources", mavenProject);
                 }
                 return true;
             } catch (MojoExecutionException e) {
@@ -826,7 +935,11 @@ public class DevMojo extends StartDebugMojoSupport {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 
                     installEmptyEarIfNotFound(project);
+                } else if (project.getPackaging().equals("pom")) {
+                    log.debug("Skipping compile/resources on module with pom packaging type");
                 } else {
+                    purgeLocalRepositoryArtifact();
+
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
                 }
@@ -840,6 +953,12 @@ public class DevMojo extends StartDebugMojoSupport {
                 // skip this module
                 return;
             }
+        }
+
+        // get all parent poms
+        Map<String, List<String>> parentPoms = new HashMap<String, List<String>>();
+        for (MavenProject proj : graph.getAllProjects()) {
+            updateParentPoms(parentPoms, proj);
         }
 
         // default behavior of recompileDependencies
@@ -890,6 +1009,8 @@ public class DevMojo extends StartDebugMojoSupport {
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+        } else if (project.getPackaging().equals("pom")) {
+            log.debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runCompileMojoLogWarning();
@@ -937,8 +1058,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 // get compiler options for upstream project
                 JavaCompilerOptions upstreamCompilerOptions = getMavenCompilerOptions(p);
 
-                List<String> compileArtifacts = new ArrayList<String>();
-                List<String> testArtifacts = new ArrayList<String>();
+                Set<String> compileArtifacts = new HashSet<String>();
+                Set<String> testArtifacts = new HashSet<String>();
                 Build build = p.getBuild();
                 File upstreamSourceDir = new File(build.getSourceDirectory());
                 File upstreamOutputDir = new File(build.getOutputDirectory());
@@ -953,17 +1074,13 @@ public class DevMojo extends StartDebugMojoSupport {
                 // properties that are set by user via CLI parameters
                 Properties userProps = session.getUserProperties();
 
-                // CLI properties should always take precedence, otherwise use the values set in
-                // the pom file
-                boolean upstreamSkipTests = Boolean
-                        .parseBoolean(userProps.getProperty("skipTests") != null ? userProps.getProperty("skipTests")
-                                : props.getProperty("skipTests"));
-                boolean upstreamSkipITs = Boolean
-                        .parseBoolean(userProps.getProperty("skipITs") != null ? userProps.getProperty("skipITs")
-                                : props.getProperty("skipITs"));
-                boolean upstreamSkipUTs = Boolean
-                        .parseBoolean(userProps.getProperty("skipUTs") != null ? userProps.getProperty("skipUTs")
-                                : props.getProperty("skipUTs"));
+                Plugin libertyPlugin = getLibertyPluginForProject(p);
+                // use "dev" goal, although we don't expect the skip tests flags to be bound to any goal
+                Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "dev", log);
+                
+                boolean upstreamSkipTests = getBooleanFlag(config, userProps, props, "skipTests");
+                boolean upstreamSkipITs = getBooleanFlag(config, userProps, props, "skipITs");
+                boolean upstreamSkipUTs = getBooleanFlag(config, userProps, props, "skipUTs");
 
                 // only force skipping unit test for ear modules otherwise honour existing skip
                 // test params
@@ -978,8 +1095,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     dependentModules.add(depProj.getFile());
                 }
 
-                ProjectModule upstreamProject = new ProjectModule(p.getFile(), p.getArtifactId(), compileArtifacts,
-                        testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
+                ProjectModule upstreamProject = new ProjectModule(p.getFile(), p.getArtifactId(), p.getPackaging(),
+                        compileArtifacts, testArtifacts, upstreamSourceDir, upstreamOutputDir, upstreamTestSourceDir,
                         upstreamTestOutputDir, upstreamResourceDirs, upstreamSkipTests, upstreamSkipUTs,
                         upstreamSkipITs, upstreamCompilerOptions, dependentModules);
 
@@ -992,17 +1109,18 @@ public class DevMojo extends StartDebugMojoSupport {
             skipUTs = true;
         }
 
+        // pom.xml
+        File pom = project.getFile();
+
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps);
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms);
         util.addShutdownHook(executor);
         util.startServer();
 
         // collect artifacts canonical paths in order to build classpath
-        List<String> compileArtifactPaths = project.getCompileClasspathElements();
-        List<String> testArtifactPaths = project.getTestClasspathElements();
-        // pom.xml
-        File pom = project.getFile();
+        Set<String> compileArtifactPaths = new HashSet<String>(project.getCompileClasspathElements());
+        Set<String> testArtifactPaths = new HashSet<String>(project.getTestClasspathElements());
 
         // start watching for keypresses immediately
         util.runHotkeyReaderThread(executor);
@@ -1014,10 +1132,10 @@ public class DevMojo extends StartDebugMojoSupport {
         try {
             if (!upstreamProjects.isEmpty()) {
                 // watch upstream projects for hot compilation if they exist
-                util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                util.watchFiles(outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
                         testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             } else {
-                util.watchFiles(pom, outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
+                util.watchFiles(outputDirectory, testOutputDirectory, executor, compileArtifactPaths,
                         testArtifactPaths, serverXmlFile, bootstrapPropertiesFile, jvmOptionsFile);
             }
         } catch (PluginScenarioException e) {
@@ -1027,6 +1145,103 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.info(e.getMessage());
             }
             return; // enter shutdown hook
+        }
+    }
+
+    /**
+     * Use the following priority ordering for skip test flags: <br>
+     * 1. within Liberty Maven plugin’s configuration in a module <br>
+     * 2. within Liberty Maven plugin’s configuration in a parent pom’s pluginManagement <br>
+     * 3. by command line with -D <br>
+     * 4. within a module’s properties <br>
+     * 5. within a parent pom’s properties <br>
+     * 
+     * @param config the config xml that might contain the param as an attribute
+     * @param userProps the Maven user properties
+     * @param props the Maven project's properties
+     * @param param the Boolean parameter to look for
+     * @return a boolean in priority order, or null if the param was not found anywhere
+     */
+    public static boolean getBooleanFlag(Xpp3Dom config, Properties userProps, Properties props, String param) {
+        // this handles 1 and 2
+        Boolean pluginConfig = parseBooleanIfDefined(getConfigValue(config, param));
+        
+        // this handles 3
+        Boolean userProp = parseBooleanIfDefined(userProps.getProperty(param));
+        
+        // this handles 4 and 5
+        Boolean prop = parseBooleanIfDefined(props.getProperty(param));
+        
+        return getFirstNonNullValue(pluginConfig, userProp, prop);
+    }
+
+    /**
+     * Gets the value of the given attribute, or null if the attribute is not found.
+     * @param config
+     * @param attribute
+     * @return
+     */
+    private static String getConfigValue(Xpp3Dom config, String attribute) {
+        return (config.getChild(attribute) == null ? null : config.getChild(attribute).getValue());
+    }
+
+    /**
+     * Parses a Boolean from a String if the String is not null.  Otherwise returns null.
+     * @param value the String to parse
+     * @return a Boolean, or null if value is null
+     */
+    private static Boolean parseBooleanIfDefined(String value) {
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the value of the first Boolean object that is not null, in order from lowest to highest index.
+     * @param booleans an array of Boolean objects, some of which may be null
+     * @return the value of the first non-null Boolean, or false if everything is null
+     */
+    public static boolean getFirstNonNullValue(Boolean... booleans) {
+        for (Boolean b : booleans) {
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Update map with list of parent poms and their subsequent child poms
+     * 
+     * @param parentPoms Map of parent poms and subsequent child poms
+     * @param proj       MavenProject
+     */
+    private void updateParentPoms(Map<String, List<String>> parentPoms, MavenProject proj) {
+        MavenProject parentProject = proj.getParent();
+        try {
+            if (parentProject != null) {
+                // append to existing list
+                if (parentProject.getFile() != null) {
+                    List<String> childPoms = parentPoms.get(parentProject.getFile().getCanonicalPath());
+                    if (childPoms == null) {
+                        childPoms = new ArrayList<String>();
+                        childPoms.add(proj.getFile().getCanonicalPath());
+                        parentPoms.put(parentProject.getFile().getCanonicalPath(), childPoms);
+                    } else {
+                        if (!childPoms.contains(proj.getFile().getCanonicalPath())) {
+                            childPoms.add(proj.getFile().getCanonicalPath());
+                        }
+                    }
+                    if (parentProject.getParent() != null) {
+                        // recursively search for top most parent project
+                        updateParentPoms(parentPoms, parentProject);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("An unexpected error occurred when trying to resolve " + proj.getFile() + ": " + e.getMessage());
+            log.debug(e);
         }
     }
 
@@ -1110,7 +1325,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (buildFile != null && !project.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
-                // if we can resolve the project associated with build file, run IT tests on
+                // if we can resolve the project associated with build file, run tests on
                 // corresponding project
                 if (build.getProject() != null) {
                     currentProject = build.getProject();
@@ -1124,9 +1339,31 @@ public class DevMojo extends StartDebugMojoSupport {
         return currentProject;
     }
 
-    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject currentProject) throws MojoExecutionException {
-        Plugin plugin = getPluginForProject(groupId, artifactId, currentProject);
+    private void runTestMojo(String groupId, String artifactId, String goal, MavenProject project)
+            throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, project);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+
+        // check if this is a project module or main module
+        if (util.isMultiModuleProject()) {
+            try {
+                Set<String> testArtifacts;
+                ProjectModule projectModule = util.getProjectModule(project.getFile());
+                if (projectModule != null) {
+                    testArtifacts = projectModule.getTestArtifacts();
+                } else {
+                    // assume this is the main module
+                    testArtifacts = util.getTestArtifacts();
+                }
+                if (goal.equals("test") || goal.equals("integration-test")) {
+                    injectClasspathElements(config, testArtifacts, project.getTestClasspathElements());
+                }
+            } catch (IOException | DependencyResolutionRequiredException e) {
+                log.error(
+                        "Unable to resolve test artifact paths for " + project.getFile() + ". Restart dev mode to ensure classpaths are properly resolved.");
+                log.debug(e);
+            }
+        }
 
         if (goal.equals("test")) {
             injectTestId(config);
@@ -1139,7 +1376,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (summaryFileElement != null && summaryFileElement.getValue() != null) {
                 summaryFile = new File(summaryFileElement.getValue());
             } else {
-                summaryFile = new File(currentProject.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
+                summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
                 log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
@@ -1153,7 +1390,7 @@ public class DevMojo extends StartDebugMojoSupport {
                 log.debug("Summary file doesn't exist");
             }
         } else if (goal.equals("failsafe-report-only")) {
-            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", currentProject);
+            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", project);
             Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
@@ -1171,7 +1408,7 @@ public class DevMojo extends StartDebugMojoSupport {
             linkXRef.setValue("false");
             config.addChild(linkXRef);
         } else if (goal.equals("report-only")) {
-            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", currentProject);
+            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", project);
             Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
@@ -1190,11 +1427,40 @@ public class DevMojo extends StartDebugMojoSupport {
             config.addChild(linkXRef);
         }
 
-        log.debug("POM file: " + currentProject.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
+        log.debug("POM file: " + project.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
                 + " configuration:\n" + config);
-        MavenSession testSession = session.clone();
-        testSession.setCurrentProject(currentProject);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(currentProject, testSession, pluginManager));
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
+    }
+
+    /**
+     * Inject missing test artifacts (usually from upstream modules) for Maven
+     * surefire and failsafe plugins
+     * 
+     * @param config                The configuration element
+     * @param testArtifacts         The complete list of test artifacts resolved
+     *                              from the build file and upstream build files
+     * @param testClasspathElements The list of test artifacts resolved from the
+     *                              build file
+     */
+    private void injectClasspathElements(Xpp3Dom config, Set<String> testArtifacts,
+            List<String> testClasspathElements) {
+        if (testArtifacts.size() > testClasspathElements.size()) {
+            List<String> additionalClassPathElements = new ArrayList<String>();
+            additionalClassPathElements.addAll(testArtifacts);
+            additionalClassPathElements.removeAll(testClasspathElements);
+            Xpp3Dom classpathElement = config.getChild("additionalClasspathElements");
+            if (classpathElement == null) {
+                classpathElement = new Xpp3Dom("additionalClasspathElements");
+            }
+            for (String element : additionalClassPathElements) {
+                Xpp3Dom childElem = new Xpp3Dom("additionalClasspathElement");
+                childElem.setValue(element);
+                classpathElement.addChild(childElem);
+            }
+            config.addChild(classpathElement);
+        }
     }
 
     /**
@@ -1323,16 +1589,21 @@ public class DevMojo extends StartDebugMojoSupport {
      * Executes Maven goal passed but sets failOnError to false All errors are
      * logged as warning messages
      * 
-     * @param goal Maven compile goal
+     * @param goal         Maven compile goal
+     * @param MavenProject Maven project to run compile goal against, null if
+     *                     default project is to be used
      * @throws MojoExecutionException
      */
-    private void runCompileMojo(String goal) throws MojoExecutionException {
-        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-compiler-plugin");
+    private void runCompileMojo(String goal, MavenProject mavenProject) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", mavenProject);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(mavenProject);
+        MavenProject tempProject = mavenProject;
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
-        log.info("Running maven-compiler-plugin:" + goal);
+        log.info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         log.debug("configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+        executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
     }
 
     /**
@@ -1341,7 +1612,16 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("compile");
+        runCompileMojo("compile", project);
+    }
+
+    /**
+     * Executes maven:compile but logs errors as warning messages
+     * 
+     * @throws MojoExecutionException
+     */
+    private void runCompileMojoLogWarning(MavenProject mavenProject) throws MojoExecutionException {
+        runCompileMojo("compile", mavenProject);
     }
 
     /**
@@ -1350,7 +1630,16 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     private void runTestCompileMojoLogWarning() throws MojoExecutionException {
-        runCompileMojo("testCompile");
+        runCompileMojo("testCompile", project);
+    }
+
+    /**
+     * Executes maven:testCompile but logs errors as warning messages
+     * 
+     * @throws MojoExecutionException
+     */
+    private void runTestCompileMojoLogWarning(MavenProject mavenProject) throws MojoExecutionException {
+        runCompileMojo("testCompile", mavenProject);
     }
 
     /**

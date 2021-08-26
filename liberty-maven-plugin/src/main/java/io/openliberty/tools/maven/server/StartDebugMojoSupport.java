@@ -31,8 +31,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -49,7 +47,9 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginManagement;
@@ -194,7 +194,18 @@ public class StartDebugMojoSupport extends BasicSupport {
         executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
-    
+
+    protected void runMojoForProject(String groupId, String artifactId, String goal, MavenProject project)
+            throws MojoExecutionException {
+        Plugin plugin = getPluginForProject(groupId, artifactId, project);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        log.info("Running " + artifactId + ":" + goal + " on " + project.getFile());
+        log.debug("configuration:\n" + config);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
+    }
+
     /**
      * Given the groupId and artifactId get the corresponding plugin
      * 
@@ -227,15 +238,19 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected Plugin getLibertyPlugin() {
+        return getLibertyPluginForProject(project);
+    }
+
+    protected Plugin getLibertyPluginForProject(MavenProject currentProject) {
         // Try getting the version from Maven 3's plugin descriptor
         String version = null;
         if (plugin != null && plugin.getPlugin() != null) {
             version = plugin.getVersion();
             log.debug("Setting plugin version to " + version);
         }
-        Plugin projectPlugin = project.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
+        Plugin projectPlugin = currentProject.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (projectPlugin == null) {
-            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, project);
+            projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, currentProject);
         }
         if (projectPlugin == null) {
             projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
@@ -967,6 +982,28 @@ public class StartDebugMojoSupport extends BasicSupport {
             log.debug(e);
             throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
+    }
+
+    /**
+     * Purge the installed artifact for the current project from the local .m2
+     * repository, so that any downstream modules (when using loose application)
+     * will not rely on the installed artifact for their compilation.
+     * 
+     * @throws MojoExecutionException If an exception occurred while running
+     *                                dependency:purge-local-repository
+     */
+    protected void purgeLocalRepositoryArtifact() throws MojoExecutionException {
+        Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-dependency-plugin");
+        String goal = "purge-local-repository";
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        config = Xpp3Dom.mergeXpp3Dom(configuration(
+            element(name("reResolve"), "false"), 
+            element(name("actTransitively"), "false"), 
+            element(name("manualIncludes"), project.getGroupId()+":"+project.getArtifactId())
+            ), config);
+        log.info("Running maven-dependency-plugin:" + goal);
+        log.debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
     }
 
     /**

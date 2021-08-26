@@ -79,7 +79,13 @@ public class RunServerMojo extends PluginConfigSupport {
             if (hasDownstreamProjects && looseApplication) {
                 installEmptyEarIfNotFound(project);
             }
+        } else if (projectPackaging.equals("pom")) {
+            log.debug("Skipping compile/resources on module with pom packaging type");
         } else {
+            if (hasDownstreamProjects && looseApplication) {
+                purgeLocalRepositoryArtifact();
+            }
+            
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
         }
