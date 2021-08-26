@@ -333,8 +333,10 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     return "mp1";
                 } else if (version.startsWith("2")) {
                     return "mp2";
+                } else if (version.startsWith("3")) {
+                    return "mp3";
                 }
-                return "mp3"; // add support for future versions of MicroProfile here
+                return "mp4"; // add support for future versions of MicroProfile here
             }
             if (d.getGroupId().equals("io.openliberty.features")) {
                 mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
@@ -345,22 +347,24 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             return "mp1";
         } else if (mpVersion == 2) {
             return "mp2";
+        } else if (mpVersion == 3) {
+            return "mp3";
         }
-        return "mp3";
+        return "mp4";
     }
 
     public static int getMPVersion(String shortName) {
-        final int MP_VERSIONS = 3; // number of version columns in table
+        final int MP_VERSIONS = 4; // number of version columns in table
         String[][] mpComponents = {
             // Name, MP1 version, MP2 version, MP3 version
-            { "mpconfig", "1.3", "1.3", "1.4" },
-            { "mpfaulttolerance", "1.1", "2.0", "2.1" },
-            { "mphealth", "1.0", "1.0", "2.2" },
-            { "mpjwt", "1.1", "1.1", "1.1" },
-            { "mpmetrics", "1.1", "1.1", "2.3" },
-            { "mpopenapi", "1.0", "1.1", "1.1" },
-            { "mpopentracing", "1.1", "1.3", "1.3" },
-            { "mprestclient", "1.1", "1.2", "1.4" },
+            { "mpconfig", "1.3", "1.3", "1.4", "2.0" },
+            { "mpfaulttolerance", "1.1", "2.0", "2.1", "3.0" },
+            { "mphealth", "1.0", "1.0", "2.2", "3.0" },
+            { "mpjwt", "1.1", "1.1", "1.1", "1.2" },
+            { "mpmetrics", "1.1", "1.1", "2.3", "3.0" },
+            { "mpopenapi", "1.0", "1.1", "1.1", "2.0" },
+            { "mpopentracing", "1.1", "1.3", "1.3", "2.0" },
+            { "mprestclient", "1.1", "1.2", "1.4", "2.0" },
         };
         if (shortName == null) {
             return 0;
