@@ -23,50 +23,38 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import java.io.FilenameFilter;
 
-public class PrepareFeatureTest {
-
+public class InstallUsrFeatureToExtTest {
+	
 	static File mavenLocalRepo = new File(System.getProperty("user.home")+ "/.m2/repository");
 	static File userTestRepo = new File(mavenLocalRepo, "test/user/test/features");
 	
 	public static boolean deleteFolder(final File directory) {
 		if (directory.isDirectory()) {
-				File[] files = directory.listFiles();
-				if (null != files) {
-					for (File file : files) {
-						if (file.isDirectory()) {
-							deleteFolder(file);
-						} else {
-							if (!file.delete()) {
-									file.deleteOnExit();
-							}
+			File[] files = directory.listFiles();
+			if (null != files) {
+				for (File file : files) {
+					if (file.isDirectory()) {
+						deleteFolder(file);
+					} else {
+						if (!file.delete()) {
+								file.deleteOnExit();
 						}
 					}
 				}
+			}
 		}
 		if(!directory.delete()){
-				directory.deleteOnExit();
-				return false;
+			directory.deleteOnExit();
+			return false;
 		}
 		return true;
 	}
 	
-
-    @Test
-    public void testPrepareFeature() throws Exception {
-    	try {
-			File jsonFile = new File(userTestRepo, "features/19.0.0.8/features-19.0.0.8.json");
-
-            assert jsonFile.exists() : "features.json cannot be generated";
-            
-        } catch (Exception e) {
-            throw new AssertionError ("Fail on task prepareFeature. "+e);
-        }
-    }
     
     @Test
-    public void testUsrFeatureInstall() throws Exception {
+    public void testUsrFeatureExtInstall() throws Exception {
     	try {
-			File featureFile = new File("liberty/wlp/usr/extension/lib/features/testesa1.mf");
+			File featureFile = new File("liberty/wlp/usr/cik/extensions/testExt/lib/features/testesa1.mf");
 
             assert featureFile.exists() : "testesa1.mf cannot be generated";
             
@@ -74,6 +62,7 @@ public class PrepareFeatureTest {
             throw new AssertionError ("Fail to install user feature. "+e);
         }
     }
+    
     
     @AfterClass
 	public static void cleanUp() {

@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>prepare-feature-it</artifactId>
+    <artifactId>install-usr-feature-ext-it</artifactId>
     <packaging>jar</packaging>
 
     <build>
@@ -51,6 +51,25 @@
 			                        <directory>src/test/resources</directory>
 			                        <includes>
 			                            <include>testesa1-19.0.0.8.esa</include>
+			                        </includes>
+			                    </resource>
+			                </resources>
+			            </configuration>
+	                </execution>
+	                <execution>
+	                    <id>copy-resource-three</id>
+	                    <phase>process-test-resources</phase>
+	                    <goals>
+	                        <goal>copy-resources</goal>
+	                    </goals>
+	
+	                    <configuration>
+			                <outputDirectory>${project.build.directory}/liberty/wlp/etc/extensions</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>src/test/resources</directory>
+			                        <includes>
+			                            <include>testExt.properties</include>
 			                        </includes>
 			                    </resource>
 			                </resources>
@@ -109,8 +128,9 @@
                         <configuration>
                             <features>
                             	<acceptLicense>true</acceptLicense>
+                            	<to>testExt</to>
                             	<feature>testesa1</feature>
-                        </features>
+                        	</features>
                         </configuration>
                     </execution>
                 </executions>
