@@ -4,74 +4,61 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.openliberty.tools.it</groupId>
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>multi-module-package-it</artifactId>
+        <version>1.0</version>
+    </parent>
+
     <artifactId>my-war</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.0_spec</artifactId>
-            <version>1.0</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.openliberty.tools.it</groupId>
+            <artifactId>loose-config-fragment-it</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>2.3</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.7</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>3.0.0</version>
                 <configuration>
-                    <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>bundle-manifest</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <supportedProjectTypes>
-                        <supportedProjectType>war</supportedProjectType>
-                    </supportedProjectTypes>
-                    <instructions>
-                        <Web-ContextPath>/test-wab</Web-ContextPath>
-                        <Bundle-ClassPath>WEB-INF/classes</Bundle-ClassPath>
-                        <Import-Package>
-                            javax.servlet.jsp.el,
-                            javax.servlet.jsp,
-                            javax.servlet.jsp.tagext,
-                            *
-                        </Import-Package>
-                    </instructions>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <packagingExcludes>pom.xml</packagingExcludes>
+                    <webResources>
+                        <resource>
+                            <!-- this is relative to the pom.xml directory -->
+                            <directory>target/generated-test-sources</directory>
+                        </resource>
+                        <resource>
+                            <directory>target/generated-sources</directory>
+                            <targetPath>generated</targetPath>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
             <plugin>
@@ -94,14 +81,76 @@
                 <executions>
                     <execution>
                         <id>create-and-deploy-to-liberty-server</id>
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>create</goal>
                             <goal>install-feature</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>start-liberty-server</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <background>true</background>
+                            <verifyTimeout>40</verifyTimeout>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-artifact</id>
+                        <phase>integration-test</phase>
+                        <goals>
                             <goal>deploy</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>stop-liberty-server</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <forkMode>once</forkMode>
+                    <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+                    <argLine>-enableassertions</argLine>
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
