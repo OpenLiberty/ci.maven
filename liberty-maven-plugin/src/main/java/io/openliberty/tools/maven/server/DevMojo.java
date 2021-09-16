@@ -109,6 +109,9 @@ public class DevMojo extends StartDebugMojoSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
+    @Parameter(property = "generateFeatures", defaultValue = "true")
+    private boolean generateFeatures;
+
     /**
      * Whether to recompile dependencies. Defaults to false for single module
      * projects and true for multi module projects. Since the default behavior
@@ -272,14 +275,14 @@ public class DevMojo extends StartDebugMojoSupport {
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                File pom, Map<String, List<String>> parentPoms) throws IOException {
+                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms);
+                    pom, parentPoms, generateFeatures);
 
             ServerFeature servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -768,7 +771,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
                     }
-                    if (createServer || installFeature) {
+                    if ((createServer || installFeature) && generateFeatures) {
                         runLibertyMojoGenerateFeatures();
                     }
                     if (installFeature) {
@@ -1037,7 +1040,9 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             runLibertyMojoCreate();
-            runLibertyMojoGenerateFeatures();
+            if (generateFeatures) {
+                runLibertyMojoGenerateFeatures();
+            }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
@@ -1114,7 +1119,8 @@ public class DevMojo extends StartDebugMojoSupport {
 
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms);
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms,
+                generateFeatures);
         util.addShutdownHook(executor);
         util.startServer();
 
