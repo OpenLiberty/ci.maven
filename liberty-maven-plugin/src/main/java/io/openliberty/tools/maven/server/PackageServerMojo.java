@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020. 
+ * (C) Copyright IBM Corporation 2014, 2021. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,7 +162,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         if ("liberty-assembly".equals(project.getPackaging())) {
             project.getArtifact().setFile(packageFile);
         } else if (attach) {
-            if (packageFileType.getValue() != project.getPackaging()) {
+            if (!packageFileType.getValue().equalsIgnoreCase(project.getPackaging())) {
                 throw new MojoExecutionException("packageType must match project packaging type.");
             }
 

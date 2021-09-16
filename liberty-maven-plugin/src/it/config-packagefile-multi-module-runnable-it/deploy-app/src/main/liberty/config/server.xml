@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>servlet-3.1</feature>
+        <feature>localConnector-1.0</feature>
+        <feature>jaxws-2.2</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="9080"
+                  httpsPort="9443" />
+
+    <application name="myWar" id="myWar" context-root="services" location="my-war.war" type="war"></application>
+    <logging  traceSpecification="com.ibm.ws.jaxws.*=all:org.apache.cxf.*=all"/>
+
+</server>
