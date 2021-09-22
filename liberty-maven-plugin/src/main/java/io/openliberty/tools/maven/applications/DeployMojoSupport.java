@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2020.
+ * (C) Copyright IBM Corporation 2016, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -291,9 +291,17 @@ public class DeployMojoSupport extends PluginConfigSupport {
                 String artifactFileName = getPreDeployAppFileName(dependProject);
                 Element archive = looseApp.addArchive(parent, dir + artifactFileName);
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
-                
-                File manifestFile = MavenProjectUtil.getManifestFile(dependProject, "maven-jar-plugin");
-                looseApp.addManifestFileWithParent(archive, manifestFile);
+
+                log.info(dependProject.getPackaging());
+
+                //Check if reactor project generates an ejb or jar 
+                String archivePlugin = dependProject.getPackaging().equalsIgnoreCase("ejb") ? "maven-ejb-plugin" : "maven-jar-plugin";
+
+                File manifestFile = MavenProjectUtil.getManifestFile(dependProject, archivePlugin);
+
+                String dependProjectTargetDir = dependProject.getBasedir().getCanonicalPath() + "/target";
+
+                looseApp.addManifestFileWithParent(archive, manifestFile, dependProjectTargetDir);
             } else {
                 resolveArtifact(artifact);
                 if(copyLibsDirectory != null) {
@@ -367,6 +375,8 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
         if (project.getPackaging().equals("liberty-assembly")) {
             name += ".war";
+        } else if (project.getPackaging().equals("ejb")) {
+            name += ".jar";
         } else {
             name += "." + project.getPackaging();
         }
