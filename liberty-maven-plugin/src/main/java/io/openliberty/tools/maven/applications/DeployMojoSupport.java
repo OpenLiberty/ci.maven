@@ -292,8 +292,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
                 Element archive = looseApp.addArchive(parent, dir + artifactFileName);
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
 
-                log.info(dependProject.getPackaging());
-
                 //Check if reactor project generates an ejb or jar 
                 String archivePlugin = dependProject.getPackaging().equalsIgnoreCase("ejb") ? "maven-ejb-plugin" : "maven-jar-plugin";
 
