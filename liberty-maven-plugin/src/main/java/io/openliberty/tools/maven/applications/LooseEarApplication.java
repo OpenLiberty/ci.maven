@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -90,6 +91,17 @@ public class LooseEarApplication extends LooseApplication {
         Element warArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
+        
+        
+        // retrieve the directories defined as resources in the maven war plugin
+        Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
+        if (webResources != null) {
+            for (String directory : webResources.keySet()) {
+                String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
+                config.addDir(warArchive, new File(proj.getBasedir().getAbsolutePath(), directory), targetPath);
+            }
+        }
+
         // add Manifest file
         addWarManifestFile(warArchive, artifact, proj);
         return warArchive;
