@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.16</version>
+            <version>1.8.17-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
@@ -127,7 +127,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.2</version>
                         <configuration>
                             <debug>false</debug>
                             <goals>

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2020.
+ * (C) Copyright IBM Corporation 2017, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,10 @@ public class LooseEarApplication extends LooseApplication {
         config.addDir(moduleArchive, outputDirectory, "/");
         // add manifest.mf
         File manifestFile = MavenProjectUtil.getManifestFile(proj, pluginId);
-        addManifestFileWithParent(moduleArchive, manifestFile);
+
+        String mavenProjectTargetDir = proj.getBuild().getDirectory();
+
+        addManifestFileWithParent(moduleArchive, manifestFile, mavenProjectTargetDir);
         // add meta-inf files if any
         addMetaInfFiles(moduleArchive, outputDirectory);
         return moduleArchive;
@@ -104,9 +107,11 @@ public class LooseEarApplication extends LooseApplication {
             config.addFile(rarArchive, raXmlFile, "/META-INF/ra.xml");
         }
 
+        String mavenProjectTargetDir = proj.getBuild().getDirectory();
+
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-rar-plugin");
-        addManifestFileWithParent(rarArchive, manifestFile);
+        addManifestFileWithParent(rarArchive, manifestFile, mavenProjectTargetDir);
         return rarArchive;
     }
 
@@ -272,11 +277,17 @@ public class LooseEarApplication extends LooseApplication {
         // the ear plug-in modify the skinnyWar module manifest file in
         // ${project.build.directory}/temp
         File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(artifact) + "/META-INF");
-        if (isEarSkinnyWars() && newMf.exists()) {
-            config.addDir(parent, newMf, "/META-INF");
-        } else {
+        if (newMf.exists()) { //use new META-INF dir if it exists
+            if (isEarSkinnyWars()) {
+                config.addDir(parent, newMf, "/META-INF");
+            } else {
+                File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
+                addManifestFileWithParent(parent, manifestFile, newMf.getCanonicalPath());
+            }
+        } else { //if temp  META-INF folder doesn't exist, use reactor project target dir
+            String mavenProjectTargetDir = proj.getBuild().getDirectory();
             File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
-            addManifestFileWithParent(parent, manifestFile);
+            addManifestFileWithParent(parent, manifestFile, mavenProjectTargetDir);
         }
     }
 
