@@ -299,7 +299,7 @@ public class DeployMojoSupport extends PluginConfigSupport {
 
                 File manifestFile = MavenProjectUtil.getManifestFile(dependProject, archivePlugin);
 
-                String dependProjectTargetDir = dependProject.getBasedir().getCanonicalPath() + "/target";
+                String dependProjectTargetDir = dependProject.getBuild().getDirectory();
 
                 looseApp.addManifestFileWithParent(archive, manifestFile, dependProjectTargetDir);
             } else {

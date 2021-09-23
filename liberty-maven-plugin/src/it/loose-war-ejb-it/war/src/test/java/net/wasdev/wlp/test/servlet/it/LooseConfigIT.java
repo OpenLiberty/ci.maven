@@ -65,6 +65,11 @@ public class LooseConfigIT {
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
         Assert.assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/test-ejb.jar", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+
+        expression = "/archive/archive/file";
+        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        Assert.assertEquals("archive targetInArchive attribute value", new File("../../ejb/target/tmp/META-INF/MANIFEST.MF").getCanonicalPath(), 
+                nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
     }
     
     @Test

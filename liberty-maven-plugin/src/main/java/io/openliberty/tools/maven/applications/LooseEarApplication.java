@@ -78,7 +78,7 @@ public class LooseEarApplication extends LooseApplication {
         // add manifest.mf
         File manifestFile = MavenProjectUtil.getManifestFile(proj, pluginId);
 
-        String mavenProjectTargetDir = proj.getBasedir().getCanonicalPath() + "/target";
+        String mavenProjectTargetDir = proj.getBuild().getDirectory();
 
         addManifestFileWithParent(moduleArchive, manifestFile, mavenProjectTargetDir);
         // add meta-inf files if any
@@ -107,7 +107,7 @@ public class LooseEarApplication extends LooseApplication {
             config.addFile(rarArchive, raXmlFile, "/META-INF/ra.xml");
         }
 
-        String mavenProjectTargetDir = proj.getBasedir().getCanonicalPath() + "/target";
+        String mavenProjectTargetDir = proj.getBuild().getDirectory();
 
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-rar-plugin");
@@ -285,7 +285,7 @@ public class LooseEarApplication extends LooseApplication {
                 addManifestFileWithParent(parent, manifestFile, newMf.getCanonicalPath());
             }
         } else { //if temp  META-INF folder doesn't exist, use reactor project target dir
-            String mavenProjectTargetDir = proj.getBasedir().getCanonicalPath() + "/target";
+            String mavenProjectTargetDir = proj.getBuild().getDirectory();
             File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
             addManifestFileWithParent(parent, manifestFile, mavenProjectTargetDir);
         }
