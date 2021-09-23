@@ -81,7 +81,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
         String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
 
-        InstallFeatureMojoUtil util;
+        InstallFeatureUtil util;
         try {
             util = new InstallFeatureMojoUtil(new HashSet<String>(), propertiesList, openLibertyVersion, null);
         } catch (PluginScenarioException e) {
@@ -102,8 +102,10 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
         File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
         File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        File serverXml = new File(configDirectory, "server.xml");
+        File serverXml = findConfigFile("server.xml", serverXmlFile);
         ServerConfigDropinXmlDocument doc = getServerXmlDocFromConfig(serverXml);
+        log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
+
         Map<String, File> libertyDirPropertyFiles;
         try {
             if (newServerXmlTarget.exists()) {  // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
@@ -233,6 +235,22 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     private String getFeatureName(Dependency mavenDependency) {
         if ("esa".contentEquals(mavenDependency.getType())) {
             return mavenDependency.getArtifactId();
+        }
+        return null;
+    }
+
+    /*
+     * Return specificFile if it exists; otherwise return the file with the requested fileName from the 
+     * configDirectory, but only if it exists. Null is returned if the file does not exist in either location.
+     */
+    private File findConfigFile(String fileName, File specificFile) {
+        if (specificFile != null && specificFile.exists()) {
+            return specificFile;
+        }
+
+        File f = new File(configDirectory, fileName);
+        if (configDirectory != null && f.exists()) {
+            return f;
         }
         return null;
     }

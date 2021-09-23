@@ -105,12 +105,6 @@ public class StartDebugMojoSupport extends BasicSupport {
     protected CopyDependencies copyDependencies;
 
     /**
-     * Location of customized configuration file server.xml
-     */
-    @Parameter(alias="configFile", property = "serverXmlFile")
-    protected File serverXmlFile;
-
-    /**
      * Location of bootstrap.properties file.
      */
     @Parameter(property = "bootstrapPropertiesFile")
