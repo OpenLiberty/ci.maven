@@ -98,6 +98,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
         InstallFeatureUtil util;
         try {
+            // TODO if this is a beta version of OL install feature will throw a plugin
+            // execution exception, suppress warnings similar to how install feature does
             util = new InstallFeatureMojoUtil(new HashSet<String>(), propertiesList, openLibertyVersion, null);
         } catch (PluginScenarioException e) {
             log.debug("Exception creating the server utility object", e);
@@ -181,10 +183,13 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 allFeatures.addAll(missingLibertyFeatures);
                 util.installFeatures(true, new ArrayList<String>(allFeatures)); // accept feature license
             } catch (PluginExecutionException e) {
-                throw new PluginExecutionException(
-                        "Could not generate a server features file with the proposed features: "
-                                + missingLibertyFeatures,
-                        e);
+                if (missingLibertyFeatures.size() > 0) {
+                    log.error("Failed to generate a server features file with the proposed features: "
+                            + missingLibertyFeatures);
+                    // TODO print to the user a list of configuration files that could be causing
+                    // the conflict
+                }
+                throw e;
             }
         }
         if (missingLibertyFeatures.size() > 0) {

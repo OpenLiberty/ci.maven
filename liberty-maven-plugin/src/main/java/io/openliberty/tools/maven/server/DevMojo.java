@@ -812,19 +812,26 @@ public class DevMojo extends StartDebugMojoSupport {
                         if (generateFeatures) {
                             runLibertyMojoGenerateFeatures(element(name("features"), featureElems));
                         } else {
-                            runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
+                            runLibertyMojoInstallFeature(element(name("features"), featureElems),
+                                    super.getContainerName());
                         }
                         this.existingFeatures.addAll(features);
                     } else if (generateFeatures) {
-                        // TODO properly handle this case: 
-                        // run generate features even if features have not changed in the case the user
-                        // specified a feature in their config file and the duplicate should be removed
-                        // from the generated features file
+                        // TODO properly handle this case:
+                        // generate features even if the feature list has not changed
+                        // the user may explicitly specify a feature in their server.xml that was
+                        // included in the generated features file (the duplicate should be
+                        // removed from the generated file)
                         runLibertyMojoGenerateFeatures(null);
                     }
                 }
             } catch (MojoExecutionException e) {
-                log.error("Failed to install features from configuration file", e);
+                if (generateFeatures) {
+                    log.error("Failed to install features from configuration file: " + configFile.getAbsolutePath()
+                            + ". Reverting the recent configuration file changes is recommended.", e);
+                } else {
+                    log.error("Failed to install features from configuration file: " + configFile.getAbsolutePath(), e);
+                }
             }
         }
 
@@ -833,7 +840,14 @@ public class DevMojo extends StartDebugMojoSupport {
             try {
                 runLibertyMojoGenerateFeatures(null);
             } catch (MojoExecutionException e) {
-                log.error(e.getLocalizedMessage(), e);
+                if (e.getMessage().contains("feature conflict")) {
+                    log.error(
+                            "Failed to generate server features due to a feature conflict. Features will need to be manually configured.",
+                            e);
+                } else {
+                    log.error("Failed to generate server features, features will need to be manually configured.", e);
+                }
+
                 return;
             }
             ServerFeature servUtil = getServerFeatureUtil();
