@@ -66,7 +66,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
+import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
@@ -844,7 +844,7 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, TransformerException, ParserConfigurationException {
 
-        ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
+        ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
 
         configDocument.createComment(HEADER);
 
