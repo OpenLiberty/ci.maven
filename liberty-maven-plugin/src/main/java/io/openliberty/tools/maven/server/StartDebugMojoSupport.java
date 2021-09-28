@@ -301,8 +301,11 @@ public class StartDebugMojoSupport extends BasicSupport {
         runLibertyMojo("install-feature", config);   
     }
 
-    protected void runLibertyMojoGenerateFeatures() throws MojoExecutionException {
+    protected void runLibertyMojoGenerateFeatures(Element features) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", log);
+        if (features != null) {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
+        }
         runLibertyMojo("generate-features", config);
     }
 

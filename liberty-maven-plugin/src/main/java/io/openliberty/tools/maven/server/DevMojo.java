@@ -358,7 +358,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void libertyGenerateFeatures() throws PluginExecutionException {
             try {
-                runLibertyMojoGenerateFeatures();
+                runLibertyMojoGenerateFeatures(null);
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
@@ -772,7 +772,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoDeploy();
                     }
                     if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures();
+                        runLibertyMojoGenerateFeatures(null);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -809,12 +809,41 @@ public class DevMojo extends StartDebugMojoSupport {
                         for (int i = 0; i < features.size(); i++) {
                             featureElems[i + 1] = element(name("feature"), values[i]);
                         }
-                        runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
+                        if (generateFeatures) {
+                            runLibertyMojoGenerateFeatures(element(name("features"), featureElems));
+                        } else {
+                            runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
+                        }
                         this.existingFeatures.addAll(features);
+                    } else if (generateFeatures) {
+                        // TODO properly handle this case: 
+                        // run generate features even if features have not changed in the case the user
+                        // specified a feature in their config file and the duplicate should be removed
+                        // from the generated features file
+                        runLibertyMojoGenerateFeatures(null);
                     }
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
+            }
+        }
+
+        @Override
+        public void generateAndUpdateFeatures(File serverDir) {
+            try {
+                runLibertyMojoGenerateFeatures(null);
+            } catch (MojoExecutionException e) {
+                log.error(e.getLocalizedMessage(), e);
+                return;
+            }
+            ServerFeature servUtil = getServerFeatureUtil();
+            Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
+            if (features != null) {
+                features.removeAll(existingFeatures);
+                if (!features.isEmpty()) {
+                    this.existingFeatures.addAll(features);
+                    log.debug("Updating feature list: " + this.existingFeatures);
+                }
             }
         }
 
@@ -1041,13 +1070,14 @@ public class DevMojo extends StartDebugMojoSupport {
         } else {
             runLibertyMojoCreate();
             if (generateFeatures) {
-                runLibertyMojoGenerateFeatures();
-            }
-            // If non-container, install features before starting server. Otherwise, user
-            // should have "RUN features.sh" in their Dockerfile if they want features to be
-            // installed.
-            if (!container) {
-                runLibertyMojoInstallFeature(null, null);
+                runLibertyMojoGenerateFeatures(null);
+            } else {
+                // If non-container, install features before starting server. Otherwise, user
+                // should have "RUN features.sh" in their Dockerfile if they want features to be
+                // installed.
+                if (!container) {
+                    runLibertyMojoInstallFeature(null, null);
+                }
             }
             runLibertyMojoDeploy();
         }
@@ -1663,8 +1693,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures() throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures();
+    protected void runLibertyMojoGenerateFeatures(Element features) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(features);
     }
 
     /**
