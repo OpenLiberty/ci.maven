@@ -95,6 +95,12 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(property = "serverName", defaultValue = "defaultServer")
     protected String serverName = null;
+
+    /**
+     * Location of customized configuration file server.xml in devmode
+     */
+    @Parameter(alias="configFile", property = "serverXmlFile")
+    protected File serverXmlFile;
     
     /**
      * Liberty user directory (<tT>WLP_USER_DIR</tt>).
