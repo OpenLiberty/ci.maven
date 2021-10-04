@@ -307,7 +307,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
                 Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
                 // args: String[], String, String, java.util.Locale
-                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("DriveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
+                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("driveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
                 if (driveScanMavenFeaureList == null) {
                     log.debug("Error finding binary scanner method using reflection");
                     return null;
@@ -378,8 +378,33 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         return null; // directory does not exist.
     }
 
-    private String getEEVersion(MavenProject project) {
-        return "ee8"; // figure out if we need 7 or 9
+    public String getEEVersion(MavenProject project) {
+        List<Dependency> dependencies = project.getDependencies();
+        for (Dependency d : dependencies) {
+            if (!d.getScope().equals("provided")) {
+                continue;
+            }
+            log.debug("getEEVersion, dep="+d.getGroupId()+":"+d.getArtifactId()+":"+d.getVersion());
+            if (d.getGroupId().equals("io.openliberty.features")) {
+                String id = d.getArtifactId();
+                if (id.equals("javaee-7.0")) {
+                    return "ee7";
+                } else if (id.equals("javaee-8.0")) {
+                    return "ee8";
+                } else if (id.equals("javaeeClient-7.0")) {
+                    return "ee7";
+                } else if (id.equals("javaeeClient-8.0")) {
+                    return "ee8";
+                } else if (id.equals("jakartaee-8.0")) {
+                    return "ee8";
+                }
+            } else if (d.getGroupId().equals("jakarta.platform") &&
+                    d.getArtifactId().equals("jakarta.jakartaee-api") &&
+                    d.getVersion().equals("8.0.0")) {
+                return "ee8";
+            }
+        }
+        return "ee8";
     }
 
     public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
