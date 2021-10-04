@@ -855,6 +855,7 @@ public class DevMojo extends StartDebugMojoSupport {
             if (features != null) {
                 features.removeAll(existingFeatures);
                 if (!features.isEmpty()) {
+                    log.info("Configuration features have been added");
                     this.existingFeatures.addAll(features);
                     log.debug("Updating feature list: " + this.existingFeatures);
                 }
