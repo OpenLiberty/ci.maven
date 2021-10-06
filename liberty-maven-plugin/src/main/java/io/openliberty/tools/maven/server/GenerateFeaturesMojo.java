@@ -90,6 +90,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             return;
         }
 
+        util.setLowerCaseFeatures(false); // this is our own instance and should not affect others.
         Set<String> visibleServerFeatures = util.getAllServerFeatures();
 
         Set<String> libertyFeatureDependencies = getFeaturesFromDependencies(project);
@@ -140,7 +141,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         log.debug("maven dependencies that are not hidden liberty features but are missing from server.xml:"+missingLibertyFeatures);
         //
         // Scan for features after processing the POM. POM features take priority over scannned features
-        Set<String> scannedFeatureList = runBinaryScanner();
+        Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
         if (scannedFeatureList != null) {
             // tabulate the existing features by name and version number and lookup each scanned feature
             Map<String, String> existingFeatureMap = new HashMap();
@@ -213,19 +214,19 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
      * @param existingFeatures
      * @return
      */
-	private Set<String> getMissingLibertyFeatures(Set<String> visibleLibertyProjectDependencies,
-			Set<String> existingFeatures) {
-		Set<String> missingLibertyFeatures = new HashSet<String>(visibleLibertyProjectDependencies);
+    private Set<String> getMissingLibertyFeatures(Set<String> visibleLibertyProjectDependencies,
+            Set<String> existingFeatures) {
+        Set<String> missingLibertyFeatures = new HashSet<String>(visibleLibertyProjectDependencies);
         if (existingFeatures != null) {
             for (String s : visibleLibertyProjectDependencies) {
-                // existingFeatures are all lower case
-                if (existingFeatures.contains(s.toLowerCase())) {
+                // existingFeatures mixed case has been preserved.
+                if (existingFeatures.contains(s)) {
                     missingLibertyFeatures.remove(s);
                 }
             }
         }
-		return missingLibertyFeatures;
-	}
+        return missingLibertyFeatures;
+    }
 
 	/**
 	 * Determine if a dependency is a Liberty feature or not
@@ -299,15 +300,15 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         return;
     }
 
-    private Set<String> runBinaryScanner() {
+    private Set<String> runBinaryScanner(Set<String> currentFeatureSet) {
         Set<String> featureList = null;
         if (binaryScanner != null && binaryScanner.exists()) {
             ClassLoader cl = this.getClass().getClassLoader();
             try {
                 URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
                 Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
-                // args: String[], String, String, java.util.Locale
-                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("DriveScanMavenFeaureList", String[].class, String.class, String.class, java.util.Locale.class);
+                // args: String[], String, String, List, java.util.Locale
+                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("driveScanMavenFeaureList", String[].class, String.class, String.class, List.class, java.util.Locale.class);
                 if (driveScanMavenFeaureList == null) {
                     log.debug("Error finding binary scanner method using reflection");
                     return null;
@@ -319,8 +320,9 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 }
                 String eeVersion = getEEVersion(project); 
                 String mpVersion = getMPVersion(project);
+                List<String> currentFeatures = new ArrayList<String>(currentFeatureSet);
                 log.debug("The following messages are from the application binary scanner used to generate Liberty features");
-                featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, java.util.Locale.getDefault());
+                featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, currentFeatures, java.util.Locale.getDefault());
                 log.debug("End of messages from application binary scanner. Features recommended :");
                 for (String s : featureList) {log.debug(s);};
             } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
@@ -378,8 +380,33 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         return null; // directory does not exist.
     }
 
-    private String getEEVersion(MavenProject project) {
-        return "ee8"; // figure out if we need 7 or 9
+    public String getEEVersion(MavenProject project) {
+        List<Dependency> dependencies = project.getDependencies();
+        for (Dependency d : dependencies) {
+            if (!d.getScope().equals("provided")) {
+                continue;
+            }
+            log.debug("getEEVersion, dep="+d.getGroupId()+":"+d.getArtifactId()+":"+d.getVersion());
+            if (d.getGroupId().equals("io.openliberty.features")) {
+                String id = d.getArtifactId();
+                if (id.equals("javaee-7.0")) {
+                    return "ee7";
+                } else if (id.equals("javaee-8.0")) {
+                    return "ee8";
+                } else if (id.equals("javaeeClient-7.0")) {
+                    return "ee7";
+                } else if (id.equals("javaeeClient-8.0")) {
+                    return "ee8";
+                } else if (id.equals("jakartaee-8.0")) {
+                    return "ee8";
+                }
+            } else if (d.getGroupId().equals("jakarta.platform") &&
+                    d.getArtifactId().equals("jakarta.jakartaee-api") &&
+                    d.getVersion().equals("8.0.0")) {
+                return "ee8";
+            }
+        }
+        return null;
     }
 
     public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
