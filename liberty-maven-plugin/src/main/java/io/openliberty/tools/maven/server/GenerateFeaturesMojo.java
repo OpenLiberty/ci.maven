@@ -129,11 +129,16 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
         }
+        // get new user specified features
+        Set<String> featuresToInstall = getSpecifiedFeatures(null);
+        log.debug("User specified features to install: " + featuresToInstall);
+        // get existing installed server features
         Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
-        log.debug("Features in server.xml:"+existingFeatures);
+        existingFeatures.addAll(featuresToInstall);
+        log.debug("Existing features:" + existingFeatures);
 
         // The Liberty features missing from server.xml
         Set<String> missingLibertyFeatures = getMissingLibertyFeatures(visibleLibertyProjectDependencies,
