@@ -129,22 +129,23 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
         }
-        // get new user specified features
-        Set<String> featuresToInstall = getSpecifiedFeatures(null);
-        log.debug("User specified features to install: " + featuresToInstall);
+        // TODO: get user specified features that have not yet been installed in the
+        // original case they appear in a server config xml document.
+        // getSpecifiedFeatures may not return the features in the correct case
+        // Set<String> featuresToInstall = getSpecifiedFeatures(null); 
+
         // get existing installed server features
         Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
-        existingFeatures.addAll(featuresToInstall);
         log.debug("Existing features:" + existingFeatures);
 
         // The Liberty features missing from server.xml
         Set<String> missingLibertyFeatures = getMissingLibertyFeatures(visibleLibertyProjectDependencies,
 				existingFeatures);
         log.debug("maven dependencies that are not hidden liberty features but are missing from server.xml:"+missingLibertyFeatures);
-        //
+
         // Scan for features after processing the POM. POM features take priority over scannned features
         Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
         if (scannedFeatureList != null) {
