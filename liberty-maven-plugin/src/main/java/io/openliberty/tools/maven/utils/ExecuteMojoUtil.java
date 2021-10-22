@@ -17,6 +17,9 @@ package io.openliberty.tools.maven.utils;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.util.ArrayList;
@@ -137,6 +140,12 @@ public class ExecuteMojoUtil {
 
     // https://maven.apache.org/surefire/maven-surefire-report-plugin/failsafe-report-only-mojo.html
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
+    
+    // https://maven.apache.org/plugins/maven-war-plugin/exploded-mojo.html
+    private static final ArrayList<String> EXPLODED_PARAMS = new ArrayList<>(Arrays.asList(
+            "filteringDeploymentDescriptors", "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
+            "overlays", "webResources"
+            ));
 
     // https://maven.apache.org/plugins/maven-ear-plugin/ear-mojo.html
     private static final ArrayList<String> EAR_PARAMS = new ArrayList<>(
@@ -321,6 +330,9 @@ public class ExecuteMojoUtil {
             break;
         case "maven-surefire-report-plugin:failsafe-report-only":
             goalConfig = stripConfigElements(config, FAILSAFE_REPORT_ONLY_PARAMS);
+            break;
+        case "maven-war-plugin:exploded":
+            goalConfig = stripConfigElements(config, EXPLODED_PARAMS);
             break;
         case "maven-ear-plugin:generate-application-xml":
             goalConfig = stripConfigElements(config, EAR_GENERATE_APPLICATION_XML_PARAMS);

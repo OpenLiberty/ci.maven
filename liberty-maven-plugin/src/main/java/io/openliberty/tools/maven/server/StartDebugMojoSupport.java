@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -49,6 +50,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
@@ -61,6 +63,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.FilterSet;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
@@ -68,6 +71,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
 import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.maven.applications.LooseWarApplication;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
@@ -194,6 +198,25 @@ public class StartDebugMojoSupport extends BasicSupport {
         executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
+    
+    /**
+     * Run the maven-war-plugin's exploded goal. This method should only be 
+     * called for WAR type applications. 
+     * 
+     * @throws MojoExecutionException
+     */
+    protected void runExplodedMojo() throws MojoExecutionException {
+        Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+        Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+        
+        if (validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
+            explodedConfig.addChild(element(name("outdatedCheckPath"), "WEB-INF").toDom());
+        }
+        log.info("Running maven-war-plugin:exploded");
+        log.debug("configuration:\n" + explodedConfig);
+        session.getRequest().setStartTime(new Date());
+        executeMojo(warPlugin, goal("exploded"), explodedConfig, executionEnvironment(project, session, pluginManager));
+    }
 
     protected void runMojoForProject(String groupId, String artifactId, String goal, MavenProject project)
             throws MojoExecutionException {
@@ -204,6 +227,18 @@ public class StartDebugMojoSupport extends BasicSupport {
         MavenSession tempSession = session.clone();
         tempSession.setCurrentProject(project);
         executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
+    }
+    
+    protected boolean validatePluginVersion(String version, String minVersion) {
+    	
+    	ComparableVersion ver = new ComparableVersion(version);
+    	ComparableVersion minVer = new ComparableVersion(minVersion);
+    	
+    	if (ver.compareTo(minVer) < 0) {
+    		return false;
+    	} else {
+    		return true;
+    	}
     }
 
     /**
@@ -289,8 +324,13 @@ public class StartDebugMojoSupport extends BasicSupport {
         if(forceLooseApp) {
             Xpp3Dom looseApp = config.getChild("looseApplication");
             if (looseApp != null && "false".equals(looseApp.getValue())) {
-                log.warn("Overriding liberty plugin pararmeter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+                log.warn("Overriding liberty plugin parameter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
                 looseApp.setValue("true");
+            }
+        }
+        if (project.getPackaging().equals("war")) {
+            if (LooseWarApplication.isExploded(project)) {
+			    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             }
         }
         runLibertyMojo("deploy", config);
@@ -713,6 +753,7 @@ public class StartDebugMojoSupport extends BasicSupport {
                 mavenProperties.put(key,value);
             }
         }
+        bf.close();
 
         return mavenProperties;
     }
