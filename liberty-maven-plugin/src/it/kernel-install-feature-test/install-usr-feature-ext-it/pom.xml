@@ -86,8 +86,8 @@
                     <assemblyArtifact>
                         <groupId>${runtimeGroupId}</groupId>
                         <artifactId>${runtimeKernelId}</artifactId>
-                        <!--  this goal is only available with ol 21.0.0.10 or later -->
-                        <version>21.0.0.10</version>
+                        <!--  this goal is only available with ol 21.0.0.11 or later -->
+                        <version>21.0.0.11</version>
                         <type>zip</type>
                     </assemblyArtifact>
                 </configuration>
