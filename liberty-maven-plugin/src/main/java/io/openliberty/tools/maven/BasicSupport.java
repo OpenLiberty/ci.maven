@@ -194,7 +194,7 @@ public class BasicSupport extends AbstractLibertySupport {
             if (installDirectory != null) {
                 installDirectory = installDirectory.getCanonicalFile();
 
-                // Quick sanity check
+                // Quick check to ensure a Liberty installation exists at the installDirectory
                 File file = new File(installDirectory, "lib/ws-launch.jar");
                 if (!file.exists()) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.dir.validate"), ""));
