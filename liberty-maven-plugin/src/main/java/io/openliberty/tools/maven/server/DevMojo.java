@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -358,7 +359,26 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void libertyGenerateFeatures() throws PluginExecutionException {
             try {
-                runLibertyMojoGenerateFeatures();
+                runLibertyMojoGenerateFeatures(null);
+            } catch (MojoExecutionException e) {
+                throw new PluginExecutionException(e);
+            }
+        }
+
+        @Override
+        public void libertyGenerateFeatures(Collection<String> classes) throws PluginExecutionException {
+            try {
+                if (classes != null) {
+                    Element[] classesElem = new Element[classes.size()];
+                    int i = 0;
+                    for (String classPath : classes) {
+                        classesElem[i] = element(name("class"), classPath);
+                        i++;
+                    }
+                    runLibertyMojoGenerateFeatures(element(name("classes"), classesElem));
+                } else {
+                    runLibertyMojoGenerateFeatures(null);
+                }
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
@@ -772,7 +792,7 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoDeploy();
                     }
                     if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures();
+                        runLibertyMojoGenerateFeatures(null);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -1072,7 +1092,7 @@ public class DevMojo extends StartDebugMojoSupport {
         } else {
             runLibertyMojoCreate();
             if (generateFeatures) {
-                runLibertyMojoGenerateFeatures();
+                runLibertyMojoGenerateFeatures(null);
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
@@ -1688,8 +1708,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures() throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures();
+    protected void runLibertyMojoGenerateFeatures(Element classFiles) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles);
     }
 
     /**
