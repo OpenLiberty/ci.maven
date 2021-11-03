@@ -103,7 +103,7 @@ The Liberty Maven Plugin provides the following goals.
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
 | [java-dump](docs/java-dump.md#java-dump) | Dump diagnostic information from the server JVM. |
 | [package](docs/package.md#package) | Package a Liberty server. |
-| [prepare-feature](docs/prepare-feature.md#prepare-feature) | Prepares a user feature installation onto Liberty runtime. |
+| [prepare-feature](docs/prepare-feature.md#prepare-feature) | Prepare a user feature for installation to the Liberty runtime. |
 | [run](docs/run.md#run) | Start a Liberty server in the foreground. The run goal implicitly creates the server, installs features referenced by the server.xml file, and deploys the application before starting the Liberty server. |
 | [start](docs/start.md#start) | Start a Liberty server in the background. The server instance will be automatically created if it does not exist. |
 | status | Check a Liberty server status. |
