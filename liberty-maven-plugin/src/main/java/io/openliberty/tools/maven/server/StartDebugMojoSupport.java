@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -307,13 +306,12 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
-        log.warn("config: "  + config);
         runLibertyMojo("generate-features", config);
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
         log.info("Running liberty:" + goal);
-        log.warn("configuration:\n" + config);
+        log.debug("configuration:\n" + config);
         executeMojo(getLibertyPlugin(), goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }

@@ -372,10 +372,10 @@ public class DevMojo extends StartDebugMojoSupport {
                     Element[] classesElem = new Element[classes.size()];
                     int i = 0;
                     for (String classPath : classes) {
-                        classesElem[i] = element(name("class"), classPath);
+                        classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
-                    runLibertyMojoGenerateFeatures(element(name("classes"), classesElem));
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem));
                 } else {
                     runLibertyMojoGenerateFeatures(null);
                 }

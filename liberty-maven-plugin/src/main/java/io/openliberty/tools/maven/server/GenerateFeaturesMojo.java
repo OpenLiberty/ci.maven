@@ -61,8 +61,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     @Parameter(property = "featureScannerJar")
     private File binaryScanner;
 
-    @Parameter(property = "classes")
-    private List<String> classes;
+    @Parameter(property = "classFiles")
+    private List<String> classFiles;
 
     protected static final String PLUGIN_ADDED_FEATURES_FILE = "configDropins/overrides/liberty-plugin-added-features.xml";
     protected static final String FEATURES_FILE_MESSAGE = "The Liberty Maven Plugin has generated Liberty features necessary for your application in " + PLUGIN_ADDED_FEATURES_FILE;
@@ -91,6 +91,10 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             log.debug("Exception creating the server utility object", e);
             log.error("Error attempting to generate server feature list.");
             return;
+        }
+
+        if (!classFiles.isEmpty()) {
+            log.debug("Generate features for the following class files: " + classFiles.toString());
         }
 
         util.setLowerCaseFeatures(false); // this is our own instance and should not affect others.
