@@ -106,27 +106,38 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.0</version>
+      <scope>provided</scope>
     </dependency>
     <!-- Support for JDK 9 and above-->
     <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
         <version>2.3.1</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>com.sun.xml.bind</groupId>
         <artifactId>jaxb-core</artifactId>
         <version>2.3.0.1</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>com.sun.xml.bind</groupId>
         <artifactId>jaxb-impl</artifactId>
         <version>2.3.2</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>javax.activation</groupId>
         <artifactId>activation</artifactId>
         <version>1.1.1</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>javax.batch</groupId>
+        <artifactId>javax.batch-api</artifactId>
+        <version>1.0.1</version>
+        <scope>provided</scope>
     </dependency>
     <!-- Test runtime dependency for run goal -->
     <dependency>
