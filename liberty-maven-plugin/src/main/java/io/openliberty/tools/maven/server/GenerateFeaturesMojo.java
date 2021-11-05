@@ -79,12 +79,6 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
     private void generateFeatures() throws PluginExecutionException {
 
-        File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        File serverXml = findConfigFile("server.xml", serverXmlFile);
-        ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
-        log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
-
         Map<String, File> libertyDirPropertyFiles;
         try {
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
@@ -108,34 +102,21 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         util.setLowerCaseFeatures(true);
         log.debug("Existing features:" + existingFeatures);
 
-        // The Liberty features missing from server.xml
-        Set<String> missingLibertyFeatures = new HashSet<String>();
-
-        // Existing features take priority over scanned features
         Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
-        if (scannedFeatureList != null) {
-            // tabulate the existing features by name and version number and lookup each scanned feature
-            Map<String, String> existingFeatureMap = new HashMap();
-            for (String existingFeature : existingFeatures) {
-                String[] nameAndVersion = getNameAndVersion(existingFeature);
-                existingFeatureMap.put(nameAndVersion[0], nameAndVersion[1]);
-            }
-            for (String scannedFeature : scannedFeatureList) {
-                String[] scannedNameAndVersion = getNameAndVersion(scannedFeature);
-                String existingFeatureVersion = existingFeatureMap.get(scannedNameAndVersion[0]);
-                if (existingFeatureVersion != null) {
-                    if (existingFeatureVersion.compareTo(scannedNameAndVersion[1]) < 0) {
-                        log.warn(String.format("The binary scanner detected a dependency on %s but the project's POM or server.xml specified the dependency %s-%s.", scannedFeature, scannedNameAndVersion[0], existingFeatureVersion));
-                    }
-                } else {
-                    // scanned feature not found in server.xml or POM
-                    missingLibertyFeatures.add(scannedFeature);
-                    log.debug(String.format("Adding feature %s to server.xml because it was detected by binary scanner.", scannedFeature));
-                }
-            }
-        }
+        Set<String> missingLibertyFeatures = new HashSet<String>(scannedFeatureList);
+        missingLibertyFeatures.removeAll(existingFeatures);
+        log.error("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
+        log.debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
+
+        File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
+        File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
+        File serverXml = findConfigFile("server.xml", serverXmlFile);
+        ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
+        log.error("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
+        log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
+
         if (missingLibertyFeatures.size() > 0) {
-            // Create specialized server.xml
+            // Create special XML file to contain generated features.
             try {
                 ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
                 configDocument.createComment(HEADER);
