@@ -87,22 +87,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
         Map<String, File> libertyDirPropertyFiles;
         try {
-            if (newServerXmlTarget.exists()) {  // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
-                newServerXmlTarget.delete();
-                removeGenerationCommentFromConfig(doc, serverXml); // remove reference to file just deleted.
-            }
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
         } catch (IOException e) {
-            if (!newServerXmlTarget.exists()) { // restore the xml file just deleted
-                if (newServerXmlSrc.exists()) {
-                    try {
-                        Files.copy(newServerXmlSrc.toPath(), newServerXmlTarget.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        addGenerationCommentToConfig(doc, serverXml);
-                    } catch (IOException f) {
-                        log.debug("Exception trying to restore file: "+PLUGIN_ADDED_FEATURES_FILE+". "+f);
-                    }
-                }
-            }
             log.debug("Exception reading the server property files", e);
             log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
