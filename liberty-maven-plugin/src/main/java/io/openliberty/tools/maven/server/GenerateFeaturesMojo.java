@@ -105,14 +105,12 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
         Set<String> missingLibertyFeatures = new HashSet<String>(scannedFeatureList);
         missingLibertyFeatures.removeAll(existingFeatures);
-        log.error("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
         log.debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
         File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
         File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
         File serverXml = findConfigFile("server.xml", serverXmlFile);
         ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
-        log.error("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
         log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
 
         if (missingLibertyFeatures.size() > 0) {
