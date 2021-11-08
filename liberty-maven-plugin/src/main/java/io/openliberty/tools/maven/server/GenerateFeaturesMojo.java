@@ -129,6 +129,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     configDocument.createFeature(missing);
                 }
                 configDocument.writeXMLDocument(newServerXmlSrc);
+                newServerXmlTarget.getParentFile().mkdirs();
                 Files.copy(newServerXmlSrc.toPath(), newServerXmlTarget.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 log.debug("Created file "+newServerXmlSrc);
                 // Add a reference to this new file in existing server.xml.
@@ -203,6 +204,14 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
 
     private Set<String> runBinaryScanner(Set<String> currentFeatureSet) {
         Set<String> featureList = null;
+        if (binaryScanner == null) {
+            // try using system property
+            String featureScannerFileName = System.getProperty("io.openliberty.featureScannerJar");
+            log.debug("BinaryScanner file name property missing, using System property io.openliberty.featureScannerJar="+featureScannerFileName);
+            if (featureScannerFileName != null) {
+                binaryScanner = new File(featureScannerFileName);
+            }
+        }
         if (binaryScanner != null && binaryScanner.exists()) {
             ClassLoader cl = this.getClass().getClassLoader();
             try {
