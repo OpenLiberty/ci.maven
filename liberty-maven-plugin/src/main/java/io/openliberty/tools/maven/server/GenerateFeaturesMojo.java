@@ -81,57 +81,14 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     }
 
     private void generateFeatures() throws PluginExecutionException {
-        List<ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-        String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-
-        InstallFeatureUtil util;
-        try {
-            util = new InstallFeatureMojoUtil(new HashSet<String>(), propertiesList, openLibertyVersion, null);
-        } catch (PluginScenarioException e) {
-            log.debug("Exception creating the server utility object", e);
-            log.error("Error attempting to generate server feature list.");
-            return;
-        }
-
         if (!classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());
         }
 
-        util.setLowerCaseFeatures(false); // this is our own instance and should not affect others.
-        Set<String> visibleServerFeatures = util.getAllServerFeatures();
-
-        Set<String> libertyFeatureDependencies = getFeaturesFromDependencies(project);
-        log.debug("maven dependencies that are liberty features:"+libertyFeatureDependencies);
-
-        // Remove project dependency features which are hidden.
-        Set<String> visibleLibertyProjectDependencies = new HashSet<String>(libertyFeatureDependencies);
-        visibleLibertyProjectDependencies.retainAll(visibleServerFeatures);
-        log.debug("maven dependencies that are VALID liberty features:"+visibleLibertyProjectDependencies);
-
-        File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
-        File serverXml = findConfigFile("server.xml", serverXmlFile);
-        ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
-        log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
-
         Map<String, File> libertyDirPropertyFiles;
         try {
-            if (newServerXmlTarget.exists()) {  // about to regenerate this file. Must be removed before getLibertyDirectoryPropertyFiles
-                newServerXmlTarget.delete();
-                removeGenerationCommentFromConfig(doc, serverXml); // remove reference to file just deleted.
-            }
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
         } catch (IOException e) {
-            if (!newServerXmlTarget.exists()) { // restore the xml file just deleted
-                if (newServerXmlSrc.exists()) {
-                    try {
-                        Files.copy(newServerXmlSrc.toPath(), newServerXmlTarget.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        addGenerationCommentToConfig(doc, serverXml);
-                    } catch (IOException f) {
-                        log.debug("Exception trying to restore file: "+PLUGIN_ADDED_FEATURES_FILE+". "+f);
-                    }
-                }
-            }
             log.debug("Exception reading the server property files", e);
             log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
@@ -142,46 +99,28 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         // Set<String> featuresToInstall = getSpecifiedFeatures(null); 
 
         // get existing installed server features
+        InstallFeatureUtil util = getInstallFeatureUtil(new HashSet<String>(), null);
+        util.setLowerCaseFeatures(false);
         Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
+        util.setLowerCaseFeatures(true);
         log.debug("Existing features:" + existingFeatures);
 
-        // The Liberty features missing from server.xml
-        Set<String> missingLibertyFeatures = getMissingLibertyFeatures(visibleLibertyProjectDependencies,
-				existingFeatures);
-        log.debug("maven dependencies that are not hidden liberty features but are missing from server.xml:"+missingLibertyFeatures);
-
-        // Scan for features after processing the POM. POM features take priority over scannned features
         Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
-        if (scannedFeatureList != null) {
-            // tabulate the existing features by name and version number and lookup each scanned feature
-            Map<String, String> existingFeatureMap = new HashMap();
-            for (String existingFeature : existingFeatures) {
-                String[] nameAndVersion = getNameAndVersion(existingFeature);
-                existingFeatureMap.put(nameAndVersion[0], nameAndVersion[1]);
-            }
-            for (String missingLibertyFeature : missingLibertyFeatures) {
-                String[] nameAndVersion = getNameAndVersion(missingLibertyFeature);
-                existingFeatureMap.put(nameAndVersion[0], nameAndVersion[1]);
-            }
-            for (String scannedFeature : scannedFeatureList) {
-                String[] scannedNameAndVersion = getNameAndVersion(scannedFeature);
-                String existingFeatureVersion = existingFeatureMap.get(scannedNameAndVersion[0]);
-                if (existingFeatureVersion != null) {
-                    if (existingFeatureVersion.compareTo(scannedNameAndVersion[1]) < 0) {
-                        log.warn(String.format("The binary scanner detected a dependency on %s but the project's POM or server.xml specified the dependency %s-%s.", scannedFeature, scannedNameAndVersion[0], existingFeatureVersion));
-                    }
-                } else {
-                    // scanned feature not found in server.xml or POM
-                    missingLibertyFeatures.add(scannedFeature);
-                    log.debug(String.format("Adding feature %s to server.xml because it was detected by binary scanner.", scannedFeature));
-                }
-            }
-        }
+        Set<String> missingLibertyFeatures = new HashSet<String>(scannedFeatureList);
+        missingLibertyFeatures.removeAll(existingFeatures);
+        log.debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
+
+        File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
+        File newServerXmlTarget = new File(serverDirectory, PLUGIN_ADDED_FEATURES_FILE);
+        File serverXml = findConfigFile("server.xml", serverXmlFile);
+        ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
+        log.debug("Xml document we'll try to update after generate features doc="+doc+" file="+serverXml);
+
         if (missingLibertyFeatures.size() > 0) {
-            // Create specialized server.xml
+            // Create special XML file to contain generated features.
             try {
                 ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
                 configDocument.createComment(HEADER);
@@ -200,57 +139,6 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 return;
             }
         }
-    }
-
-    /**
-     * Comb through the list of Maven project dependencies and find the ones which are 
-     * Liberty features.
-     * @param project  Current Maven project
-     * @return List of names of dependencies
-     */
-    private Set<String> getFeaturesFromDependencies(MavenProject project) {
-        Set<String> libertyFeatureDependencies = new HashSet<String>();
-        List<Dependency> allProjectDependencies = project.getDependencies();
-        for (Dependency d : allProjectDependencies) {
-            String featureName = getFeatureName(d);
-            if (featureName != null) {
-                libertyFeatureDependencies.add(featureName);
-            }
-        }
-        return libertyFeatureDependencies;
-    }
-
-    /**
-     * From all the candidate project dependencies remove the ones already in server.xml
-     * to make the list of the ones that are missing from server.xml.
-     * @param visibleLibertyProjectDependencies
-     * @param existingFeatures
-     * @return
-     */
-    private Set<String> getMissingLibertyFeatures(Set<String> visibleLibertyProjectDependencies,
-            Set<String> existingFeatures) {
-        Set<String> missingLibertyFeatures = new HashSet<String>(visibleLibertyProjectDependencies);
-        if (existingFeatures != null) {
-            for (String s : visibleLibertyProjectDependencies) {
-                // existingFeatures mixed case has been preserved.
-                if (existingFeatures.contains(s)) {
-                    missingLibertyFeatures.remove(s);
-                }
-            }
-        }
-        return missingLibertyFeatures;
-    }
-
-	/**
-	 * Determine if a dependency is a Liberty feature or not
-	 * @param mavenDependency  a Maven project dependency 
-	 * @return the Liberty feature name if the input is a Liberty feature otherwise return null.
-	 */
-    private String getFeatureName(Dependency mavenDependency) {
-        if ("esa".contentEquals(mavenDependency.getType())) {
-            return mavenDependency.getArtifactId();
-        }
-        return null;
     }
 
     /*
