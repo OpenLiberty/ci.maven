@@ -377,6 +377,20 @@ public class BaseDevTest {
       return false;
    }
 
+   protected static boolean verifyFileExists(File file, int timeout)
+         throws InterruptedException {
+      int waited = 0;
+      int sleep = 100;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (file.exists()) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    protected static File getTargetFile(String srcFilePath, String targetFilePath) throws IOException, InterruptedException {
       File srcClass = new File(tempProj, srcFilePath);
       File targetClass = new File(targetDir, targetFilePath);
