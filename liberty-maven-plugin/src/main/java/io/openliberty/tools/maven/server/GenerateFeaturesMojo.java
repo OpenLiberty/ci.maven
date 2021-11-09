@@ -159,7 +159,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         try {
             return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION).getFile();
         } catch (Exception e) {
-            throw new PluginExecutionException("Could not retrieve the binary scanner jar. Ensure you have a connection to Maven Central or another repository that contains the jar", e);
+            throw new PluginExecutionException("Could not retrieve the binary scanner jar. Ensure you have a connection to Maven Central or another repository that contains the jar configured in your pom.xml", e);
         }
     }
 
