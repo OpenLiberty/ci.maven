@@ -218,7 +218,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
                 Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
                 // args: String[], String, String, List, java.util.Locale
-                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("driveScanMavenFeaureList", String[].class, String.class, String.class, List.class, java.util.Locale.class);
+                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("driveScanMavenFeatureList", String[].class, String.class, String.class, List.class, java.util.Locale.class);
                 if (driveScanMavenFeaureList == null) {
                     log.debug("Error finding binary scanner method using reflection");
                     return null;
