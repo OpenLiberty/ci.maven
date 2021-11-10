@@ -213,7 +213,7 @@ public class DevTest extends BaseDevTest {
    // TODO @Test
    public void generateFeatureTest() throws Exception {
 
-      final String GENERATED_FEATURES_FILE_NAME = "liberty-plugin-added-features.xml";
+      final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
       final String SERVER_XML_COMMENT = "Plugin has generated Liberty features"; // the explanation added to server.xml
       // TODO final String NEW_FILE_INFO_MESSAGE = "Some message"; // the explanation added to the generated features file
 
