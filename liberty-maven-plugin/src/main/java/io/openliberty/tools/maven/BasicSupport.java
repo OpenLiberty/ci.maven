@@ -223,7 +223,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 assemblyArtifact.setType("zip");
 
                 // check for liberty.runtime.groupId property which overrides any groupId set in the assemblyArtifact
-                if (libertyRuntimeGroupId != null) {
+                if (libertyRuntimeGroupId != null && !libertyRuntimeGroupId.isEmpty()) {
                     if (assemblyArtifact.getGroupId() != null) {
                         log.info("The runtimeArtifact groupId " + assemblyArtifact.getGroupId() + " is overwritten by the liberty.runtime.groupId value "+ libertyRuntimeGroupId +".");
                     } else {
@@ -238,7 +238,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
 
                 // check for liberty.runtime.artifactId property which overrides any artifactId set in the assemblyArtifact
-                if (libertyRuntimeArtifactId != null) {
+                if (libertyRuntimeArtifactId != null && !libertyRuntimeArtifactId.isEmpty()) {
                     if (assemblyArtifact.getArtifactId() != null) {
                         log.info("The runtimeArtifact artifactId " + assemblyArtifact.getArtifactId() + " is overwritten by the liberty.runtime.artifactId value "+ libertyRuntimeArtifactId +".");
                     } else {
@@ -253,7 +253,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
                 
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
-                if (libertyRuntimeVersion != null) {
+                if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
                     if (assemblyArtifact.getVersion() != null) {
                         log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
                     } else {
