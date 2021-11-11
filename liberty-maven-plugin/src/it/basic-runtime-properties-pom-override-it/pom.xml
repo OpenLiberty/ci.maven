@@ -9,8 +9,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>basic-runtime-version-property-override-it</artifactId>
+    <artifactId>basic-runtime-properties-pom-override-it</artifactId>
     <packaging>jar</packaging>
+
+    <properties>
+        <liberty.runtime.groupId>io.openliberty</liberty.runtime.groupId>
+        <liberty.runtime.artifactId>openliberty-runtime</liberty.runtime.artifactId>
+        <liberty.runtime.version>19.0.0.7</liberty.runtime.version>
+    </properties>
 
     <dependencies>
         <dependency>
