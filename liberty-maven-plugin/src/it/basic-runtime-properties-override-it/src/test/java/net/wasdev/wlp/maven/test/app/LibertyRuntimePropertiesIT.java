@@ -28,7 +28,7 @@ public class LibertyRuntimePropertiesIT {
         libertyProductProperties.load(input);
         String version = libertyProductProperties.getProperty("com.ibm.websphere.productVersion");
         assertNotNull("The com.ibm.websphere.productVersion property does not exist.",version);
-        assertEquals("The com.ibm.websphere.productVersion property has an unexpected value.","19.0.0.7",version);
+        assertEquals("The com.ibm.websphere.productVersion property has an unexpected value.","21.0.0.3",version);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class LibertyRuntimePropertiesIT {
         final String ARTIFACTID_MESSAGE = "[INFO] The runtimeArtifact artifactId openliberty-webProfile8 is overwritten by the liberty.runtime.artifactId value openliberty-runtime.";
         boolean ARTIFACTID_MESSAGE_FOUND = false;
 
-        final String VERSION_MESSAGE = "[INFO] The runtimeArtifact version 19.0.0.6 is overwritten by the liberty.runtime.version value 19.0.0.7.";
+        final String VERSION_MESSAGE = "[INFO] The runtimeArtifact version 19.0.0.6 is overwritten by the liberty.runtime.version value 21.0.0.3.";
         boolean VERSION_MESSAGE_FOUND = false;
 
         try {

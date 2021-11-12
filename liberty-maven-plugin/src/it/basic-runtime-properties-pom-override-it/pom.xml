@@ -15,7 +15,7 @@
     <properties>
         <liberty.runtime.groupId>io.openliberty</liberty.runtime.groupId>
         <liberty.runtime.artifactId>openliberty-runtime</liberty.runtime.artifactId>
-        <liberty.runtime.version>19.0.0.7</liberty.runtime.version>
+        <liberty.runtime.version>21.0.0.3</liberty.runtime.version>
     </properties>
 
     <dependencies>
