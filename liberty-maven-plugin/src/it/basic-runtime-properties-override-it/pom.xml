@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>basic-runtime-version-property-override-it</artifactId>
+    <artifactId>basic-runtime-properties-override-it</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>

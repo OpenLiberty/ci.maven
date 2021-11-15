@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,6 +171,18 @@ public class BasicSupport extends AbstractLibertySupport {
     protected boolean mergeServerEnv;
 
     /**
+     * GroupId to override any specified in the assemblyArtifact
+     */
+    @Parameter(alias = "libertyRuntimeGroupId", property = "liberty.runtime.groupId")
+    protected String libertyRuntimeGroupId = null;
+
+    /**
+     * ArtifactId to override any specified in the assemblyArtifact
+     */
+    @Parameter(alias = "libertyRuntimeArtifactId", property = "liberty.runtime.artifactId")
+    protected String libertyRuntimeArtifactId = null;
+
+    /**
      * Version to override any specified in the assemblyArtifact
      */
     @Parameter(alias = "libertyRuntimeVersion", property = "liberty.runtime.version")
@@ -209,17 +221,39 @@ public class BasicSupport extends AbstractLibertySupport {
             }
             else { // default to install from runtime artifact
                 assemblyArtifact.setType("zip");
-                if(assemblyArtifact.getGroupId() == null) {
-                    log.debug("Defaulting runtimeArtifact group id to 'io.openliberty'");
-                    assemblyArtifact.setGroupId("io.openliberty");
+
+                // check for liberty.runtime.groupId property which overrides any groupId set in the assemblyArtifact
+                if (libertyRuntimeGroupId != null && !libertyRuntimeGroupId.isEmpty()) {
+                    if (assemblyArtifact.getGroupId() != null) {
+                        log.info("The runtimeArtifact groupId " + assemblyArtifact.getGroupId() + " is overwritten by the liberty.runtime.groupId value "+ libertyRuntimeGroupId +".");
+                    } else {
+                        log.info("The liberty.runtime.groupId property value "+ libertyRuntimeGroupId +" is used for the runtimeArtifact groupId.");
+                    }
+                    assemblyArtifact.setGroupId(libertyRuntimeGroupId);
+                } else {
+                    if(assemblyArtifact.getGroupId() == null) {
+                        log.debug("Defaulting runtimeArtifact group id to 'io.openliberty'");
+                        assemblyArtifact.setGroupId("io.openliberty");
+                    }
                 }
-                if(assemblyArtifact.getArtifactId() == null) {
-                    log.debug("Defaulting runtimeArtifact artifact id to 'openliberty-kernel'");
-                    assemblyArtifact.setArtifactId("openliberty-kernel");
+
+                // check for liberty.runtime.artifactId property which overrides any artifactId set in the assemblyArtifact
+                if (libertyRuntimeArtifactId != null && !libertyRuntimeArtifactId.isEmpty()) {
+                    if (assemblyArtifact.getArtifactId() != null) {
+                        log.info("The runtimeArtifact artifactId " + assemblyArtifact.getArtifactId() + " is overwritten by the liberty.runtime.artifactId value "+ libertyRuntimeArtifactId +".");
+                    } else {
+                        log.info("The liberty.runtime.artifactId property value "+ libertyRuntimeArtifactId +" is used for the runtimeArtifact artifactId.");
+                    }
+                    assemblyArtifact.setArtifactId(libertyRuntimeArtifactId);
+                } else {
+                    if(assemblyArtifact.getArtifactId() == null) {
+                        log.debug("Defaulting runtimeArtifact artifact id to 'openliberty-kernel'");
+                        assemblyArtifact.setArtifactId("openliberty-kernel");
+                    }
                 }
                 
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
-                if (libertyRuntimeVersion != null) {
+                if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
                     if (assemblyArtifact.getVersion() != null) {
                         log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
                     } else {
@@ -229,8 +263,8 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
                 else {
                     if(assemblyArtifact.getVersion() == null) {
-                        log.debug("Defaulting runtimeArtifact version to '[19.0.0.6,)'");
-                        assemblyArtifact.setVersion("[19.0.0.6,)");
+                        log.debug("Defaulting runtimeArtifact version to '[21.0.0.9,)'");
+                        assemblyArtifact.setVersion("[21.0.0.9,)");
                     }
                 }
                 
