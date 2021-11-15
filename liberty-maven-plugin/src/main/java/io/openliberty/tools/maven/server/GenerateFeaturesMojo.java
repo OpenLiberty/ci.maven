@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -108,9 +109,28 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         util.setLowerCaseFeatures(true);
         log.debug("Existing features:" + existingFeatures);
 
-        Set<String> scannedFeatureList = runBinaryScanner(existingFeatures);
-        Set<String> missingLibertyFeatures = new HashSet<String>(scannedFeatureList);
-        missingLibertyFeatures.removeAll(existingFeatures);
+        Set<String> directories = getClassesDirectories();
+
+        Set<String> scannedFeatureList = null;
+        try {
+            scannedFeatureList = runBinaryScanner(existingFeatures, directories);
+        } catch (InvocationTargetException x) {
+            Throwable scannerException = x.getCause();
+            if (scannerException instanceof RuntimeException) {
+                String problemMessage = scannerException.getMessage();
+                if (problemMessage.startsWith("CWMIG12083")) {
+                    // input features are invalid
+                    log.error("The current feature list is invalid.\n"+problemMessage);
+                } else {
+                    scannerException.printStackTrace();
+                }
+            }
+        }
+        Set<String> missingLibertyFeatures = new HashSet<String>();
+        if (scannedFeatureList != null) {
+            missingLibertyFeatures.addAll(scannedFeatureList);
+            missingLibertyFeatures.removeAll(existingFeatures);
+        }
         log.debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
         File newServerXmlSrc = new File(configDirectory, PLUGIN_ADDED_FEATURES_FILE);
@@ -218,7 +238,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         return;
     }
 
-    private Set<String> runBinaryScanner(Set<String> currentFeatureSet) throws PluginExecutionException {
+    private Set<String> runBinaryScanner(Set<String> currentFeatureSet, Set<String> directorySet)
+            throws PluginExecutionException, InvocationTargetException {
         Set<String> featureList = null;
         if (binaryScanner != null && binaryScanner.exists()) {
             ClassLoader cl = this.getClass().getClassLoader();
@@ -231,7 +252,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     log.debug("Error finding binary scanner method using reflection");
                     return null;
                 }
-                String[] directoryList = getClassesDirectories();
+                String[] directoryList = directorySet.toArray(new String[directorySet.size()]);
                 if (directoryList == null || directoryList.length == 0) {
                     log.debug("Error collecting list of directories to send to binary scanner, list is null or empty.");
                     return null;
@@ -243,7 +264,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, currentFeatures, java.util.Locale.getDefault());
                 log.debug("End of messages from application binary scanner. Features recommended :");
                 for (String s : featureList) {log.debug(s);};
-            } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException|java.lang.reflect.InvocationTargetException x){
+            } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException x){
                 // TODO Figure out what to do when there is a problem scanning the features
                 log.error("Exception:"+x.getClass().getName());
                 Object o = x.getCause();
@@ -264,8 +285,8 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     }
 
     // Return a list containing the classes directory of the current project and any upstream module projects
-    private String[] getClassesDirectories() {
-        List<String> dirs = new ArrayList();
+    private Set<String> getClassesDirectories() {
+        Set<String> dirs = new HashSet<String>();
         String classesDirName = null;
         // First check the Java build output directory (target/classes) for the current project
         classesDirName = getClassesDirectory(project.getBuild().getOutputDirectory());
@@ -284,7 +305,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             }
         }
         for (String s : dirs) {log.debug("Found dir:"+s);};
-        return dirs.toArray(new String[dirs.size()]);
+        return dirs;
     }
 
     // Check one directory and if it exists return its canonical path (or absolute path if error).
