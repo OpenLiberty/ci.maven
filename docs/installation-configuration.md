@@ -37,7 +37,7 @@ Example for using the `runtimeArtifact` parameter:
 </plugin>
 ```
 
-The coordinates for `runtimeArtifact` can be overridden using `libertyRuntimeGroupId`, `libertyRuntimeArtifactId`, and `libertyRuntimeVersion`. These can be passed in as properties through the project's pom.xml or the command line. Empty or `null` values will result in a default value overriding the respective `runtimeArtifact` coordinate value. More information on these properties can be found in [common parameters](docs/common-parameters.md#common-parameters).
+The coordinates for `runtimeArtifact` can be overridden using `libertyRuntimeGroupId`, `libertyRuntimeArtifactId`, and `libertyRuntimeVersion`. These can be set as pom.xml prooperties, command line properties, or additional plugin configuration. Empty or `null` values will result in a default value overriding the respective `runtimeArtifact` coordinate value. More information on these properties can be found in [common parameters](docs/common-parameters.md#common-parameters).
 
 Example of overriding the `runtimeArtifact` parameter through the command line:
 
@@ -58,9 +58,6 @@ Example of overriding the `runtimeArtifact` parameter with pom properties:
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
     <configuration>
-        <libertyRuntimeGroupId>io.openliberty</libertyRuntimeGroupId>
-        <libertyRuntimeArtifactId>openliberty-runtime</libertyRuntimeArtifactId>
-        <libertyRuntimeVersion>21.0.0.9</libertyRuntimeVersion>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile7</artifactId>
