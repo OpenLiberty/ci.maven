@@ -37,6 +37,60 @@ Example for using the `runtimeArtifact` parameter:
 </plugin>
 ```
 
+The coordinates for `runtimeArtifact` can be overridden using `libertyRuntimeGroupId`, `libertyRuntimeArtifactId`, and `libertyRuntimeVersion`. These can be passed in as properties through the project's pom.xml or the command line. Empty or `null` values will result in a default value overriding the respective `runtimeArtifact` coordinate value. More information on these properties can be found in [common parameters](docs/common-parameters.md#common-parameters).
+
+Example of overriding the `runtimeArtifact` parameter through the command line:
+
+```
+mvn clean install -Dliberty.runtime.groupId=io.openliberty -Dliberty.runtime.artifactId=openliberty-runtime -Dliberty.runtime.version=21.0.0.9
+```
+
+Example of overriding the `runtimeArtifact` parameter with pom properties:
+
+```xml
+<properties>
+    <liberty.runtime.groupId>io.openliberty</liberty.runtime.groupId>
+    <liberty.runtime.artifactId>openliberty-runtime</liberty.runtime.artifactId>
+    <liberty.runtime.version>21.0.0.9</liberty.runtime.version>
+</properties>
+
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <configuration>
+        <libertyRuntimeGroupId>io.openliberty</libertyRuntimeGroupId>
+        <libertyRuntimeArtifactId>openliberty-runtime</libertyRuntimeArtifactId>
+        <libertyRuntimeVersion>21.0.0.9</libertyRuntimeVersion>
+        <runtimeArtifact>
+            <groupId>com.ibm.websphere.appserver.runtime</groupId>
+            <artifactId>wlp-webProfile7</artifactId>
+            <version>8.5.5.7</version>
+            <type>zip</type>
+        </runtimeArtifact>
+    </configuration>
+</plugin>
+```
+
+Example of overriding the `runtimeArtifact` parameter with plugin configuration:
+
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <configuration>
+        <libertyRuntimeGroupId>io.openliberty</libertyRuntimeGroupId>
+        <libertyRuntimeArtifactId>openliberty-runtime</libertyRuntimeArtifactId>
+        <libertyRuntimeVersion>21.0.0.9</libertyRuntimeVersion>
+        <runtimeArtifact>
+            <groupId>com.ibm.websphere.appserver.runtime</groupId>
+            <artifactId>wlp-webProfile7</artifactId>
+            <version>8.5.5.7</version>
+            <type>zip</type>
+        </runtimeArtifact>
+    </configuration>
+</plugin>
+```
+
 ### Using an existing installation
 
 Use the `installDirectory` parameter to specify the directory of an existing Liberty server installation. For example:
