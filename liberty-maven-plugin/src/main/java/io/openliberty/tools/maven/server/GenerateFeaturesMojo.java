@@ -107,10 +107,14 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         InstallFeatureUtil util = getInstallFeatureUtil(new HashSet<String>(), null);
         util.setLowerCaseFeatures(false);
 
-        Set<String> filesToIgnore = new HashSet<String>();
-        filesToIgnore.add(GENERATED_FEATURES_FILE_NAME);
+        final boolean optimize = (classFiles == null || classFiles.isEmpty()) ? true : false;
+        Set<String> dropinsFilesToIgnore = null;
+        if (optimize) {
+            dropinsFilesToIgnore = new HashSet<String>();
+            dropinsFilesToIgnore.add(GENERATED_FEATURES_FILE_NAME);    
+        }
 
-        Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles, filesToIgnore);
+        Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles, dropinsFilesToIgnore);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
