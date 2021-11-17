@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +83,10 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     private void generateFeatures() throws PluginExecutionException {
         binaryScanner = getBinaryScannerJarFromRepository();
 
-        if (!classFiles.isEmpty()) {
+        if (classFiles != null && !classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());
+        } else {
+            log.debug("Generate features for all class files");
         }
 
         Map<String, File> libertyDirPropertyFiles;
@@ -109,11 +112,11 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         util.setLowerCaseFeatures(true);
         log.debug("Existing features:" + existingFeatures);
 
-        Set<String> directories = getClassesDirectories();
-
         Set<String> scannedFeatureList = null;
         try {
-            scannedFeatureList = runBinaryScanner(existingFeatures, directories);
+            Set<String> directories = getClassesDirectories();
+            String[] binaryInputs = getBinaryInputs(classFiles, directories);
+            scannedFeatureList = runBinaryScanner(existingFeatures, binaryInputs);
         } catch (InvocationTargetException x) {
             Throwable scannerException = x.getCause();
             if (scannerException instanceof RuntimeException) {
@@ -154,11 +157,15 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 log.debug("Created file "+newServerXmlSrc);
                 // Add a reference to this new file in existing server.xml.
                 addGenerationCommentToConfig(doc, serverXml);
+
+                log.info("Generated the following additional features: " + missingLibertyFeatures);
             } catch(ParserConfigurationException | TransformerException | IOException e) {
                 log.debug("Exception creating the server features file", e);
                 log.error("Error attempting to create the server feature file. Ensure your id has write permission to the server installation directory.");
                 return;
             }
+        } else {
+            log.debug("No additional features were generated.");
         }
     }
 
@@ -238,7 +245,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         return;
     }
 
-    private Set<String> runBinaryScanner(Set<String> currentFeatureSet, Set<String> directorySet)
+    private Set<String> runBinaryScanner(Set<String> currentFeatureSet, String[] binaryInputs)
             throws PluginExecutionException, InvocationTargetException {
         Set<String> featureList = null;
         if (binaryScanner != null && binaryScanner.exists()) {
@@ -247,21 +254,17 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                 URLClassLoader ucl = new URLClassLoader(new URL[] { binaryScanner.toURI().toURL() }, cl);
                 Class driveScan = ucl.loadClass("com.ibm.ws.report.binary.cmdline.DriveScan");
                 // args: String[], String, String, List, java.util.Locale
-                java.lang.reflect.Method driveScanMavenFeaureList = driveScan.getMethod("driveScanMavenFeatureList", String[].class, String.class, String.class, List.class, java.util.Locale.class);
-                if (driveScanMavenFeaureList == null) {
+                java.lang.reflect.Method driveScanMavenFeatureList = driveScan.getMethod("driveScanMavenFeatureList", String[].class, String.class, String.class, List.class, java.util.Locale.class);
+                if (driveScanMavenFeatureList == null) {
                     log.debug("Error finding binary scanner method using reflection");
                     return null;
                 }
-                String[] directoryList = directorySet.toArray(new String[directorySet.size()]);
-                if (directoryList == null || directoryList.length == 0) {
-                    log.debug("Error collecting list of directories to send to binary scanner, list is null or empty.");
-                    return null;
-                }
+
                 String eeVersion = getEEVersion(project); 
                 String mpVersion = getMPVersion(project);
                 List<String> currentFeatures = new ArrayList<String>(currentFeatureSet);
                 log.debug("The following messages are from the application binary scanner used to generate Liberty features");
-                featureList = (Set<String>) driveScanMavenFeaureList.invoke(null, directoryList, eeVersion, mpVersion, currentFeatures, java.util.Locale.getDefault());
+                featureList = (Set<String>) driveScanMavenFeatureList.invoke(null, binaryInputs, eeVersion, mpVersion, currentFeatures, java.util.Locale.getDefault());
                 log.debug("End of messages from application binary scanner. Features recommended :");
                 for (String s : featureList) {log.debug(s);};
             } catch (MalformedURLException|ClassNotFoundException|NoSuchMethodException|IllegalAccessException x){
@@ -282,6 +285,25 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             }
         }
         return featureList;
+    }
+
+    private String[] getBinaryInputs(List<String> classFiles, Set<String> classDirectories) throws PluginExecutionException {
+        Collection<String> resultSet;
+        if (classFiles != null && !classFiles.isEmpty()) {
+            resultSet = classFiles;
+        } else {
+            if (classDirectories == null || classDirectories.isEmpty()) {
+                throw new PluginExecutionException("Error collecting list of directories to send to binary scanner, list is null or empty.");
+            }
+            resultSet = classDirectories;
+        }
+
+        for (String s : resultSet) {
+            log.debug("Binary scanner input: " + s);
+        }
+
+        String[] result = resultSet.toArray(new String[resultSet.size()]);
+        return result;
     }
 
     // Return a list containing the classes directory of the current project and any upstream module projects
