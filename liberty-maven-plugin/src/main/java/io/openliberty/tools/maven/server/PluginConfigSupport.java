@@ -31,8 +31,10 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import io.openliberty.tools.maven.PluginConfigXmlDocument;
 import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
+import io.openliberty.tools.common.plugins.util.DevUtil;
 
 /**
  * Basic Liberty Mojo Support
@@ -381,5 +383,66 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
         return null;
+    }
+
+    // get loose application configuration file name for project artifact
+    public String getLooseConfigFileName(MavenProject project) {
+        return getPostDeployAppFileName(project) + ".xml";
+    }
+
+    // get loose application file name for project artifact
+    protected String getPostDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, true);
+    }
+
+    // target ear/war produced by war:war, ear:ear, haven't stripped version yet
+    protected String getPreDeployAppFileName(MavenProject project) {
+        return getAppFileName(project, false);
+    }
+
+    protected String getAppFileName(MavenProject project, boolean stripVersionIfConfigured) {
+
+        String name = project.getBuild().getFinalName();
+
+        if (stripVersionIfConfigured && stripVersion) { // TODO stripVersion is set to false when called from dev mojo
+            name = stripVersionFromName(name, project.getVersion());
+        }
+
+        String classifier = MavenProjectUtil.getAppNameClassifier(project);
+        if (classifier != null) {
+            name += "-" + classifier;
+        }
+
+        if (project.getPackaging().equals("liberty-assembly")) {
+            name += ".war";
+        } else if (project.getPackaging().equals("ejb")) {
+            name += ".jar";
+        } else {
+            name += "." + project.getPackaging();
+        }
+
+        return name;
+    }
+
+    /**
+     * Gets the loose application configuration xml file
+     * 
+     * @param proj      MavenProject
+     * @param container whether the app is running in a container
+     * @return the loose application configuration xml file or null if it does not
+     *         exist
+     */
+    public File getLooseAppConfigFile(MavenProject proj, boolean container) {
+        String looseConfigFileName = getLooseConfigFileName(proj);
+        if (container) {
+            File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER),
+                    getAppsDirectory());
+            File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
+            return devcLooseConfigFile;
+        } else {
+            File destDir = new File(serverDirectory, getAppsDirectory());
+            File looseConfigFile = new File(destDir, looseConfigFileName);
+            return looseConfigFile;
+        }
     }
 }

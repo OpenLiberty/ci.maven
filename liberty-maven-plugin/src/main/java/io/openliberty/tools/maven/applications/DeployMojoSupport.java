@@ -343,45 +343,6 @@ public class DeployMojoSupport extends PluginConfigSupport {
         return false;
     }
 
-    // get loose application configuration file name for project artifact
-    protected String getLooseConfigFileName(MavenProject project) {
-        return getPostDeployAppFileName(project) + ".xml";
-    }
-
-    // get loose application file name for project artifact
-    protected String getPostDeployAppFileName(MavenProject project) {
-        return getAppFileName(project, true);
-    }
-    
-    // target ear/war produced by war:war, ear:ear, haven't stripped version yet
-    protected String getPreDeployAppFileName(MavenProject project) {
-        return getAppFileName(project, false);
-    }
-    
-    protected String getAppFileName(MavenProject project, boolean stripVersionIfConfigured) {
-
-        String name = project.getBuild().getFinalName();
-
-        if (stripVersionIfConfigured &&  stripVersion) {
-            name = stripVersionFromName(name, project.getVersion());
-        }
-
-        String classifier = MavenProjectUtil.getAppNameClassifier(project);
-        if (classifier != null) {
-            name += "-" + classifier;
-        } 
-
-        if (project.getPackaging().equals("liberty-assembly")) {
-            name += ".war";
-        } else if (project.getPackaging().equals("ejb")) {
-            name += ".jar";
-        } else {
-            name += "." + project.getPackaging();
-        }
-
-        return name;
-    }
-
     protected void validateAppConfig(String fileName, String artifactId) throws Exception {
         validateAppConfig(fileName, artifactId, false);
     }
