@@ -75,7 +75,7 @@ import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
  * it helps build full transitive dependency classpath
  */
 @Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
-public class DevMojo extends PluginConfigSupport {
+public class DevMojo extends LooseAppSupport {
 
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
     private static final String LIBERTY_HOSTNAME = "liberty.hostname";
@@ -891,7 +891,6 @@ public class DevMojo extends PluginConfigSupport {
 
         @Override
         public File getLooseApplicationFile() {
-            log.warn("loose config file: " + getLooseAppConfigFile(project, container));
             return getLooseAppConfigFile(project, container);
         }
 

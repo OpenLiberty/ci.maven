@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.ant.SpringBootUtilTask;
-import io.openliberty.tools.maven.server.PluginConfigSupport;
+import io.openliberty.tools.maven.server.LooseAppSupport;
 import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
@@ -45,7 +45,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
 /**
  * Support for installing and deploying applications to a Liberty server.
  */
-public class DeployMojoSupport extends PluginConfigSupport {
+public class DeployMojoSupport extends LooseAppSupport {
 
     private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
