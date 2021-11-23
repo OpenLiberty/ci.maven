@@ -78,11 +78,11 @@ public class LooseAppSupport extends PluginConfigSupport {
         String looseConfigFileName = getLooseConfigFileName(proj);
         if (container) {
             File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER),
-                    getAppsDirectory());
+                    getAppsDirectory(false));
             File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
             return devcLooseConfigFile;
         } else {
-            File destDir = new File(serverDirectory, getAppsDirectory());
+            File destDir = new File(serverDirectory, getAppsDirectory(false));
             File looseConfigFile = new File(destDir, looseConfigFileName);
             return looseConfigFile;
         }

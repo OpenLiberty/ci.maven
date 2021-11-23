@@ -116,11 +116,9 @@ public class ServerConfigPropertiesTest {
             Pattern pattern1 = Pattern.compile(DUPLICATE_APP_MESSAGE);
             Pattern pattern2 = Pattern.compile(APPS_DIR_MESSAGE);
             Pattern pattern3 = Pattern.compile(APP_INSTALLED_MESSAGE);
-            
 
             while (s.hasNextLine()) {
                 String line = s.nextLine();
-                sb.append(line + "\n");
                 if (pattern1.matcher(line).find()) {
                     duplicateMatches.add(line);
                 } else if (pattern2.matcher(line).find()) {
@@ -135,8 +133,6 @@ public class ServerConfigPropertiesTest {
         in.close();
         serverOutput.close();
 
-
-        Assert.assertTrue("Log file: " + sb, sb.indexOf("CWWKM2185I") != -1);
         //Check app name/appsDir resolved correctly during create, deploy, and start
         Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);
         Assert.assertTrue("Did not find appsDirectory message in console output", appDirMatches.size() == 1);
