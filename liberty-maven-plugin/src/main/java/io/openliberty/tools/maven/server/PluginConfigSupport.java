@@ -321,6 +321,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     protected String getAppsDirectory() {
+        return getAppsDirectory(true);
+    }
+
+    protected String getAppsDirectory(boolean logDirectory) {
         if (appsDirectory != null && !appsDirectory.isEmpty()) {
             if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
                 return appsDirectory;
@@ -337,7 +341,9 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             // found.
             appsDirectory = "apps";
         }
-        log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
+        if (logDirectory) {
+            log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
+        }
         return appsDirectory;
     }
 

@@ -75,7 +75,7 @@ import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
  * it helps build full transitive dependency classpath
  */
 @Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
-public class DevMojo extends StartDebugMojoSupport {
+public class DevMojo extends LooseAppSupport {
 
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";
     private static final String LIBERTY_HOSTNAME = "liberty.hostname";
@@ -887,6 +887,11 @@ public class DevMojo extends StartDebugMojoSupport {
             // dev mode forces deploy with looseApplication=true, but it only takes effect
             // if packaging is one of the supported loose app types
             return DeployMojoSupport.isSupportedLooseAppType(project.getPackaging());
+        }
+
+        @Override
+        public File getLooseApplicationFile() {
+            return getLooseAppConfigFile(project, container);
         }
 
         @Override
