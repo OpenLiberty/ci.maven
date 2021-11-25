@@ -358,15 +358,11 @@ public class DevMojo extends StartDebugMojoSupport {
 
         @Override
         public void libertyGenerateFeatures() throws PluginExecutionException {
-            try {
-                runLibertyMojoGenerateFeatures(null);
-            } catch (MojoExecutionException e) {
-                throw new PluginExecutionException(e);
-            }
+            libertyGenerateFeatures(null, true, true);
         }
 
         @Override
-        public void libertyGenerateFeatures(Collection<String> classes) throws PluginExecutionException {
+        public void libertyGenerateFeatures(Collection<String> classes, boolean scanAllClassFiles, boolean userFeaturesOnly) throws PluginExecutionException {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -375,11 +371,12 @@ public class DevMojo extends StartDebugMojoSupport {
                         classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem));
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), Boolean.valueOf(scanAllClassFiles), Boolean.valueOf(userFeaturesOnly));
                 } else {
-                    runLibertyMojoGenerateFeatures(null);
+                    runLibertyMojoGenerateFeatures(null, Boolean.valueOf(scanAllClassFiles), Boolean.valueOf(userFeaturesOnly));
                 }
             } catch (MojoExecutionException e) {
+                // TODO: Check to see if all errors from generateFeatures goal end up here
                 throw new PluginExecutionException(e);
             }
         }
@@ -686,6 +683,7 @@ public class DevMojo extends StartDebugMojoSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
+            boolean compileDependenciesChanged = false;
 
             ProjectBuildingResult build;
             try {
@@ -756,6 +754,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     // detect compile dependency changes
                     if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
                         redeployApp = true;
+                        compileDependenciesChanged = true;
                     }
                 }
                 // update classpath for dependencies changes
@@ -791,8 +790,12 @@ public class DevMojo extends StartDebugMojoSupport {
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
                     }
-                    if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures(null);
+                    // TODO: confirm that a call to generate features is required when a build file is modified 
+                    // (ie. changes are not picked up by class file changes)
+                    if (compileDependenciesChanged && generateFeatures) {
+                        // build file change - provide updated classes and all existing features to binary scanner
+                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                        libertyGenerateFeatures(javaSourceClassPaths, false, false);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -804,7 +807,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException e) {
+            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -1092,7 +1095,8 @@ public class DevMojo extends StartDebugMojoSupport {
         } else {
             runLibertyMojoCreate();
             if (generateFeatures) {
-                runLibertyMojoGenerateFeatures(null);
+                // generate features on startup - provide all classes and only user specified features to binary scanner
+                runLibertyMojoGenerateFeatures(null, Boolean.valueOf(true), Boolean.valueOf(true));
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
@@ -1708,8 +1712,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles);
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, Boolean scanAllClassFiles, Boolean userFeaturesOnly) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, scanAllClassFiles, userFeaturesOnly);
     }
 
     /**
