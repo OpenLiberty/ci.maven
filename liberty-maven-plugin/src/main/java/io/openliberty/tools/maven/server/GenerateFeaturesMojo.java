@@ -321,6 +321,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                     String problemMessage = scannerException.getMessage();
                     if (problemMessage == null || problemMessage.isEmpty()) {
                         log.debug("RuntimeException from binary scanner without descriptive message", scannerException);
+                        log.error("Error scanning the application for Liberty features.");
                     } else {
                         Set<String> conflicts = parseScannerMessage(problemMessage);
                         Set<String> sampleFeatureList = null;
@@ -328,8 +329,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                             sampleFeatureList = runBinaryScanner(null, getBinaryInputs(null, getClassesDirectories()));
                         } catch (InvocationTargetException retryException) {
                             // binary scanner should not return a RuntimeException since there is no list of app features passed in
-                            sampleFeatureList = new HashSet<String>();
-                            sampleFeatureList.add(BINARY_SCANNER_CONFLICT_MESSAGE4);
+                            sampleFeatureList = getNoSampleFeatureList();
                         }
                         throw new RecommendationSetException(true, conflicts, sampleFeatureList);
                     }
@@ -348,6 +348,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
                             } else {
                                 log.debug("Unexpected failure on retry call to binary scanner", scannerSecondException);
                                 log.debug("Passed directories to binary scanner:"+getClassesDirectories());
+                                sampleFeatureList = getNoSampleFeatureList();
                             }
                         }
                         throw new RecommendationSetException(false, conflicts, sampleFeatureList);
@@ -373,6 +374,13 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             }
         }
         return featureList;
+    }
+
+    private Set<String> getNoSampleFeatureList() {
+        Set<String> sampleFeatureList;
+        sampleFeatureList = new HashSet<String>();
+        sampleFeatureList.add(BINARY_SCANNER_CONFLICT_MESSAGE4);
+        return sampleFeatureList;
     }
 
     private ClassLoader getScannerClassLoader() throws MalformedURLException {
