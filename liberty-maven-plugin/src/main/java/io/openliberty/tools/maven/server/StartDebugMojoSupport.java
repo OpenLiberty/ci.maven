@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -47,7 +49,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -319,6 +320,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             List<Dependency> deps = copyDependencies.getDependencies();
             boolean defaultStripVersion = copyDependencies.isStripVersion();
             String defaultLocation = copyDependencies.getLocation();
+            defaultLocation = substituteLibertyProps(defaultLocation);
             File dftLocationFile = new File(defaultLocation);
 
             if (!dftLocationFile.isAbsolute()) {
@@ -334,7 +336,6 @@ public class StartDebugMojoSupport extends BasicSupport {
             }
 
             String dftLocationPath = dftLocationFile.getCanonicalPath();
-
             if (!deps.isEmpty()) {      
                 log.debug("copyDependencies to location: "+dftLocationPath);
             }
@@ -348,6 +349,7 @@ public class StartDebugMojoSupport extends BasicSupport {
             for (DependencyGroup depGroup : depGroups) {
                 String overrideLocation = depGroup.getLocation();
                 if (overrideLocation != null) {
+                	overrideLocation = substituteLibertyProps(overrideLocation);
                     log.debug("copyDependencies to location: "+ overrideLocation);
                 } else {
                     log.debug("copyDependencies to location: "+dftLocationPath);
@@ -366,7 +368,23 @@ public class StartDebugMojoSupport extends BasicSupport {
         }
     }
 
-    private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
+    private String substituteLibertyProps(String location) throws IOException {
+		
+    	String userDirLoc = userDirectory.getCanonicalPath();
+
+    	String sharedConfigDir = "${shared.config.dir}";
+
+    	// usr/servers/myServer
+    	if (location.startsWith(sharedConfigDir)) {
+    		String sharedConfigPath = userDirLoc + "/shared/config";
+    		//location.replaceFirst(sharedConfigDir, sharedConfigPath);
+    		return location.replace(sharedConfigDir, sharedConfigPath);
+    	}
+    	
+    	return location;
+	}
+
+	private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
 
         String location = defaultLocation;
 
