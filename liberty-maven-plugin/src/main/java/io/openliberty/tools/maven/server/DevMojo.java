@@ -357,12 +357,7 @@ public class DevMojo extends StartDebugMojoSupport {
         }
 
         @Override
-        public void libertyGenerateFeatures() throws PluginExecutionException {
-            libertyGenerateFeatures(null, true, true);
-        }
-
-        @Override
-        public void libertyGenerateFeatures(Collection<String> classes, boolean scanAllClassFiles, boolean userFeaturesOnly) throws PluginExecutionException {
+        public void libertyGenerateFeatures(Collection<String> classes, boolean optimize) throws PluginExecutionException {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -371,9 +366,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), Boolean.valueOf(scanAllClassFiles), Boolean.valueOf(userFeaturesOnly));
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), Boolean.valueOf(optimize));
                 } else {
-                    runLibertyMojoGenerateFeatures(null, Boolean.valueOf(scanAllClassFiles), Boolean.valueOf(userFeaturesOnly));
+                    runLibertyMojoGenerateFeatures(null, Boolean.valueOf(optimize));
                 }
             } catch (MojoExecutionException e) {
                 // TODO: Check to see if all errors from generateFeatures goal end up here
@@ -795,7 +790,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     if (compileDependenciesChanged && generateFeatures) {
                         // build file change - provide updated classes and all existing features to binary scanner
                         Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                        libertyGenerateFeatures(javaSourceClassPaths, false, false);
+                        libertyGenerateFeatures(javaSourceClassPaths, false);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -1096,7 +1091,7 @@ public class DevMojo extends StartDebugMojoSupport {
             runLibertyMojoCreate();
             if (generateFeatures) {
                 // generate features on startup - provide all classes and only user specified features to binary scanner
-                runLibertyMojoGenerateFeatures(null, Boolean.valueOf(true), Boolean.valueOf(true));
+                runLibertyMojoGenerateFeatures(null, Boolean.valueOf(true));
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
@@ -1712,8 +1707,8 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, Boolean scanAllClassFiles, Boolean userFeaturesOnly) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles, scanAllClassFiles, userFeaturesOnly);
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, Boolean optimize) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
     }
 
     /**

@@ -64,11 +64,12 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
     @Parameter(property = "classFiles")
     private List<String> classFiles;
 
-    @Parameter(property = "scanAllClassFiles", defaultValue = "true")
-    private boolean scanAllClassFiles;
-
-    @Parameter(property = "userFeaturesOnly", defaultValue = "true")
-    private boolean userFeaturesOnly;
+    /**
+     * If optimize is true, pass all class files and only user specified features to binary scanner
+     * Otherwise, if optimize is false, pass only provided updated class files (if any) and all existing features to binary scanner
+     */
+    @Parameter(property = "optimize", defaultValue = "true")
+    private boolean optimize;
 
     protected static final String PLUGIN_ADDED_FEATURES_FILE = "configDropins/overrides/liberty-plugin-added-features.xml";
     protected static final String FEATURES_FILE_MESSAGE = "The Liberty Maven Plugin has generated Liberty features necessary for your application in " + PLUGIN_ADDED_FEATURES_FILE;
@@ -100,9 +101,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         }
 
         log.debug("--- Generate Features values ---");
-        log.debug("scanAllClassFiles: " + scanAllClassFiles);
-        log.debug("userFeaturesOnly: " + userFeaturesOnly);
-
+        log.debug("scanAllClassFiles: " + optimize);
         // TODO: could classFiles be null here?
         if (!classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());
