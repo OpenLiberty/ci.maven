@@ -85,10 +85,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         }
         else if(util != null) {
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
-        }else if(util == null) {
-        	throw new IllegalStateException(MessageFormat.format("Could not install feature", "install-feature"));
         }
-        
        
     }
 
