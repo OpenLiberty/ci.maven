@@ -55,6 +55,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
+import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -132,6 +133,9 @@ public class DevMojo extends LooseAppSupport {
 
     @Component
     protected ProjectBuilder mavenProjectBuilder;
+
+    @Component
+    private RuntimeInformation runtime;
 
     /**
      * Time in seconds to wait while verifying that the application has started or
@@ -894,37 +898,6 @@ public class DevMojo extends LooseAppSupport {
             return getLooseAppConfigFile(project, container);
         }
 
-        @Override
-        public boolean isClasspathResolved(File buildFile) {
-            MavenProject currentProject = resolveMavenProject(buildFile);
-            Set<String> testArtifacts;
-            try {
-                if (util.isMultiModuleProject()) {
-                    ProjectModule projectModule = util.getProjectModule(currentProject.getFile());
-                    if (projectModule != null) {
-                        testArtifacts = projectModule.getTestArtifacts();
-                    } else {
-                        // assume this is the main module
-                        testArtifacts = util.getTestArtifacts();
-                    }
-                } else {
-                    testArtifacts = util.getTestArtifacts();
-                }
-                // if project.getArtifacts() is empty but our tracked list of of testArtifacts
-                // is not empty, this is a Maven thread error and block tests from running
-                // see https://issues.apache.org/jira/browse/MNG-7285
-                if (currentProject.getArtifacts().isEmpty() && !testArtifacts.isEmpty()) {
-                    return false;
-                }
-            } catch (IOException e) {
-                log.error("Unable to resolve test artifact paths for " + currentProject.getFile()
-                        + ". Restart dev mode to ensure classpaths are properly resolved.");
-                log.debug(e);
-                return false;
-            }
-            return true;
-        }
-
     }
 
     private boolean isUsingBoost() {
@@ -936,6 +909,15 @@ public class DevMojo extends LooseAppSupport {
         if (skip) {
             getLog().info("\nSkipping dev goal.\n");
             return;
+        }
+
+        String mvnVersion = runtime.getMavenVersion();
+        log.debug("Maven version: " + mvnVersion);
+        // Maven 3.8.2 and 3.8.3 contain a bug where compile artifacts are not resolved
+        // correctly in threads. Block dev mode from running on these versions
+        if (mvnVersion.equals("3.8.2") || mvnVersion.equals("3.8.3")) {
+            throw new PluginExecutionException("Detected Maven version " + mvnVersion
+                    + ". This version is not supported for dev mode. Upgrade to Maven 3.8.4 or higher to use dev mode.");
         }
 
         boolean isEar = false;
