@@ -101,7 +101,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         }
 
         log.debug("--- Generate Features values ---");
-        log.debug("scanAllClassFiles: " + optimize);
+        log.debug("optimize generate features: " + optimize);
         // TODO: could classFiles be null here?
         if (!classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());
