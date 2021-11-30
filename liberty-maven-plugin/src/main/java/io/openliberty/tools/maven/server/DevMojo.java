@@ -783,6 +783,9 @@ public class DevMojo extends StartDebugMojoSupport {
                     util.restartServer();
                     return true;
                 } else {
+                    if ((createServer || installFeature) && generateFeatures) {
+                        runLibertyMojoGenerateFeatures(null);
+                    }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
                         runBoostMojo("package");
@@ -790,9 +793,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
-                    }
-                    if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures(null);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -1090,10 +1090,10 @@ public class DevMojo extends StartDebugMojoSupport {
             log.info("Running boost:package");
             runBoostMojo("package");
         } else {
-            runLibertyMojoCreate();
             if (generateFeatures) {
                 runLibertyMojoGenerateFeatures(null);
             }
+            runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.

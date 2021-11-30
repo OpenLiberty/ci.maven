@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020.
+ * (C) Copyright IBM Corporation 2020, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProper
 import io.openliberty.tools.maven.server.types.Features;
 
 
-public class InstallFeatureSupport extends BasicSupport {
+public class InstallFeatureSupport extends ServerFeatureSupport {
 
     /**
      * Define a set of features to install in the server and the configuration
