@@ -59,6 +59,8 @@ public class BasicSupport extends AbstractLibertySupport {
 
     protected boolean defaultOutputDirSet = false;
 
+    protected boolean skipServerConfigSetup = false;
+
     /**
      * Skips the specific goal
      */
@@ -186,9 +188,12 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void init() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             return;
-        }        
+        }
         super.init();
 
+        if (skipServerConfigSetup) {
+            return;
+        }
         try {
             // First check if installDirectory is set, if it is, then we can skip this
             if (installDirectory != null) {

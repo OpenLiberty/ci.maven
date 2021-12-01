@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -78,6 +81,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         generateFeatures();
     }
 
+    @Override
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
+        // setup as generate features does not require the server to be set up install
+        // dir, wlp dir, outputdir, etc.
+        this.skipServerConfigSetup = true;
+        super.init();
+    }
+
     private void generateFeatures() throws PluginExecutionException {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
@@ -88,14 +100,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             log.debug("Generate features for all class files");
         }
 
-        Map<String, File> libertyDirPropertyFiles;
-        try {
-            libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
-        } catch (IOException e) {
-            log.debug("Exception reading the server property files", e);
-            log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
-            return;
-        }
         // TODO: get user specified features that have not yet been installed in the
         // original case they appear in a server config xml document.
         // getSpecifiedFeatures may not return the features in the correct case
@@ -112,7 +116,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
         Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                libertyDirPropertyFiles, optimize ? generatedFiles : null);
+                new HashMap<String,File>() , optimize ? generatedFiles : null);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
@@ -154,7 +158,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             // get set of user defined features so they can be omitted from the generated
             // file that will be written
             Set<String> userDefinedFeatures = optimize ? existingFeatures
-                    : servUtil.getServerFeatures(configDirectory, serverXmlFile, libertyDirPropertyFiles,
+                    : servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
                             generatedFiles);
             log.debug("User defined features:" + userDefinedFeatures);
             servUtil.setLowerCaseFeatures(true);
