@@ -111,7 +111,6 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         InstallFeatureUtil util = getInstallFeatureUtil(new HashSet<String>(), null);
         util.setLowerCaseFeatures(false);
 
-        final boolean optimize = (classFiles == null || classFiles.isEmpty()) ? true : false;
         Set<String> generatedFiles = new HashSet<String>();
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);  
 
@@ -128,7 +127,7 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             Set<String> directories = getClassesDirectories();
             String eeVersion = getEEVersion(project);
             String mpVersion = getMPVersion(project);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion);
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             log.error(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
             return;
