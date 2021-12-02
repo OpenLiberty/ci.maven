@@ -306,8 +306,9 @@ public class StartDebugMojoSupport extends BasicSupport {
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
-        // add null checks ?
-        config.addChild(element(name("optimize"), optimize.toString()).toDom());
+        if (optimize != null) {
+            config.addChild(element(name("optimize"), optimize.toString()).toDom());
+        }
         runLibertyMojo("generate-features", config);
     }
 
