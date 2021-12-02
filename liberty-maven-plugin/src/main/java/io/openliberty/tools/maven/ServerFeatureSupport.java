@@ -23,10 +23,6 @@ public class ServerFeatureSupport extends BasicSupport {
 
     protected class ServerFeatureMojoUtil extends ServerFeatureUtil {
 
-        public ServerFeatureMojoUtil() {
-            super();
-        }
-
         @Override
         public void debug(String msg) {
             log.debug(msg);

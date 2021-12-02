@@ -100,6 +100,18 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             log.debug("Generate features for all class files");
         }
 
+        // TODO add support for env variables
+        // commented out for now as the current logic depends on the server dir existing
+        // and specifying features with env variables is an edge case
+        /* Map<String, File> libertyDirPropertyFiles;
+        try {
+            libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
+        } catch (IOException e) {
+            log.debug("Exception reading the server property files", e);
+            log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
+            return;
+        } */
+
         // TODO: get user specified features that have not yet been installed in the
         // original case they appear in a server config xml document.
         // getSpecifiedFeatures may not return the features in the correct case
@@ -116,7 +128,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
         Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                new HashMap<String,File>() , optimize ? generatedFiles : null);
+                new HashMap<String, File>(), optimize ? generatedFiles : null);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
