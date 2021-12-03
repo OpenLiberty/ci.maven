@@ -366,9 +366,9 @@ public class DevMojo extends StartDebugMojoSupport {
                         classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), Boolean.valueOf(optimize));
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
                 } else {
-                    runLibertyMojoGenerateFeatures(null, Boolean.valueOf(optimize));
+                    runLibertyMojoGenerateFeatures(null, optimize);
                 }
             } catch (MojoExecutionException e) {
                 // TODO: Check to see if all errors from generateFeatures goal end up here
@@ -1091,7 +1091,7 @@ public class DevMojo extends StartDebugMojoSupport {
             runLibertyMojoCreate();
             if (generateFeatures) {
                 // generate features on startup - provide all classes and only user specified features to binary scanner
-                runLibertyMojoGenerateFeatures(null, Boolean.valueOf(true));
+                runLibertyMojoGenerateFeatures(null, true);
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
@@ -1707,7 +1707,7 @@ public class DevMojo extends StartDebugMojoSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, Boolean optimize) throws MojoExecutionException {
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
         super.runLibertyMojoGenerateFeatures(classFiles, optimize);
     }
 
