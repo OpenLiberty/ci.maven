@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -36,10 +39,10 @@ import org.xml.sax.SAXException;
 import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
 import io.openliberty.tools.common.plugins.config.XmlDocument;
 import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
-import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.maven.BasicSupport;
-import io.openliberty.tools.maven.InstallFeatureSupport;
+import io.openliberty.tools.maven.ServerFeatureSupport;
 
 /**
  * This mojo generates the features required in the featureManager element in server.xml.
@@ -48,7 +51,7 @@ import io.openliberty.tools.maven.InstallFeatureSupport;
  * missing feature names and stores them in a new featureManager element in a new XML file.
  */
 @Mojo(name = "generate-features")
-public class GenerateFeaturesMojo extends InstallFeatureSupport {
+public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
     private static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
     protected static final String GENERATED_FEATURES_FILE_PATH = "configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
@@ -71,10 +74,20 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
      */
     @Override
     protected void doExecute() throws Exception {
-        if(!initialize()) {
+        if (skip) {
+            log.info("\nSkipping generate-features goal.\n");
             return;
         }
         generateFeatures();
+    }
+
+    @Override
+    protected void init() throws MojoExecutionException, MojoFailureException {
+        // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
+        // setup as generate features does not require the server to be set up install
+        // dir, wlp dir, outputdir, etc.
+        this.skipServerConfigSetup = true;
+        super.init();
     }
 
     private void generateFeatures() throws PluginExecutionException {
@@ -87,34 +100,39 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
             log.debug("Generate features for all class files");
         }
 
-        Map<String, File> libertyDirPropertyFiles;
+        // TODO add support for env variables
+        // commented out for now as the current logic depends on the server dir existing
+        // and specifying features with env variables is an edge case
+        /* Map<String, File> libertyDirPropertyFiles;
         try {
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
         } catch (IOException e) {
             log.debug("Exception reading the server property files", e);
             log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
-        }
+        } */
+
         // TODO: get user specified features that have not yet been installed in the
         // original case they appear in a server config xml document.
         // getSpecifiedFeatures may not return the features in the correct case
         // Set<String> featuresToInstall = getSpecifiedFeatures(null); 
 
-        // get existing installed server features
-        InstallFeatureUtil util = getInstallFeatureUtil(new HashSet<String>(), null);
-        util.setLowerCaseFeatures(false);
+        // get existing server features from source directory
+        ServerFeatureUtil servUtil = getServerFeatureUtil();
+        servUtil.setLowerCaseFeatures(false);
 
         final boolean optimize = (classFiles == null || classFiles.isEmpty()) ? true : false;
         Set<String> generatedFiles = new HashSet<String>();
-        generatedFiles.add(GENERATED_FEATURES_FILE_NAME);  
+        generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
-        // if optimizing, ignore generated files when passing in existing features to binary scanner
-        Set<String> existingFeatures = util.getServerFeatures(serverDirectory, libertyDirPropertyFiles, optimize ? generatedFiles : null);
+        // if optimizing, ignore generated files when passing in existing features to
+        // binary scanner
+        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
+                new HashMap<String, File>(), optimize ? generatedFiles : null);
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
-        util.setLowerCaseFeatures(true);
-        log.debug("Existing features:" + existingFeatures);
+        servUtil.setLowerCaseFeatures(true);
 
         Set<String> scannedFeatureList = null;
         try {
@@ -148,11 +166,14 @@ public class GenerateFeaturesMojo extends InstallFeatureSupport {
         if (scannedFeatureList != null) {
             missingLibertyFeatures.addAll(scannedFeatureList);
 
-            util.setLowerCaseFeatures(false);
-            // get set of user defined features so they can be omitted from the generated file that will be written
-            Set<String> userDefinedFeatures = optimize ? existingFeatures : util.getServerFeatures(serverDirectory, libertyDirPropertyFiles, generatedFiles);
+            servUtil.setLowerCaseFeatures(false);
+            // get set of user defined features so they can be omitted from the generated
+            // file that will be written
+            Set<String> userDefinedFeatures = optimize ? existingFeatures
+                    : servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
+                            generatedFiles);
             log.debug("User defined features:" + userDefinedFeatures);
-            util.setLowerCaseFeatures(true);
+            servUtil.setLowerCaseFeatures(true);
             if (userDefinedFeatures != null) {
                 missingLibertyFeatures.removeAll(userDefinedFeatures);
             }

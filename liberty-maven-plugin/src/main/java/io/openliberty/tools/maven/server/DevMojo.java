@@ -285,7 +285,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths);
 
-            ServerFeature servUtil = getServerFeatureUtil();
+            ServerFeatureUtil servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
@@ -783,6 +783,9 @@ public class DevMojo extends StartDebugMojoSupport {
                     util.restartServer();
                     return true;
                 } else {
+                    if ((createServer || installFeature) && generateFeatures) {
+                        runLibertyMojoGenerateFeatures(null);
+                    }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
                         runBoostMojo("package");
@@ -790,9 +793,6 @@ public class DevMojo extends StartDebugMojoSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
-                    }
-                    if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures(null);
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -817,7 +817,7 @@ public class DevMojo extends StartDebugMojoSupport {
         @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
-                ServerFeature servUtil = getServerFeatureUtil();
+                ServerFeatureUtil servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
                     features.removeAll(existingFeatures);
@@ -1090,10 +1090,10 @@ public class DevMojo extends StartDebugMojoSupport {
             log.info("Running boost:package");
             runBoostMojo("package");
         } else {
-            runLibertyMojoCreate();
             if (generateFeatures) {
                 runLibertyMojoGenerateFeatures(null);
             }
+            runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
@@ -1591,49 +1591,6 @@ public class DevMojo extends StartDebugMojoSupport {
                 }
             }
         }
-    }
-
-    private static ServerFeature serverFeatureUtil;
-
-    private ServerFeature getServerFeatureUtil() {
-        if (serverFeatureUtil == null) {
-            serverFeatureUtil = new ServerFeature();
-        }
-        return serverFeatureUtil;
-    }
-
-    private class ServerFeature extends ServerFeatureUtil {
-
-        @Override
-        public void debug(String msg) {
-            log.debug(msg);
-        }
-
-        @Override
-        public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
-        }
-
-        @Override
-        public void debug(Throwable e) {
-            log.debug(e);
-        }
-
-        @Override
-        public void warn(String msg) {
-            log.warn(msg);
-        }
-
-        @Override
-        public void info(String msg) {
-            log.info(msg);
-        }
-
-        @Override
-        public void error(String msg, Throwable e) {
-            log.error(msg, e);
-        }
-
     }
 
     /**
