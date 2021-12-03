@@ -47,7 +47,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -67,13 +66,13 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
-import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.maven.ServerFeatureSupport;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
  * Start/Debug server support.
  */
-public class StartDebugMojoSupport extends BasicSupport {
+public class StartDebugMojoSupport extends ServerFeatureSupport {
 
     private static final String LIBERTY_MAVEN_PLUGIN_GROUP_ID = "io.openliberty.tools";
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
