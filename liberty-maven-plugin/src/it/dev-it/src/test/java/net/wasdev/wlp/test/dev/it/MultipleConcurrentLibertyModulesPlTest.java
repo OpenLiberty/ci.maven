@@ -53,7 +53,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
    @Test
    public void multipleLibertyModulesPlTest() throws Exception {
       // Start first project
-      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear1 -am -DdebugPort=7777";
+      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear1 -am -DdebugPort=7777 -DgenerateFeatures=false";
 
       StringBuilder command = new StringBuilder(mavenPluginCommand);
       ProcessBuilder builder = buildProcess(command.toString());
@@ -73,7 +73,7 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       logFile2 = new File(basicDevProj, "logFile2.txt");
       assertTrue(logFile2.createNewFile());
 
-      String mavenPluginCommand2 = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear2 -am -DdebugPort=7778";
+      String mavenPluginCommand2 = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear2 -am -DdebugPort=7778 -DgenerateFeatures=false";
 
       StringBuilder command2 = new StringBuilder(mavenPluginCommand2);
       ProcessBuilder builder2 = buildProcess(command2.toString());
