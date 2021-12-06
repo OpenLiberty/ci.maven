@@ -24,7 +24,7 @@ public class DevRecompileDepsTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass("-DrecompileDependencies=true");
+      setUpBeforeClass("-DrecompileDependencies=true -DgenerateFeatures=false");
    }
 
    @AfterClass
