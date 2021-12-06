@@ -37,7 +37,9 @@
         <module>install-features-pluginlist-it</module>
         <module>install-features-server-already-installed-lowercase-it</module>
         <module>install-features-server-it</module>
-        <module>install-ol-features-no-accept-license-it</module>
+        <module>install-ol-features-no-accept-license-it</module> 
+        <module>prepare-feature-it</module> 
+        <module>install-usr-feature-ext-it</module>
     </modules>
     
     <!-- Profiles for WLP vs OL -->
