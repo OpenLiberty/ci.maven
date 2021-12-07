@@ -182,14 +182,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
 
         if (util == null) {
             Set<String> pluginListedEsas = getPluginListedFeatures(true);
-            List<ProductProperties> propertiesList = null;
-            String openLibertyVersion = null;
-            if (containerName == null) {
-                propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-                openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-            }
-            List<String> additionalJsons = getAdditionalJsonList();
-            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+            util = getInstallFeatureUtil(pluginListedEsas, containerName);
         }
 
         if (util == null && noFeaturesSection) {
@@ -245,7 +238,8 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
             propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
             openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
         }
-        return getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, null);
+        List<String> additionalJsons = getAdditionalJsonList();
+        return getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
     }
 
     /**
