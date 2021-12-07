@@ -887,7 +887,11 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public boolean compile(File dir) {
             log.error("compile dir 5000");
-            Thread.sleep(5000);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException x) {
+
+            }
             try {
                 if (dir.equals(sourceDirectory)) {
                     runCompileMojoLogWarning();
@@ -907,7 +911,11 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public boolean compile(File dir, ProjectModule project) {
             log.error("compile dir, project, 5000");
-            Thread.sleep(5000);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException x) {
+                
+            }
             MavenProject mavenProject = resolveMavenProject(project.getBuildFile());
             try {
                 if (dir.equals(project.getSourceDirectory())) {
