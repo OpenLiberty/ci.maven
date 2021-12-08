@@ -24,6 +24,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +71,7 @@ import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.common.plugins.util.ProjectModule;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
+import io.openliberty.tools.maven.applications.LooseWarApplication;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
@@ -236,6 +238,8 @@ public class DevMojo extends LooseAppSupport {
      */
     @Parameter(property = "keepTempDockerfile", defaultValue = "false")
     private boolean keepTempDockerfile;
+    
+    private boolean isExplodedLooseWarApp = false;
 
     /**
      * Set the container option.
@@ -251,16 +255,12 @@ public class DevMojo extends LooseAppSupport {
     }
 
     protected List<File> getResourceDirectories(MavenProject project, File outputDir) {
-        // resource directories
+    	// Let's just add resources directories unconditionally, the dev util already checks the directories actually exist
+        // before adding them to the watch list.   If we avoid checking here we allow for creating them later on.
         List<File> resourceDirs = new ArrayList<File>();
-        if (outputDir.exists()) {
-            List<Resource> resources = project.getResources();
-            for (Resource resource : resources) {
-                File resourceFile = new File(resource.getDirectory());
-                if (resourceFile.exists()) {
-                    resourceDirs.add(resourceFile);
-                }
-            }
+        for (Resource resource : project.getResources()) {
+            File resourceFile = new File(resource.getDirectory());
+            resourceDirs.add(resourceFile);
         }
         if (resourceDirs.isEmpty()) {
             File defaultResourceDir = new File(project.getBasedir(), "src/main/resources");
@@ -280,14 +280,15 @@ public class DevMojo extends LooseAppSupport {
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, Set<String> compileArtifactPaths, Set<String> testArtifactPaths) throws IOException {
+                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, Set<String> compileArtifactPaths, Set<String> testArtifactPaths, 
+                List<Path> webResourceDirs) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths);
+                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
             ServerFeatureUtil servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -677,6 +678,81 @@ public class DevMojo extends LooseAppSupport {
                         session.getProjectBuildingRequest().setResolveDependencies(true));
             return build.getProject();
         }
+        
+        @Override
+        protected void updateLooseApp() throws PluginExecutionException {
+        	// Only perform operations if we are a war type application
+        	if (project.getPackaging().equals("war")) {
+		    	// Check if we are using an exploded loose app
+		    	if (LooseWarApplication.isExploded(project)) {
+		    		if (!isExplodedLooseWarApp) {
+		    			// The project was previously running with a "non-exploded" loose app.
+		    			// Update this flag and redeploy as an exploded loose app.
+		    			isExplodedLooseWarApp = true;
+		    			
+		    			// Validate maven-war-plugin version
+		    			Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+		            	if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
+		            		log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+		            	}
+		            	
+		    			redeployApp();
+		    		} else {
+		    			try {
+		    				runExplodedMojo();
+		    			} catch (MojoExecutionException e) {
+		    				log.error("Failed to run war:exploded goal", e);
+		    			}
+		    		}
+		    	} else {
+		    		if (isExplodedLooseWarApp) {
+		    			// Dev mode was previously running with an exploded loose war app. The app
+		    			// must have been updated to remove any exploded war capabilities 
+		    			// (filtering, overlay, etc). Update this flag and redeploy.
+		    			isExplodedLooseWarApp = false;
+		    			redeployApp();
+		    		}
+		    	}
+        	}
+        }
+
+        @Override
+        protected void resourceDirectoryCreated() throws IOException {
+            if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
+                try {
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    runExplodedMojo();
+                } catch (MojoExecutionException e) {
+                    log.error("Failed to run goal(s)", e);
+                }
+            } 
+        }
+
+        @Override
+        protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+        	if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
+                try {
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    runExplodedMojo();
+                } catch (MojoExecutionException e) {
+                    log.error("Failed to run goal(s)", e);
+                }
+            } else {
+                copyFile(fileChanged, resourceParent, outputDirectory, null);
+            }
+        }
+
+        @Override
+        protected void resourceDeleted(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+            deleteFile(fileChanged, resourceParent, outputDirectory, null);
+            if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
+                try {
+                    runExplodedMojo();
+                } catch (MojoExecutionException e) {
+                    log.error("Failed to run goal(s)", e);
+                }
+            } 
+        }
 
         @Override
         public boolean recompileBuildFile(File buildFile, Set<String> compileArtifactPaths,
@@ -796,7 +872,7 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        runLibertyMojoDeploy();
+                    	runLibertyMojoDeploy();
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, super.getContainerName());
@@ -1089,8 +1165,24 @@ public class DevMojo extends LooseAppSupport {
             }
             runLibertyMojoDeploy();
         }
+        
+        if (project.getPackaging().equals("war")) {
+            // Check if we are using the exploded loose app functionality and save for checking later on. 
+            isExplodedLooseWarApp = LooseWarApplication.isExploded(project);
+        
+            // Validate maven-war-plugin version
+            if (isExplodedLooseWarApp) {
+        	    Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+        	    if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
+        		    log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+        	    }
+            }
+        }
+        
         // resource directories
         List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
+        
+        List<Path> webResourceDirs = LooseWarApplication.getFilteredWebSourceDirectories(project);
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
@@ -1161,7 +1253,8 @@ public class DevMojo extends LooseAppSupport {
 
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths);
+                settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
+                generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
         util.addShutdownHook(executor);
         util.startServer();
 
