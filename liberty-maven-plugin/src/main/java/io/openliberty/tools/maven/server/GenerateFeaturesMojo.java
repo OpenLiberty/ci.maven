@@ -374,7 +374,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
     public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
         List<Dependency> dependencies = project.getDependencies();
-        int mpVersion = 0;
         for (Dependency d : dependencies) {
             if (!d.getScope().equals("provided")) {
                 continue;
@@ -392,21 +391,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
                 return "mp4"; // add support for future versions of MicroProfile here
             }
-            if (d.getGroupId().equals("io.openliberty.features")) {
-                mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
-                log.debug("dep=io.openliberty.features:"+d.getArtifactId()+" mpVersion="+mpVersion);
-            }
+            // if (d.getGroupId().equals("io.openliberty.features")) {
+            //     mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
+            //     log.debug("dep=io.openliberty.features:"+d.getArtifactId()+" mpVersion="+mpVersion);
+            // }
         }
-        if (mpVersion == 1) {
-            return "mp1";
-        } else if (mpVersion == 2) {
-            return "mp2";
-        } else if (mpVersion == 3) {
-            return "mp3";
-        }
-        return "mp4";
+        return null;
     }
 
+    // logic to map individual deps to MP versions, not currently in use
     public static int getMPVersion(String shortName) {
         final int MP_VERSIONS = 4; // number of version columns in table
         String[][] mpComponents = {
