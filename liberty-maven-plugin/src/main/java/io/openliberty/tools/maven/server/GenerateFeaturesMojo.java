@@ -97,7 +97,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         super.init();
     }
 
-    private void generateFeatures() throws PluginExecutionException {
+    private void generateFeatures() throws PluginExecutionException, MojoExecutionException {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
@@ -147,25 +147,21 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             String mpVersion = getMPVersion(project);
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
-            log.error(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
-            return;
+            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
-                log.error(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             } else {
-                log.error(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             }
-            return;
         } catch (InvocationTargetException x) {
-            // TODO Figure out what to do when there is a problem not caught in runBinaryScanner()
-            log.error("Exception:"+x.getClass().getName());
+            // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
             if (o != null) {
-                log.warn("Caused by exception:"+x.getCause().getClass().getName());
-                log.warn("Caused by exception message:"+x.getCause().getMessage());
+                log.debug("Caused by exception:" + x.getCause().getClass().getName());
+                log.debug("Caused by exception message:" + x.getCause().getMessage());
             }
-            log.error(x.getMessage());
-            return;
+            throw new MojoExecutionException("Failed to generate a working set of features.", x);
         }
 
         Set<String> missingLibertyFeatures = new HashSet<String>();
@@ -201,15 +197,18 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     configDocument.createFeature(missing);
                 }
                 configDocument.writeXMLDocument(newServerXmlSrc);
-                log.debug("Created file "+newServerXmlSrc);
+                log.debug("Created file " + newServerXmlSrc);
                 // Add a reference to this new file in existing server.xml.
                 addGenerationCommentToConfig(doc, serverXml);
 
                 log.info("Generated the following features: " + missingLibertyFeatures);
-            } catch(ParserConfigurationException | TransformerException | IOException e) {
+            } catch (ParserConfigurationException | TransformerException | IOException e) {
                 log.debug("Exception creating the server features file", e);
-                log.error("Error attempting to create the server feature file. Ensure your id has write permission to the server installation directory.");
-                return;
+                throw new MojoExecutionException(
+                        "Automatic generation of features failed. Error attempting to create the "
+                                + GENERATED_FEATURES_FILE_NAME
+                                + ". Ensure your id has write permission to the server configuration directory.",
+                        e);
             }
         } else {
             log.debug("No additional features were generated.");
