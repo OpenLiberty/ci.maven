@@ -70,6 +70,13 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     @Parameter(property = "classFiles")
     private List<String> classFiles;
 
+    /**
+     * If optimize is true, pass all class files and only user specified features to binary scanner
+     * Otherwise, if optimize is false, pass only provided updated class files (if any) and all existing features to binary scanner
+     */
+    @Parameter(property = "optimize", defaultValue = "true")
+    private boolean optimize;
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -96,10 +103,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
+        log.debug("--- Generate Features values ---");
+        log.debug("optimize generate features: " + optimize);
         if (classFiles != null && !classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());
-        } else {
-            log.debug("Generate features for all class files");
         }
 
         // TODO add support for env variables
@@ -123,7 +130,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         ServerFeatureUtil servUtil = getServerFeatureUtil();
         servUtil.setLowerCaseFeatures(false);
 
-        final boolean optimize = (classFiles == null || classFiles.isEmpty()) ? true : false;
         Set<String> generatedFiles = new HashSet<String>();
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
@@ -141,7 +147,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             Set<String> directories = getClassesDirectories();
             String eeVersion = getEEVersion(project);
             String mpVersion = getMPVersion(project);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion);
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             log.error(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
             return;
