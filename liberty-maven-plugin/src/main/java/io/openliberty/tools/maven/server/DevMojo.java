@@ -371,6 +371,7 @@ public class DevMojo extends StartDebugMojoSupport {
                     runLibertyMojoGenerateFeatures(null, optimize);
                 }
             } catch (MojoExecutionException e) {
+                // log as error instead of throwing a PluginExecutionException so we do not flood console with stacktrace
                 log.error(e.getMessage() + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
             }
         }
@@ -1093,8 +1094,8 @@ public class DevMojo extends StartDebugMojoSupport {
                 try {
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
-                    throw new MojoExecutionException(e.getMessage()
-                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.");
+                    log.error("To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.");
+                    throw e;
                 }
             }
             runLibertyMojoCreate();
