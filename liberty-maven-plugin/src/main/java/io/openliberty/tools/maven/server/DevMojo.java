@@ -1094,8 +1094,9 @@ public class DevMojo extends StartDebugMojoSupport {
                 try {
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
-                    log.error("To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.");
-                    throw e;
+                    throw new MojoExecutionException(e.getMessage()
+                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                            e);
                 }
             }
             runLibertyMojoCreate();
