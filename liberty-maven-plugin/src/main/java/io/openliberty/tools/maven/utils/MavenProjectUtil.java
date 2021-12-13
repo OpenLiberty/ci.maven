@@ -61,40 +61,6 @@ public class MavenProjectUtil {
         }
         return null;
     }
-
-    /**
-     * Get directory and targetPath configuration values from the Maven WAR plugin
-     * @param proj the Maven project
-     * @return a Map of source and target directories corresponding to the configuration keys
-     * or null if the war plugin or its webResources or resource elements are not used. 
-     * The map will be empty if the directory element is not used. The value field of the 
-     * map is null when the targetPath element is not used.
-     */
-    public static Map<String,String> getWebResourcesConfiguration(MavenProject proj) {
-        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
-        if (dom != null) {
-            Xpp3Dom web = dom.getChild("webResources");
-            if (web != null) {
-                Xpp3Dom resources[] = web.getChildren("resource");
-                if (resources != null) {
-                    Map<String, String> result = new HashMap<String, String>();
-                    for (int i = 0; i < resources.length; i++) {
-                        Xpp3Dom dir = resources[i].getChild("directory");
-                        if (dir != null) {
-                            Xpp3Dom target = resources[i].getChild("targetPath");
-                            if (target != null) {
-                                result.put(dir.getValue(), target.getValue());
-                            } else {
-                                result.put(dir.getValue(), null);
-                            }
-                        }
-                    }
-                    return result;
-                }
-            }
-        }
-        return null;
-    }
     
     public static String getAppNameClassifier(MavenProject proj) {
         String pluginName = null;

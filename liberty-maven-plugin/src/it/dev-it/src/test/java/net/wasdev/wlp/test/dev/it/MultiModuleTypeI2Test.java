@@ -56,6 +56,8 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
       File targetWarClass = new File(tempProj, "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
       assertFalse(targetWarClass.exists());
 
+      // Wait for dev mode to finish startup and wait longer than compileWait parameter (default = 500 ms)
+      Thread.sleep(1000);
       clearLogFile();
 
       // add a dependency to parent pom and check that it resolves compile errors in
@@ -65,7 +67,7 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
       replaceString("<!-- SUB JAKARTAEE -->",
             "<dependency> <groupId>jakarta.platform</groupId> <artifactId>jakarta.jakartaee-api</artifactId> <version>8.0.0</version> <scope>provided</scope> </dependency>",
             parent2Pom);
-      Thread.sleep(5000); // wait for compilation
+      Thread.sleep(1000); // wait longer than compileWait parameter again just in case.
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation was successful.", 10000));
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
       assertTrue(targetWarClass.exists());

@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,12 +95,12 @@ public class LooseEarApplication extends LooseApplication {
         
         
         // retrieve the directories defined as resources in the maven war plugin
-        Map<String,String> webResources = MavenProjectUtil.getWebResourcesConfiguration(proj);
-        if (webResources != null) {
-            for (String directory : webResources.keySet()) {
-                String targetPath = webResources.get(directory)==null ? "/" : "/"+webResources.get(directory);
-                config.addDir(warArchive, new File(proj.getBasedir().getAbsolutePath(), directory), targetPath);
-            }
+        List<Xpp3Dom> webResources = LooseWarApplication.getWebResourcesConfigurations(proj);
+    	for (Xpp3Dom resource : webResources) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom target = resource.getChild("targetPath");
+            String targetPath = target==null ? "/" : "/"+target.getValue();
+            config.addDir(warArchive, new File(proj.getBasedir().getAbsolutePath(), dir.getValue()), targetPath);
         }
 
         // add Manifest file
