@@ -371,8 +371,8 @@ public class DevMojo extends StartDebugMojoSupport {
                     runLibertyMojoGenerateFeatures(null, optimize);
                 }
             } catch (MojoExecutionException e) {
-                // TODO: Check to see if all errors from generateFeatures goal end up here
-                throw new PluginExecutionException(e);
+                // log as error instead of throwing a PluginExecutionException so we do not flood console with stacktrace
+                log.error(e.getMessage() + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
             }
         }
 
@@ -1089,8 +1089,15 @@ public class DevMojo extends StartDebugMojoSupport {
             runBoostMojo("package");
         } else {
             if (generateFeatures) {
-                // generate features on startup - provide all classes and only user specified features to binary scanner
-                runLibertyMojoGenerateFeatures(null, true);
+                // generate features on startup - provide all classes and only user specified
+                // features to binary scanner
+                try {
+                    runLibertyMojoGenerateFeatures(null, true);
+                } catch (MojoExecutionException e) {
+                    throw new MojoExecutionException(e.getMessage()
+                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                            e);
+                }
             }
             runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
@@ -1660,15 +1667,6 @@ public class DevMojo extends StartDebugMojoSupport {
     }
 
     /**
-     * Executes liberty:generate-features
-     * @throws MojoExecutionException
-     */
-    @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
-    }
-
-    /**
      * Executes liberty:create unless using a container, then just create the
      * necessary server directories
      * 
@@ -1687,5 +1685,15 @@ public class DevMojo extends StartDebugMojoSupport {
         } else {
             super.runLibertyMojoCreate();
         }
+    }
+
+    /**
+     * Executes liberty:generate-features.
+     * 
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
     }
 }
