@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2017, 2019.
+ * (c) Copyright IBM Corporation 2017, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,9 +83,9 @@ public class LooseConfigTestIT {
         assertEquals("Number of <archive/> element ==>", 4, nodes.getLength());
 
         // test runtime scope dependency to be incldued in the ?WEB-INF/lib
-        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-core-2.13.0.jar", 
+        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-core-2.15.0.jar", 
                 nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-api-2.13.0.jar", 
+        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-api-2.15.0.jar", 
                 nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }
