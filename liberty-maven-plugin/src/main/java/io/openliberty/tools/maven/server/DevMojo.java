@@ -362,16 +362,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public void libertyGenerateFeatures() throws PluginExecutionException {
-            try {
-                runLibertyMojoGenerateFeatures(null);
-            } catch (MojoExecutionException e) {
-                throw new PluginExecutionException(e);
-            }
-        }
-
-        @Override
-        public void libertyGenerateFeatures(Collection<String> classes) throws PluginExecutionException {
+        public void libertyGenerateFeatures(Collection<String> classes, boolean optimize) throws PluginExecutionException {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -380,12 +371,13 @@ public class DevMojo extends LooseAppSupport {
                         classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem));
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
                 } else {
-                    runLibertyMojoGenerateFeatures(null);
+                    runLibertyMojoGenerateFeatures(null, optimize);
                 }
             } catch (MojoExecutionException e) {
-                throw new PluginExecutionException(e);
+                // log as error instead of throwing a PluginExecutionException so we do not flood console with stacktrace
+                log.error(e.getMessage() + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
             }
         }
 
@@ -766,6 +758,7 @@ public class DevMojo extends LooseAppSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
+            boolean compileDependenciesChanged = false;
 
             ProjectBuildingResult build;
             try {
@@ -836,6 +829,7 @@ public class DevMojo extends LooseAppSupport {
                     // detect compile dependency changes
                     if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
                         redeployApp = true;
+                        compileDependenciesChanged = true;
                     }
                 }
                 // update classpath for dependencies changes
@@ -863,8 +857,12 @@ public class DevMojo extends LooseAppSupport {
                     util.restartServer();
                     return true;
                 } else {
-                    if ((createServer || installFeature) && generateFeatures) {
-                        runLibertyMojoGenerateFeatures(null);
+                    // TODO: confirm that a call to generate features is required when a build file is modified 
+                    // (ie. changes are not picked up by class file changes)
+                    if (compileDependenciesChanged && generateFeatures) {
+                        // build file change - provide updated classes and all existing features to binary scanner
+                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                        libertyGenerateFeatures(javaSourceClassPaths, false);
                     }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
@@ -884,7 +882,7 @@ public class DevMojo extends LooseAppSupport {
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException e) {
+            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -1154,7 +1152,15 @@ public class DevMojo extends LooseAppSupport {
             runBoostMojo("package");
         } else {
             if (generateFeatures) {
-                runLibertyMojoGenerateFeatures(null);
+                // generate features on startup - provide all classes and only user specified
+                // features to binary scanner
+                try {
+                    runLibertyMojoGenerateFeatures(null, true);
+                } catch (MojoExecutionException e) {
+                    throw new MojoExecutionException(e.getMessage()
+                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                            e);
+                }
             }
             runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
@@ -1741,15 +1747,6 @@ public class DevMojo extends LooseAppSupport {
     }
 
     /**
-     * Executes liberty:generate-features
-     * @throws MojoExecutionException
-     */
-    @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles);
-    }
-
-    /**
      * Executes liberty:create unless using a container, then just create the
      * necessary server directories
      * 
@@ -1768,5 +1765,15 @@ public class DevMojo extends LooseAppSupport {
         } else {
             super.runLibertyMojoCreate();
         }
+    }
+
+    /**
+     * Executes liberty:generate-features.
+     * 
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
     }
 }

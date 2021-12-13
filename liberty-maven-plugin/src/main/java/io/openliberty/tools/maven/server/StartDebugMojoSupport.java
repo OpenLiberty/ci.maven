@@ -339,11 +339,12 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         runLibertyMojo("install-feature", config);   
     }
 
-    protected void runLibertyMojoGenerateFeatures(Element classFiles) throws MojoExecutionException {
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", log);
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
+        config.addChild(element(name("optimize"), Boolean.toString(optimize)).toDom());
         runLibertyMojo("generate-features", config);
     }
 
