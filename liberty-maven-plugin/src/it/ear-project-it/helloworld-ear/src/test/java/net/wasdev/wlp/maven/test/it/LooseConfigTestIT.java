@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class LooseConfigTestIT {
     
