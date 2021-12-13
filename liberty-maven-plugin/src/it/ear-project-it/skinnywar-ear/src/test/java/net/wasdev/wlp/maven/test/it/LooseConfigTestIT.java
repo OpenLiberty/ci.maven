@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Document;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class LooseConfigTestIT {
     
@@ -59,15 +59,13 @@ public class LooseConfigTestIT {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String expression = "/archive/file";
         NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <file/> element ==>", 4, nodes.getLength());
+        assertEquals("Number of <file/> element ==>", 3, nodes.getLength());
         assertEquals("file targetInArchive attribute value", "/META-INF/application.xml", 
                 nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/lib/log4j-core.jar", 
+        assertEquals("file targetInArchive attribute value", "/lib/commons-io.jar", 
                 nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/lib/log4j-api.jar", 
-                nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         assertEquals("file targetInArchive attribute value", "/META-INF/MANIFEST.MF", 
-                nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+                nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         
         expression = "/archive/archive";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);

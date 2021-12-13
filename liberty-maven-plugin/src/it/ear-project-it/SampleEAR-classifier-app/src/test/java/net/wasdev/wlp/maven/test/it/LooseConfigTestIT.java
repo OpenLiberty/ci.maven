@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Document;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class LooseConfigTestIT {
     
@@ -79,13 +79,9 @@ public class LooseConfigTestIT {
         
         expression = "/archive/archive/file";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        // Note: log4j-core also pulls in log4j-api
-        assertEquals("Number of <archive/> element ==>", 4, nodes.getLength());
-
-        // test runtime scope dependency to be incldued in the ?WEB-INF/lib
-        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-core-2.15.0.jar", 
+        assertEquals("Number of <archive/> element ==>", 3, nodes.getLength());
+        // test runtime scope dependency to be included in the ?WEB-INF/lib
+        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/commons-io-2.11.0.jar", 
                 nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/log4j-api-2.15.0.jar", 
-                nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue());
     }
 }
