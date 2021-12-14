@@ -362,7 +362,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public void libertyGenerateFeatures(Collection<String> classes, boolean optimize) throws PluginExecutionException {
+        public boolean libertyGenerateFeatures(Collection<String> classes, boolean optimize) {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -371,13 +371,20 @@ public class DevMojo extends LooseAppSupport {
                         classesElem[i] = element(name("classFile"), classPath);
                         i++;
                     }
+                    // generate features for only the classFiles passed
                     runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
                 } else {
+                    // pass null for classFiles so that features are generated for ALL of the
+                    // classes
                     runLibertyMojoGenerateFeatures(null, optimize);
                 }
+                return true; // successfully generated features
             } catch (MojoExecutionException e) {
-                // log as error instead of throwing a PluginExecutionException so we do not flood console with stacktrace
-                log.error(e.getMessage() + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
+                // log as error instead of throwing an exception so we do not flood console with
+                // stacktrace
+                log.error(e.getMessage()
+                        + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
+                return false;
             }
         }
 
