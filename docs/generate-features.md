@@ -2,7 +2,7 @@
 ---
 Scan the class files of your application and create a file containing the Liberty `features` that it requires.
 
-Available in the 3.5.2-SNAPSHOT.
+This goal is available as a tech preview in the 3.5.2-SNAPSHOT. Please provide feedback by opening an issue at https://github.com/OpenLiberty/ci.maven.
 
 This goal will scan the class files of your application so you should run it after you have run the compile goal. If the goal detects features which are not already in the Liberty configuration it will create the file `configDropins/overrides/generated-features.xml`. The goal will add the necessary features which are not already in the configuration.
 
