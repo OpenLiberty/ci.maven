@@ -34,6 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -63,7 +64,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     protected static final String NO_NEW_FEATURES_COMMENT = "No additional features generated";
 
     private static final String BINARY_SCANNER_MAVEN_GROUP_ID = "com.ibm.websphere.appmod.tools";
-    private static final String BINARY_SCANNER_MAVEN_ARTIFACT_ID = "binary-app-scanner";
+    private static final String BINARY_SCANNER_MAVEN_ARTIFACT_ID = "binary-app-scanner-test";
     private static final String BINARY_SCANNER_MAVEN_TYPE = "jar";
     private static final String BINARY_SCANNER_MAVEN_VERSION = "[21.0.0.4-SNAPSHOT,)";
 
@@ -101,7 +102,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         super.init();
     }
 
-    private void generateFeatures() throws PluginExecutionException, MojoExecutionException {
+    /**
+     * Generates features for the application given the API usage detected and
+     * taking any user specified features into account
+     * 
+     * @throws MojoExecutionException
+     * @throws PluginExecutionException indicates the binary-app-scanner.jar could
+     *                                  not be found
+     */
+    private void generateFeatures() throws MojoExecutionException, PluginExecutionException {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
@@ -243,7 +252,12 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         try {
             return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION).getFile();
         } catch (Exception e) {
-            throw new PluginExecutionException("Could not retrieve the binary scanner jar. Ensure you have a connection to Maven Central or another repository that contains the jar configured in your pom.xml", e);
+            throw new PluginExecutionException("Could not retrieve the artifact " + BINARY_SCANNER_MAVEN_GROUP_ID + "."
+                    + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+                    + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
+                    + BINARY_SCANNER_MAVEN_GROUP_ID + "." + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+                    + ".jar configured in your pom.xml",
+                    e);
         }
     }
 

@@ -59,6 +59,8 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionResolutionException;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -380,10 +382,16 @@ public class DevMojo extends LooseAppSupport {
                 }
                 return true; // successfully generated features
             } catch (MojoExecutionException e) {
-                // log as error instead of throwing an exception so we do not flood console with
+                // log errors instead of throwing an exception so we do not flood console with
                 // stacktrace
-                log.error(e.getMessage()
-                        + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
+                if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
+                    // PluginExecutionException indicates that the binary scanner jar could not be found
+                    log.error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                    setFeatureGeneration(false);
+                } else {
+                    log.error(e.getMessage()
+                    + ".\nTo disable the automatic generation of features, type 'g' and press Enter.");
+                }
                 return false;
             }
         }
@@ -1164,9 +1172,15 @@ public class DevMojo extends LooseAppSupport {
                 try {
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
-                    throw new MojoExecutionException(e.getMessage()
-                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
-                            e);
+                    if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
+                        // PluginExecutionException indicates that the binary scanner jar could not be found
+                        log.error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                        generateFeatures = false;
+                    } else {
+                        throw new MojoExecutionException(e.getMessage()
+                        + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                        e);
+                    }
                 }
             }
             runLibertyMojoCreate();
