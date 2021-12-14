@@ -158,14 +158,14 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             } else {
                 throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             }
-        } catch (InvocationTargetException x) {
+        } catch (InvocationTargetException | PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
             if (o != null) {
                 log.debug("Caused by exception:" + x.getCause().getClass().getName());
                 log.debug("Caused by exception message:" + x.getCause().getMessage());
             }
-            throw new MojoExecutionException("Failed to generate a working set of features.", x);
+            throw new MojoExecutionException("Failed to generate a working set of features. " + x.getMessage(), x);
         }
 
         Set<String> missingLibertyFeatures = new HashSet<String>();
