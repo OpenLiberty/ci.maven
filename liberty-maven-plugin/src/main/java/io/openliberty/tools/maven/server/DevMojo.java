@@ -59,8 +59,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.aether.resolution.VersionRangeResolutionException;
-import org.eclipse.aether.resolution.VersionResolutionException;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
