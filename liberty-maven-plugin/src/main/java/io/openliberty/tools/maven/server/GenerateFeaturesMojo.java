@@ -361,6 +361,8 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     return "ee8";
                 } else if (d.getVersion().startsWith("7.")) {
                     return "ee7";
+                } else if (d.getVersion().startsWith("6.")) {
+                    return "ee6";
                 }
             } else if (d.getGroupId().equals("jakarta.platform") &&
                     d.getArtifactId().equals("jakarta.jakartaee-api") &&
