@@ -356,22 +356,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 continue;
             }
             log.debug("getEEVersion, dep="+d.getGroupId()+":"+d.getArtifactId()+":"+d.getVersion());
-            if (d.getGroupId().equals("io.openliberty.features")) {
-                String id = d.getArtifactId();
-                if (id.equals("javaee-7.0")) {
+            if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
+                if (d.getVersion().startsWith("8.")) {
+                    return "ee8";
+                } else if (d.getVersion().startsWith("7.")) {
                     return "ee7";
-                } else if (id.equals("javaee-8.0")) {
-                    return "ee8";
-                } else if (id.equals("javaeeClient-7.0")) {
-                    return "ee7";
-                } else if (id.equals("javaeeClient-8.0")) {
-                    return "ee8";
-                } else if (id.equals("jakartaee-8.0")) {
-                    return "ee8";
                 }
             } else if (d.getGroupId().equals("jakarta.platform") &&
                     d.getArtifactId().equals("jakarta.jakartaee-api") &&
-                    d.getVersion().equals("8.0.0")) {
+                    d.getVersion().startsWith("8.")) {
                 return "ee8";
             }
         }
