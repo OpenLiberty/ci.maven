@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -101,7 +100,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         super.init();
     }
 
-    private void generateFeatures() throws PluginExecutionException, MojoExecutionException {
+    /**
+     * Generates features for the application given the API usage detected and
+     * taking any user specified features into account
+     * 
+     * @throws MojoExecutionException
+     * @throws PluginExecutionException indicates the binary-app-scanner.jar could
+     *                                  not be found
+     */
+    private void generateFeatures() throws MojoExecutionException, PluginExecutionException {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
@@ -243,7 +250,12 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         try {
             return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION).getFile();
         } catch (Exception e) {
-            throw new PluginExecutionException("Could not retrieve the binary scanner jar. Ensure you have a connection to Maven Central or another repository that contains the jar configured in your pom.xml", e);
+            throw new PluginExecutionException("Could not retrieve the artifact " + BINARY_SCANNER_MAVEN_GROUP_ID + "."
+                    + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+                    + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
+                    + BINARY_SCANNER_MAVEN_GROUP_ID + "." + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+                    + ".jar configured in your pom.xml",
+                    e);
         }
     }
 
