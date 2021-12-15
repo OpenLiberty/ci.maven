@@ -59,6 +59,8 @@ public class BasicSupport extends AbstractLibertySupport {
 
     protected boolean defaultOutputDirSet = false;
 
+    protected boolean skipServerConfigSetup = false;
+
     /**
      * Skips the specific goal
      */
@@ -95,6 +97,12 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(property = "serverName", defaultValue = "defaultServer")
     protected String serverName = null;
+
+    /**
+     * Location of customized configuration file server.xml in devmode
+     */
+    @Parameter(alias="configFile", property = "serverXmlFile")
+    protected File serverXmlFile;
     
     /**
      * Liberty user directory (<tT>WLP_USER_DIR</tt>).
@@ -192,9 +200,12 @@ public class BasicSupport extends AbstractLibertySupport {
     protected void init() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             return;
-        }        
+        }
         super.init();
 
+        if (skipServerConfigSetup) {
+            return;
+        }
         try {
             // First check if installDirectory is set, if it is, then we can skip this
             if (installDirectory != null) {

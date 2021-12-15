@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2020.
+ * (C) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,6 +230,11 @@ public class ExecuteMojoUtil {
         INSTALL_FEATURE_PARAMS.addAll(LIBERTY_COMMON_PARAMS);
     }
 
+    private static final ArrayList<String> GENERATE_FEATURES_PARAMS;
+    static {
+        GENERATE_FEATURES_PARAMS = LIBERTY_COMMON_PARAMS;
+    }
+
     private static final Map<String, String> LIBERTY_ALIAS_MAP;
     static {
         Map<String, String>tempMap = new HashMap<String, String>();
@@ -303,6 +308,10 @@ public class ExecuteMojoUtil {
         case "liberty-maven-plugin:install-feature":
             config = convertLibertyAlias(config);
             goalConfig = stripConfigElements(config, INSTALL_FEATURE_PARAMS);
+            break;
+        case "liberty-maven-plugin:generate-features":
+            config = convertLibertyAlias(config);
+            goalConfig = stripConfigElements(config, GENERATE_FEATURES_PARAMS);
             break;
         case "maven-compiler-plugin:compile":
             goalConfig = stripConfigElements(config, COMPILE_PARAMS);

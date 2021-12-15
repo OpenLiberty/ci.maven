@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019.
+ * (c) Copyright IBM Corporation 2019, 2021.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
 
 public class DevTest extends BaseDevTest {
 
@@ -141,7 +143,7 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 2000));
+      // assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 2000));
 
       writer.write("\n");
       writer.flush();
@@ -208,4 +210,60 @@ public class DevTest extends BaseDevTest {
       assertTrue(systemHealthTarget.exists());
    }
 
+   // TODO @Test
+   public void generateFeatureTest() throws Exception {
+
+      final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
+      final String SERVER_XML_COMMENT = "Plugin has generated Liberty features"; // the explanation added to server.xml
+      // TODO final String NEW_FILE_INFO_MESSAGE = "Some message"; // the explanation added to the generated features file
+
+      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
+      assertFalse(verifyLogMessageExists("batch-1.0", 10000));
+
+      File newFeatureFile = new File(tempProj, "/src/main/liberty/config/configDropins/overrides/"+GENERATED_FEATURES_FILE_NAME);
+      File newTargetFeatureFile = new File(targetDir, "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"+GENERATED_FEATURES_FILE_NAME);
+      File serverXmlFile = new File(tempProj, "/src/main/liberty/config/server.xml");
+      assertTrue(serverXmlFile.exists());
+
+      // Copy a Java file into place to create the HelloBatch class
+      File helloBatchRes = new File("../resources/HelloBatch.java");
+      assertTrue(helloBatchRes.exists());
+      File helloBatchSrc = new File(tempProj, "/src/main/java/com/demo/HelloBatch.java");
+      FileUtils.copyFile(helloBatchRes, helloBatchSrc);
+      assertTrue(helloBatchSrc.exists());
+
+      // Dev mode should now compile the new Java file...
+      File helloBatchObj = new File(tempProj, "target/classes/com/demo/HelloBatch.class");
+      verifyFileExists(newTargetFeatureFile, 15000);
+      // ... and run the proper mojo.
+      assertTrue(verifyLogMessageExists("Running liberty:generate-features", 10000)); // mojo ran
+      assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
+      assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // mojo copied file
+      assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile));
+      // TODO assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newFeatureFile));
+      assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
+      assertTrue(verifyLogMessageExists("batch-1.0", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
+   }
+
+   @Test
+   public void mpVersionTest() throws Exception {
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpHealth-2.0"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.3"), 2);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpconfig-1.4"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.1"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.2"), 2);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.3"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.4"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.0"), 1);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.1"), 3);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mpjwt-1.2"), 4);
+      // Error testing
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclientX-1.5"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient1.5"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-1.5a"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-10"), 0);
+      assertEquals(GenerateFeaturesMojo.getMPVersion("Xmprestclient-1.0"), 0);
+   }
 }

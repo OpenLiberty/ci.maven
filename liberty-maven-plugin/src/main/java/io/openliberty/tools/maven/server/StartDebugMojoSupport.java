@@ -48,7 +48,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
@@ -63,21 +62,20 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.FilterSet;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.config.ServerConfigDropinXmlDocument;
-import io.openliberty.tools.maven.BasicSupport;
+import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
+import io.openliberty.tools.maven.ServerFeatureSupport;
 import io.openliberty.tools.maven.applications.LooseWarApplication;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
  * Start/Debug server support.
  */
-public class StartDebugMojoSupport extends BasicSupport {
+public class StartDebugMojoSupport extends ServerFeatureSupport {
 
     private static final String LIBERTY_MAVEN_PLUGIN_GROUP_ID = "io.openliberty.tools";
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
@@ -107,12 +105,6 @@ public class StartDebugMojoSupport extends BasicSupport {
      */
     @Parameter
     protected CopyDependencies copyDependencies;
-
-    /**
-     * Location of customized configuration file server.xml
-     */
-    @Parameter(alias="configFile", property = "serverXmlFile")
-    protected File serverXmlFile;
 
     /**
      * Location of bootstrap.properties file.
@@ -337,7 +329,7 @@ public class StartDebugMojoSupport extends BasicSupport {
     }
 
     protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);;
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);
         if (features != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
         }
@@ -345,6 +337,15 @@ public class StartDebugMojoSupport extends BasicSupport {
             config.addChild(element(name("containerName"), containerName).toDom());
         }
         runLibertyMojo("install-feature", config);   
+    }
+
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", log);
+        if (classFiles != null) {
+            config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
+        }
+        config.addChild(element(name("optimize"), Boolean.toString(optimize)).toDom());
+        runLibertyMojo("generate-features", config);
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
@@ -886,7 +887,7 @@ public class StartDebugMojoSupport extends BasicSupport {
 
     private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, TransformerException, ParserConfigurationException {
 
-        ServerConfigDropinXmlDocument configDocument = ServerConfigDropinXmlDocument.newInstance();
+        ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
 
         configDocument.createComment(HEADER);
 

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +112,9 @@ public class DevMojo extends LooseAppSupport {
 
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
+
+    @Parameter(property = "generateFeatures", defaultValue = "true")
+    private boolean generateFeatures;
 
     /**
      * Whether to recompile dependencies. Defaults to false for single module
@@ -276,18 +280,17 @@ public class DevMojo extends LooseAppSupport {
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                File pom, Map<String, List<String>> parentPoms, Set<String> compileArtifactPaths, Set<String> testArtifactPaths, 
+                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, Set<String> compileArtifactPaths, Set<String> testArtifactPaths, 
                 List<Path> webResourceDirs) throws IOException {
-        	
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
-            ServerFeature servUtil = getServerFeatureUtil();
+            ServerFeatureUtil servUtil = getServerFeatureUtil();
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
@@ -355,6 +358,33 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (MojoExecutionException | ProjectBuildingException e) {
                 throw new PluginExecutionException(e);
+            }
+        }
+
+        @Override
+        public boolean libertyGenerateFeatures(Collection<String> classes, boolean optimize) {
+            try {
+                if (classes != null) {
+                    Element[] classesElem = new Element[classes.size()];
+                    int i = 0;
+                    for (String classPath : classes) {
+                        classesElem[i] = element(name("classFile"), classPath);
+                        i++;
+                    }
+                    // generate features for only the classFiles passed
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
+                } else {
+                    // pass null for classFiles so that features are generated for ALL of the
+                    // classes
+                    runLibertyMojoGenerateFeatures(null, optimize);
+                }
+                return true; // successfully generated features
+            } catch (MojoExecutionException e) {
+                // log as error instead of throwing an exception so we do not flood console with
+                // stacktrace
+                log.error(e.getMessage()
+                        + ".\n To disable the automatic generation of features, type 'g' and press Enter.");
+                return false;
             }
         }
 
@@ -735,6 +765,7 @@ public class DevMojo extends LooseAppSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
+            boolean compileDependenciesChanged = false;
 
             ProjectBuildingResult build;
             try {
@@ -805,6 +836,7 @@ public class DevMojo extends LooseAppSupport {
                     // detect compile dependency changes
                     if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
                         redeployApp = true;
+                        compileDependenciesChanged = true;
                     }
                 }
                 // update classpath for dependencies changes
@@ -825,12 +857,20 @@ public class DevMojo extends LooseAppSupport {
                 if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
+                    // - generate the missing features
                     // - install feature
                     // - deploy app
                     // - start server
                     util.restartServer();
                     return true;
                 } else {
+                    // TODO: confirm that a call to generate features is required when a build file is modified 
+                    // (ie. changes are not picked up by class file changes)
+                    if (compileDependenciesChanged && generateFeatures) {
+                        // build file change - provide updated classes and all existing features to binary scanner
+                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                        libertyGenerateFeatures(javaSourceClassPaths, false);
+                    }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
                         runBoostMojo("package");
@@ -845,12 +885,11 @@ public class DevMojo extends LooseAppSupport {
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
-                    // updated
-                    // project set in the session
+                    // updated project set in the session
                     log.debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException e) {
+            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 log.debug(e);
                 project = backupProject;
@@ -863,7 +902,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void checkConfigFile(File configFile, File serverDir) {
             try {
-                ServerFeature servUtil = getServerFeatureUtil();
+                ServerFeatureUtil servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
                     features.removeAll(existingFeatures);
@@ -1119,6 +1158,17 @@ public class DevMojo extends LooseAppSupport {
             log.info("Running boost:package");
             runBoostMojo("package");
         } else {
+            if (generateFeatures) {
+                // generate features on startup - provide all classes and only user specified
+                // features to binary scanner
+                try {
+                    runLibertyMojoGenerateFeatures(null, true);
+                } catch (MojoExecutionException e) {
+                    throw new MojoExecutionException(e.getMessage()
+                            + ". To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                            e);
+                }
+            }
             runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
@@ -1217,7 +1267,7 @@ public class DevMojo extends LooseAppSupport {
         util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                 configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                 settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
         util.addShutdownHook(executor);
         util.startServer();
 
@@ -1636,49 +1686,6 @@ public class DevMojo extends LooseAppSupport {
         }
     }
 
-    private static ServerFeature serverFeatureUtil;
-
-    private ServerFeature getServerFeatureUtil() {
-        if (serverFeatureUtil == null) {
-            serverFeatureUtil = new ServerFeature();
-        }
-        return serverFeatureUtil;
-    }
-
-    private class ServerFeature extends ServerFeatureUtil {
-
-        @Override
-        public void debug(String msg) {
-            log.debug(msg);
-        }
-
-        @Override
-        public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
-        }
-
-        @Override
-        public void debug(Throwable e) {
-            log.debug(e);
-        }
-
-        @Override
-        public void warn(String msg) {
-            log.warn(msg);
-        }
-
-        @Override
-        public void info(String msg) {
-            log.info(msg);
-        }
-
-        @Override
-        public void error(String msg, Throwable e) {
-            log.error(msg, e);
-        }
-
-    }
-
     /**
      * Executes Maven goal passed but sets failOnError to false All errors are
      * logged as warning messages
@@ -1765,5 +1772,15 @@ public class DevMojo extends LooseAppSupport {
         } else {
             super.runLibertyMojoCreate();
         }
+    }
+
+    /**
+     * Executes liberty:generate-features.
+     * 
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
     }
 }

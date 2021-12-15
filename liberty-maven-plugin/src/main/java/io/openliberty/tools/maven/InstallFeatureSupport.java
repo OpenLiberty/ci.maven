@@ -32,7 +32,7 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProper
 import io.openliberty.tools.maven.server.types.Features;
 
 
-public class InstallFeatureSupport extends BasicSupport {
+public class InstallFeatureSupport extends ServerFeatureSupport {
 
     /**
      * Define a set of features to install in the server and the configuration
@@ -41,7 +41,7 @@ public class InstallFeatureSupport extends BasicSupport {
     @Parameter
     protected Features features;
 
-    public boolean noFeaturesSection;
+    public boolean noFeaturesSection = false;
 
     public boolean installFromAnt;
 
@@ -182,14 +182,7 @@ public class InstallFeatureSupport extends BasicSupport {
 
         if (util == null) {
             Set<String> pluginListedEsas = getPluginListedFeatures(true);
-            List<ProductProperties> propertiesList = null;
-            String openLibertyVersion = null;
-            if (containerName == null) {
-                propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-                openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-            }
-            List<String> additionalJsons = getAdditionalJsonList();
-            createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+            util = getInstallFeatureUtil(pluginListedEsas, containerName);
         }
 
         if (util == null && noFeaturesSection) {
@@ -234,6 +227,25 @@ public class InstallFeatureSupport extends BasicSupport {
      * Get a new instance of InstallFeatureUtil
      * 
      * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
+     * @param containerName The container name if the features should be installed in a container. Otherwise null.
+     * @return instance of InstallFeatureUtil
+     */
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, String containerName)
+            throws PluginExecutionException {
+        List<ProductProperties> propertiesList = null;
+        String openLibertyVersion = null;
+        if (containerName == null) {
+            propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+            openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+        }
+        List<String> additionalJsons = getAdditionalJsonList();
+        return getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+    }
+
+    /**
+     * Get a new instance of InstallFeatureUtil
+     * 
+     * @param pluginListedEsas The list of ESAs specified in the plugin configuration, or null if not specified
      * @param propertiesList The list of product properties installed with the Open Liberty runtime
      * @param openLibertyVersion The version of the Open Liberty runtime
      * @param containerName The container name if the features should be installed in a container. Otherwise null.
@@ -244,5 +256,5 @@ public class InstallFeatureSupport extends BasicSupport {
         createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         return util;
     }
-    
+
 }
