@@ -20,7 +20,7 @@ For Java EE the goal looks for group ID `javax`, the artifact ID `javaee-api` an
 
 For MicroProfile it looks for group ID `org.eclipse.microprofile` and artifact ID `microprofile` and generates features according to the version number. The goal uses these compile dependencies to determine the best Liberty features to use with your application. 
 
-The goal also considers the features you have already specified in `server.xml` or other files that Liberty will use (e.g. `include` elements and `configDropins` files). The goal will attempt to find a set of features that are valid to work together.
+The goal also considers the features you have already specified in `server.xml` or other files that Liberty will use (e.g. `include` elements and `configDropins` files). The goal will attempt to find a working set of features that are compatible with each other.
 
 If there are conflicts with features specified in Liberty configuration files or features used in the application code, the goal will print an error message. If available, the goal will also print a list of suggested features with no conflicts.
 
