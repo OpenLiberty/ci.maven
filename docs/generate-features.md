@@ -31,11 +31,17 @@ Limitations
 * if you use the `serverXmlFile` parameter and specify a file not in the directory `src/main/liberty/config` and that file uses relative paths to include other files, any features in those files will not be considered in generation
 * for the snapshot release any features accessed using property variables e.g. `${custom.key}/configFile.xml` are not considered in generation
 
-For the snapshot release you must include the Sonatype repository in `pom.xml`:
+For the snapshot release you must include the Sonatype repository in `pom.xml` for the plugin and its dependencies:
 ```xml
+    <pluginRepositories>
+      <pluginRepository>
+        <id>sonatypep</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </pluginRepository>
+    </pluginRepositories>
     <repositories>
       <repository>
-        <id>anyID</id>
+        <id>sonatype</id>
         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       </repository>
     </repositories>
