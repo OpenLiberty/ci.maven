@@ -877,7 +877,6 @@ public class DevMojo extends LooseAppSupport {
                     if (compileDependenciesChanged && generateFeatures) {
                         // build file change - provide updated classes and all existing features to binary scanner
                         Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                        log.debug("1322: Calling libertyGenerateFeatures from DevUtil line 879");
                         libertyGenerateFeatures(javaSourceClassPaths, false);
                     }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
@@ -889,7 +888,6 @@ public class DevMojo extends LooseAppSupport {
                     	runLibertyMojoDeploy();
                     }
                     if (installFeature) {
-                        log.debug("1322: Calling runLibertyMojoInstallFeature from DevUtil line 890");
                         runLibertyMojoInstallFeature(null, super.getContainerName());
                     }
                 }
@@ -924,7 +922,6 @@ public class DevMojo extends LooseAppSupport {
                         for (int i = 0; i < features.size(); i++) {
                             featureElems[i + 1] = element(name("feature"), values[i]);
                         }
-                        log.debug("1322: Calling runLibertyMojoInstallFeature from DevUtil line 925");
                         runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
                         this.existingFeatures.addAll(features);
                     }
@@ -1173,7 +1170,6 @@ public class DevMojo extends LooseAppSupport {
                 // generate features on startup - provide all classes and only user specified
                 // features to binary scanner
                 try {
-                    log.debug("1322: Calling libertyGenerateFeatures from DevUtil line 1175");
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
                     if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
@@ -1192,7 +1188,6 @@ public class DevMojo extends LooseAppSupport {
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
             if (!container) {
-                log.debug("1322: Calling runLibertyMojoInstallFeature from DevUtil line 1192");
                 runLibertyMojoInstallFeature(null, null);
             }
             runLibertyMojoDeploy();
