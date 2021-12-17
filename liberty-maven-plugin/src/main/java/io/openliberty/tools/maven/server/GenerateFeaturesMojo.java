@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,6 +110,27 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      *                                  not be found
      */
     private void generateFeatures() throws MojoExecutionException, PluginExecutionException {
+        // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
+        // then skip generate-features on this module
+        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        List<MavenProject> upstreamProjects = new ArrayList<MavenProject>();
+        if (graph != null) {
+            checkMultiModuleConflicts(graph);
+            List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
+            if (!downstreamProjects.isEmpty()) {
+                log.debug("Downstream projects: " + downstreamProjects);
+                return;
+            } else {
+                // get all upstream projects
+                upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
+            }
+
+            if (containsPreviousLibertyModule(graph)) {
+                // skip this module
+                return;
+            }
+        }
+
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
@@ -153,7 +175,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
         Set<String> scannedFeatureList = null;
         try {
-            Set<String> directories = getClassesDirectories();
+            Set<String> directories = getClassesDirectories(upstreamProjects);
             String eeVersion = getEEVersion(project);
             String mpVersion = getMPVersion(project);
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
@@ -322,27 +344,28 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         return;
     }
 
-    // Return a list containing the classes directory of the current project and any upstream module projects
-    private Set<String> getClassesDirectories() {
+    // Return a list containing the classes directory of the current project and any
+    // upstream module projects
+    private Set<String> getClassesDirectories(List<MavenProject> upstreamProjects) throws MojoExecutionException {
         Set<String> dirs = new HashSet<String>();
         String classesDirName = null;
-        // First check the Java build output directory (target/classes) for the current project
+        // First check the Java build output directory (target/classes) for the current
+        // project
         classesDirName = getClassesDirectory(project.getBuild().getOutputDirectory());
         if (classesDirName != null) {
             dirs.add(classesDirName);
         }
-
-        // Use graph to find upstream projects and look for classes directories. Some projects have no Java.
-        ProjectDependencyGraph graph = session.getProjectDependencyGraph();
-        List<MavenProject> upstreamProjects = graph.getUpstreamProjects(project, true);
-        log.debug("For binary scanner gathering Java build output directories for upstream projects, size=" + upstreamProjects.size());
+        log.debug("For binary scanner gathering Java build output directories for upstream projects, size="
+                + upstreamProjects.size());
         for (MavenProject upstreamProject : upstreamProjects) {
             classesDirName = getClassesDirectory(upstreamProject.getBuild().getOutputDirectory());
             if (classesDirName != null) {
                 dirs.add(classesDirName);
             }
         }
-        for (String s : dirs) {log.debug("Found dir:"+s);};
+        for (String s : dirs) {
+            log.debug("Found dir:" + s);
+        }
         return dirs;
     }
 
@@ -498,4 +521,5 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             log.info(msg);
         }
     }
+
 }
