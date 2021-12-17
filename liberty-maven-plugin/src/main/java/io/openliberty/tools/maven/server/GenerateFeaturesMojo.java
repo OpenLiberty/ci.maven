@@ -439,7 +439,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     public static int getMPVersion(String shortName) {
         final int MP_VERSIONS = 4; // number of version columns in table
         String[][] mpComponents = {
-            // Name, MP1 version, MP2 version, MP3 version
+            // Name, MP1 version, MP2 version, MP3 version, MP4 version
             { "mpconfig", "1.3", "1.3", "1.4", "2.0" },
             { "mpfaulttolerance", "1.1", "2.0", "2.1", "3.0" },
             { "mphealth", "1.0", "1.0", "2.2", "3.0" },

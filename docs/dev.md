@@ -4,6 +4,8 @@
 
 Start a Liberty server in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.
 
+N.B. starting in the tech preview 3.5.2-SNAPSHOT, dev mode also invokes `generate-features`. See [generate-features](generate-features.md) for details.
+
 To start the server in a container, see the [devc](#devc-container-mode) section below. 
 
 ###### Console Actions
