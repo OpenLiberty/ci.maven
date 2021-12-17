@@ -8,7 +8,7 @@ This feature is best accessed through dev mode. When you start up `liberty:dev` 
 
 If you need to disable feature generation, you can use the parameter `-DgenerateFeatures=false`.
 
-Lifecycle
+##### Lifecycle
 
 This goal is not part of the Maven lifecycle, so to use it in your build you will need to understand its dependencies. Since it will scan the class files of your application, it must be run after the `compile` goal. The list of features that it generates will be used by the `liberty:create` and the `liberty:install-feature` goals, so run this goal first.
 
@@ -24,7 +24,7 @@ The goal also considers the features you have already specified in `server.xml` 
 
 If there are conflicts with features specified in Liberty configuration files or features used in the application code, the goal will print an error message. If available, the goal will also print a list of suggested features with no conflicts.
 
-Tech Preview Limitations
+##### Tech Preview Limitations
 
 * For MicroProfile, this goal will generate the latest features available in a given major release (e.g. even if you specify `org.eclipse.microprofile:microprofile:3.2` and you use mpHealth APIs, this goal will generate the feature `mpHealth-2.2`, which is the latest version available for MicroProfile 3.x)
 * Jakarta version 9 is not supported at this time
@@ -47,7 +47,7 @@ For the tech preview snapshot, you must include the Sonatype repository in `pom.
     </repositories>
 ```
 
-Example (outside of dev mode):
+##### Example (outside of dev mode):
 
 Compile the application code and generate Liberty features.
 * `mvn compile liberty:generate-features`
