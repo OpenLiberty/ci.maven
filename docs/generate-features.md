@@ -2,15 +2,7 @@
 ---
 Scan the class files of your application and create a new Liberty configuration file containing the features your application requires.
 
-This goal is available as a tech preview in the 3.5.2-SNAPSHOT. 
-```xml
-<plugin>
-    <groupId>io.openliberty.tools</groupId>
-    <artifactId>liberty-maven-plugin</artifactId>
-    <version>3.5.2-SNAPSHOT</version>
-</plugin>
-```
-Please provide feedback by opening an issue at https://github.com/OpenLiberty/ci.maven.
+This goal is available as a tech preview in the 3.5.2-SNAPSHOT. Please provide feedback by opening an issue at https://github.com/OpenLiberty/ci.maven.
 
 This feature is best accessed through dev mode. When you start up `liberty:dev` it will compile your application and scan the files to verify that all the required Liberty features are part of your configuration. Then as you work, dev mode will continue to monitor the project to confirm the Liberty features are up to date. If you implement a new interface in Java, the scanner will determine if that API is connected to a Liberty feature, then update the configuration and install the feature. If you remove a feature from `server.xml`, dev mode will determine if that feature is actually necessary, and if so, add it to the configuration file as described below. For this snapshot you need to add the Sonatype repository to `pom.xml` (shown below), but in the future all the dependencies will be in Maven Central.
 
@@ -54,7 +46,13 @@ For the tech preview snapshot, you must include the Sonatype repository in `pom.
       </repository>
     </repositories>
 ```
-
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <version>3.5.2-SNAPSHOT</version>
+</plugin>
+```
 ##### Example (outside of dev mode):
 
 Compile the application code and generate Liberty features.
