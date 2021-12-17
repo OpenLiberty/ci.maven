@@ -16,7 +16,7 @@ If this goal detects Liberty features used in your project but not present in yo
 
 The goal examines the `pom.xml` dependencies to determine what version of Java EE and what version of MicroProfile you may be using. It will then generate features which are compatible. 
 
-For Java EE the goal looks for group ID `javax`, the artifact ID `javaee-api` and versions `6.0`, `7.0` or `8.0`. For Jakarta the goal looks for group ID `jakarta.platform`, the artifact ID `jakarta.jakartaee-api` and version `8.0`.
+For Java EE the goal looks for group ID `javax`, the artifact ID `javaee-api` and versions `6.0`, `7.0` or `8.0`. For Jakarta EE the goal looks for group ID `jakarta.platform`, the artifact ID `jakarta.jakartaee-api` and version `8.0`.
 
 For MicroProfile it looks for group ID `org.eclipse.microprofile` and artifact ID `microprofile` and generates features according to the version number. The goal uses these compile dependencies to determine the best Liberty features to use with your application. 
 
