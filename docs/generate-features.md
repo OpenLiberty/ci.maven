@@ -27,7 +27,7 @@ If there are conflicts with features specified in Liberty configuration files or
 ##### Tech Preview Limitations
 
 * For MicroProfile, this goal will generate the latest features available in a given major release (e.g. even if you specify `org.eclipse.microprofile:microprofile:3.2` and you use mpHealth APIs, this goal will generate the feature `mpHealth-2.2`, which is the latest version available for MicroProfile 3.x)
-* Jakarta version 9 is not supported at this time
+* Jakarta EE version 9 or 9.1 is not supported at this time
 * When using the `serverXmlFile` parameter in the POM, if you specify a file not in the directory `src/main/liberty/config` and that file uses relative paths to include other files, any features in those files will not be considered for feature generation
 * Any features accessed using property variables (e.g. `${custom.key}/configFile.xml`) are not considered for feature generation
 
