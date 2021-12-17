@@ -872,6 +872,8 @@ public class DevMojo extends LooseAppSupport {
                 } else {
                     // TODO: confirm that a call to generate features is required when a build file is modified 
                     // (ie. changes are not picked up by class file changes)
+                    // if we generate features here, we will also need to clear javaSourceClasses
+                    // we will also need to skip installing features on a failure
                     if (compileDependenciesChanged && generateFeatures) {
                         // build file change - provide updated classes and all existing features to binary scanner
                         Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
