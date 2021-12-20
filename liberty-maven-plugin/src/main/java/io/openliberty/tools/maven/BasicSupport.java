@@ -274,8 +274,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
                 else {
                     if(assemblyArtifact.getVersion() == null) {
-                        log.debug("Defaulting runtimeArtifact version to '[21.0.0.9,)'");
-                        assemblyArtifact.setVersion("[21.0.0.9,)");
+			assemblyArtifact.setVersion(DEFAULT_LIBERTY_VERSION);
                     }
                 }
                 

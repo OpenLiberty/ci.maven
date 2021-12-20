@@ -52,6 +52,8 @@ import org.eclipse.aether.resolution.VersionRangeResult;
  * 
  */
 public abstract class AbstractLibertySupport extends MojoSupport {
+    protected static final String DEFAULT_LIBERTY_VERSION = "****DEFAULT_LIBERTY_VERSION****";
+
     /**
      * Maven Project
      */
@@ -157,7 +159,12 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         assert item != null;
         Artifact artifact = null;
         
-        if (item.getVersion() != null) {
+        boolean defaultLibertyVersion = false;
+	if (DEFAULT_LIBERTY_VERSION.equals(item.getVersion())) {
+            defaultLibertyVersion = true;
+            item.setVersion(null);
+        }
+	if (item.getVersion() != null) {
             // if version is set in ArtifactItem, it will always override the one in project dependency
             artifact = createArtifact(item);
         } else {
@@ -175,6 +182,10 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 // if item has no version set, try to get it from the project dependencyManagement section
                 // get version from dependencyManagement
                 item.setVersion(resolveFromProjectDepMgmt(item).getVersion());
+                artifact = createArtifact(item);
+            } else if (defaultLibertyVersion) {
+                log.debug("Defaulting runtimeArtifact version to '[21.0.0.9,)'");
+                item.setVersion("[21.0.0.9,)");
                 artifact = createArtifact(item);
             } else {
                     throw new MojoExecutionException(
