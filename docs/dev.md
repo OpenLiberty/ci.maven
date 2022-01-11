@@ -6,6 +6,8 @@ Start a Liberty server in dev mode. This goal also invokes the `create`, `instal
 
 N.B. starting in the tech preview 3.5.2-SNAPSHOT, dev mode also invokes `generate-features`. See [generate-features](generate-features.md) for details.
 
+Additionally, starting in 3.5.2-SNAPSHOT, [resource variable filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html) and [WAR overlays](https://maven.apache.org/plugins/maven-war-plugin/overlays.html) are supported for loose WAR applications. This is done by automatically detecting appropriate Maven WAR plugin configuration and calling the WAR plugin's `exploded` goal and the Maven Resource plugin's `resource` goal when appropriate. Behavior for updating/deleting resources is delegated via the Maven WAR plugin configuration, including the `outdatedCheckPath` parameter enhanced in plugin version 3.3.2.
+
 To start the server in a container, see the [devc](#devc-container-mode) section below. 
 
 ###### Console Actions
