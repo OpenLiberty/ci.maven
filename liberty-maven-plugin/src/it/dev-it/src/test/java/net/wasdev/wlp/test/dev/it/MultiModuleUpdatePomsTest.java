@@ -100,8 +100,8 @@ private void touchFileTwice(String path) throws InterruptedException {
       File file = new File(tempProj, path);
       long time = System.currentTimeMillis();
       assertTrue(file.setLastModified(time));
-      Thread.sleep(100);
-      assertTrue(file.setLastModified(time+100));
+      Thread.sleep(50);
+      assertTrue(file.setLastModified(time+50));
 }
 
 

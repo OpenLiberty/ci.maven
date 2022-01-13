@@ -63,11 +63,6 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    protected static void run(String params, boolean devMode) throws Exception {
-      if (params != null) {
-         params += " -DgenerateFeatures=false"; // turn liberty:generate-features off for multi module tests
-      } else {
-         params = "-DgenerateFeatures=false";
-      }
       startProcess(params, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
    }
 

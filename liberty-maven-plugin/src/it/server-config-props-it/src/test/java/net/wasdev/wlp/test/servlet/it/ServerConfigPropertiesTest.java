@@ -95,7 +95,7 @@ public class ServerConfigPropertiesTest {
             Assert.assertTrue("Server not created successfully.", createResult.getExitCode() == 0);
 
             //Start server in dev mode with generate-features disabled
-            ProcessBuilder builder = buildProcess(logFile, "mvn liberty:dev -DgenerateFeatures=false");
+            ProcessBuilder builder = buildProcess(logFile, "mvn liberty:dev");
             Process process = builder.start();
             OutputStream stdin = process.getOutputStream();
       
