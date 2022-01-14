@@ -101,7 +101,7 @@ public class ServerConfigPropertiesTest {
             OutputStream stdin = process.getOutputStream();
       
             //Wait for dev mode to run
-            Thread.sleep(10000);
+            Thread.sleep(20000);
 
             //Stop dev mode
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
@@ -138,7 +138,9 @@ public class ServerConfigPropertiesTest {
 
         //Check app name/appsDir resolved correctly during create, deploy, and start
         Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);
-        Assert.assertTrue(testingOutput, false); // testing output 
+        if (appDirMatches.size() != 1) {
+            Assert.assertEquals("appsDirMessage size != 1.\n" + testingOutput, 1, appDirMatches.size()); // testing output
+        }
         Assert.assertEquals("appsDirMessage size: " + appDirMatches.size(), 1, appDirMatches.size());
         Assert.assertTrue("Did not find appsDirectory message in console output", appDirMatches.size() == 1);
         Assert.assertTrue("Did not find app install message in console output", appInstalledMatches.size() == 1);
