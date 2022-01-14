@@ -101,7 +101,7 @@ public class ServerConfigPropertiesTest {
             OutputStream stdin = process.getOutputStream();
       
             //Wait for dev mode to run
-            Thread.sleep(20000);
+            Thread.sleep(30000);
 
             //Stop dev mode
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));

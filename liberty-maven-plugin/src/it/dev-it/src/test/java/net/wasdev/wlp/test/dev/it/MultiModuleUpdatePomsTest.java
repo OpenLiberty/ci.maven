@@ -58,7 +58,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       touchFileTwice("jar/pom.xml");
 
       // Give time for recompile to occur
-      Thread.sleep(2000);
+      Thread.sleep(3000);
 
       // count exact number of messages
       assertEquals(getLogTail(), ++jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
@@ -70,7 +70,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       touchFileTwice("war/pom.xml");
 
       // Give time for recompile to occur
-      Thread.sleep(2000);
+      Thread.sleep(3000);
 
       // count exact number of messages
       // only war and ear should have had recompiles
@@ -83,7 +83,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       touchFileTwice("ear/pom.xml");
 
       // Give time for recompile to occur
-      Thread.sleep(2000);
+      Thread.sleep(3000);
 
       // count exact number of messages
       // only ear should have had recompiles
@@ -100,8 +100,8 @@ private void touchFileTwice(String path) throws InterruptedException {
       File file = new File(tempProj, path);
       long time = System.currentTimeMillis();
       assertTrue(file.setLastModified(time));
-      Thread.sleep(50);
-      assertTrue(file.setLastModified(time+50));
+      Thread.sleep(40);
+      assertTrue(file.setLastModified(time+40));
 }
 
 
