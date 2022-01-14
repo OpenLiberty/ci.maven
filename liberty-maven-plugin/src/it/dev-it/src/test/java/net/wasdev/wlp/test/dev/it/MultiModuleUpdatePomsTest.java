@@ -34,8 +34,9 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
+      // TODO enable feature generation when https://github.com/OpenLiberty/ci.maven/issues/1375 is fixed
       setUpMultiModule("typeA", "ear", null);
-      run();
+      run("-DgenerateFeatures=false");
    }
 
    /**

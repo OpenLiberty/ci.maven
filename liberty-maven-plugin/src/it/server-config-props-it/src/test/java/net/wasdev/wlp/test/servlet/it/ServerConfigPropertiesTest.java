@@ -81,7 +81,6 @@ public class ServerConfigPropertiesTest {
         List<String> appDirMatches = new ArrayList<String>();
         List<String> appInstalledMatches = new ArrayList<String>();
 
-        String testingOutput = "--------------";
         try {
             //Create server and copy config
             InvocationRequest createRequest = new DefaultInvocationRequest()
@@ -120,7 +119,6 @@ public class ServerConfigPropertiesTest {
             
             while (s.hasNextLine()) {
                 String line = s.nextLine();
-                testingOutput += "\n" + line;
                 if (pattern1.matcher(line).find()) {
                     duplicateMatches.add(line);
                 } else if (pattern2.matcher(line).find()) {
@@ -130,17 +128,12 @@ public class ServerConfigPropertiesTest {
                 }
             }
         } catch (Exception e) {}
-
-        testingOutput += "--------------";
         s.close();
         in.close();
         serverOutput.close();
 
         //Check app name/appsDir resolved correctly during create, deploy, and start
         Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);
-        if (appDirMatches.size() != 1) {
-            Assert.assertEquals("appsDirMessage size != 1.\n" + testingOutput, 1, appDirMatches.size()); // testing output
-        }
         Assert.assertEquals("appsDirMessage size: " + appDirMatches.size(), 1, appDirMatches.size());
         Assert.assertTrue("Did not find appsDirectory message in console output", appDirMatches.size() == 1);
         Assert.assertTrue("Did not find app install message in console output", appInstalledMatches.size() == 1);
