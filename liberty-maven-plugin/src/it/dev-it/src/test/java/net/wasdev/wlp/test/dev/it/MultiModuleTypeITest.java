@@ -55,7 +55,7 @@ public class MultiModuleTypeITest extends BaseMultiModuleTest {
       replaceString("<!-- SUB JUNIT -->",
             "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
             parentPom);
-      Thread.sleep(5000); // wait for compilation
+      Thread.sleep(6000); // wait for compilation
       assertTrue(targetEarClass.exists());
 
       super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
