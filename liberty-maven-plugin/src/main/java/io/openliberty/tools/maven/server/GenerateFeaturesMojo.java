@@ -17,7 +17,6 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -180,6 +179,17 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
+        } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
+            Set<String> featureSet = featuresModified.getFeatures();
+            // compare scanner features to user features. Scanner could modify webProfile-7.0 into webProfile-8.0 so ignore the feature version numbers.
+            if (BinaryScannerUtil.noVersionCompare(existingFeatures, featureSet)) {
+                // the scanner only needs to change features which it generated earlier. Merge the sets.
+                scannedFeatureList = featureSet;
+                scannedFeatureList.addAll(existingFeatures);
+            } else {
+                featureSet.addAll(existingFeatures); // report the entire set of conflicting features
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, featureSet, featuresModified.getSuggestions()));
+            }
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
                 throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
