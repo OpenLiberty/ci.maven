@@ -67,20 +67,7 @@ public class DevTest extends BaseDevTest {
 
       // check for server configuration was successfully updated message
       assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
-      Thread.sleep(2000);
-      Scanner scanner = new Scanner(targetServerXML);
-      boolean foundUpdate = false;
-      try {
-         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.contains("<feature>mpHealth-1.0</feature>")) {
-               foundUpdate = true;
-               break;
-            }
-         }
-      } finally {
-            scanner.close();
-      }
+      boolean foundUpdate = verifyLogMessageExists("<feature>mpHealth-1.0</feature>", 60000, targetServerXML);
       assertTrue("Could not find the updated feature in the target server.xml file", foundUpdate);
    }
 
@@ -93,14 +80,13 @@ public class DevTest extends BaseDevTest {
       File propertiesFile = new File(resourceDir, "microprofile-config.properties");
       assertTrue(propertiesFile.createNewFile());
 
-      Thread.sleep(2000); // wait for compilation
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
-      assertTrue(targetPropertiesFile.exists());
+      assertTrue(getLogTail(), verifyFileExists(targetPropertiesFile, 30000)); // wait for dev mode
       assertTrue(verifyLogMessageExists("CWWKZ0003I", 100000));
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
-      Thread.sleep(2000);
+      Thread.sleep(5000);
       assertFalse(targetPropertiesFile.exists());
    }
    
