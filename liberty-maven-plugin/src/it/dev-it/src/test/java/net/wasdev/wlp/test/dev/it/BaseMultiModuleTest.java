@@ -137,6 +137,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    protected static void modifyJarClass() throws IOException, InterruptedException {
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
       // modify a java file
       File srcClass = new File(tempProj, "jar/src/main/java/io/openliberty/guides/multimodules/lib/Converter.java");
       File targetClass = new File(tempProj, "jar/target/classes/io/openliberty/guides/multimodules/lib/Converter.class");
@@ -146,10 +147,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
       long lastModified = targetClass.lastModified();
       replaceString("return feet;", "return feet*2;", srcClass);
 
-      Thread.sleep(5000); // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I", 10000));
-      boolean wasModified = targetClass.lastModified() > lastModified;
-      assertTrue(wasModified);
+      // wait for compilation and app to update
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(waitForCompilation(targetClass, lastModified, 6000));
    }
 
    protected void testEndpointsAndUpstreamRecompile() throws Exception {

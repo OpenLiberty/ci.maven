@@ -45,7 +45,7 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
                "The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.",
                20000));
       File targetJarClass = new File(tempProj, "jar/target/classes/io/openliberty/guides/multimodules/lib/Converter.class");
-      assertTrue(targetJarClass.exists());
+      assertTrue(verifyFileExists(targetJarClass, 1000));
    
       // verify ear test class did not compile successfully
       File targetEarClass = new File(tempProj,
@@ -57,7 +57,7 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
       assertFalse(targetWarClass.exists());
 
       // Wait for dev mode to finish startup and wait longer than compileWait parameter (default = 500 ms)
-      Thread.sleep(1000);
+      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
       clearLogFile();
 
       // add a dependency to parent pom and check that it resolves compile errors in
@@ -67,19 +67,20 @@ public class MultiModuleTypeI2Test extends BaseMultiModuleTest {
       replaceString("<!-- SUB JAKARTAEE -->",
             "<dependency> <groupId>jakarta.platform</groupId> <artifactId>jakarta.jakartaee-api</artifactId> <version>8.0.0</version> <scope>provided</scope> </dependency>",
             parent2Pom);
-      Thread.sleep(1000); // wait longer than compileWait parameter again just in case.
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-war source compilation was successful.", 10000));
       assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors.", 10000));
-      assertTrue(targetWarClass.exists());
+      verifyFileExists(targetWarClass, 1000);
       assertFalse(targetEarClass.exists()); // verify ear class is still failing to resolve
 
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
       File parent1Pom = new File(tempProj, "parent1/pom.xml");
       assertTrue(parent1Pom.exists());
       replaceString("<!-- SUB JUNIT -->",
             "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
             parent1Pom);
-      Thread.sleep(5000); // wait for compilation
-      assertTrue(targetEarClass.exists());
+      // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(getLogTail(), verifyFileExists(targetEarClass, 5000));
 
       testEndpointsAndUpstreamRecompile();
    }

@@ -159,7 +159,6 @@ public class BaseDevTest {
 
       if (verifyServerStart) {
          // check that the server has started
-         Thread.sleep(5000);
          assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
          if (isDevMode) {
             assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
@@ -272,9 +271,7 @@ public class BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(5000); // wait for compilation
-      boolean wasModified = targetHelloWorld.lastModified() > lastModified;
-      assertTrue(wasModified);
+      assertTrue(waitForCompilation(targetHelloWorld, lastModified, 5000));
    }
 
    protected static void testModifyWithRecompileDeps() throws IOException, InterruptedException {
@@ -289,8 +286,8 @@ public class BaseDevTest {
       testModifyJavaFile();
 
       // check that all files were recompiled
-      assertTrue(targetHelloLogger.lastModified() > helloLoggerLastModified);
-      assertTrue(targetHelloServlet.lastModified() > helloServletLastModified);
+      assertTrue(waitForCompilation(targetHelloLogger, helloLoggerLastModified, 1000));
+      assertTrue(waitForCompilation(targetHelloServlet, helloServletLastModified, 1000));
    }
 
    protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
@@ -377,6 +374,25 @@ public class BaseDevTest {
       return false;
    }
 
+   protected static boolean verifyLogMessageExists(String message, int timeout, int occurrences)
+         throws InterruptedException, FileNotFoundException, IOException {
+      return verifyLogMessageExists(message, timeout, logFile, occurrences);
+   }
+
+   protected static boolean verifyLogMessageExists(String message, int timeout, File log, int occurrences)
+         throws InterruptedException, FileNotFoundException, IOException {
+      int waited = 0;
+      int sleep = 10;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (countOccurrences(message, log) == occurrences) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    protected static boolean verifyFileExists(File file, int timeout)
          throws InterruptedException {
       int waited = 0;
@@ -391,6 +407,19 @@ public class BaseDevTest {
       return false;
    }
 
+   protected static boolean verifyFileDoesNotExist(File file, int timeout) throws InterruptedException {
+      int waited = 0;
+      int sleep = 100;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (!file.exists()) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    protected static File getTargetFile(String srcFilePath, String targetFilePath) throws IOException, InterruptedException {
       File srcClass = new File(tempProj, srcFilePath);
       File targetClass = new File(targetDir, targetFilePath);
@@ -398,4 +427,18 @@ public class BaseDevTest {
       assertTrue(targetClass.exists());
       return targetClass;
    }
+
+   protected static boolean waitForCompilation(File file, long lastModified, long timeout) throws InterruptedException {
+      int waited = 0;
+      int sleep = 100;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (file.lastModified() > lastModified) {
+            return true;
+         }
+      }
+      return false;
+   }
+
 }

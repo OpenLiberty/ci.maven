@@ -116,7 +116,7 @@ public class ServerConfigPropertiesTest {
             Pattern pattern1 = Pattern.compile(DUPLICATE_APP_MESSAGE);
             Pattern pattern2 = Pattern.compile(APPS_DIR_MESSAGE);
             Pattern pattern3 = Pattern.compile(APP_INSTALLED_MESSAGE);
-            
+
             while (s.hasNextLine()) {
                 String line = s.nextLine();
                 if (pattern1.matcher(line).find()) {
@@ -128,6 +128,7 @@ public class ServerConfigPropertiesTest {
                 }
             }
         } catch (Exception e) {}
+
         s.close();
         in.close();
         serverOutput.close();

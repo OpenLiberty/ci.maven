@@ -49,6 +49,7 @@ public class MultiModuleEjbTest extends BaseMultiModuleTest {
    }
 
    private void modifyEjb() throws Exception {
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
       // modify a java file
       File srcClass = new File(tempProj, "ejb-ejb/src/main/java/wasdev/ejb/ejb/SampleStatelessBean.java");
       File targetClass = new File(tempProj, "ejb-ejb/target/classes/wasdev/ejb/ejb/SampleStatelessBean.class");
@@ -58,9 +59,9 @@ public class MultiModuleEjbTest extends BaseMultiModuleTest {
       long lastModified = targetClass.lastModified();
       replaceString("Hello EJB World.", "Hello EJB World 1.", srcClass);
 
-      Thread.sleep(5000); // wait for compilation
-      boolean wasModified = targetClass.lastModified() > lastModified;
-      assertTrue(wasModified);
+      // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(waitForCompilation(targetClass, lastModified, 5000));
    }
 
 }
