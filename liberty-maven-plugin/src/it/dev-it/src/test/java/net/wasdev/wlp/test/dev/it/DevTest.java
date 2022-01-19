@@ -73,6 +73,8 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void resourceFileChangeTest() throws Exception {
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
+
       // make a resource file change
       File resourceDir = new File(tempProj, "src/main/resources");
       assertTrue(resourceDir.exists());
@@ -82,7 +84,7 @@ public class DevTest extends BaseDevTest {
 
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
       assertTrue(getLogTail(), verifyFileExists(targetPropertiesFile, 30000)); // wait for dev mode
-      assertTrue(verifyLogMessageExists("CWWKZ0003I", 100000));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
@@ -116,7 +118,7 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      assertTrue(getLogTail(), waitForCompilation(unitTestTargetFile, lastModified, 12000));
+      assertTrue(getLogTail(), waitForCompilation(unitTestTargetFile, lastModified, 6000));
 
       // delete the test file
       assertTrue(getLogTail(), unitTestSrcFile.delete());

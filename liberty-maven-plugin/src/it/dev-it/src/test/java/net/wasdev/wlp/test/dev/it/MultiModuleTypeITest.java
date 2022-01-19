@@ -47,6 +47,7 @@ public class MultiModuleTypeITest extends BaseMultiModuleTest {
       File targetEarClass = new File(tempProj,
             "ear/target/test-classes/it/io/openliberty/guides/multimodules/IT.class");
       assertFalse(targetEarClass.exists());
+      assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation had errors", 10000));
 
       // add a dependency to parent pom and check that it resolves compile errors in
       // child modules
@@ -57,7 +58,7 @@ public class MultiModuleTypeITest extends BaseMultiModuleTest {
             "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
             parentPom);
       // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 6000, logFile, ++appUpdatedCount));
       assertTrue(getLogTail(), verifyFileExists(targetEarClass, 10000));
 
 
