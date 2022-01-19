@@ -157,19 +157,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
         // get existing server features from source directory
         ServerFeatureUtil servUtil = getServerFeatureUtil();
-        servUtil.setLowerCaseFeatures(false);
 
         Set<String> generatedFiles = new HashSet<String>();
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
-        // if optimizing, ignore generated files when passing in existing features to
-        // binary scanner
-        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                new HashMap<String, File>(), optimize ? generatedFiles : null);
-        if (existingFeatures == null) {
-            existingFeatures = new HashSet<String>();
-        }
-        servUtil.setLowerCaseFeatures(true);
+        Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
 
         Set<String> scannedFeatureList = null;
         try {
@@ -180,15 +172,17 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
-            Set<String> featureSet = featuresModified.getFeatures();
+            Set<String> userFeatures = getServerFeatures(servUtil, generatedFiles, false);
+            Set<String> modifiedSet = featuresModified.getFeatures(); // a working set modified by the scanner
             // compare scanner features to user features. Scanner could modify webProfile-7.0 into webProfile-8.0 so ignore the feature version numbers.
-            if (BinaryScannerUtil.noVersionCompare(existingFeatures, featureSet)) {
-                // the scanner only needs to change features which it generated earlier. Merge the sets.
-                scannedFeatureList = featureSet;
-                scannedFeatureList.addAll(existingFeatures);
+            if (BinaryScannerUtil.noVersionCompare(userFeatures, modifiedSet)) {
+                // the scanner only needs to modify features which it generated earlier. Merge the sets.
+                scannedFeatureList = modifiedSet;
+                scannedFeatureList.addAll(userFeatures);
             } else {
-                featureSet.addAll(existingFeatures); // report the entire set of conflicting features
-                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, featureSet, featuresModified.getSuggestions()));
+                Set<String> appBinaryFeatures = featuresModified.getSuggestions();
+                appBinaryFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, appBinaryFeatures, modifiedSet));
             }
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
@@ -267,6 +261,19 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                                 + ". Ensure your id has write permission to the server configuration directory.",
                         e);
         }
+    }
+
+    private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+        servUtil.setLowerCaseFeatures(false);
+        // if optimizing, ignore generated files when passing in existing features to
+        // binary scanner
+        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
+                new HashMap<String, File>(), excludeGenerated ? generatedFiles : null);
+        if (existingFeatures == null) {
+            existingFeatures = new HashSet<String>();
+        }
+        servUtil.setLowerCaseFeatures(true);
+        return existingFeatures;
     }
 
     /**
