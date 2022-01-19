@@ -268,7 +268,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
         Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                new HashMap<String, File>(), excludeGenerated ? generatedFiles : null);
+                new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
         if (existingFeatures == null) {
             existingFeatures = new HashSet<String>();
         }
