@@ -263,6 +263,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         }
     }
 
+    // Get the features from the server config and optionally exclude the specified config files from the search.
     private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
