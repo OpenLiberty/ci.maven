@@ -393,16 +393,16 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             log.debug("getEEVersion, dep="+d.getGroupId()+":"+d.getArtifactId()+":"+d.getVersion());
             if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
                 if (d.getVersion().startsWith("8.")) {
-                    return "ee8";
+                    return BINARY_SCANNER_EEV8;
                 } else if (d.getVersion().startsWith("7.")) {
-                    return "ee7";
+                    return BINARY_SCANNER_EEV7;
                 } else if (d.getVersion().startsWith("6.")) {
-                    return "ee6";
+                    return BINARY_SCANNER_EEV6;
                 }
             } else if (d.getGroupId().equals("jakarta.platform") &&
                     d.getArtifactId().equals("jakarta.jakartaee-api") &&
                     d.getVersion().startsWith("8.")) {
-                return "ee8";
+                return BINARY_SCANNER_EEV8;
             }
         }
         return null;
@@ -419,13 +419,13 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 String version = d.getVersion();
                 log.debug("dep=org.eclipse.microprofile:microprofile version="+version);
                 if (version.startsWith("1")) {
-                    return "mp1";
+                    return BINARY_SCANNER_MPV1;
                 } else if (version.startsWith("2")) {
-                    return "mp2";
+                    return BINARY_SCANNER_MPV2;
                 } else if (version.startsWith("3")) {
-                    return "mp3";
+                    return BINARY_SCANNER_MPV3;
                 }
-                return "mp4"; // add support for future versions of MicroProfile here
+                return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
             }
             // if (d.getGroupId().equals("io.openliberty.features")) {
             //     mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
