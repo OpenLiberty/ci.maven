@@ -172,17 +172,17 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
-            Set<String> userFeatures = getServerFeatures(servUtil, generatedFiles, false);
-            Set<String> modifiedSet = featuresModified.getFeatures(); // a working set modified by the scanner
-            // compare scanner features to user features. Scanner could modify webProfile-7.0 into webProfile-8.0 so ignore the feature version numbers.
-            if (BinaryScannerUtil.noVersionCompare(userFeatures, modifiedSet)) {
-                // the scanner only needs to modify features which it generated earlier. Merge the sets.
+            Set<String> userFeatures = getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
+            Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
+            if (modifiedSet.containsAll(userFeatures)) {
+                // none of the user features were modified, only features which were generated earlier.
+                log.debug("FeatureModifiedException, modifiedSet containsAll userFeatures, pass modifiedSet on to generateFeatures");
                 scannedFeatureList = modifiedSet;
-                scannedFeatureList.addAll(userFeatures);
             } else {
-                Set<String> appBinaryFeatures = featuresModified.getSuggestions();
-                appBinaryFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
-                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, appBinaryFeatures, modifiedSet));
+                Set<String> allAppFeatures = featuresModified.getSuggestions(); // suggestions are scanned from binaries
+                allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
+                log.debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
             }
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
