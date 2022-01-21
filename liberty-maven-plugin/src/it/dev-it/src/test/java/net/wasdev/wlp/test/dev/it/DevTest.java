@@ -26,6 +26,7 @@ import java.util.Scanner;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
@@ -91,6 +92,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyFileDoesNotExist(targetPropertiesFile, 5000));
    }
    
+   @Ignore // TODO enable when https://github.com/OpenLiberty/ci.maven/issues/1383 is fixed
    @Test
    public void testDirectoryTest() throws Exception {
       // create the test directory
