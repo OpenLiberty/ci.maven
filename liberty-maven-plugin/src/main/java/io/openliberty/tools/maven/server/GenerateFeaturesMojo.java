@@ -17,7 +17,6 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -158,19 +157,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
         // get existing server features from source directory
         ServerFeatureUtil servUtil = getServerFeatureUtil();
-        servUtil.setLowerCaseFeatures(false);
 
         Set<String> generatedFiles = new HashSet<String>();
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
-        // if optimizing, ignore generated files when passing in existing features to
-        // binary scanner
-        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                new HashMap<String, File>(), optimize ? generatedFiles : null);
-        if (existingFeatures == null) {
-            existingFeatures = new HashSet<String>();
-        }
-        servUtil.setLowerCaseFeatures(true);
+        Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
 
         Set<String> scannedFeatureList = null;
         try {
@@ -180,6 +171,21 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
+        } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
+            Set<String> userFeatures = (optimize) ? existingFeatures :
+                getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
+            Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
+
+            if (modifiedSet.containsAll(userFeatures)) {
+                // none of the user features were modified, only features which were generated earlier.
+                log.debug("FeatureModifiedException, modifiedSet containsAll userFeatures, pass modifiedSet on to generateFeatures");
+                scannedFeatureList = modifiedSet;
+            } else {
+                Set<String> allAppFeatures = featuresModified.getSuggestions(); // suggestions are scanned from binaries
+                allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
+                log.debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
+                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
+            }
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
                 throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
@@ -257,6 +263,20 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                                 + ". Ensure your id has write permission to the server configuration directory.",
                         e);
         }
+    }
+
+    // Get the features from the server config and optionally exclude the specified config files from the search.
+    private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+        servUtil.setLowerCaseFeatures(false);
+        // if optimizing, ignore generated files when passing in existing features to
+        // binary scanner
+        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
+                new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
+        if (existingFeatures == null) {
+            existingFeatures = new HashSet<String>();
+        }
+        servUtil.setLowerCaseFeatures(true);
+        return existingFeatures;
     }
 
     /**
