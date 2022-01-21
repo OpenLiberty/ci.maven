@@ -133,6 +133,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
         log.debug("--- Generate Features values ---");
+        log.debug("Binary scanner jar: " + binaryScanner.getName());
         log.debug("optimize generate features: " + optimize);
         if (classFiles != null && !classFiles.isEmpty()) {
             log.debug("Generate features for the following class files: " + classFiles.toString());

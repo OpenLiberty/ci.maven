@@ -23,6 +23,9 @@
         <snapshots>
             <enabled>true</enabled>
         </snapshots>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
     </repository>
   </repositories>
   <dependencies>

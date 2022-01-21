@@ -73,6 +73,8 @@ public class DevTest extends BaseDevTest {
 
    @Test
    public void resourceFileChangeTest() throws Exception {
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
+
       // make a resource file change
       File resourceDir = new File(tempProj, "src/main/resources");
       assertTrue(resourceDir.exists());
@@ -82,12 +84,11 @@ public class DevTest extends BaseDevTest {
 
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
       assertTrue(getLogTail(), verifyFileExists(targetPropertiesFile, 30000)); // wait for dev mode
-      assertTrue(verifyLogMessageExists("CWWKZ0003I", 100000));
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
-      Thread.sleep(5000);
-      assertFalse(targetPropertiesFile.exists());
+      assertTrue(verifyFileDoesNotExist(targetPropertiesFile, 5000));
    }
    
    @Test
@@ -104,9 +105,9 @@ public class DevTest extends BaseDevTest {
       Files.write(unitTestSrcFile.toPath(), unitTest.getBytes());
       assertTrue(unitTestSrcFile.exists());
 
-      Thread.sleep(6000); // wait for compilation
       File unitTestTargetFile = new File(targetDir, "/test-classes/UnitTest.class");
-      assertTrue(unitTestTargetFile.exists());
+      // wait for compilation
+      assertTrue(getLogTail(), verifyFileExists(unitTestTargetFile, 6000));
       long lastModified = unitTestTargetFile.lastModified();
 
       // modify the test file
@@ -117,20 +118,15 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(2000); // wait for compilation
-      assertTrue(unitTestTargetFile.lastModified() > lastModified);
+      assertTrue(getLogTail(), waitForCompilation(unitTestTargetFile, lastModified, 6000));
 
       // delete the test file
-      assertTrue(unitTestSrcFile.delete());
-      Thread.sleep(2000);
-      assertFalse(unitTestTargetFile.exists());
-
+      assertTrue(getLogTail(), unitTestSrcFile.delete());
+      assertTrue(getLogTail(), verifyFileDoesNotExist(unitTestTargetFile, 6000));
    }
 
    @Test
    public void manualTestsInvocationTest() throws Exception {
-      // assertTrue(verifyLogMessageExists("To run tests on demand, press Enter.", 2000));
-
       writer.write("\n");
       writer.flush();
 
@@ -190,10 +186,9 @@ public class DevTest extends BaseDevTest {
 
       javaWriter.close();
 
-      Thread.sleep(1000); // wait for compilation
-      assertTrue(verifyLogMessageExists("Source compilation was successful.", 100000));
-      Thread.sleep(15000); // wait for compilation
-      assertTrue(systemHealthTarget.exists());
+      // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists("Source compilation was successful.", 100000));
+      assertTrue(getLogTail(), verifyFileExists(systemHealthTarget, 15000));
    }
 
    @Test
