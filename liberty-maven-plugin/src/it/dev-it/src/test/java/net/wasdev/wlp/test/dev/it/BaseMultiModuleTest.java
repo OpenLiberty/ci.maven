@@ -63,11 +63,6 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    protected static void run(String params, boolean devMode) throws Exception {
-      if (params != null) {
-         params += " -DgenerateFeatures=false"; // turn liberty:generate-features off for multi module tests
-      } else {
-         params = "-DgenerateFeatures=false";
-      }
       startProcess(params, devMode, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":");
    }
 
@@ -104,9 +99,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
    public void verifyTestsRan(String... moduleArtifactIds) throws Exception {
       for (String moduleArtifactId : moduleArtifactIds) {
          if (!moduleArtifactId.endsWith("ear")) {
-            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.", 10000));
+            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.",20000));
          }
-         assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 10000));
+         assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 20000));
       }
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
    }
@@ -142,6 +137,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
    }
 
    protected static void modifyJarClass() throws IOException, InterruptedException {
+      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
       // modify a java file
       File srcClass = new File(tempProj, "jar/src/main/java/io/openliberty/guides/multimodules/lib/Converter.java");
       File targetClass = new File(tempProj, "jar/target/classes/io/openliberty/guides/multimodules/lib/Converter.class");
@@ -151,10 +147,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
       long lastModified = targetClass.lastModified();
       replaceString("return feet;", "return feet*2;", srcClass);
 
-      Thread.sleep(5000); // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I", 10000));
-      boolean wasModified = targetClass.lastModified() > lastModified;
-      assertTrue(wasModified);
+      // wait for compilation and app to update
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(waitForCompilation(targetClass, lastModified, 6000));
    }
 
    protected void testEndpointsAndUpstreamRecompile() throws Exception {
