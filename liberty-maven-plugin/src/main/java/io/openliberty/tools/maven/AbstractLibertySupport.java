@@ -46,7 +46,6 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
-
 /**
  * Liberty Abstract Mojo Support
  * 
@@ -419,8 +418,17 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         Artifact artifact = new DefaultArtifact(item.getGroupId(), item.getArtifactId(), item.getVersion(),
                 Artifact.SCOPE_PROVIDED, item.getType(), null, new DefaultArtifactHandler("jar"));
         
+        
         if (artifactFile != null && artifactFile.exists()) {
-            artifact.setFile(artifactFile);
+        	String pathToLocalArtifact = this.repoSession.getLocalRepositoryManager().getPathForLocalArtifact(aetherArtifact);
+            File localArtifactFile = new File (this.artifactRepository.getBasedir() ,pathToLocalArtifact);
+            
+            //sometimes variable artifactFile has a path of a build output folder(target). Setting the artifact file path that corresponds to Maven coord.
+            if(localArtifactFile.exists()) {
+            	artifact.setFile(localArtifactFile);
+            }else {
+            	artifact.setFile(artifactFile);
+            }   
             artifact.setResolved(true);
             log.debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
                     + " is resolved from project repositories.");
@@ -435,7 +443,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     private File resolveArtifactFile(org.eclipse.aether.artifact.Artifact aetherArtifact) throws MojoExecutionException {
         ArtifactRequest req = new ArtifactRequest().setRepositories(this.repositories).setArtifact(aetherArtifact);
         ArtifactResult resolutionResult = null;
-        
+
         try {
             resolutionResult = this.repositorySystem.resolveArtifact(this.repoSession, req);
             if (!resolutionResult.isResolved()) {
