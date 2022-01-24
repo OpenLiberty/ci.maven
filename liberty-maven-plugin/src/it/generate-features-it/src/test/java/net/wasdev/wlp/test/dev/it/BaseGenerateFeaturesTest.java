@@ -106,8 +106,8 @@ public class BaseGenerateFeaturesTest {
 
         OutputStream stdin = process.getOutputStream();
         writer = new BufferedWriter(new OutputStreamWriter(stdin));
-        // wait for process to finish max 10 seconds
-        process.waitFor(10, TimeUnit.SECONDS);
+        // wait for process to finish max 20 seconds
+        process.waitFor(20, TimeUnit.SECONDS);
         assertFalse(process.isAlive());
     }
 
