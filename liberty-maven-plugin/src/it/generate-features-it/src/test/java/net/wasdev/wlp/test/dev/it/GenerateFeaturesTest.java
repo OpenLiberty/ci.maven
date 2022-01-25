@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -32,14 +32,14 @@ import org.junit.Test;
  */
 public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass("../resources/basic-dev-project");
+    @Before
+    public void setUp() throws Exception {
+        setUpBeforeTest("../resources/basic-dev-project");
     }
 
-    @AfterClass
-    public static void cleanUpAfterClass() throws Exception {
-        cleanUp();
+    @After
+    public void cleanUp() throws Exception {
+        cleanUpAfterTest();
     }
 
     @Test

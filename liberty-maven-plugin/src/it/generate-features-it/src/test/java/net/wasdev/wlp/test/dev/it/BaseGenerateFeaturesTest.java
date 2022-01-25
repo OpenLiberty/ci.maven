@@ -63,7 +63,7 @@ public class BaseGenerateFeaturesTest {
     final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
     final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
 
-    protected static void setUpBeforeClass(String projectRoot) throws IOException, InterruptedException {
+    protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
         tempProj = Files.createTempDirectory("temp").toFile();
         assertTrue(tempProj.exists());
@@ -81,7 +81,7 @@ public class BaseGenerateFeaturesTest {
         runProcess("mvn compile liberty:generate-features");
     }
 
-    protected static void cleanUp() throws Exception {
+    protected static void cleanUpAfterTest() throws Exception {
         if (tempProj != null && tempProj.exists()) {
             FileUtils.deleteDirectory(tempProj);
         }
