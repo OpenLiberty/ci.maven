@@ -388,7 +388,7 @@ public class DevMojo extends LooseAppSupport {
                     setFeatureGeneration(false);
                 } else {
                     log.error(e.getMessage()
-                    + ".\nTo disable the automatic generation of features, type 'g' and press Enter.");
+                    + "\nTo disable the automatic generation of features, type 'g' and press Enter.");
                 }
                 return false;
             }

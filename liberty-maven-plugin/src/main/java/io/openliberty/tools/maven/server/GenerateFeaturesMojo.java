@@ -170,7 +170,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
                 // log as warning and continue to call binary scanner to detect conflicts in
                 // user specified features
-                log.warn("Could not find classes directory. Liberty features will not be generated. "
+                log.warn("Could not find classes directory to generate features against. Liberty features will not be generated. "
                         + "Ensure your project has first been compiled.");
             }
             String eeVersion = getEEVersion(project);
