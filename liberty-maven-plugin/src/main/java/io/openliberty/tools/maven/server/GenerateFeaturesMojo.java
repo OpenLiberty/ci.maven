@@ -167,6 +167,12 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         Set<String> scannedFeatureList = null;
         try {
             Set<String> directories = getClassesDirectories(upstreamProjects);
+            if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
+                // log as warning and continue to call binary scanner to detect conflicts in
+                // user specified features
+                log.warn("Could not find classes directory. Liberty features will not be generated. "
+                        + "Ensure your project has first been compiled.");
+            }
             String eeVersion = getEEVersion(project);
             String mpVersion = getMPVersion(project);
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
@@ -296,7 +302,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     + BINARY_SCANNER_MAVEN_ARTIFACT_ID
                     + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
                     + BINARY_SCANNER_MAVEN_GROUP_ID + "." + BINARY_SCANNER_MAVEN_ARTIFACT_ID
-                    + ".jar configured in your pom.xml",
+                    + ".jar configured in your pom.xml.",
                     e);
         }
     }
