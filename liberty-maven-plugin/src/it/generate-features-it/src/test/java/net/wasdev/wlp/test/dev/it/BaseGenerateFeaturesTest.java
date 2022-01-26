@@ -92,7 +92,7 @@ public class BaseGenerateFeaturesTest {
 
     /**
      * Runs process and waits for it to finish
-     * Times out after 10 seconds
+     * Times out after 20 seconds
      * 
      * @param command - command to run
      */
