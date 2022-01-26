@@ -281,6 +281,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
+                                    <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -322,6 +323,7 @@
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
+                                    <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
