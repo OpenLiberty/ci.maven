@@ -78,7 +78,6 @@ public class BaseGenerateFeaturesTest {
         assertTrue(pom.exists());
 
         replaceVersion();
-        runProcess("mvn compile liberty:generate-features");
     }
 
     protected static void cleanUpAfterTest() throws Exception {
@@ -173,4 +172,36 @@ public class BaseGenerateFeaturesTest {
         return features;
     }
 
+    protected static String getLogTail() throws IOException {
+        return getLogTail(logFile);
+    }
+
+    protected static String getLogTail(File log) throws IOException {
+        int numLines = 100;
+        ReversedLinesFileReader object = null;
+        try {
+        object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
+        List<String> reversedLines = new ArrayList<String>();
+
+        for (int i = 0; i < numLines; i++) {
+            String line = object.readLine();
+            if (line == null) {
+                break;
+            }
+            reversedLines.add(line);
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = reversedLines.size() - 1; i >=0; i--) {
+            result.append(reversedLines.get(i) + "\n");
+        }
+        return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" + 
+            "===================== START =======================\n" + 
+            result.toString() +
+            "====================== END ========================\n";
+        } finally {
+            if (object != null) {
+                object.close();
+            }
+        }
+    }
 }

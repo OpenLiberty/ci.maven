@@ -44,6 +44,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void basicTest() throws Exception {
+        runProcess("mvn compile liberty:generate-features");
         // verify that the generated features file was created
         File newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
         assertTrue(newFeatureFile.exists());
@@ -52,6 +53,30 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         List<String> features = readFeatures(newFeatureFile);
         assertEquals(2, features.size());
         List<String> expectedFeatures = Arrays.asList("servlet-4.0", "jaxrs-2.1");
+        assertEquals(expectedFeatures, features);
+    }
+
+    @Test
+    public void customFeaturesTest() throws Exception {
+        // complete the setup of the test
+        File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        replaceString("<!--replaceable-->",
+        "<featureManager>\n" +
+        "  <feature>servlet-4.0</feature>\n" +
+        "  <feature>usr:custom-1.0</feature>\n" +
+        "</featureManager>\n", serverXmlFile);
+        File newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
+        assertFalse("Before running", newFeatureFile.exists());
+        // run the test
+        runProcess("mvn compile liberty:generate-features");
+
+        // verify that the generated features file was created
+        assertTrue(getLogTail(), newFeatureFile.exists());
+
+        // verify that the correct feature is in the generated-features.xml
+        List<String> features = readFeatures(newFeatureFile);
+        assertEquals(getLogTail(), 1, features.size());
+        List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
         assertEquals(expectedFeatures, features);
     }
 

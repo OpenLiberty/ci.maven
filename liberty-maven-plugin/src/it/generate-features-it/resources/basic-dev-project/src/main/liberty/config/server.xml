@@ -1,4 +1,5 @@
 <server description="Sample Liberty server">
+  <!--replaceable-->
   <httpEndpoint host="*" httpPort="${default.http.port}"
     httpsPort="${default.https.port}" id="defaultHttpEndpoint"/>
 </server>
