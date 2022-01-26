@@ -27,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
+
 /**
  * liberty:generate-features goal tests
  */
@@ -44,8 +46,12 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void basicTest() throws Exception {
+        runProcess("compile liberty:generate-features");
+        // verify that the target directory was created
+        targetDir = new File(tempProj, "target");
+        assertTrue(targetDir.exists());
+
         // verify that the generated features file was created
-        File newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
         assertTrue(newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
@@ -53,6 +59,18 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertEquals(2, features.size());
         List<String> expectedFeatures = Arrays.asList("servlet-4.0", "jaxrs-2.1");
         assertEquals(expectedFeatures, features);
+    }
+
+    @Test
+    public void noClassFiles() throws Exception {
+        // do not compile before running generate-features
+        runProcess("liberty:generate-features");
+
+        // verify that generated features file was not created
+        assertFalse(newFeatureFile.exists());
+
+        // verify class files not found warning message
+        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
     }
 
 }

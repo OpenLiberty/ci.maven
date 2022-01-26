@@ -59,9 +59,12 @@ public class BaseGenerateFeaturesTest {
     static File pom;
     static BufferedWriter writer;
     static Process process;
+    static File newFeatureFile;
+    static File targetDir;
+    static String processOutput = "";
 
-    final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
-    final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
+    static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
@@ -78,7 +81,7 @@ public class BaseGenerateFeaturesTest {
         assertTrue(pom.exists());
 
         replaceVersion();
-        runProcess("mvn compile liberty:generate-features");
+        newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
     }
 
     protected static void cleanUpAfterTest() throws Exception {
@@ -97,7 +100,7 @@ public class BaseGenerateFeaturesTest {
      * @param command - command to run
      */
     protected static void runProcess(String processCommand) throws IOException, InterruptedException {
-        StringBuilder command = new StringBuilder(processCommand);
+        StringBuilder command = new StringBuilder("mvn " + processCommand);
         ProcessBuilder builder = buildProcess(command.toString());
         builder.redirectOutput(logFile);
         builder.redirectError(logFile);
@@ -109,6 +112,11 @@ public class BaseGenerateFeaturesTest {
         // wait for process to finish max 20 seconds
         process.waitFor(20, TimeUnit.SECONDS);
         assertFalse(process.isAlive());
+
+        // save and print process output
+        Path path = logFile.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        processOutput = new String(Files.readAllBytes(path), charset);
     }
 
     protected static ProcessBuilder buildProcess(String processCommand) {
