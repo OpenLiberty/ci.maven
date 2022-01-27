@@ -73,4 +73,26 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
     }
 
+    @Test
+    public void customFeaturesTest() throws Exception {
+        // complete the setup of the test
+        File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        replaceString("<!--replaceable-->",
+        "<featureManager>\n" +
+        "  <feature>servlet-4.0</feature>\n" +
+        "  <feature>usr:custom-1.0</feature>\n" +
+        "</featureManager>\n", serverXmlFile);
+        assertFalse("Before running", newFeatureFile.exists());
+        // run the test
+        runProcess("compile liberty:generate-features");
+
+        // verify that the generated features file was created
+        assertTrue(newFeatureFile.exists());
+
+        // verify that the correct feature is in the generated-features.xml
+        List<String> features = readFeatures(newFeatureFile);
+        assertEquals(processOutput, 1, features.size());
+        List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
+        assertEquals(expectedFeatures, features);
+    }
 }

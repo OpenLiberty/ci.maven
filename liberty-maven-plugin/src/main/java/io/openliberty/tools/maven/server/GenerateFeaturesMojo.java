@@ -160,6 +160,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
         Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
+        Set<String> nonCustomFeatures = new HashSet<String>(); // binary scanner only handles actual Liberty features
+        for (String feature : existingFeatures) { // custom features are "usr:feature-1.0" or "myExt:feature-2.0"
+            if (!feature.contains(":")) nonCustomFeatures.add(feature);
+        }
 
         Set<String> scannedFeatureList = null;
         try {
@@ -171,7 +175,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
             String eeVersion = getEEVersion(project);
             String mpVersion = getMPVersion(project);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(existingFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
