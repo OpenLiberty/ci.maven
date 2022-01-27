@@ -91,7 +91,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
         // verify that the correct feature is in the generated-features.xml
         List<String> features = readFeatures(newFeatureFile);
-        assertEquals(getLogTail(), 1, features.size());
+        assertEquals(processOutput, 1, features.size());
         List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
         assertEquals(expectedFeatures, features);
     }
