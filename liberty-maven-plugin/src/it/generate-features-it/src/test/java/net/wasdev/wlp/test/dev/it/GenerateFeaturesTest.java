@@ -63,14 +63,14 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void noClassFiles() throws Exception {
-    // do not compile before running generate-features
-    runProcess("liberty:generate-features");
+        // do not compile before running generate-features
+        runProcess("liberty:generate-features");
 
-    // verify that generated features file was not created
-    assertFalse(newFeatureFile.exists());
+        // verify that generated features file was not created
+        assertFalse(newFeatureFile.exists());
 
-    // verify class files not found warning message
-    assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
+        // verify class files not found warning message
+        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
     }
 
     @Test
@@ -94,4 +94,5 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertEquals(getLogTail(), 1, features.size());
         List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
         assertEquals(expectedFeatures, features);
+    }
 }
