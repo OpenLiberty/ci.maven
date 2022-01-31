@@ -909,24 +909,9 @@ public class DevMojo extends LooseAppSupport {
                     // if we generate features here we will also need to skip installing features on
                     // a failure
                     if (compileDependenciesChanged && generateFeatures) {
-                        if (util.isMultiModuleProject()) {
-                            ProjectModule proj = util.getProjectModule(buildFile); // null if main module
-                            // call generateFeatuers if
-                            // (1) main module's compile dependencies were modified and source directory exists
-                            // (2) module's compile dependencies were modified and there are dependent modules
-                            if ((proj == null && sourceDirectory.exists())
-                                    || (proj != null && !proj.getDependentModules().isEmpty())) {
-                                // build file change - provide updated classes and all existing features to
-                                // binary scanner
-                                Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                                if (libertyGenerateFeatures(javaSourceClassPaths, false)) {
-                                    util.getJavaSourceClassPaths().clear();
-                                }
-                            }
-                        } else if (sourceDirectory.exists()) {
-                            // build file change - provide updated classes and all existing features to
-                            // binary scanner
-                            Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                        // build file change - provide updated classes and all existing features to binary scanner
+                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                        if (!javaSourceClassPaths.isEmpty()) { // only call generateFeatures if there are updated classes to generate for
                             if (libertyGenerateFeatures(javaSourceClassPaths, false)) {
                                 util.getJavaSourceClassPaths().clear();
                             }
