@@ -477,16 +477,51 @@ public class DevMojo extends LooseAppSupport {
             }
             return deps;
         }
+
+        // returns a list of dependencies with scope compile or provided (also defines
+        // dependencies available for compilation)
         private List<Dependency> getCompileDependency(List<Dependency> dependencies) {
             List<Dependency> deps = new ArrayList<Dependency>();
             if (dependencies != null) {
                 for (Dependency d : dependencies) {
-                    if ("compile".equals(d.getScope())) {
+                    if ("compile".equals(d.getScope()) || "provided".equals(d.getScope())) {
                         deps.add(d);
                     }
                 }
             }
             return deps;
+        }
+
+        // retun false if dependency lists are not equal, true if they are
+        private boolean dependencyListsEquals(List<Dependency> oldDeps, List<Dependency> deps) {
+            if (oldDeps.size() != deps.size()) {
+                return false;
+            }
+            for (int i = 0; i < oldDeps.size(); i++) {
+                if (!dependencyEquals(oldDeps.get(i), deps.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Determines if dependency are equal if their groupId, artifactId, version,
+         * type and scope are equal
+         * 
+         * @param dep1
+         * @param dep2
+         * @return return false if dependency objects are not equal, true if they are
+         */
+        private boolean dependencyEquals(Dependency dep1, Dependency dep2) {
+            if (!dep1.toString().equals(dep2.toString())) {
+                // compares groupId, artifactId, version, type
+                return false;
+            }
+            if (!dep1.getScope().equals(dep2.getScope())) {
+                return false;
+            }
+            return true;
         }
 
         private static final String LIBERTY_BOOTSTRAP_PROP = "liberty.bootstrap.";
@@ -602,9 +637,9 @@ public class DevMojo extends LooseAppSupport {
 
                     List<Dependency> deps = upstreamProject.getDependencies();
                     List<Dependency> oldDeps = backupUpstreamProject.getDependencies();
-                    if (!deps.equals(oldDeps)) {
+                    if (!dependencyListsEquals(deps,oldDeps)) {
                         // detect compile dependency changes
-                        if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
+                        if (!dependencyListsEquals(getCompileDependency(deps),getCompileDependency(oldDeps))) {
                             runLibertyMojoDeploy();
                         }
                     }
@@ -833,14 +868,15 @@ public class DevMojo extends LooseAppSupport {
 
                 List<Dependency> deps = project.getDependencies();
                 List<Dependency> oldDeps = backupProject.getDependencies();
-                if (!deps.equals(oldDeps)) {
+                if (!dependencyListsEquals(oldDeps, deps)) {
                     runBoostPackage = true;
                     // detect esa dependency changes
-                    if (!getEsaDependency(deps).equals(getEsaDependency(oldDeps))) {
+                    if (!dependencyListsEquals(getEsaDependency(deps), getEsaDependency(oldDeps))) {
                         installFeature = true;
                     }
+
                     // detect compile dependency changes
-                    if (!getCompileDependency(deps).equals(getCompileDependency(oldDeps))) {
+                    if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
                         redeployApp = true;
                         compileDependenciesChanged = true;
                     }
