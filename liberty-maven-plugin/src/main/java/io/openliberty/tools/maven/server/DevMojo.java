@@ -478,8 +478,7 @@ public class DevMojo extends LooseAppSupport {
             return deps;
         }
 
-        // returns a list of dependencies with scope compile or provided (also defines
-        // dependencies available for compilation)
+        // returns a list of dependencies used to build the project (scope compile or provided)
         private List<Dependency> getCompileDependency(List<Dependency> dependencies) {
             List<Dependency> deps = new ArrayList<Dependency>();
             if (dependencies != null) {
@@ -906,14 +905,31 @@ public class DevMojo extends LooseAppSupport {
                     util.restartServer();
                     return true;
                 } else {
-                    // TODO: confirm that a call to generate features is required when a build file is modified 
-                    // (ie. changes are not picked up by class file changes)
-                    // if we generate features here, we will also need to clear javaSourceClasses
-                    // we will also need to skip installing features on a failure
+                    // TODO: confirm that a call to generate features is required when a build file's compilation depdnencies are modified
+                    // if we generate features here we will also need to skip installing features on
+                    // a failure
                     if (compileDependenciesChanged && generateFeatures) {
-                        // build file change - provide updated classes and all existing features to binary scanner
-                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                        libertyGenerateFeatures(javaSourceClassPaths, false);
+                        if (util.isMultiModuleProject()) {
+                            ProjectModule proj = util.getProjectModule(buildFile); // null if main module
+                            // call generateFeatuers if
+                            // (1) main module's compile dependencies were modified and source directory exists
+                            // (2) module's compile dependencies were modified and there are dependent modules
+                            if ((proj == null && sourceDirectory.exists())
+                                    || (proj != null && !proj.getDependentModules().isEmpty())) {
+                                // build file change - provide updated classes and all existing features to
+                                // binary scanner
+                                Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                                libertyGenerateFeatures(javaSourceClassPaths, false);
+                                util.getJavaSourceClassPaths().clear();
+                            }
+                        } else if (sourceDirectory.exists()) {
+                            // build file change - provide updated classes and all existing features to
+                            // binary scanner
+                            Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
+                            libertyGenerateFeatures(javaSourceClassPaths, false);
+                            util.getJavaSourceClassPaths().clear();
+                        }
+
                     }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");

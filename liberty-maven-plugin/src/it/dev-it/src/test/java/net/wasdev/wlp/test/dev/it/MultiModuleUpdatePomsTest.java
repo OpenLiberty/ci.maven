@@ -117,7 +117,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation was not triggered since there are no source
+      // verify that feature generation was not triggered since there are no source class
       // files for the ear module
       assertEquals(getLogTail(), generateFeaturesCount,
             countOccurrences("Running liberty:generate-features", logFile));
