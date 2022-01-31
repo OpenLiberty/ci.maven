@@ -237,6 +237,7 @@ public class BaseDevTest {
    private static void stopProcess(boolean isDevMode, boolean checkForShutdownMessage) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
+         int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
          if(isDevMode) {
             writer.write("exit\n"); // trigger dev mode to shut down
          }
@@ -251,7 +252,7 @@ public class BaseDevTest {
 
          // test that the server has shut down
          if (checkForShutdownMessage) {
-            assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+            assertTrue(getLogTail(), verifyLogMessageExists("CWWKE0036I", 20000, ++serverStoppedOccurrences));
          }
       }
    }

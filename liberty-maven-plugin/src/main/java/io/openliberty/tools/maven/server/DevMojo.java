@@ -905,7 +905,7 @@ public class DevMojo extends LooseAppSupport {
                     util.restartServer();
                     return true;
                 } else {
-                    // TODO: confirm that a call to generate features is required when a build file's compilation depdnencies are modified
+                    // TODO: confirm that a call to generate features is required when a build file's compilation dependencies are modified
                     // if we generate features here we will also need to skip installing features on
                     // a failure
                     if (compileDependenciesChanged && generateFeatures) {
@@ -919,17 +919,18 @@ public class DevMojo extends LooseAppSupport {
                                 // build file change - provide updated classes and all existing features to
                                 // binary scanner
                                 Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                                libertyGenerateFeatures(javaSourceClassPaths, false);
-                                util.getJavaSourceClassPaths().clear();
+                                if (libertyGenerateFeatures(javaSourceClassPaths, false)) {
+                                    util.getJavaSourceClassPaths().clear();
+                                }
                             }
                         } else if (sourceDirectory.exists()) {
                             // build file change - provide updated classes and all existing features to
                             // binary scanner
                             Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
-                            libertyGenerateFeatures(javaSourceClassPaths, false);
-                            util.getJavaSourceClassPaths().clear();
+                            if (libertyGenerateFeatures(javaSourceClassPaths, false)) {
+                                util.getJavaSourceClassPaths().clear();
+                            }
                         }
-
                     }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
