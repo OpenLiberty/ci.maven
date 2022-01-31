@@ -34,9 +34,8 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      // TODO enable feature generation when https://github.com/OpenLiberty/ci.maven/issues/1375 is fixed
       setUpMultiModule("typeA", "ear", null);
-      run("-DgenerateFeatures=false");
+      run();
    }
 
    /**
@@ -55,6 +54,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       int warSourceCount = countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile);
       int warTestsCount = countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile);
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
+      int generateFeaturesCount = countOccurrences("Running liberty:generate-features", logFile);
 
       touchFileTwice("jar/pom.xml");
 
@@ -62,11 +62,20 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       Thread.sleep(3000);
 
       // count exact number of messages
-      assertEquals(getLogTail(), ++jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+
+      // verify that feature generation was trigggered
+      assertEquals(getLogTail(), ++generateFeaturesCount,
+            countOccurrences("Running liberty:generate-features", logFile));
 
       touchFileTwice("war/pom.xml");
 
@@ -75,11 +84,20 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
       // count exact number of messages
       // only war and ear should have had recompiles
-      assertEquals(getLogTail(), jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+
+      // verify that feature generation was triggered
+      assertEquals(getLogTail(), ++generateFeaturesCount,
+            countOccurrences("Running liberty:generate-features", logFile));
 
       touchFileTwice("ear/pom.xml");
 
@@ -88,13 +106,21 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
       // count exact number of messages
       // only ear should have had recompiles
-      assertEquals(getLogTail(), jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-
+      // verify that feature generation was not triggered since there are no source
+      // files for the ear module
+      assertEquals(getLogTail(), generateFeaturesCount,
+            countOccurrences("Running liberty:generate-features", logFile));
    }
 
 private void touchFileTwice(String path) throws InterruptedException {
