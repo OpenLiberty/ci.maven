@@ -95,4 +95,21 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
         assertEquals(expectedFeatures, features);
     }
+
+    @Test
+    public void serverXmlCommentTest() throws Exception {
+        // initially the expected comment is not found in server.xml
+        File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
+        // also we wish to test behaviour when there is no <featureManager> element so test that
+        assertFalse(verifyLogMessageExists("<featureManager>", 10, serverXmlFile));
+
+        runProcess("compile liberty:generate-features");
+
+        // verify that generated features file was created
+        assertTrue(newFeatureFile.exists());
+
+        // verify expected comment found in server.xml
+        assertTrue(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
+    }
 }
