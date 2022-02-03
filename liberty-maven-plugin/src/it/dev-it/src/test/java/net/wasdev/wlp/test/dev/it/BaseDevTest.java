@@ -61,6 +61,7 @@ public class BaseDevTest {
    static File pom;
    static BufferedWriter writer;
    static Process process;
+   final static String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
@@ -440,6 +441,22 @@ public class BaseDevTest {
          }
       }
       return false;
+   }
+
+   // get generated features file in source directory
+   protected static File getGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
+      String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
+      newFeatureFilePath += "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+      File newFeatureFile = new File(tempProj, newFeatureFilePath);
+      return newFeatureFile;
+   }
+
+   // get generated features file in target directory
+   protected static File getTargetGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
+      String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
+      newFeatureFilePath += "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+      File newTargetFeatureFile = new File(targetDir,newFeatureFilePath);
+      return newTargetFeatureFile;
    }
 
 }

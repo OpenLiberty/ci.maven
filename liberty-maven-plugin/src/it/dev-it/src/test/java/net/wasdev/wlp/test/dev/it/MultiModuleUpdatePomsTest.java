@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
     */
    @Test
    public void updatePomsTest() throws Exception {
-
       // Wait until the last module (ear) finishes compiling during dev mode startup
       // TODO: this can be removed if dev mode does not recompile after first starting up
       verifyLogMessageExists("guide-maven-multimodules-ear tests compilation was successful", 10000);
@@ -54,7 +53,11 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       int warSourceCount = countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile);
       int warTestsCount = countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile);
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
-      int generateFeaturesCount = countOccurrences("Running liberty:generate-features", logFile);
+
+      // verify that generated-features.xml file exists
+      File newFeatureFile = getGeneratedFeaturesFile("ear");
+      assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
+      long newFeatureFileLastModified = newFeatureFile.lastModified();
 
       touchFileTwice("jar/pom.xml");
 
@@ -73,9 +76,9 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation was trigggered
-      assertEquals(getLogTail(), ++generateFeaturesCount,
-            countOccurrences("Running liberty:generate-features", logFile));
+      // verify that feature generation ran
+      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      newFeatureFileLastModified = newFeatureFile.lastModified();
 
       touchFileTwice("war/pom.xml");
 
@@ -95,9 +98,9 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation was triggered
-      assertEquals(getLogTail(), ++generateFeaturesCount,
-            countOccurrences("Running liberty:generate-features", logFile));
+      // verify that feature generation ran
+      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      newFeatureFileLastModified = newFeatureFile.lastModified();
 
       touchFileTwice("ear/pom.xml");
 
@@ -117,18 +120,17 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation was not triggered since there are no source class
+      // verify that feature generation did not run since there are no source class
       // files for the ear module
-      assertEquals(getLogTail(), generateFeaturesCount,
-            countOccurrences("Running liberty:generate-features", logFile));
+      assertEquals("generated-features.xml was modified", newFeatureFileLastModified, newFeatureFile.lastModified());
    }
 
 private void touchFileTwice(String path) throws InterruptedException {
       File file = new File(tempProj, path);
       long time = System.currentTimeMillis();
       assertTrue(file.setLastModified(time));
-      Thread.sleep(20);
-      assertTrue(file.setLastModified(time+20));
+      Thread.sleep(40);
+      assertTrue(file.setLastModified(time+40));
 }
 
 
