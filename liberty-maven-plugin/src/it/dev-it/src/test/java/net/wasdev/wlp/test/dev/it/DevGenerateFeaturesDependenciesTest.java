@@ -55,6 +55,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
 
        int generateFeaturesCount = countOccurrences("Running liberty:generate-features", logFile);
+       assertTrue(verifyLogMessageExists("Source compilation was successful.", 10000));
 
        // modify MicroProfile umbrella dependency in pom.xml
        replaceString("<dependency>\n"
@@ -73,7 +74,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
        // Dev mode should now run the generate features mojo
       //  Thread.sleep(10000);
-       assertTrue(verifyLogMessageExists("Generated the following features:", 10000, logFile, ++generateFeaturesCount)); // mojo ran
+       assertTrue(getLogTail(), verifyLogMessageExists("Generated the following features:", 15000, logFile, ++generateFeaturesCount)); // mojo ran
        assertTrue(generatedFeaturesFile.exists());
        assertTrue(getLogTail(), lastModified < generatedFeaturesFile.lastModified());
        assertTrue(targetGeneratedFeaturesFile.exists());

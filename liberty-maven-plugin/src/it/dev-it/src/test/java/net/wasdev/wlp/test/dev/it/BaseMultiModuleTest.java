@@ -99,9 +99,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
    public void verifyTestsRan(String... moduleArtifactIds) throws Exception {
       for (String moduleArtifactId : moduleArtifactIds) {
          if (!moduleArtifactId.endsWith("ear")) {
-            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.",20000));
+            assertTrue(getLogTail(), verifyLogMessageExists("Unit tests for " + moduleArtifactId + " finished.",40000));
          }
-         assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 20000));
+         assertTrue(getLogTail(), verifyLogMessageExists("Integration tests for " + moduleArtifactId + " finished.", 40000));
       }
       assertFalse("Found CWWKM2179W message indicating incorrect app deployment. " + getLogTail(), verifyLogMessageExists("CWWKM2179W", 2000));
    }
