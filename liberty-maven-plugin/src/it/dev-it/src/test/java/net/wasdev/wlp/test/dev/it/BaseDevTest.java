@@ -444,6 +444,17 @@ public class BaseDevTest {
    }
 
    // get generated features file in source directory
+   protected static File getGeneratedFeaturesFile() throws Exception {
+      return getGeneratedFeaturesFile(null);
+   }
+
+   // get generated features file in target directory
+   protected static File getTargetGeneratedFeaturesFile() throws Exception {
+      return getTargetGeneratedFeaturesFile(null);
+   }
+
+   // get generated features file in source directory for the corresponding
+   // libertyConfigModule (module name)
    protected static File getGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
       String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
       newFeatureFilePath += "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
@@ -451,11 +462,13 @@ public class BaseDevTest {
       return newFeatureFile;
    }
 
-   // get generated features file in target directory
+   // get generated features file in target directory for the corresponding
+   // libertyConfigModule (module name)
    protected static File getTargetGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
       String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
-      newFeatureFilePath += "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
-      File newTargetFeatureFile = new File(targetDir,newFeatureFilePath);
+      newFeatureFilePath += "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"
+            + GENERATED_FEATURES_FILE_NAME;
+      File newTargetFeatureFile = new File(targetDir, newFeatureFilePath);
       return newTargetFeatureFile;
    }
 

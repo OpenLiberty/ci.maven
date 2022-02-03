@@ -201,8 +201,8 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
       assertFalse(verifyLogMessageExists("batch-1.0", 10000));
 
-      File newFeatureFile = getGeneratedFeaturesFile(null);
-      File newTargetFeatureFile = getTargetGeneratedFeaturesFile(null);
+      File newFeatureFile = getGeneratedFeaturesFile();
+      File newTargetFeatureFile = getTargetGeneratedFeaturesFile();
       File serverXmlFile = new File(tempProj, "/src/main/liberty/config/server.xml");
       assertTrue(serverXmlFile.exists());
 
@@ -247,4 +247,5 @@ public class DevTest extends BaseDevTest {
       assertEquals(GenerateFeaturesMojo.getMPVersion("mprestclient-10"), 0);
       assertEquals(GenerateFeaturesMojo.getMPVersion("Xmprestclient-1.0"), 0);
    }
+
 }
