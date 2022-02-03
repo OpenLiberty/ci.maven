@@ -148,6 +148,36 @@ public class BaseGenerateFeaturesTest {
         Files.write(path, content.getBytes(charset));
     }
 
+    protected static boolean verifyLogMessageExists(String message, int timeout, File log)
+        throws InterruptedException, FileNotFoundException, IOException {
+        int waited = 0;
+        int sleep = 10;
+        while (waited <= timeout) {
+            if (readFile(message, log)) {
+                return true;
+            }
+            Thread.sleep(sleep);
+            waited += sleep;
+        }
+        return false;
+    }
+
+    protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = br.readLine();
+        try {
+            while (line != null) {
+                if (line.contains(str)) {
+                    return true;
+                }
+                line = br.readLine();
+            }
+        } finally {
+            br.close();
+        }
+        return false;
+    }
+  
     /**
      * Given an configuration XML file return the features in the featureManager
      * element if any

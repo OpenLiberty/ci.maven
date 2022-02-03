@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,10 +80,10 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // complete the setup of the test
         File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
         replaceString("<!--replaceable-->",
-        "<featureManager>\n" +
-        "  <feature>servlet-4.0</feature>\n" +
-        "  <feature>usr:custom-1.0</feature>\n" +
-        "</featureManager>\n", serverXmlFile);
+            "<featureManager>\n" +
+            "  <feature>servlet-4.0</feature>\n" +
+            "  <feature>usr:custom-1.0</feature>\n" +
+            "</featureManager>\n", serverXmlFile);
         assertFalse("Before running", newFeatureFile.exists());
         // run the test
         runProcess("compile liberty:generate-features");
@@ -94,5 +96,51 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertEquals(processOutput, 1, features.size());
         List<String> expectedFeatures = Arrays.asList("jaxrs-2.1");
         assertEquals(expectedFeatures, features);
+    }
+
+    @Test
+    public void serverXmlCommentNoFMTest() throws Exception {
+        // initially the expected comment is not found in server.xml
+        File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
+        // also we wish to test behaviour when there is no <featureManager> element so test that
+        assertFalse(verifyLogMessageExists("<featureManager>", 10, serverXmlFile));
+
+        runProcess("compile liberty:generate-features");
+
+        // verify that generated features file was created
+        assertTrue(newFeatureFile.exists());
+
+        // verify expected comment found in server.xml
+        Charset charset = StandardCharsets.UTF_8;
+        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
+        serverXmlContents = "\n" + serverXmlContents;
+        assertTrue(serverXmlContents,
+            verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
+    }
+
+    @Test
+    public void serverXmlCommentFMTest() throws Exception {
+        File serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        replaceString("<!--replaceable-->",
+            "<!--Feature generation comment goes below this line-->\n" +
+            "  <featureManager>\n" +
+            "    <feature>servlet-4.0</feature>\n" +
+            "  </featureManager>\n", serverXmlFile);
+
+        // initially the expected comment is not found in server.xml
+        assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
+
+        runProcess("compile liberty:generate-features");
+
+        // verify that generated features file was created
+        assertTrue(newFeatureFile.exists());
+
+        // verify expected comment found in server.xml
+        Charset charset = StandardCharsets.UTF_8;
+        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
+        serverXmlContents = "\n" + serverXmlContents;
+        assertTrue(serverXmlContents,
+            verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
     }
 }
