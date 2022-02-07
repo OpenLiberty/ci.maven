@@ -61,6 +61,7 @@ public class BaseDevTest {
    static File pom;
    static BufferedWriter writer;
    static Process process;
+   final static String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
@@ -237,6 +238,7 @@ public class BaseDevTest {
    private static void stopProcess(boolean isDevMode, boolean checkForShutdownMessage) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
+         int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
          if(isDevMode) {
             writer.write("exit\n"); // trigger dev mode to shut down
          }
@@ -251,7 +253,7 @@ public class BaseDevTest {
 
          // test that the server has shut down
          if (checkForShutdownMessage) {
-            assertTrue(verifyLogMessageExists("CWWKE0036I", 20000));
+            assertTrue(getLogTail(), verifyLogMessageExists("CWWKE0036I", 20000, ++serverStoppedOccurrences));
          }
       }
    }
@@ -439,6 +441,35 @@ public class BaseDevTest {
          }
       }
       return false;
+   }
+
+   // get generated features file in source directory
+   protected static File getGeneratedFeaturesFile() throws Exception {
+      return getGeneratedFeaturesFile(null);
+   }
+
+   // get generated features file in target directory
+   protected static File getTargetGeneratedFeaturesFile() throws Exception {
+      return getTargetGeneratedFeaturesFile(null);
+   }
+
+   // get generated features file in source directory for the corresponding
+   // libertyConfigModule (module name)
+   protected static File getGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
+      String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
+      newFeatureFilePath += "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+      File newFeatureFile = new File(tempProj, newFeatureFilePath);
+      return newFeatureFile;
+   }
+
+   // get generated features file in target directory for the corresponding
+   // libertyConfigModule (module name)
+   protected static File getTargetGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
+      String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
+      newFeatureFilePath += "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"
+            + GENERATED_FEATURES_FILE_NAME;
+      File newTargetFeatureFile = new File(targetDir, newFeatureFilePath);
+      return newTargetFeatureFile;
    }
 
 }

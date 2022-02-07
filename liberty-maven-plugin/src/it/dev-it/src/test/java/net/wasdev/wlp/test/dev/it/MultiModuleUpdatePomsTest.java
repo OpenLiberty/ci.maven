@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,8 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      // TODO enable feature generation when https://github.com/OpenLiberty/ci.maven/issues/1375 is fixed
       setUpMultiModule("typeA", "ear", null);
-      run("-DgenerateFeatures=false");
+      run();
    }
 
    /**
@@ -45,7 +44,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
     */
    @Test
    public void updatePomsTest() throws Exception {
-
       // Wait until the last module (ear) finishes compiling during dev mode startup
       // TODO: this can be removed if dev mode does not recompile after first starting up
       verifyLogMessageExists("guide-maven-multimodules-ear tests compilation was successful", 10000);
@@ -56,17 +54,31 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       int warTestsCount = countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile);
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
 
+      // verify that generated-features.xml file exists
+      File newFeatureFile = getGeneratedFeaturesFile("ear");
+      assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
+      long newFeatureFileLastModified = newFeatureFile.lastModified();
+
       touchFileTwice("jar/pom.xml");
 
       // Give time for recompile to occur
       Thread.sleep(3000);
 
       // count exact number of messages
-      assertEquals(getLogTail(), ++jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+
+      // verify that feature generation ran
+      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      newFeatureFileLastModified = newFeatureFile.lastModified();
 
       touchFileTwice("war/pom.xml");
 
@@ -75,11 +87,20 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
       // count exact number of messages
       // only war and ear should have had recompiles
-      assertEquals(getLogTail(), jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+
+      // verify that feature generation ran
+      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      newFeatureFileLastModified = newFeatureFile.lastModified();
 
       touchFileTwice("ear/pom.xml");
 
@@ -88,13 +109,20 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
       // count exact number of messages
       // only ear should have had recompiles
-      assertEquals(getLogTail(), jarSourceCount, countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
-      assertEquals(getLogTail(), jarTestsCount, countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), warSourceCount, countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
-      assertEquals(getLogTail(), warTestsCount, countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
-      assertEquals(getLogTail(), ++earTestsCount, countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarSourceCount,
+            countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile));
+      assertEquals(getLogTail(), jarTestsCount,
+            countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), warSourceCount,
+            countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile));
+      assertEquals(getLogTail(), warTestsCount,
+            countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
+      assertEquals(getLogTail(), ++earTestsCount,
+            countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-
+      // verify that feature generation did not run since there are no source class
+      // files for the ear module
+      assertEquals("generated-features.xml was modified", newFeatureFileLastModified, newFeatureFile.lastModified());
    }
 
 private void touchFileTwice(String path) throws InterruptedException {
