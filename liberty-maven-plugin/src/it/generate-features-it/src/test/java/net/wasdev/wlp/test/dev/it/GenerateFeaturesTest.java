@@ -63,8 +63,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void basicTest() throws Exception {
-        runCompileGoal();
-        runGenerateFeaturesGoal();
+        runCompileAndGenerateFeatures();
         // verify that the target directory was created
         assertTrue(targetDir.exists());
 
@@ -112,8 +111,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
             "</featureManager>\n", serverXmlFile);
         assertFalse("Before running", newFeatureFile.exists());
         // run the test
-        runCompileGoal();
-        runGenerateFeaturesGoal();
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(newFeatureFile.exists());
@@ -132,8 +130,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // also we wish to test behaviour when there is no <featureManager> element so test that
         assertFalse(verifyLogMessageExists("<featureManager>", 10, serverXmlFile));
 
-        runCompileGoal();
-        runGenerateFeaturesGoal();
+        runCompileAndGenerateFeatures();
 
         // verify that generated features file was created
         assertTrue(newFeatureFile.exists());
@@ -158,8 +155,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // initially the expected comment is not found in server.xml
         assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
 
-        runCompileGoal();
-        runGenerateFeaturesGoal();
+        runCompileAndGenerateFeatures();
 
         // verify that generated features file was created
         assertTrue(newFeatureFile.exists());
@@ -172,12 +168,12 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
             verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
     }
 
-    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess("liberty:generate-features");
+    protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
+        runProcess("compile liberty:generate-features");
     }
 
-    protected void runCompileGoal() throws IOException, InterruptedException {
-        runProcess("compile");
+    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
+        runProcess("liberty:generate-features");
     }
 
     protected Set<String> getExpectedGeneratedFeaturesSet() {

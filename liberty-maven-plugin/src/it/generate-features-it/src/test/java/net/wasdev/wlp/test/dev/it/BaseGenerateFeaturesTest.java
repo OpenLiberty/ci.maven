@@ -177,7 +177,7 @@ public class BaseGenerateFeaturesTest {
      * element if any
      * 
      * @param file configuration XML file
-     * @return list of features, empty list if no features are found
+     * @return set of features, empty list if no features are found
      */
     protected static Set<String> readFeatures(File configurationFile) throws Exception {
         Set<String> features = new HashSet<String>();
