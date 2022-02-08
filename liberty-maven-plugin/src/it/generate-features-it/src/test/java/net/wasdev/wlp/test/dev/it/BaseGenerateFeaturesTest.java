@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -56,10 +57,8 @@ public class BaseGenerateFeaturesTest {
     static File tempProj;
     static File basicProj;
     static File logFile;
-    static File pom;
     static BufferedWriter writer;
     static Process process;
-    static File newFeatureFile;
     static File targetDir;
     static String processOutput = "";
 
@@ -76,12 +75,6 @@ public class BaseGenerateFeaturesTest {
         assertTrue(tempProj.listFiles().length > 0);
         logFile = new File(basicProj, "logFile.txt");
         assertTrue(logFile.createNewFile());
-
-        pom = new File(tempProj, "pom.xml");
-        assertTrue(pom.exists());
-
-        replaceVersion();
-        newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
     }
 
     protected static void cleanUpAfterTest() throws Exception {
@@ -132,11 +125,12 @@ public class BaseGenerateFeaturesTest {
         return builder;
     }
 
-    private static void replaceVersion() throws IOException {
+    protected static void replaceVersion(File dir) throws IOException {
+        File pomFile = new File(dir, "pom.xml");
         String pluginVersion = System.getProperty("mavenPluginVersion");
-        replaceString("SUB_VERSION", pluginVersion, pom);
+        replaceString("SUB_VERSION", pluginVersion, pomFile);
         String runtimeVersion = System.getProperty("runtimeVersion");
-        replaceString("RUNTIME_VERSION", runtimeVersion, pom);
+        replaceString("RUNTIME_VERSION", runtimeVersion, pomFile);
     }
 
     protected static void replaceString(String str, String replacement, File file) throws IOException {
@@ -185,8 +179,8 @@ public class BaseGenerateFeaturesTest {
      * @param file configuration XML file
      * @return list of features, empty list if no features are found
      */
-    protected static List<String> readFeatures(File configurationFile) throws Exception {
-        List<String> features = new ArrayList<String>();
+    protected static Set<String> readFeatures(File configurationFile) throws Exception {
+        Set<String> features = new HashSet<String>();
 
         // return empty list if file does not exist or is not an XML file
         if (!configurationFile.exists() || !configurationFile.getName().endsWith(".xml")) {
