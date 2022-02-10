@@ -83,7 +83,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       touchFileTwice("war/pom.xml");
 
       // Give time for recompile to occur
-      Thread.sleep(3000);
+      Thread.sleep(5000);
 
       // count exact number of messages
       // only war and ear should have had recompiles
@@ -122,7 +122,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
       // verify that feature generation did not run since there are no source class
       // files for the ear module
-      assertEquals("generated-features.xml was modified", newFeatureFileLastModified, newFeatureFile.lastModified());
+      assertEquals("generated-features.xml was modified\n" + getLogTail(), newFeatureFileLastModified, newFeatureFile.lastModified());
    }
 
 private void touchFileTwice(String path) throws InterruptedException {

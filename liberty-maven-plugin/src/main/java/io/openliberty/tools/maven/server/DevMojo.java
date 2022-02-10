@@ -908,11 +908,8 @@ public class DevMojo extends LooseAppSupport {
                     // TODO: if we generate features here we will also need to skip installing
                     // features on a failure
                     if (compileDependenciesChanged && generateFeatures) {
-                        // build file change - provide updated classes and all existing features to
-                        // binary scanner
-                        Collection<String> javaSourceClassPaths = util.getJavaSourceClassPaths();
                         // always optimize generate features on dependency change
-                        boolean generateFeaturesSuccess = libertyGenerateFeatures(javaSourceClassPaths, true);
+                        boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
                         if (generateFeaturesSuccess) {
                             util.getJavaSourceClassPaths().clear();
                         }
