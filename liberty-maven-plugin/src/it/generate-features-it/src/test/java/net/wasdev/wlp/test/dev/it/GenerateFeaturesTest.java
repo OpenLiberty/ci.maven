@@ -39,21 +39,9 @@ import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
  */
 public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
-    static File newFeatureFile;
-    static File serverXmlFile;
-    static File pom;
-    static File targetDir;
-
     @Before
     public void setUp() throws Exception {
         setUpBeforeTest("../resources/basic-dev-project");
-        pom = new File(tempProj, "pom.xml");
-        assertTrue(pom.exists());
-        replaceVersion(tempProj);
-
-        newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
-        serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
-        targetDir = new File(tempProj, "target");
     }
 
     @After

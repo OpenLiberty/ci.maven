@@ -54,6 +54,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class BaseGenerateFeaturesTest {
+
     static File tempProj;
     static File basicProj;
     static File logFile;
@@ -61,6 +62,9 @@ public class BaseGenerateFeaturesTest {
     static Process process;
     static File targetDir;
     static String processOutput = "";
+    static File newFeatureFile;
+    static File pom;
+    static File serverXmlFile;
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
     static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
@@ -75,6 +79,14 @@ public class BaseGenerateFeaturesTest {
         assertTrue(tempProj.listFiles().length > 0);
         logFile = new File(basicProj, "logFile.txt");
         assertTrue(logFile.createNewFile());
+
+        newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
+        pom = new File(tempProj, "pom.xml");
+        assertTrue(pom.exists());
+        replaceVersion(tempProj);
+
+        serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
+        targetDir = new File(tempProj, "target");
     }
 
     protected static void cleanUpAfterTest() throws Exception {
