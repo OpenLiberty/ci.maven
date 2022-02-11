@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,7 +61,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-1.1"));
         assertTrue(features.contains("cdi-1.2"));
     }
@@ -78,7 +79,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-1.1"));
         assertTrue(features.contains("cdi-2.0"));
     }
@@ -96,7 +97,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-1.2"));
         assertTrue(features.contains("cdi-2.0"));
     }
@@ -113,7 +114,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-1.4"));
         assertTrue(features.contains("cdi-2.0"));
     }
@@ -130,7 +131,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-2.0"));
         assertTrue(features.contains("cdi-2.0"));
     }
@@ -160,7 +161,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         assertTrue(processOutput, newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        List<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(newFeatureFile);
         assertTrue(features.contains("mpRestClient-2.0"));
         assertTrue(features.contains("cdi-2.0"));
     }
