@@ -16,6 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
+import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -156,12 +157,56 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
             verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
     }
 
-    protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("compile liberty:generate-features");
+    /**
+     * Conflict between user specified features
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void userConflictTest() throws Exception {
+        replaceString("<!--replaceable-->",
+                "<featureManager>\n" +
+                        getExpectedFeatureElementString() +
+                        "<feature>cdi-1.2</feature>\n" +
+                        "</featureManager>\n",
+                serverXmlFile);
+        runCompileAndGenerateFeatures();
+        Set<String> modifiedSet = new HashSet<String>();
+        modifiedSet.addAll(getExpectedGeneratedFeaturesSet());
+        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
+                processOutput.contains(
+                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), modifiedSet)));
     }
 
-    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess("liberty:generate-features");
+    /**
+     * Conflict between user specified features and API usage
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void userAndGeneratedConflictTest() throws Exception {
+        replaceString("<!--replaceable-->",
+                "<featureManager>\n" +
+                        "<feature>cdi-1.2</feature>\n" +
+                        "</featureManager>\n",
+                serverXmlFile);
+        runCompileAndGenerateFeatures();
+        Set<String> modifiedSet = new HashSet<String>();
+        modifiedSet.add("cdi-2.0");
+        modifiedSet.addAll(getExpectedGeneratedFeaturesSet());
+        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
+                processOutput.contains(
+                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), modifiedSet)));
+    }
+
+    // get the app features that conflict with cdi-1.2
+    protected Set<String> getCdi12ConflictingFeatures() {
+        // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("servlet-4.0");
+        conflictingFeatures.add("cdi-1.2");
+        conflictingFeatures.add("jaxrs-2.1");
+        return conflictingFeatures;
     }
 
     protected Set<String> getExpectedGeneratedFeaturesSet() {
@@ -177,4 +222,5 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         }
         return str.toString();
     }
+
 }

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
@@ -59,4 +60,20 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     protected Set<String> getExpectedGeneratedFeaturesSet() {
         return new HashSet<String>(Arrays.asList("cdi-2.0", "mpMetrics-3.0", "jaxrs-2.1"));
     }
+ 
+    @Override
+    protected Set<String> getCdi12ConflictingFeatures() {
+        // cdi-2.0 (EE8) conflicts with cdi-1.2 (EE7)
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("cdi-1.2");
+        conflictingFeatures.add("cdi-2.0");
+        return conflictingFeatures;
+    }
+
+    @Override
+    @Ignore // TODO re-enable this test once https://github.com/OpenLiberty/ci.maven/issues/1429 is resolved
+    @Test
+    public void userAndGeneratedConflictTest() throws Exception {
+    }
+
 }
