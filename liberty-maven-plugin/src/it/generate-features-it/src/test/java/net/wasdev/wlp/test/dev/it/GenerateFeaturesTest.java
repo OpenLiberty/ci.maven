@@ -199,6 +199,8 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                         String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), modifiedSet)));
     }
 
+    // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE 9
+
     // get the app features that conflict with cdi-1.2
     protected Set<String> getCdi12ConflictingFeatures() {
         // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)
