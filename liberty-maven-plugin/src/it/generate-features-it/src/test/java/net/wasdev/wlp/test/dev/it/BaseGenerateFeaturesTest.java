@@ -216,4 +216,12 @@ public class BaseGenerateFeaturesTest {
         }
         return features;
     }
+
+    protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
+        runProcess("compile liberty:generate-features");
+    }
+
+    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
+        runProcess("liberty:generate-features");
+    }
 }

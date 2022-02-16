@@ -55,7 +55,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "7.0", pomFile);
         replaceString("MP_VERSION", "1.4", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
@@ -73,7 +73,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "8.0", pomFile);
         replaceString("MP_VERSION", "1.4", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
@@ -91,7 +91,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "8.0", pomFile);
         replaceString("MP_VERSION", "2.1", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
@@ -108,7 +108,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "8.0", pomFile);
         replaceString("MP_VERSION", "3.0", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
@@ -125,7 +125,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "8.0", pomFile);
         replaceString("MP_VERSION", "4.1", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
@@ -155,7 +155,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
             "        </dependency>\n",
             pomFile);
         replaceString("MP_VERSION", "4.1", pomFile);
-        runProcess("compile liberty:generate-features");
+        runCompileAndGenerateFeatures();
 
         // verify that the generated features file was created
         assertTrue(processOutput, newFeatureFile.exists());
