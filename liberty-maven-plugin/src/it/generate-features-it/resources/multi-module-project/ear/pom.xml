@@ -30,6 +30,13 @@
             <version>1.0-SNAPSHOT</version>
             <type>war</type>
         </dependency>
+        <!-- Should be ignored as war module has EE8 dep, latest version found across multiple modules is used -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- For tests -->
         <dependency>
