@@ -201,6 +201,7 @@ public class DevTest extends BaseDevTest {
 
       // Verify generate features runs when dev mode first starts
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000));
+      int generateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000)); // started
       assertFalse(verifyLogMessageExists("batch-1.0", 10000)); // this will be added
 
@@ -220,7 +221,7 @@ public class DevTest extends BaseDevTest {
       File helloBatchObj = new File(tempProj, "target/classes/com/demo/HelloBatch.class");
       verifyFileExists(helloBatchObj, 15000);
       // ... and run the proper mojo.
-      assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000)); // mojo ran
+      assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++generateFeaturesCount)); // mojo ran
       assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
       assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // dev mode copied file
       assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile));
@@ -230,7 +231,6 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists("batch-1.0", 10000));
 
       // When there is a compilation error the generate features process should not run
-      int generateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       final String goodCode = "import javax.ws.rs.GET;";
       final String badCode  = "import javax.ws.rs.GET";
       final String errMsg = "Source compilation had errors.";
