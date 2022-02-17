@@ -158,12 +158,14 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     }
 
     /**
-     * Conflict between user specified features
+     * Conflict between user specified features.
+     * Check for BINARY_SCANNER_CONFLICT_MESSAGE2 (conflict between configured features)
      * 
      * @throws Exception
      */
     @Test
     public void userConflictTest() throws Exception {
+        // place expected generated features in server.xml and conflicting cdi-1.2
         replaceString("<!--replaceable-->",
                 "<featureManager>\n" +
                         getExpectedFeatureElementString() +
@@ -171,35 +173,41 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                         "</featureManager>\n",
                 serverXmlFile);
         runCompileAndGenerateFeatures();
-        Set<String> modifiedSet = new HashSet<String>();
-        modifiedSet.addAll(getExpectedGeneratedFeaturesSet());
+
+        // Verify BINARY_SCANNER_CONFLICT_MESSAGE2 error is thrown (BinaryScannerUtil.RecommendationSetException)
+        Set<String> recommendedFeatureSet = new HashSet<String>();
+        recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
                 processOutput.contains(
-                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), modifiedSet)));
+                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
 
     /**
-     * Conflict between user specified features and API usage
+     * Conflict between user specified features and API usage.
+     * Check for BINARY_SCANNER_CONFLICT_MESSAGE1 (conflict between configured features and API usage)
      * 
      * @throws Exception
      */
     @Test
     public void userAndGeneratedConflictTest() throws Exception {
+        // place conflicting feature cdi-1.2 in server.xml
         replaceString("<!--replaceable-->",
                 "<featureManager>\n" +
                         "<feature>cdi-1.2</feature>\n" +
                         "</featureManager>\n",
                 serverXmlFile);
         runCompileAndGenerateFeatures();
-        Set<String> modifiedSet = new HashSet<String>();
-        modifiedSet.add("cdi-2.0");
-        modifiedSet.addAll(getExpectedGeneratedFeaturesSet());
+
+        // Verify BINARY_SCANNER_CONFLICT_MESSAGE1 error is thrown (BinaryScannerUtil.FeatureModifiedException)
+        Set<String> recommendedFeatureSet = new HashSet<String>();
+        recommendedFeatureSet.add("cdi-2.0");
+        recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
                 processOutput.contains(
-                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), modifiedSet)));
+                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
 
-    // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE 9
+    // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE9
 
     // get the app features that conflict with cdi-1.2
     protected Set<String> getCdi12ConflictingFeatures() {
