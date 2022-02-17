@@ -236,7 +236,7 @@ public class DevTest extends BaseDevTest {
       final String errMsg = "Source compilation had errors.";
       int errCount = countOccurrences(errMsg, logFile);
       replaceString(goodCode, badCode, helloBatchSrc);
-      assertTrue(verifyLogMessageExists(errMsg, 15000, errCount+1)); // wait for compilation
+      assertTrue(getLogTail(), verifyLogMessageExists(errMsg, 15000, errCount+1)); // wait for compilation
       int updatedgenFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       assertEquals(generateFeaturesCount, updatedgenFeaturesCount);
 
