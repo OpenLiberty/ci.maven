@@ -9,16 +9,24 @@ The Maven Central repository includes the following Liberty runtime artifacts. V
 | Group ID : Artifact ID | Description |
 | ---------------------- | ----------- |
 | [`io.openliberty:openliberty-runtime`](https://repo1.maven.org/maven2/io/openliberty/openliberty-runtime/)  | Open Liberty runtime. |
+| [`io.openliberty:openliberty-jakartaee9`](https://repo1.maven.org/maven2/io/openliberty/openliberty-jakartaee9/)  | Open Liberty runtime with all Jakarta EE 9 features. |
 | [`io.openliberty:openliberty-javaee8`](https://repo1.maven.org/maven2/io/openliberty/openliberty-javaee8/)  | Open Liberty runtime with all Java EE 8 Full Platform features. |
+| [`io.openliberty:openliberty-webProfile9`](https://repo1.maven.org/maven2/io/openliberty/openliberty-webProfile9/)  | Open Liberty runtime with Jakarta EE 9 Web Profile features. |
 | [`io.openliberty:openliberty-webProfile8`](https://repo1.maven.org/maven2/io/openliberty/openliberty-webProfile8/)  | Open Liberty runtime with Java EE 8 Web Profile features. |
+| [`io.openliberty:openliberty-microProfile5`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile5/)  | Open Liberty runtime with features for a MicroProfile 5 runtime. |
+| [`io.openliberty:openliberty-microProfile4`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile4/)  | Open Liberty runtime with features for a MicroProfile 4 runtime. |
+| [`io.openliberty:openliberty-microProfile3`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile3/)  | Open Liberty runtime with features for a MicroProfile 3 runtime. |
 | [`io.openliberty:openliberty-kernel`](https://repo1.maven.org/maven2/io/openliberty/openliberty-kernel/)  | Open Liberty runtime kernel. |
+| [`com.ibm.websphere.appserver.runtime:wlp-jakartaee9`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-jakartaee9/)  | WebSphere Liberty runtime with all Jakarta EE 9 features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-javaee8`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee8/)  | WebSphere Liberty runtime with all Java EE 8 Full Platform features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-javaee7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee7/)  | WebSphere Liberty runtime with all Java EE 7 Full Platform features. |
+| [`com.ibm.websphere.appserver.runtime:wlp-webProfile9`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile9/) | WebSphere Liberty runtime with Jakarta EE 9 Web Profile features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-webProfile8`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile8/) | WebSphere Liberty runtime with Java EE 8 Web Profile features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-webProfile7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-webProfile7/) | WebSphere Liberty runtime with Java EE 7 Web Profile features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-kernel`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-kernel/)  | WebSphere Liberty runtime kernel. |
 | [`com.ibm.websphere.appserver.runtime:wlp-osgi`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-osgi/) |  WebSphere Liberty runtime with features that support OSGi applications. |
-| [`com.ibm.websphere.appserver.runtime:wlp-microProfile1`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile1/) | WebSphere Liberty with features for a MicroProfile runtime. |
+| [`com.ibm.websphere.appserver.runtime:wlp-microProfile2`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile2/) | WebSphere Liberty with features for a MicroProfile 2 runtime. |
+| [`com.ibm.websphere.appserver.runtime:wlp-microProfile1`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-microProfile1/) | WebSphere Liberty with features for a MicroProfile 1 runtime. |
 
 Example for using the `runtimeArtifact` parameter:
 
