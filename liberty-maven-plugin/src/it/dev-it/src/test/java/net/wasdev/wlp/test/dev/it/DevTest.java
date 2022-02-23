@@ -91,8 +91,6 @@ public class DevTest extends BaseDevTest {
       assertTrue(propertiesFile.delete());
       assertTrue(verifyFileDoesNotExist(targetPropertiesFile, 5000));
    }
-   
-   @Ignore // TODO enable when https://github.com/OpenLiberty/ci.maven/issues/1383 is fixed
    @Test
    public void testDirectoryTest() throws Exception {
       // create the test directory
@@ -112,6 +110,8 @@ public class DevTest extends BaseDevTest {
       assertTrue(getLogTail(), verifyFileExists(unitTestTargetFile, 6000));
       long lastModified = unitTestTargetFile.lastModified();
 
+      // The resolution of File.lastModified() is 1000 ms so wait long enough for lastModified() to register the modification.
+      Thread.sleep(2000);
       // modify the test file
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(unitTestSrcFile, true));
