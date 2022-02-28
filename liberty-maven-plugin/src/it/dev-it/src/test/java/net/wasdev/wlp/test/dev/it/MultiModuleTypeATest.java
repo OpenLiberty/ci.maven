@@ -56,6 +56,7 @@ public class MultiModuleTypeATest extends BaseMultiModuleTest {
             "ear/src/test/java/it/io/openliberty/guides/multimodules/ConverterAppIT.java",
             "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
       long targetLastModified = targetEarClass.lastModified();
+      waitLongEnough();
 
       testEndpointsAndUpstreamRecompile();
 

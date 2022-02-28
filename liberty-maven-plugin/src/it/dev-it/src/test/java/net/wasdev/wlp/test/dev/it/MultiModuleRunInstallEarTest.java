@@ -55,6 +55,7 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
       File ear = new File(System.getProperty("user.home"), ".m2/repository/io/openliberty/guides/guide-maven-multimodules-ear/1.0-SNAPSHOT/guide-maven-multimodules-ear-1.0-SNAPSHOT.ear");
       assertTrue(ear.exists());
       long lastModified = ear.lastModified();
+      waitLongEnough();
 
       // Install the real EAR file through Maven command
       runMvnInstallEar();
@@ -62,6 +63,7 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
       // Check file is updated
       long newModified = ear.lastModified();
       assertNotEquals(lastModified, newModified);
+      waitLongEnough();
 
       // Cleanup (stop Liberty)
       cleanUpAfterClass(false);

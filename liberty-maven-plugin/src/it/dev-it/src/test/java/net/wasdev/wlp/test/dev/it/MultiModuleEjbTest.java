@@ -57,6 +57,7 @@ public class MultiModuleEjbTest extends BaseMultiModuleTest {
       assertTrue(targetClass.exists());
 
       long lastModified = targetClass.lastModified();
+      waitLongEnough();
       replaceString("Hello EJB World.", "Hello EJB World 1.", srcClass);
 
       // wait for compilation

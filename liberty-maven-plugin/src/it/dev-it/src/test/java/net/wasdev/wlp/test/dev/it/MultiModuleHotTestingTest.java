@@ -50,6 +50,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
                 "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
         long targetLastModified = targetEarClass.lastModified();
 
+        waitLongEnough();
         testEndpointsAndUpstreamRecompile();
 
         // verify a source class in the war module was compiled

@@ -49,6 +49,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(generatedFeaturesFile.exists());
        assertTrue(targetGeneratedFeaturesFile.exists());
        long lastModified = generatedFeaturesFile.lastModified();
+       waitLongEnough();
 
        // verify mpHealth-2.2 is in generated features file
        assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000, generatedFeaturesFile));
@@ -73,7 +74,6 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
              pom);
 
        // Dev mode should now run the generate features mojo
-      //  Thread.sleep(10000);
        assertTrue(getLogTail(), verifyLogMessageExists("Generated the following features:", 15000, logFile, ++generateFeaturesCount)); // mojo ran
        assertTrue(generatedFeaturesFile.exists());
        assertTrue(getLogTail(), lastModified < generatedFeaturesFile.lastModified());

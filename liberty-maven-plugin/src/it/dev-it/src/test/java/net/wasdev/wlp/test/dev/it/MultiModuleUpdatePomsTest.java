@@ -58,6 +58,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       File newFeatureFile = getGeneratedFeaturesFile("ear");
       assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
       long newFeatureFileLastModified = newFeatureFile.lastModified();
+      waitLongEnough();
 
       touchFileTwice("jar/pom.xml");
 
@@ -79,6 +80,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       // verify that feature generation ran
       assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
       newFeatureFileLastModified = newFeatureFile.lastModified();
+      waitLongEnough();
 
       touchFileTwice("war/pom.xml");
 
@@ -101,6 +103,7 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       // verify that feature generation ran
       assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
       newFeatureFileLastModified = newFeatureFile.lastModified();
+      waitLongEnough();
 
       touchFileTwice("ear/pom.xml");
 

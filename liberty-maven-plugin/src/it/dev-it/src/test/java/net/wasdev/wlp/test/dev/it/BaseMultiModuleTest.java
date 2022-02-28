@@ -145,6 +145,7 @@ public class BaseMultiModuleTest extends BaseDevTest {
       assertTrue(targetClass.exists());
 
       long lastModified = targetClass.lastModified();
+      waitLongEnough();
       replaceString("return feet;", "return feet*2;", srcClass);
 
       // wait for compilation and app to update

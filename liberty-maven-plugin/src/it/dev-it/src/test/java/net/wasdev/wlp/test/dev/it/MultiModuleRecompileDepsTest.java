@@ -50,6 +50,7 @@ public class MultiModuleRecompileDepsTest extends BaseMultiModuleTest {
                         "war/src/main/java/io/openliberty/guides/multimodules/web/HeightsBean.java",
                         "war/target/classes/io/openliberty/guides/multimodules/web/HeightsBean.class");
             long warLastModified = targetWarClass.lastModified();
+            waitLongEnough();
             clearLogFile();
             testEndpointsAndUpstreamRecompile();
             // verify jar unit tests failed
