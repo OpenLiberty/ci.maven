@@ -427,7 +427,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             // if multiple EE versions are found across multiple modules, return the latest
             // version
             for (String ver : eeVersionsDetected) {
-                log.warn(ver);
                 if (Integer.parseInt(ver.substring(ver.lastIndexOf("ee") + 2)) > Integer
                         .parseInt(eeVersion.substring(eeVersion.lastIndexOf("ee") + 2))) {
                     eeVersion = ver;
@@ -496,7 +495,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             // if multiple MP versions are found across multiple modules, return the latest
             // version
             for (String ver : mpVersionsDetected) {
-                log.warn(ver);
                 if (Integer.parseInt(ver.substring(ver.lastIndexOf("mp") + 2)) > Integer
                         .parseInt(mpVersion.substring(mpVersion.lastIndexOf("mp") + 2))) {
                     mpVersion = ver;
