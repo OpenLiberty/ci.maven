@@ -91,7 +91,7 @@ public class DevTest extends BaseDevTest {
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
-      assertTrue(getLogTail(), verifyFileDoesNotExist(targetPropertiesFile, 5000));
+      assertTrue(getLogTail(), verifyFileDoesNotExist(targetPropertiesFile, 10000));
    }
 
    @Test
