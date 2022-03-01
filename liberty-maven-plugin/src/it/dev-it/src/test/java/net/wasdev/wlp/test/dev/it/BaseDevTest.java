@@ -266,6 +266,7 @@ public class BaseDevTest {
       assertTrue(targetHelloWorld.exists());
 
       long lastModified = targetHelloWorld.lastModified();
+      waitLongEnough();
       String str = "// testing";
       BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
       javaWriter.append(' ');
@@ -285,7 +286,7 @@ public class BaseDevTest {
             "classes/com/demo/HelloServlet.class");
       long helloServletLastModified = targetHelloServlet.lastModified();
 
-      testModifyJavaFile();
+      testModifyJavaFile(); // this method waits long enough
 
       // check that all files were recompiled
       assertTrue(waitForCompilation(targetHelloLogger, helloLoggerLastModified, 1000));
@@ -441,6 +442,13 @@ public class BaseDevTest {
          }
       }
       return false;
+   }
+
+   // Wait long enough that use of java.io.File.lastModified() is reliable to indicate
+   // a file has been changed between two instants of time. The problem is that the 
+   // method has a resolution of just 2000ms on Windows FAT and 1000ms on MacOS HFS+.
+   protected static void waitLongEnough() throws InterruptedException {
+      Thread.sleep(2001);
    }
 
    // get generated features file in source directory
