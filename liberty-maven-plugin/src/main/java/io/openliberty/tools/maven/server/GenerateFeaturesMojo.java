@@ -409,34 +409,36 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     /**
      * Returns the EE major version detected for the given MavenProjects
      * 
-     * @param mavenProjects project modules, null if a single module project
+     * @param mavenProjects project modules, for single module projects list of size 1
      * @return the latest version of EE detected across multiple project modules,
      *         null if an EE version is not found
      */
     public String getEEVersion(List<MavenProject> mavenProjects) {
         String eeVersion = null;
-        Set<String> eeVersionsDetected = new HashSet<String>();
-        for (MavenProject mavenProject : mavenProjects) {
-            String ver = getEEVersion(mavenProject);
-            if (ver != null) {
-                eeVersionsDetected.add(ver);
-            }
-        }
-        if (!eeVersionsDetected.isEmpty()) {
-            eeVersion = eeVersionsDetected.iterator().next();
-            // if multiple EE versions are found across multiple modules, return the latest
-            // version
-            for (String ver : eeVersionsDetected) {
-                if (Integer.parseInt(ver.substring(ver.lastIndexOf("ee") + 2)) > Integer
-                        .parseInt(eeVersion.substring(eeVersion.lastIndexOf("ee") + 2))) {
-                    eeVersion = ver;
+        if (mavenProjects != null) {
+            Set<String> eeVersionsDetected = new HashSet<String>();
+            for (MavenProject mavenProject : mavenProjects) {
+                String ver = getEEVersion(mavenProject);
+                if (ver != null) {
+                    eeVersionsDetected.add(ver);
                 }
             }
-        }
-        if (eeVersionsDetected.size() > 1) {
-            log.debug(
-                    "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version ("
-                            + eeVersion + ") found to generate Liberty features.");
+            if (!eeVersionsDetected.isEmpty()) {
+                eeVersion = eeVersionsDetected.iterator().next();
+                // if multiple EE versions are found across multiple modules, return the latest
+                // version
+                for (String ver : eeVersionsDetected) {
+                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("ee") + 2)) > Integer
+                            .parseInt(eeVersion.substring(eeVersion.lastIndexOf("ee") + 2))) {
+                        eeVersion = ver;
+                    }
+                }
+            }
+            if (eeVersionsDetected.size() > 1) {
+                log.debug(
+                        "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version ("
+                                + eeVersion + ") found to generate Liberty features.");
+            }
         }
         return eeVersion;
     }
@@ -451,24 +453,26 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      *         an EE umbrella dependency is not found
      */
     private String getEEVersion(MavenProject project) {
-        List<Dependency> dependencies = project.getDependencies();
-        for (Dependency d : dependencies) {
-            if (!d.getScope().equals("provided")) {
-                continue;
-            }
-            log.debug("getEEVersion, dep=" + d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion());
-            if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
-                if (d.getVersion().startsWith("8.")) {
-                    return BINARY_SCANNER_EEV8;
-                } else if (d.getVersion().startsWith("7.")) {
-                    return BINARY_SCANNER_EEV7;
-                } else if (d.getVersion().startsWith("6.")) {
-                    return BINARY_SCANNER_EEV6;
+        if (project != null) {
+            List<Dependency> dependencies = project.getDependencies();
+            for (Dependency d : dependencies) {
+                if (!d.getScope().equals("provided")) {
+                    continue;
                 }
-            } else if (d.getGroupId().equals("jakarta.platform") &&
-                    d.getArtifactId().equals("jakarta.jakartaee-api") &&
-                    d.getVersion().startsWith("8.")) {
-                return BINARY_SCANNER_EEV8;
+                log.debug("getEEVersion, dep=" + d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion());
+                if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
+                    if (d.getVersion().startsWith("8.")) {
+                        return BINARY_SCANNER_EEV8;
+                    } else if (d.getVersion().startsWith("7.")) {
+                        return BINARY_SCANNER_EEV7;
+                    } else if (d.getVersion().startsWith("6.")) {
+                        return BINARY_SCANNER_EEV6;
+                    }
+                } else if (d.getGroupId().equals("jakarta.platform") &&
+                        d.getArtifactId().equals("jakarta.jakartaee-api") &&
+                        d.getVersion().startsWith("8.")) {
+                    return BINARY_SCANNER_EEV8;
+                }
             }
         }
         return null;
@@ -477,34 +481,36 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     /**
      * Returns the MicroProfile major version detected for the given MavenProjects
      * 
-     * @param mavenProjects project modules, null if a single module project
+     * @param mavenProjects project modules, for single module projects list of size 1
      * @return the latest version of MP detected across multiple project modules,
      *         null if an MP version is not found
      */
     public String getMPVersion(List<MavenProject> mavenProjects) {
         String mpVersion = null;
-        Set<String> mpVersionsDetected = new HashSet<String>();
-        for (MavenProject mavenProject : mavenProjects) {
-            String ver = getMPVersion(mavenProject);
-            if (ver != null) {
-                mpVersionsDetected.add(ver);
-            }
-        }
-        if (!mpVersionsDetected.isEmpty()) {
-            mpVersion = mpVersionsDetected.iterator().next();
-            // if multiple MP versions are found across multiple modules, return the latest
-            // version
-            for (String ver : mpVersionsDetected) {
-                if (Integer.parseInt(ver.substring(ver.lastIndexOf("mp") + 2)) > Integer
-                        .parseInt(mpVersion.substring(mpVersion.lastIndexOf("mp") + 2))) {
-                    mpVersion = ver;
+        if (mavenProjects != null) {
+            Set<String> mpVersionsDetected = new HashSet<String>();
+            for (MavenProject mavenProject : mavenProjects) {
+                String ver = getMPVersion(mavenProject);
+                if (ver != null) {
+                    mpVersionsDetected.add(ver);
                 }
             }
-        }
-        if (mpVersionsDetected.size() > 1) {
-            log.debug(
-                    "Multiple MicroProfile versions found across multiple project modules, using the latest version ("
-                            + mpVersion + ") found to generate Liberty features.");
+            if (!mpVersionsDetected.isEmpty()) {
+                mpVersion = mpVersionsDetected.iterator().next();
+                // if multiple MP versions are found across multiple modules, return the latest
+                // version
+                for (String ver : mpVersionsDetected) {
+                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("mp") + 2)) > Integer
+                            .parseInt(mpVersion.substring(mpVersion.lastIndexOf("mp") + 2))) {
+                        mpVersion = ver;
+                    }
+                }
+            }
+            if (mpVersionsDetected.size() > 1) {
+                log.debug(
+                        "Multiple MicroProfile versions found across multiple project modules, using the latest version ("
+                                + mpVersion + ") found to generate Liberty features.");
+            }
         }
         return mpVersion;
     }
@@ -518,29 +524,32 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      * @return MP major version corresponding to the MP umbrella dependency, null if
      *         an MP umbrella dependency is not found
      */
-    public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
-        List<Dependency> dependencies = project.getDependencies();
-        for (Dependency d : dependencies) {
-            if (!d.getScope().equals("provided")) {
-                continue;
-            }
-            if (d.getGroupId().equals("org.eclipse.microprofile") &&
-                d.getArtifactId().equals("microprofile")) {
-                String version = d.getVersion();
-                log.debug("dep=org.eclipse.microprofile:microprofile version="+version);
-                if (version.startsWith("1")) {
-                    return BINARY_SCANNER_MPV1;
-                } else if (version.startsWith("2")) {
-                    return BINARY_SCANNER_MPV2;
-                } else if (version.startsWith("3")) {
-                    return BINARY_SCANNER_MPV3;
+    public String getMPVersion(MavenProject project) { // figure out correct level of MP from declared dependencies
+        if (project != null) {
+            List<Dependency> dependencies = project.getDependencies();
+            for (Dependency d : dependencies) {
+                if (!d.getScope().equals("provided")) {
+                    continue;
                 }
-                return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
+                if (d.getGroupId().equals("org.eclipse.microprofile") &&
+                        d.getArtifactId().equals("microprofile")) {
+                    String version = d.getVersion();
+                    log.debug("dep=org.eclipse.microprofile:microprofile version=" + version);
+                    if (version.startsWith("1")) {
+                        return BINARY_SCANNER_MPV1;
+                    } else if (version.startsWith("2")) {
+                        return BINARY_SCANNER_MPV2;
+                    } else if (version.startsWith("3")) {
+                        return BINARY_SCANNER_MPV3;
+                    }
+                    return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
+                }
+                // if (d.getGroupId().equals("io.openliberty.features")) {
+                // mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
+                // log.debug("dep=io.openliberty.features:"+d.getArtifactId()+"
+                // mpVersion="+mpVersion);
+                // }
             }
-            // if (d.getGroupId().equals("io.openliberty.features")) {
-            //     mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
-            //     log.debug("dep=io.openliberty.features:"+d.getArtifactId()+" mpVersion="+mpVersion);
-            // }
         }
         return null;
     }
