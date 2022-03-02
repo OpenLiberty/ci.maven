@@ -167,14 +167,17 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
         Set<String> scannedFeatureList = null;
         try {
-            Set<String> directories = getClassesDirectories(upstreamProjects);
+            List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
+            mavenProjects.addAll(upstreamProjects);
+            mavenProjects.add(project);
+            Set<String> directories = getClassesDirectories(mavenProjects);
             if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
                 // log as warning and continue to call binary scanner to detect conflicts in
                 // user specified features
                 log.warn(NO_CLASSES_DIR_WARNING);
             }
-            String eeVersion = getEEVersion(project);
-            String mpVersion = getMPVersion(project);
+            String eeVersion = getEEVersion(mavenProjects);
+            String mpVersion = getMPVersion(mavenProjects);
             scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
@@ -370,21 +373,14 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         return;
     }
 
-    // Return a list containing the classes directory of the current project and any
-    // upstream module projects
-    private Set<String> getClassesDirectories(List<MavenProject> upstreamProjects) throws MojoExecutionException {
+    // Return a list containing the classes directory of the Maven projects (upstream projects and main project)
+    private Set<String> getClassesDirectories(List<MavenProject> mavenProjects) throws MojoExecutionException {
         Set<String> dirs = new HashSet<String>();
         String classesDirName = null;
-        // First check the Java build output directory (target/classes) for the current
-        // project
-        classesDirName = getClassesDirectory(project.getBuild().getOutputDirectory());
-        if (classesDirName != null) {
-            dirs.add(classesDirName);
-        }
-        log.debug("For binary scanner gathering Java build output directories for upstream projects, size="
-                + upstreamProjects.size());
-        for (MavenProject upstreamProject : upstreamProjects) {
-            classesDirName = getClassesDirectory(upstreamProject.getBuild().getOutputDirectory());
+        log.debug("For binary scanner gathering Java build output directories for Maven projects, size="
+                + mavenProjects.size());
+        for (MavenProject mavenProject : mavenProjects) {
+            classesDirName = getClassesDirectory(mavenProject.getBuild().getOutputDirectory());
             if (classesDirName != null) {
                 dirs.add(classesDirName);
             }
@@ -410,53 +406,150 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         return null; // directory does not exist.
     }
 
-    public String getEEVersion(MavenProject project) {
-        List<Dependency> dependencies = project.getDependencies();
-        for (Dependency d : dependencies) {
-            if (!d.getScope().equals("provided")) {
-                continue;
-            }
-            log.debug("getEEVersion, dep="+d.getGroupId()+":"+d.getArtifactId()+":"+d.getVersion());
-            if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
-                if (d.getVersion().startsWith("8.")) {
-                    return BINARY_SCANNER_EEV8;
-                } else if (d.getVersion().startsWith("7.")) {
-                    return BINARY_SCANNER_EEV7;
-                } else if (d.getVersion().startsWith("6.")) {
-                    return BINARY_SCANNER_EEV6;
+    /**
+     * Returns the EE major version detected for the given MavenProjects
+     * 
+     * @param mavenProjects project modules, for single module projects list of size 1
+     * @return the latest version of EE detected across multiple project modules,
+     *         null if an EE version is not found
+     */
+    public String getEEVersion(List<MavenProject> mavenProjects) {
+        String eeVersion = null;
+        if (mavenProjects != null) {
+            Set<String> eeVersionsDetected = new HashSet<String>();
+            for (MavenProject mavenProject : mavenProjects) {
+                String ver = getEEVersion(mavenProject);
+                if (ver != null) {
+                    eeVersionsDetected.add(ver);
                 }
-            } else if (d.getGroupId().equals("jakarta.platform") &&
-                    d.getArtifactId().equals("jakarta.jakartaee-api") &&
-                    d.getVersion().startsWith("8.")) {
-                return BINARY_SCANNER_EEV8;
+            }
+            if (!eeVersionsDetected.isEmpty()) {
+                eeVersion = eeVersionsDetected.iterator().next();
+                // if multiple EE versions are found across multiple modules, return the latest
+                // version
+                for (String ver : eeVersionsDetected) {
+                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("ee") + 2)) > Integer
+                            .parseInt(eeVersion.substring(eeVersion.lastIndexOf("ee") + 2))) {
+                        eeVersion = ver;
+                    }
+                }
+            }
+            if (eeVersionsDetected.size() > 1) {
+                log.debug(
+                        "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version ("
+                                + eeVersion + ") found to generate Liberty features.");
+            }
+        }
+        return eeVersion;
+    }
+
+    /**
+     * Returns the EE major version detected for the given MavenProject.
+     * To match the Maven "nearest in the dependency tree" strategy, this method
+     * will return the first EE umbrella dependency version detected.
+     * 
+     * @param project the MavenProject to search
+     * @return EE major version corresponding to the EE umbrella dependency, null if
+     *         an EE umbrella dependency is not found
+     */
+    private String getEEVersion(MavenProject project) {
+        if (project != null) {
+            List<Dependency> dependencies = project.getDependencies();
+            for (Dependency d : dependencies) {
+                if (!d.getScope().equals("provided")) {
+                    continue;
+                }
+                log.debug("getEEVersion, dep=" + d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion());
+                if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
+                    if (d.getVersion().startsWith("8.")) {
+                        return BINARY_SCANNER_EEV8;
+                    } else if (d.getVersion().startsWith("7.")) {
+                        return BINARY_SCANNER_EEV7;
+                    } else if (d.getVersion().startsWith("6.")) {
+                        return BINARY_SCANNER_EEV6;
+                    }
+                } else if (d.getGroupId().equals("jakarta.platform") &&
+                        d.getArtifactId().equals("jakarta.jakartaee-api") &&
+                        d.getVersion().startsWith("8.")) {
+                    return BINARY_SCANNER_EEV8;
+                }
             }
         }
         return null;
     }
 
-    public String getMPVersion(MavenProject project) {  // figure out correct level of mp from declared dependencies
-        List<Dependency> dependencies = project.getDependencies();
-        for (Dependency d : dependencies) {
-            if (!d.getScope().equals("provided")) {
-                continue;
-            }
-            if (d.getGroupId().equals("org.eclipse.microprofile") &&
-                d.getArtifactId().equals("microprofile")) {
-                String version = d.getVersion();
-                log.debug("dep=org.eclipse.microprofile:microprofile version="+version);
-                if (version.startsWith("1")) {
-                    return BINARY_SCANNER_MPV1;
-                } else if (version.startsWith("2")) {
-                    return BINARY_SCANNER_MPV2;
-                } else if (version.startsWith("3")) {
-                    return BINARY_SCANNER_MPV3;
+    /**
+     * Returns the MicroProfile major version detected for the given MavenProjects
+     * 
+     * @param mavenProjects project modules, for single module projects list of size 1
+     * @return the latest version of MP detected across multiple project modules,
+     *         null if an MP version is not found
+     */
+    public String getMPVersion(List<MavenProject> mavenProjects) {
+        String mpVersion = null;
+        if (mavenProjects != null) {
+            Set<String> mpVersionsDetected = new HashSet<String>();
+            for (MavenProject mavenProject : mavenProjects) {
+                String ver = getMPVersion(mavenProject);
+                if (ver != null) {
+                    mpVersionsDetected.add(ver);
                 }
-                return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
             }
-            // if (d.getGroupId().equals("io.openliberty.features")) {
-            //     mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
-            //     log.debug("dep=io.openliberty.features:"+d.getArtifactId()+" mpVersion="+mpVersion);
-            // }
+            if (!mpVersionsDetected.isEmpty()) {
+                mpVersion = mpVersionsDetected.iterator().next();
+                // if multiple MP versions are found across multiple modules, return the latest
+                // version
+                for (String ver : mpVersionsDetected) {
+                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("mp") + 2)) > Integer
+                            .parseInt(mpVersion.substring(mpVersion.lastIndexOf("mp") + 2))) {
+                        mpVersion = ver;
+                    }
+                }
+            }
+            if (mpVersionsDetected.size() > 1) {
+                log.debug(
+                        "Multiple MicroProfile versions found across multiple project modules, using the latest version ("
+                                + mpVersion + ") found to generate Liberty features.");
+            }
+        }
+        return mpVersion;
+    }
+
+    /**
+     * Returns the MicroProfile (MP) major version detected for the given MavenProject
+     * To match the Maven "nearest in the dependency tree" strategy, this method
+     * will return the first MP umbrella dependency version detected.
+     * 
+     * @param project the MavenProject to search
+     * @return MP major version corresponding to the MP umbrella dependency, null if
+     *         an MP umbrella dependency is not found
+     */
+    public String getMPVersion(MavenProject project) { // figure out correct level of MP from declared dependencies
+        if (project != null) {
+            List<Dependency> dependencies = project.getDependencies();
+            for (Dependency d : dependencies) {
+                if (!d.getScope().equals("provided")) {
+                    continue;
+                }
+                if (d.getGroupId().equals("org.eclipse.microprofile") &&
+                        d.getArtifactId().equals("microprofile")) {
+                    String version = d.getVersion();
+                    log.debug("dep=org.eclipse.microprofile:microprofile version=" + version);
+                    if (version.startsWith("1")) {
+                        return BINARY_SCANNER_MPV1;
+                    } else if (version.startsWith("2")) {
+                        return BINARY_SCANNER_MPV2;
+                    } else if (version.startsWith("3")) {
+                        return BINARY_SCANNER_MPV3;
+                    }
+                    return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
+                }
+                // if (d.getGroupId().equals("io.openliberty.features")) {
+                // mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
+                // log.debug("dep=io.openliberty.features:"+d.getArtifactId()+"
+                // mpVersion="+mpVersion);
+                // }
+            }
         }
         return null;
     }
