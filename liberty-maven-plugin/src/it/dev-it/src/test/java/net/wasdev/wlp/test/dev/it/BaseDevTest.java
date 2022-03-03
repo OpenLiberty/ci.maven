@@ -62,6 +62,7 @@ public class BaseDevTest {
    static BufferedWriter writer;
    static Process process;
    final static String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
+   final static String RUNNING_GENERATE_FEATURES = "Running liberty:generate-features";
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
