@@ -62,6 +62,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
@@ -943,7 +944,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public void checkConfigFile(File configFile, File serverDir) {
+        public void installFeatures(File configFile, File serverDir) {
             try {
                 ServerFeatureUtil servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
@@ -964,6 +965,35 @@ public class DevMojo extends LooseAppSupport {
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
             }
+        }
+
+        @Override
+        public boolean serverFeaturesModified(File configDirectory) {
+            ServerFeatureUtil servUtil = getServerFeatureUtil();
+            servUtil.suppressLogs = true; // suppress logs from ServerFeatureUtil, otherwise will flood dev console
+            // get server features from the config directory, exclude generated-features.xml
+            Set<String> generatedFiles = new HashSet<String>();
+            generatedFiles.add(BinaryScannerUtil.GENERATED_FEATURES_FILE_NAME);
+            Set<String> features = servUtil.getServerFeatures(configDirectory, serverXmlFile,
+                    new HashMap<String, File>(), generatedFiles);
+            servUtil.suppressLogs = false; // re-enable logs from ServerFeatureUtil
+            // check if features have been added
+            Set<String> featuresCopy = new HashSet<String>();
+            featuresCopy.addAll(features);
+            featuresCopy.removeAll(existingFeatures);
+            if (!featuresCopy.isEmpty()) {
+                return true;
+            }
+
+            Set<String> existingFeaturesCopy = new HashSet<String>();
+            existingFeaturesCopy.addAll(existingFeatures);
+            // check if features have been removed
+            existingFeaturesCopy.removeAll(features);
+            if (!existingFeaturesCopy.isEmpty()) {
+                return true;
+            }
+
+            return false;
         }
 
         @Override
