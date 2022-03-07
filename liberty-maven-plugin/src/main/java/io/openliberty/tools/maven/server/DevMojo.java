@@ -976,27 +976,37 @@ public class DevMojo extends LooseAppSupport {
             generatedFiles.add(BinaryScannerUtil.GENERATED_FEATURES_FILE_NAME);
             Set<String> features = servUtil.getServerFeatures(configDirectory, serverXmlFile,
                     new HashMap<String, File>(), generatedFiles);
+            // exclude generated features from the features list
+            Set<String> generatedFeatures = servUtil.getServerXmlFeatures(null,
+            new File(configDirectory, BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH), null, null);
             servUtil.setSuppressLogs(false); // re-enable logs from ServerFeatureUtil
 
-            if (features == null) {
-                return false;
-            }
-            // check if features have been added
-            Set<String> featuresCopy = new HashSet<String>();
-            featuresCopy.addAll(features);
-            featuresCopy.removeAll(existingFeatures);
-            if (!featuresCopy.isEmpty()) {
-                return true;
-            }
+            if (features != null) {
+                // remove generated features in the case that they have been manually added to server config
+                if (generatedFeatures != null) {
+                    features.removeAll(generatedFeatures);
+                }
 
-            // check if features have been removed
-            Set<String> existingFeaturesCopy = new HashSet<String>();
-            existingFeaturesCopy.addAll(existingFeatures);
-            existingFeaturesCopy.removeAll(features);
-            if (!existingFeaturesCopy.isEmpty()) {
-                return true;
-            }
+                // check if features have been added
+                Set<String> featuresCopy = new HashSet<String>();
+                featuresCopy.addAll(features);
+                if (existingFeatures != null) {
+                    featuresCopy.removeAll(existingFeatures);
+                }
+                if (!featuresCopy.isEmpty()) {
+                    return true; // features have been added
+                }
 
+                // check if features have been removed
+                Set<String> existingFeaturesCopy = new HashSet<String>();
+                if (existingFeatures != null) {
+                    existingFeaturesCopy.addAll(existingFeatures);
+                    existingFeaturesCopy.removeAll(features);
+                    if (!existingFeaturesCopy.isEmpty()) {
+                        return true; // features have been removed
+                    }
+                }
+            }
             return false;
         }
 
