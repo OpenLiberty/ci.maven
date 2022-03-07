@@ -970,13 +970,17 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public boolean serverFeaturesModified(File configDirectory) {
             ServerFeatureUtil servUtil = getServerFeatureUtil();
-            servUtil.suppressLogs = true; // suppress logs from ServerFeatureUtil, otherwise will flood dev console
+            servUtil.setSuppressLogs(true); // suppress logs from ServerFeatureUtil, otherwise will flood dev console
             // get server features from the config directory, exclude generated-features.xml
             Set<String> generatedFiles = new HashSet<String>();
             generatedFiles.add(BinaryScannerUtil.GENERATED_FEATURES_FILE_NAME);
             Set<String> features = servUtil.getServerFeatures(configDirectory, serverXmlFile,
                     new HashMap<String, File>(), generatedFiles);
-            servUtil.suppressLogs = false; // re-enable logs from ServerFeatureUtil
+            servUtil.setSuppressLogs(false); // re-enable logs from ServerFeatureUtil
+
+            if (features == null) {
+                return false;
+            }
             // check if features have been added
             Set<String> featuresCopy = new HashSet<String>();
             featuresCopy.addAll(features);
@@ -985,9 +989,9 @@ public class DevMojo extends LooseAppSupport {
                 return true;
             }
 
+            // check if features have been removed
             Set<String> existingFeaturesCopy = new HashSet<String>();
             existingFeaturesCopy.addAll(existingFeatures);
-            // check if features have been removed
             existingFeaturesCopy.removeAll(features);
             if (!existingFeaturesCopy.isEmpty()) {
                 return true;
