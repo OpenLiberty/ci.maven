@@ -194,13 +194,11 @@ public class ExecuteMojoUtil {
             "assemblyInstallDirectory", "refresh", "skip", "serverXmlFile", "configDirectory", 
             "serverEnvFile", "mergeServerEnv"
     // executeMojo can not use alias parameters:
-    // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory"
+    // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory" "configFile" "serverEnv"
     ));
 
     private static final ArrayList<String> LIBERTY_COMMON_SERVER_PARAMS = new ArrayList<>(
             Arrays.asList("copyDependencies", "bootstrapProperties", "bootstrapPropertiesFile", "jvmOptions", "jvmOptionsFile"
-            // executeMojo can not use alias parameters:
-            // "configFile", "serverEnv"
             ));
     
     private static final ArrayList<String> CREATE_PARAMS;
