@@ -62,7 +62,6 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
@@ -949,7 +948,20 @@ public class DevMojo extends LooseAppSupport {
                 ServerFeatureUtil servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
-                    features.removeAll(existingFeatures);
+                    Set<String> featuresCopy = new HashSet<String>(features);
+
+                    if (existingFeatures != null) {
+                        features.removeAll(existingFeatures);
+                        // check if features have been removed
+                        Set<String> existingFeaturesCopy = new HashSet<String>(existingFeatures);
+                        existingFeaturesCopy.removeAll(featuresCopy);
+                        if (!existingFeaturesCopy.isEmpty()) {
+                            log.info("Configuration features have been removed");
+                            existingFeatures.removeAll(existingFeaturesCopy);
+                        }
+                    }
+
+                    // check if features have been added and install new features
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added");
                         Element[] featureElems = new Element[features.size() + 1];
@@ -959,7 +971,7 @@ public class DevMojo extends LooseAppSupport {
                             featureElems[i + 1] = element(name("feature"), values[i]);
                         }
                         runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
-                        this.existingFeatures.addAll(features);
+                        existingFeatures.addAll(features);
                     }
                 }
             } catch (MojoExecutionException e) {
