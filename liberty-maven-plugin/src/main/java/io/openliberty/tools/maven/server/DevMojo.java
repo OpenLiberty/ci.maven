@@ -968,24 +968,13 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public boolean serverFeaturesModified(File configDirectory) {
-            ServerFeatureUtil servUtil = getServerFeatureUtil();
-            servUtil.setSuppressLogs(true); // suppress logs from ServerFeatureUtil, otherwise will flood dev console
-            // get server features from the config directory, exclude generated-features.xml
-            Set<String> generatedFiles = new HashSet<String>();
-            generatedFiles.add(BinaryScannerUtil.GENERATED_FEATURES_FILE_NAME);
-            // if serverXmlFile is null, getServerFeatures will use the default server.xml in the configDirectory
-            Set<String> features = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                    new HashMap<String, File>(), generatedFiles);
+        public ServerFeatureUtil getServerFeatureUtilObj() {
+            return getServerFeatureUtil();
+        }
 
-            // exclude generated features from the features list
-            Set<String> generatedFeatures = servUtil.getServerXmlFeatures(null,
-                    new File(configDirectory, BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH), null, null);
-            servUtil.setSuppressLogs(false); // re-enable logs from ServerFeatureUtil
-            if (features != null && generatedFeatures != null) {
-                features.removeAll(generatedFeatures);
-            }
-            return servUtil.featuresModified(features, existingFeatures);
+        @Override
+        public Set<String> getExistingFeatures() {
+            return this.existingFeatures;
         }
 
         @Override
