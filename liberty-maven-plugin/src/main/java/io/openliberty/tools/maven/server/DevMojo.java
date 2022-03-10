@@ -943,12 +943,25 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public void checkConfigFile(File configFile, File serverDir) {
+        public void installFeatures(File configFile, File serverDir) {
             try {
                 ServerFeatureUtil servUtil = getServerFeatureUtil();
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
-                    features.removeAll(existingFeatures);
+                    Set<String> featuresCopy = new HashSet<String>(features);
+
+                    if (existingFeatures != null) {
+                        features.removeAll(existingFeatures);
+                        // check if features have been removed
+                        Set<String> existingFeaturesCopy = new HashSet<String>(existingFeatures);
+                        existingFeaturesCopy.removeAll(featuresCopy);
+                        if (!existingFeaturesCopy.isEmpty()) {
+                            log.info("Configuration features have been removed");
+                            existingFeatures.removeAll(existingFeaturesCopy);
+                        }
+                    }
+
+                    // check if features have been added and install new features
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added");
                         Element[] featureElems = new Element[features.size() + 1];
@@ -958,12 +971,22 @@ public class DevMojo extends LooseAppSupport {
                             featureElems[i + 1] = element(name("feature"), values[i]);
                         }
                         runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
-                        this.existingFeatures.addAll(features);
+                        existingFeatures.addAll(features);
                     }
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
             }
+        }
+
+        @Override
+        public ServerFeatureUtil getServerFeatureUtilObj() {
+            return getServerFeatureUtil();
+        }
+
+        @Override
+        public Set<String> getExistingFeatures() {
+            return this.existingFeatures;
         }
 
         @Override

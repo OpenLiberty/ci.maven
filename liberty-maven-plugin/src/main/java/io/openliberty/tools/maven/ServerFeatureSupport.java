@@ -51,12 +51,16 @@ public class ServerFeatureSupport extends BasicSupport {
 
         @Override
         public void warn(String msg) {
-            log.warn(msg);
+            if (!suppressLogs) {
+                log.warn(msg);
+            }
         }
 
         @Override
         public void info(String msg) {
-            log.info(msg);
+            if (!suppressLogs) {
+                log.info(msg);
+            }
         }
 
         @Override
