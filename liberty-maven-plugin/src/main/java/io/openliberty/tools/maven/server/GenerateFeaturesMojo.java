@@ -640,6 +640,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         public void info(String msg) {
             log.info(msg);
         }
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
+        }
     }
 
 }
