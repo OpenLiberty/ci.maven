@@ -176,9 +176,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 // user specified features
                 log.warn(NO_CLASSES_DIR_WARNING);
             }
+            String logLocation = project.getBuild().getDirectory();
             String eeVersion = getEEVersion(mavenProjects);
             String mpVersion = getMPVersion(mavenProjects);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, eeVersion, mpVersion, optimize);
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, eeVersion, mpVersion, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
@@ -638,6 +639,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         @Override
         public void info(String msg) {
             log.info(msg);
+        }
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
         }
     }
 
