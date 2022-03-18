@@ -795,7 +795,7 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         public boolean recompileBuildFile(File buildFile, Set<String> compileArtifactPaths,
-                Set<String> testArtifactPaths, ThreadPoolExecutor executor) throws PluginExecutionException {
+                Set<String> testArtifactPaths, boolean generateFeatures, ThreadPoolExecutor executor) throws PluginExecutionException {
             // monitoring project pom.xml file changes in dev mode:
             // - liberty.* properties in project properties section
             // - changes in liberty plugin configuration in the build plugin section
@@ -895,25 +895,26 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
+                if (compileDependenciesChanged && generateFeatures) {
+                    log.debug("Detected a change in the compile dependencies, re-generating features");
+                    // always optimize generate features on dependency change
+                    boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                    if (generateFeaturesSuccess) {
+                        util.getJavaSourceClassPaths().clear();
+                    } else {
+                        installFeature = false; // skip installing features if generate features fails
+                    }
+                }
                 if (restartServer) {
+                    // TODO check if features are generated here
                     // - stop Server
                     // - create server or runBoostMojo
-                    // - generate the missing features
                     // - install feature
                     // - deploy app
                     // - start server
                     util.restartServer();
                     return true;
                 } else {
-                    // TODO: if we generate features here we will also need to skip installing
-                    // features on a failure
-                    if (compileDependenciesChanged && generateFeatures) {
-                        // always optimize generate features on dependency change
-                        boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
-                        if (generateFeaturesSuccess) {
-                            util.getJavaSourceClassPaths().clear();
-                        }
-                    }
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
                         log.info("Running boost:package");
                         runBoostMojo("package");
