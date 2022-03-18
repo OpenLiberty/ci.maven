@@ -33,6 +33,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.ProjectBuildingResult;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -117,7 +119,21 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 return;
             } else {
                 // get all upstream projects
-                upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
+                // upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
+
+                // when GenerateFeaturesMojo is called from dev mode on a multi module project,
+                // the upstream project umbrella dependencies may not be up to date. Call
+                // getMavenProject to rebuild the project with the current Maven session,
+                // ensuring that the latest umbrella dependencies are loaded
+                for (MavenProject upstreamProj : graph.getUpstreamProjects(project, true)) {
+                    try {
+                        upstreamProjects.add(getMavenProject(upstreamProj.getFile()));
+                    } catch (ProjectBuildingException e) {
+                        log.debug("Could not resolve the upstream project: " + upstreamProj.getFile()
+                                + " using the current Maven session. Falling back to last resolved upstream project.");
+                        upstreamProjects.add(upstreamProj); // fail gracefully, use last resolved project
+                    }
+                }
             }
 
             if (containsPreviousLibertyModule(graph)) {
@@ -644,6 +660,13 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         public boolean isDebugEnabled() {
             return log.isDebugEnabled();
         }
+    }
+
+    // using the current MavenSession build the project (resolves dependencies)
+    private MavenProject getMavenProject(File buildFile) throws ProjectBuildingException {
+        ProjectBuildingResult build = mavenProjectBuilder.build(buildFile,
+                session.getProjectBuildingRequest().setResolveDependencies(true));
+        return build.getProject();
     }
 
 }

@@ -586,16 +586,21 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public boolean updateArtifactPaths(ProjectModule projectModule, boolean redeployCheck, ThreadPoolExecutor executor)
+        public boolean updateArtifactPaths(ProjectModule projectModule, boolean redeployCheck, boolean generateFeatures, ThreadPoolExecutor executor)
                 throws PluginExecutionException {
             try {
-                MavenProject upstreamProject = getMavenProject(projectModule.getBuildFile());
+                File buildFile = projectModule.getBuildFile();
+                if (buildFile == null) {
+                    buildFile = this.buildFile;
+                }
+                MavenProject upstreamProject = getMavenProject(buildFile);
                 MavenProject backupUpstreamProject = upstreamProject;
                 for (MavenProject p : upstreamMavenProjects) {
                     if (buildFile != null && p.getFile().getCanonicalPath().equals(buildFile.getCanonicalPath())) {
                         backupUpstreamProject = p;
                     }
                 }
+                
 
                 // TODO rebuild the corresponding module if the compiler options have changed
                 JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupUpstreamProject);
@@ -628,7 +633,7 @@ public class DevMojo extends LooseAppSupport {
                     updateArtifactPaths(projectModule.getBuildFile());
                 }
 
-                // check if compile dependencies have changed and redeploy if they have
+                // check if compile dependencies have changed, regenerate features and redeploy if they have
                 if (redeployCheck) {
                     // update upstream Maven projects list
                     int index = upstreamMavenProjects.indexOf(backupUpstreamProject);
@@ -636,9 +641,18 @@ public class DevMojo extends LooseAppSupport {
 
                     List<Dependency> deps = upstreamProject.getDependencies();
                     List<Dependency> oldDeps = backupUpstreamProject.getDependencies();
-                    if (!dependencyListsEquals(deps,oldDeps)) {
+                    if (!dependencyListsEquals(deps, oldDeps)) {
                         // detect compile dependency changes
-                        if (!dependencyListsEquals(getCompileDependency(deps),getCompileDependency(oldDeps))) {
+                        if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
+                            // optimize generate features
+                            if (generateFeatures) {
+                                log.debug("Detected a change in the compile dependencies for "
+                                        + buildFile + " , regenerating features");
+                                boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                                if (generateFeaturesSuccess) {
+                                    util.getJavaSourceClassPaths().clear();
+                                }
+                            }
                             runLibertyMojoDeploy();
                         }
                     }
@@ -714,10 +728,10 @@ public class DevMojo extends LooseAppSupport {
 
         private MavenProject getMavenProject(File buildFile) throws ProjectBuildingException {
             ProjectBuildingResult build = mavenProjectBuilder.build(buildFile,
-                        session.getProjectBuildingRequest().setResolveDependencies(true));
+                    session.getProjectBuildingRequest().setResolveDependencies(true));
             return build.getProject();
         }
-        
+
         @Override
         protected void updateLooseApp() throws PluginExecutionException {
         	// Only perform operations if we are a war type application
@@ -805,7 +819,7 @@ public class DevMojo extends LooseAppSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
-            boolean compileDependenciesChanged = false;
+            boolean optimizeGenerateFeatures = false;
 
             ProjectBuildingResult build;
             try {
@@ -864,6 +878,11 @@ public class DevMojo extends LooseAppSupport {
                 if (!Objects.equals(config, oldConfig)) {
                     redeployApp = true;
                 }
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", log);
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", log);
+                if (!Objects.equals(config, oldConfig)) {
+                    optimizeGenerateFeatures = true;
+                }
 
                 List<Dependency> deps = project.getDependencies();
                 List<Dependency> oldDeps = backupProject.getDependencies();
@@ -877,7 +896,7 @@ public class DevMojo extends LooseAppSupport {
                     // detect compile dependency changes
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
                         redeployApp = true;
-                        compileDependenciesChanged = true;
+                        optimizeGenerateFeatures = true;
                     }
                 }
                 // update classpath for dependencies changes
@@ -895,8 +914,8 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
-                if (compileDependenciesChanged && generateFeatures) {
-                    log.debug("Detected a change in the compile dependencies, re-generating features");
+                if (optimizeGenerateFeatures && generateFeatures) {
+                    log.debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
                     boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
                     if (generateFeaturesSuccess) {
@@ -906,7 +925,6 @@ public class DevMojo extends LooseAppSupport {
                     }
                 }
                 if (restartServer) {
-                    // TODO check if features are generated here
                     // - stop Server
                     // - create server or runBoostMojo
                     // - install feature
