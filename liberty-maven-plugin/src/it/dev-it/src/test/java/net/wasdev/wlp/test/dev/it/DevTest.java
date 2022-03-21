@@ -160,7 +160,20 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists("Unit tests finished.", 10000));
       assertTrue(verifyLogMessageExists("Integration tests finished.", 2000));
    }
-   
+
+   @Test
+   public void restartServerTest() throws Exception {
+      int runningGenerateCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
+      String RESTARTED = "The server has been restarted.";
+      int restartedCount = countOccurrences(RESTARTED, logFile);
+      writer.write("r\n"); // command to restart liberty
+      writer.flush();
+
+      assertTrue(verifyLogMessageExists(RESTARTED, 20000, ++restartedCount));
+      // not supposed to rerun generate features just because of a server restart
+      assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 2000, runningGenerateCount));
+   }
+
     @Test
     public void invalidDependencyTest() throws Exception {
         // add invalid dependency to pom.xml
