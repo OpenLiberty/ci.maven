@@ -80,11 +80,11 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(targetGeneratedFeaturesFile.exists());
 
        // verify that mpHealth-3.0 is now in the generated features file
-       assertTrue(verifyLogMessageExists("mpHealth-3.0", 10000, generatedFeaturesFile));
-       assertTrue(verifyLogMessageExists("mpHealth-3.0", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
+       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 10000, generatedFeaturesFile));
+       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
        
        // verify that mpHealth-2.2 is no longer in the generated features file
-       assertFalse(verifyLogMessageExists("mpHealth-2.2", 10000, generatedFeaturesFile));
+       assertFalse(getLogTail(), verifyLogMessageExists("mpHealth-2.2", 10000, generatedFeaturesFile));
     }
 
 }
