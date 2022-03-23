@@ -63,14 +63,14 @@ public class DevTest extends BaseDevTest {
       assertTrue(srcServerXML.exists());
       assertTrue(targetServerXML.exists());
 
-      replaceString("</feature>", "</feature>\n" + "    <feature>mpHealth-1.0</feature>", srcServerXML);
+      replaceString("</feature>", "</feature>\n" + "    <feature>mpFaultTolerance-2.0</feature>", srcServerXML);
 
       // check that features have been generated
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++generateFeaturesCount)); // mojo ran
 
       // check for server configuration was successfully updated message
       assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
-      boolean foundUpdate = verifyLogMessageExists("<feature>mpHealth-1.0</feature>", 60000, targetServerXML);
+      boolean foundUpdate = verifyLogMessageExists("<feature>mpFaultTolerance-2.0</feature>", 60000, targetServerXML);
       assertTrue("Could not find the updated feature in the target server.xml file", foundUpdate);
    }
 
