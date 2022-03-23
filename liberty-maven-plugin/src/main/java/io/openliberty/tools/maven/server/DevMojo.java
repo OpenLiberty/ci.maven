@@ -641,20 +641,19 @@ public class DevMojo extends LooseAppSupport {
 
                     List<Dependency> deps = upstreamProject.getDependencies();
                     List<Dependency> oldDeps = backupUpstreamProject.getDependencies();
-                    if (!dependencyListsEquals(deps, oldDeps)) {
-                        // detect compile dependency changes
-                        if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
-                            // optimize generate features
-                            if (generateFeatures) {
-                                log.debug("Detected a change in the compile dependencies for "
-                                        + buildFile + " , regenerating features");
-                                boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
-                                if (generateFeaturesSuccess) {
-                                    util.getJavaSourceClassPaths().clear();
-                                }
+
+                    // detect compile dependency changes
+                    if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
+                        // optimize generate features
+                        if (generateFeatures) {
+                            log.debug("Detected a change in the compile dependencies for "
+                                    + buildFile + " , regenerating features");
+                            boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                            if (generateFeaturesSuccess) {
+                                util.getJavaSourceClassPaths().clear();
                             }
-                            runLibertyMojoDeploy();
                         }
+                        runLibertyMojoDeploy();
                     }
                 }
             } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException

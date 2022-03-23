@@ -119,14 +119,12 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 return;
             } else {
                 // get all upstream projects
-                // upstreamProjects.addAll(graph.getUpstreamProjects(project, true));
-
-                // when GenerateFeaturesMojo is called from dev mode on a multi module project,
-                // the upstream project umbrella dependencies may not be up to date. Call
-                // getMavenProject to rebuild the project with the current Maven session,
-                // ensuring that the latest umbrella dependencies are loaded
                 for (MavenProject upstreamProj : graph.getUpstreamProjects(project, true)) {
                     try {
+                        // when GenerateFeaturesMojo is called from dev mode on a multi module project,
+                        // the upstream project umbrella dependencies may not be up to date. Call
+                        // getMavenProject to rebuild the project with the current Maven session,
+                        // ensuring that the latest umbrella dependencies are loaded
                         upstreamProjects.add(getMavenProject(upstreamProj.getFile()));
                     } catch (ProjectBuildingException e) {
                         log.debug("Could not resolve the upstream project: " + upstreamProj.getFile()
