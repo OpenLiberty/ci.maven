@@ -513,10 +513,9 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             if (!mpVersionsDetected.isEmpty()) {
                 mpVersion = mpVersionsDetected.iterator().next();
                 // if multiple MP versions are found across multiple modules, return the latest
-                // version
+                // version. mp4 > mp3.3 > mp3.0 > mp3
                 for (String ver : mpVersionsDetected) {
-                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("mp") + 2)) > Integer
-                            .parseInt(mpVersion.substring(mpVersion.lastIndexOf("mp") + 2))) {
+                    if (ver.compareTo(mpVersion) > 0) {
                         mpVersion = ver;
                     }
                 }
@@ -531,13 +530,16 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     }
 
     /**
-     * Returns the MicroProfile (MP) major version detected for the given MavenProject
+     * Returns the MicroProfile (MP) version detected for the given MavenProject
+     * First check for versions the binary scanner supports e.g. '3.3'.
+     * If a supported version is not found attempt to detect the major version digit.
      * To match the Maven "nearest in the dependency tree" strategy, this method
      * will return the first MP umbrella dependency version detected.
      * 
      * @param project the MavenProject to search
-     * @return MP major version corresponding to the MP umbrella dependency, null if
-     *         an MP umbrella dependency is not found
+     * @return MP exact version code or major version number code corresponding to
+     *         the MP umbrella dependency, null if an MP umbrella dependency is not found
+     *         or the version number is out of range.
      */
     public String getMPVersion(MavenProject project) { // figure out correct level of MP from declared dependencies
         if (project != null) {
@@ -550,83 +552,27 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                         d.getArtifactId().equals("microprofile")) {
                     String version = d.getVersion();
                     log.debug("dep=org.eclipse.microprofile:microprofile version=" + version);
+                    if (version.length() == 3) { // version is 'm.n'
+                        String mpVersion = BINARY_SCANNER_MP.get(version);
+                        if (mpVersion != null) {
+                            return mpVersion;
+                        }
+                    }
+                    // Specified version is not explicitly supported by the binary scanner
                     if (version.startsWith("1")) {
                         return BINARY_SCANNER_MPV1;
                     } else if (version.startsWith("2")) {
                         return BINARY_SCANNER_MPV2;
                     } else if (version.startsWith("3")) {
                         return BINARY_SCANNER_MPV3;
+                    } else if (version.startsWith("4")) {
+                        return BINARY_SCANNER_MPV4;
                     }
-                    return BINARY_SCANNER_MPV4; // add support for future versions of MicroProfile here
+                    return null;
                 }
-                // if (d.getGroupId().equals("io.openliberty.features")) {
-                // mpVersion = Math.max(mpVersion, getMPVersion(d.getArtifactId()));
-                // log.debug("dep=io.openliberty.features:"+d.getArtifactId()+"
-                // mpVersion="+mpVersion);
-                // }
             }
         }
         return null;
-    }
-
-    // logic to map individual deps to MP versions, not currently in use
-    public static int getMPVersion(String shortName) {
-        final int MP_VERSIONS = 4; // number of version columns in table
-        String[][] mpComponents = {
-            // Name, MP1 version, MP2 version, MP3 version, MP4 version
-            { "mpconfig", "1.3", "1.3", "1.4", "2.0" },
-            { "mpfaulttolerance", "1.1", "2.0", "2.1", "3.0" },
-            { "mphealth", "1.0", "1.0", "2.2", "3.0" },
-            { "mpjwt", "1.1", "1.1", "1.1", "1.2" },
-            { "mpmetrics", "1.1", "1.1", "2.3", "3.0" },
-            { "mpopenapi", "1.0", "1.1", "1.1", "2.0" },
-            { "mpopentracing", "1.1", "1.3", "1.3", "2.0" },
-            { "mprestclient", "1.1", "1.2", "1.4", "2.0" },
-        };
-        if (shortName == null) {
-            return 0;
-        }
-        if (!shortName.startsWith("mp")) { // efficiency
-            return 0;
-        }
-        String[] nameAndVersion = getNameAndVersion(shortName);
-        if (nameAndVersion == null) {
-            return 0;
-        }
-        String name = nameAndVersion[0];
-        String version = nameAndVersion[1];
-        for (int i = 0; i < mpComponents.length; i++) {
-            if (mpComponents[i][0].equals(name)) {
-                for (int j = MP_VERSIONS; j >= 0; j--) { // use highest compatible version
-                    if (mpComponents[i][j].compareTo(version) < 0 ) {
-                        return (j == MP_VERSIONS) ? MP_VERSIONS : j+1; // in case of error just return max version
-                    }
-                    if (mpComponents[i][j].compareTo(version) == 0 ) {
-                        return j;
-                    }
-                }
-                return 1; // version specified is between 1.0 and max version number in MicroProfile 1.2
-            }
-        }
-        return 0; // the dependency name is not one of the Microprofile components
-    }
-
-    public static String[] getNameAndVersion(String featureName) {
-        if (featureName == null) {
-            return null;
-        }
-        String[] nameAndVersion = featureName.split("-", 2);
-        if (nameAndVersion.length != 2) {
-            return null;
-        }
-        if (nameAndVersion[1] == null) {
-            return null;
-        }
-        nameAndVersion[0] = nameAndVersion[0].toLowerCase();
-        if (nameAndVersion[1] == null || nameAndVersion[1].length() != 3) {
-            return null;
-        }
-        return nameAndVersion;
     }
 
     // Define the logging functions of the binary scanner handler and make it available in this plugin
