@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.5.2-SNAPSHOT</version>
+        <version>3.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-archetype-webapp</artifactId>
