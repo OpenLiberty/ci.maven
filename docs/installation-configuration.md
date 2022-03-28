@@ -45,7 +45,7 @@ Example for using the `runtimeArtifact` parameter:
 </plugin>
 ```
 
-The coordinates for `runtimeArtifact` can be overridden using `libertyRuntimeGroupId`, `libertyRuntimeArtifactId`, and `libertyRuntimeVersion`. These can be set using command line properties, pom.xml properties, or additional plugin configuration. Empty or `null` values will result in a default value overriding the respective `runtimeArtifact` coordinate value. More information on these properties can be found in [common parameters](docs/common-parameters.md#common-parameters).
+The coordinates for `runtimeArtifact` can be overridden using `libertyRuntimeGroupId`, `libertyRuntimeArtifactId`, and `libertyRuntimeVersion`. These can be set using command line properties, pom.xml properties, or additional plugin configuration. Empty or `null` values will result in a default value overriding the respective `runtimeArtifact` coordinate value. More information on these properties can be found in [common parameters](common-parameters.md#common-parameters).
 
 Example of overriding the `runtimeArtifact` parameter through the command line:
 
@@ -94,6 +94,43 @@ Example of overriding the `runtimeArtifact` parameter with plugin configuration:
         </runtimeArtifact>
     </configuration>
 </plugin>
+```
+
+#### Calculating the runtime artifact version
+
+If a version is provided in the `runtimeArtifact` parameter configuration it will be used as the version of the runtime artifact used for the Liberty installation unless it is overridden by the `libertyRuntimeVersion` property.
+
+If a version is not provided with the `runtimeArtifact` parameter configuration or `libertyRuntimeVersion` property then, first, the runtime artifact groupId and artifactId will be calculated (via parameter config, properties, or default values).   If this runtime artifact groupId and artifactId matches those of a project dependency then the version of this dependency will be set as the version of the runtime artifact used for Liberty installation.   If there is no matching project dependency than the project's dependencyManagement is checked for a dependency matching the runtime artifact groupId and artifactId and if such a dependency is found, this version will be set as the version of the runtime artifact used for Liberty installation.
+
+If a version is not provided with the `runtimeArtifact` parameter configuration or `libertyRuntimeVersion` property and also there is no matching dependency listed as a project dependency or in the project's dependency management, then a default version value is chosen, generally the most recent available version of Liberty.
+
+##### Example
+
+Example "resolving" the `runtimeArtifact` version from matching `dependencyManagement` configuration:
+
+```xml
+<dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.openliberty</groupId>
+        <artifactId>openliberty-runtime</artifactId>
+        <version>22.0.0.2</version>
+        <type>zip</type>
+      </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<plugins>  
+   <plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <configuration>
+        <runtimeArtifact>
+            <groupId>io.openliberty</groupId>
+            <artifactId>openliberty-runtime</artifactId>
+        </runtimeArtifact>
+    </configuration>
+  </plugin>
 ```
 
 ### Using an existing installation
