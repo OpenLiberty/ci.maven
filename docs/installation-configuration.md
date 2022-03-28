@@ -37,8 +37,8 @@ Example for using the `runtimeArtifact` parameter:
     <configuration>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
-            <artifactId>wlp-webProfile7</artifactId>
-            <version>8.5.5.7</version>
+            <artifactId>wlp-webProfile8</artifactId>
+            <version>22.0.0.3</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
@@ -68,8 +68,8 @@ Example of overriding the `runtimeArtifact` parameter with pom properties:
     <configuration>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
-            <artifactId>wlp-webProfile7</artifactId>
-            <version>8.5.5.7</version>
+            <artifactId>wlp-webProfile8</artifactId>
+            <version>21.0.0.3</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
@@ -88,8 +88,8 @@ Example of overriding the `runtimeArtifact` parameter with plugin configuration:
         <libertyRuntimeVersion>21.0.0.9</libertyRuntimeVersion>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
-            <artifactId>wlp-webProfile7</artifactId>
-            <version>8.5.5.7</version>
+            <artifactId>wlp-webProfile8</artifactId>
+            <version>21.0.0.3</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>

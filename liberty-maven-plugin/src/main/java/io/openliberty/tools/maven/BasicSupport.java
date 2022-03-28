@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2021.
+ * (C) Copyright IBM Corporation 2014, 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,6 +264,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
                 
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
+                boolean useDefaultVersion = false;
                 if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
                     if (assemblyArtifact.getVersion() != null) {
                         log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
@@ -271,15 +272,13 @@ public class BasicSupport extends AbstractLibertySupport {
                         log.info("The liberty.runtime.version property value "+ libertyRuntimeVersion +" is used for the runtimeArtifact version.");
                     }
                     assemblyArtifact.setVersion(libertyRuntimeVersion);
-                }
-                else {
+                } else {
                     if(assemblyArtifact.getVersion() == null) {
-                        log.debug("Defaulting runtimeArtifact version to '[21.0.0.9,)'");
-                        assemblyArtifact.setVersion("[21.0.0.9,)");
+                        useDefaultVersion = true;
                     }
                 }
                 
-                Artifact artifact = getArtifact(assemblyArtifact);                
+                Artifact artifact = getArtifact(assemblyArtifact, useDefaultVersion);                
                 
                 assemblyArchive = artifact.getFile();
                 if (assemblyArchive == null) {
