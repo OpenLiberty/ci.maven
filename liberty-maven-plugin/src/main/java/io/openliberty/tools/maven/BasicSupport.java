@@ -264,7 +264,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 }
                 
                 // check for liberty.runtime.version property which overrides any version set in the assemblyArtifact
-                boolean useDefaultVersion = false;
+
                 if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
                     if (assemblyArtifact.getVersion() != null) {
                         log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
@@ -272,13 +272,15 @@ public class BasicSupport extends AbstractLibertySupport {
                         log.info("The liberty.runtime.version property value "+ libertyRuntimeVersion +" is used for the runtimeArtifact version.");
                     }
                     assemblyArtifact.setVersion(libertyRuntimeVersion);
-                } else {
-                    if(assemblyArtifact.getVersion() == null) {
-                        useDefaultVersion = true;
-                    }
                 }
-                
-                Artifact artifact = getArtifact(assemblyArtifact, useDefaultVersion);                
+
+                Artifact artifact = getResolvedArtifact(assemblyArtifact);
+
+                if (artifact == null) {
+                    log.debug("Defaulting runtimeArtifact version to '[22.0.0.3,)'");
+                    assemblyArtifact.setVersion("[22.0.0.3,)");
+                    artifact = createArtifact(assemblyArtifact);
+                }
                 
                 assemblyArchive = artifact.getFile();
                 if (assemblyArchive == null) {

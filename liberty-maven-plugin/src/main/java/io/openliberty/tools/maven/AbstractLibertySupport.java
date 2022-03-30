@@ -153,22 +153,29 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      */
     @Override
     protected Artifact getArtifact(final ArtifactItem item) throws MojoExecutionException {
-        return getArtifact(item, false);
+        Artifact artifact = getResolvedArtifact(item);
+
+        if (artifact == null) {
+            throw new MojoExecutionException(
+                "Unable to find artifact version of " + item.getGroupId() + ":" + item.getArtifactId()
+                        + " in either project dependencies or in project dependencyManagement.");
+         }
+
+         return artifact;
     }
     
     /**
      * Resolves the Artifact from the remote repository if necessary. If no version is specified, it will
-     * be retrieved from the dependency list or from the DependencyManagement section of the pom.
+     * be retrieved from the dependency list or from the DependencyManagement section of the pom.  If no
+     * dependency or dependencyManagement artifact is found for the given item a 'null' will be returned.
      *
      *
      * @param item  The item to create an artifact for; must not be null
-     * @param useDefaultVersion Flag indicating whether or not to default the version for the artifact (only
-     *                          used for defaulting the Liberty runtime version)
      * @return      The artifact for the given item
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    protected Artifact getArtifact(final ArtifactItem item, boolean useDefaultVersion) throws MojoExecutionException {
+    protected Artifact getResolvedArtifact(final ArtifactItem item) throws MojoExecutionException {
         assert item != null;
         Artifact artifact = null;
         
@@ -191,14 +198,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 // get version from dependencyManagement
                 item.setVersion(resolveFromProjectDepMgmt(item).getVersion());
                 artifact = createArtifact(item);
-            } else if (useDefaultVersion) {
-                log.debug("Defaulting runtimeArtifact version to '[22.0.0.3,)'");
-                item.setVersion("[22.0.0.3,)");
-                artifact = createArtifact(item);
-            } else {
-                    throw new MojoExecutionException(
-                            "Unable to find artifact version of " + item.getGroupId() + ":" + item.getArtifactId()
-                                    + " in either project dependencies or in project dependencyManagement.");
             }
         }
         
