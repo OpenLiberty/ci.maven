@@ -96,13 +96,29 @@ Example of overriding the `runtimeArtifact` parameter with plugin configuration:
 </plugin>
 ```
 
-#### Calculating the runtime artifact version
+#### Calculating the runtime artifact
 
-If a version is provided in the `runtimeArtifact` parameter configuration it will be used as the version of the runtime artifact used for the Liberty installation unless it is overridden by the `libertyRuntimeVersion` property.
+The `runtimeArtifact` configuration is very flexible. It includes the use of properties that can be specified on the command line or in the `pom.xml` file, configuration parameters, use of dependencies and dependencyManagement, as well as default values. The `groupId`, `artifactId` and `version` are determined as follows in order:
 
-If a version is not provided with the `runtimeArtifact` parameter configuration or `libertyRuntimeVersion` property then, first, the runtime artifact groupId and artifactId will be calculated (via parameter config, properties, or default values).   If this runtime artifact groupId and artifactId matches those of a project dependency then the version of this dependency will be set as the version of the runtime artifact used for Liberty installation.   If there is no matching project dependency than the project's dependencyManagement is checked for a dependency matching the runtime artifact groupId and artifactId and if such a dependency is found, this version will be set as the version of the runtime artifact used for Liberty installation.
+1. groupId
+* Check for the `liberty.runtime.groupId` property from the command line or `pom.xml` file.
+* Check for the `libertyRuntimeGroupId` configuration parameter in the `pom.xml` file.
+* Use the one specified in `runtimeArtifact`.
+* Default to `io.openliberty`.
 
-If a version is not provided with the `runtimeArtifact` parameter configuration or `libertyRuntimeVersion` property and also there is no matching dependency listed as a project dependency or in the project's dependency management, then a default version value is chosen, generally the most recent available version of Liberty.
+2. artifactId
+* Check for the `liberty.runtime.artifactId` property from the command line or `pom.xml` file.
+* Check for the `libertyRuntimeArtifactId` configuration parameter in the `pom.xml` file.
+* Use the one specified in `runtimeArtifact`.
+* Default to `openliberty-kernel`.
+
+3. version
+* Check for the `liberty.runtime.version` property from the command line or `pom.xml` file.
+* Check for the `libertyRuntimeVersion` configuration parameter in the `pom.xml` file.
+* Use the one specified in `runtimeArtifact`.
+* Use the version from a matching `dependency`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
+* Use the version from a matching `dependencyManagement`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
+* Default to the latest available using a range like `[22.0.0.3,)`.
 
 ##### Example
 
