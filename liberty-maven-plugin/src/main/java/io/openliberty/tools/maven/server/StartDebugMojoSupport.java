@@ -328,7 +328,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         runLibertyMojo("deploy", config);
     }
 
-    protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
+    protected void runLibertyMojoInstallFeature(Element features, File serverDir, String containerName) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);
         if (features != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
@@ -336,7 +336,15 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         if (containerName != null) {
             config.addChild(element(name("containerName"), containerName).toDom());
         }
-        runLibertyMojo("install-feature", config);   
+        if (serverDir != null) {
+            try {
+                config.addChild(element(name("serverDir"), serverDir.getCanonicalPath()).toDom());
+            } catch (IOException e) {
+                log.warn("Unable to pass 'serverDir' configuration parameter to liberty:install-feature: "
+                        + serverDir);
+            }
+        }
+        runLibertyMojo("install-feature", config);
     }
 
     protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {

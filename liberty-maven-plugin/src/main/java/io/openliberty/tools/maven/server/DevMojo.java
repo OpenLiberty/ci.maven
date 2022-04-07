@@ -397,7 +397,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void libertyInstallFeature() throws PluginExecutionException {
             try {
-                runLibertyMojoInstallFeature(null, container ? super.getContainerName() : null);
+                runLibertyMojoInstallFeature(null, null, container ? super.getContainerName() : null);
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
@@ -941,7 +941,7 @@ public class DevMojo extends LooseAppSupport {
                     	runLibertyMojoDeploy();
                     }
                     if (installFeature) {
-                        runLibertyMojoInstallFeature(null, super.getContainerName());
+                        runLibertyMojoInstallFeature(null, null, super.getContainerName());
                     }
                 }
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
@@ -974,22 +974,24 @@ public class DevMojo extends LooseAppSupport {
                         Set<String> existingFeaturesCopy = new HashSet<String>(existingFeatures);
                         existingFeaturesCopy.removeAll(featuresCopy);
                         if (!existingFeaturesCopy.isEmpty()) {
-                            log.info("Configuration features have been removed");
+                            log.info("Configuration features have been removed: " + existingFeaturesCopy);
                             existingFeatures.removeAll(existingFeaturesCopy);
                         }
                     }
 
                     // check if features have been added and install new features
                     if (!features.isEmpty()) {
-                        log.info("Configuration features have been added");
+                        log.info("Configuration features have been added: " + features);
+                        // pass all features to install feature
+                        existingFeatures.addAll(features);
+
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
                         String[] values = features.toArray(new String[features.size()]);
                         for (int i = 0; i < features.size(); i++) {
                             featureElems[i + 1] = element(name("feature"), values[i]);
                         }
-                        runLibertyMojoInstallFeature(element(name("features"), featureElems), super.getContainerName());
-                        existingFeatures.addAll(features);
+                        runLibertyMojoInstallFeature(element(name("features"), featureElems), serverDir, super.getContainerName());
                     }
                 }
             } catch (MojoExecutionException e) {
@@ -1265,7 +1267,7 @@ public class DevMojo extends LooseAppSupport {
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
             if (!container) {
-                runLibertyMojoInstallFeature(null, null);
+                runLibertyMojoInstallFeature(null, null, null);
             }
             runLibertyMojoDeploy();
         }
@@ -1840,8 +1842,8 @@ public class DevMojo extends LooseAppSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoInstallFeature(Element features, String containerName) throws MojoExecutionException {
-        super.runLibertyMojoInstallFeature(features, containerName);
+    protected void runLibertyMojoInstallFeature(Element features, File serverDir, String containerName) throws MojoExecutionException {
+        super.runLibertyMojoInstallFeature(features, serverDir, containerName);
     }
 
     /**
