@@ -290,7 +290,7 @@ public class DevMojo extends LooseAppSupport {
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
-            ServerFeatureUtil servUtil = getServerFeatureUtil();
+            ServerFeatureUtil servUtil = getServerFeatureUtil(true);
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
@@ -963,7 +963,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void installFeatures(File configFile, File serverDir) {
             try {
-                ServerFeatureUtil servUtil = getServerFeatureUtil();
+                ServerFeatureUtil servUtil = getServerFeatureUtil(true);
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
                     Set<String> featuresCopy = new HashSet<String>(features);
@@ -999,7 +999,8 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         public ServerFeatureUtil getServerFeatureUtilObj() {
-            return getServerFeatureUtil();
+            // suppress logs from ServerFeatureUtil so that dev console is not flooded
+            return getServerFeatureUtil(true);
         }
 
         @Override

@@ -53,6 +53,8 @@ public class ServerFeatureSupport extends BasicSupport {
         public void warn(String msg) {
             if (!suppressLogs) {
                 log.warn(msg);
+            } else {
+                log.debug(msg);
             }
         }
 
@@ -60,6 +62,8 @@ public class ServerFeatureSupport extends BasicSupport {
         public void info(String msg) {
             if (!suppressLogs) {
                 log.info(msg);
+            } else {
+                log.debug(msg);
             }
         }
 
@@ -76,11 +80,17 @@ public class ServerFeatureSupport extends BasicSupport {
     /**
      * Get a new instance of ServerFeatureUtil
      * 
+     * @param suppressLogs if true info and warning will be logged as debug
      * @return instance of ServerFeatureUtil
      */
-    protected ServerFeatureUtil getServerFeatureUtil() {
+    protected ServerFeatureUtil getServerFeatureUtil(boolean suppressLogs) {
         if (servUtil == null) {
             createNewServerFeatureUtil();
+        }
+        if (suppressLogs) {
+            servUtil.setSuppressLogs(true);
+        } else {
+            servUtil.setSuppressLogs(false);
         }
         return servUtil;
     }
