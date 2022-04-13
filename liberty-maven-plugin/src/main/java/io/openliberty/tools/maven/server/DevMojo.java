@@ -983,7 +983,7 @@ public class DevMojo extends LooseAppSupport {
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added: " + features);
                         existingFeatures.addAll(features);
-                        // pass all new features to install-feature
+                        // pass all new features to install-feature as backup in case the serverDir cannot be accessed
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
                         String[] values = features.toArray(new String[features.size()]);
