@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 
 public class BaseInstallFeature {

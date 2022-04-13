@@ -26,7 +26,6 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <serverName>test</serverName>
-                    <serverDir>src/test/resources</serverDir>
                 </configuration>
                 <executions>
                     <execution>
@@ -53,6 +52,7 @@
                             <features>
                                 <acceptLicense>true</acceptLicense>
                             </features>
+                            <serverDir>src/test/resources</serverDir>
                         </configuration>
                     </execution>
                 </executions>

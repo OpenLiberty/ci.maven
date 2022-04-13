@@ -51,8 +51,8 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
      * Dev mode uses this option to provide the location of the
      * temporary serverDir it uses after a change to the server.xml
      */
-    @Parameter(property = "serverDir")
-    private File serverDirectoryParam = null;
+    @Parameter(alias = "serverDir", property = "serverDir")
+    private File serverDirectoryParam;
 
     /*
      * (non-Javadoc)

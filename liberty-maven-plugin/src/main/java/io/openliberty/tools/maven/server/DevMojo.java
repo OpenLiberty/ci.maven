@@ -982,9 +982,8 @@ public class DevMojo extends LooseAppSupport {
                     // check if features have been added and install new features
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added: " + features);
-                        // pass all features to install feature
                         existingFeatures.addAll(features);
-
+                        // pass all new features to install-feature
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
                         String[] values = features.toArray(new String[features.size()]);

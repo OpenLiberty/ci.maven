@@ -21,8 +21,9 @@ public class InstallFeaturesOverrideServerDirTest extends BaseInstallFeature {
     
     @Test
     public void testInstalledFeatures() throws Exception {
-        assertNotInstalled("servlet-4.0");
-        assertInstalled("jsp-2.3");
-        assertInstalled("servlet-3.1");
+        assertInstalled("jsp-2.3"); // specified in extra-features.xml
+        assertNotInstalled("servlet-3.1"); // specified in the server.xml
+        assertInstalled("appSecurityClient-1.0"); // specified in the server.xml
+        assertInstalled("servlet-4.0"); // not specified in server.xml
     }
 }
