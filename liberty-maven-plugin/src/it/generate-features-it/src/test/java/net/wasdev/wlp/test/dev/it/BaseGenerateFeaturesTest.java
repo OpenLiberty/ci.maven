@@ -224,4 +224,18 @@ public class BaseGenerateFeaturesTest {
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
         runProcess("liberty:generate-features");
     }
+
+    protected String formatOutput(String output) {
+        if (output == null || output.length() < 101) {
+            return "\n==Process Output==\n" + output + "\n==End==";
+        }
+        String[] lines = output.split("\r\n|\r|\n");
+        StringBuffer result = new StringBuffer(String.format("==Process Output %d lines==\n", lines.length));
+        int count = 1;
+        for (String line : lines) {
+            result.append(String.format("%5d>%s\n", count++, line));
+        }
+        result.append(String.format("==Process Output End %d lines==\n", lines.length));
+        return result.toString();
+    }
 }
