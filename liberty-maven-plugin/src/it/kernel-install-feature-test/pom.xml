@@ -40,6 +40,7 @@
         <module>install-ol-features-no-accept-license-it</module> 
         <module>prepare-feature-it</module> 
         <module>install-usr-feature-ext-it</module>
+        <module>install-features-override-server-dir-it</module>
     </modules>
     
     <!-- Profiles for WLP vs OL -->

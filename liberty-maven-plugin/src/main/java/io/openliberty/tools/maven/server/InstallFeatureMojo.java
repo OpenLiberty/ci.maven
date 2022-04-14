@@ -46,6 +46,14 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     @Parameter
     private String containerName;
 
+    /**
+     * (Optional) Server directory to get the features from.
+     * Dev mode uses this option to provide the location of the
+     * temporary serverDir it uses after a change to the server.xml
+     */
+    @Parameter(alias = "serverDir", property = "serverDir")
+    private File serverDirectoryParam;
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -54,6 +62,10 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     protected void doExecute() throws Exception {
         if(!initialize()) {
             return;
+        }
+        if (serverDirectoryParam != null) {
+            serverDirectory = serverDirectoryParam;
+            log.debug("Overriding the server directory with: " + serverDirectory);
         }
         installFeatures();
     }
