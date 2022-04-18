@@ -961,7 +961,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public void installFeatures(File configFile, File serverDir) {
+        public void installFeatures(File configFile, File serverDir, boolean generateFeatures) {
             try {
                 ServerFeatureUtil servUtil = getServerFeatureUtil(true);
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
@@ -994,6 +994,12 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
+                if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()) {
+                    log.warn(
+                            "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
+                                    + "Automatic generation of features does not support Liberty ESA feature dependencies. "
+                                    + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.");
+                }
             }
         }
 
