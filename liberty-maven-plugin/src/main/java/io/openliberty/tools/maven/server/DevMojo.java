@@ -63,6 +63,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
 import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
@@ -994,7 +995,8 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
-                if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()) {
+                if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()
+                        && e.getMessage().contains(InstallFeatureUtil.CONFLICT_MESSAGE)) {
                     log.warn(
                             "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
                                     + "Automatic generation of features does not support Liberty ESA feature dependencies. "
