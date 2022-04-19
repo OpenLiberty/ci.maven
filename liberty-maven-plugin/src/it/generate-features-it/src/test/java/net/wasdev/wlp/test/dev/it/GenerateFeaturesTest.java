@@ -217,28 +217,23 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
      */
     @Test
     public void featureUnavailableConflictTest() throws Exception {
-        runCompileGoal();
+        // change MP 4.1 to MP 1.2
+        modifyMPVersion("4.1", "1.2");
 
-        // change MP 4.1 to MP 1.2 in pom.xml 
-        replaceString("<artifactId>microprofile</artifactId>\n" + 
-        "        <version>4.1</version>", "<artifactId>microprofile</artifactId>\n" + 
-        "        <version>1.2</version>", pom);
         // add mpOpenAPI-1.0 feature to server.xml, not available in MP 1.2
         replaceString("<!--replaceable-->",
                 "<featureManager>\n" +
                         "<feature>mpOpenAPI-1.0</feature>\n" +
                         "</featureManager>\n",
                 serverXmlFile);
-        runGenerateFeaturesGoal();
+        runCompileAndGenerateFeatures();
 
-
-        Set<String> conflictingFeatureSet = new HashSet<String>(Arrays.asList("servlet-4.0", "mpOpenAPI-1.0", "jaxrs-2.1"));
-        String mpLevel = "mp1.2";
-        String eeLevel = "ee8";
+        Set<String> conflictingFeatureSet = getExpectedGeneratedFeaturesSet();
+        conflictingFeatureSet.add("mpOpenAPI-1.0");
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
         processOutput.contains(
-                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, mpLevel, eeLevel, removeFeatures)));
+                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
     }
 
     // get the app features that conflict with cdi-1.2
@@ -255,6 +250,13 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         return new HashSet<String>(Arrays.asList("servlet-4.0", "jaxrs-2.1"));
     }
 
+    // change MP version in pom file
+    protected void modifyMPVersion(String currentVersion, String updatedVersion) throws IOException { 
+        replaceString("<artifactId>microprofile</artifactId>\n" + 
+        "        <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
+        "        <version>" + updatedVersion + "</version>", pom);
+    }
+
     // get the expected features in string format to insert in server.xml featureManager block
     private String getExpectedFeatureElementString() {
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
@@ -264,4 +266,5 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         }
         return str.toString();
     }
+
 }
