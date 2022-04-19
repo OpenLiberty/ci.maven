@@ -336,7 +336,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         if (containerName != null) {
             config.addChild(element(name("containerName"), containerName).toDom());
         }
-        if (serverDir != null) {
+        if (serverDir != null && serverDir.exists()) {
             try {
                 config.addChild(element(name("serverDir"), serverDir.getCanonicalPath()).toDom());
             } catch (IOException e) {
