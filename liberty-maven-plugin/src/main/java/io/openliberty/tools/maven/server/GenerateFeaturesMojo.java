@@ -217,7 +217,9 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             } else {
                 throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             }
-        } catch (PluginExecutionException x) {
+        } catch (BinaryScannerUtil.FeatureUnavailableException featureUnavailable) {
+            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
+        }catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
             if (o != null) {
