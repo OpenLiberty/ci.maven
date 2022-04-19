@@ -225,6 +225,15 @@ public class BaseGenerateFeaturesTest {
         runProcess("liberty:generate-features");
     }
 
+    // Format the output to help debug test failures.
+    // The problem is that the test case log looks just like the JUnit log of
+    // the calling process.
+    // For a short stream just print it. Add a start and end string to separate
+    // it from the rest of the log.
+    // For long output streams, add a header which indicates how many lines to skip
+    // if you want to read the end. Also add a trailer to similarly show how many
+    // lines to scroll up to find the beginning. Number each line to help parse
+    // the output.
     protected String formatOutput(String output) {
         if (output == null || output.length() < 101) {
             return "\n==Process Output==\n" + output + "\n==End==";

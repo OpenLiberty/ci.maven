@@ -57,7 +57,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(newFeatureFile.exists());
+        assertTrue(formatOutput(processOutput), newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
         Set<String> features = readFeatures(newFeatureFile);
