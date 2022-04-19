@@ -209,6 +209,38 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE9
 
+    /**
+     * Conflict between required features in API usage or configured features and MP/EE level specified
+     * Check for BINARY_SCANNER_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void featureUnavailableConflictTest() throws Exception {
+        runCompileGoal();
+
+        // change MP 4.1 to MP 1.2 in pom.xml 
+        replaceString("<artifactId>microprofile</artifactId>\n" + 
+        "        <version>4.1</version>", "<artifactId>microprofile</artifactId>\n" + 
+        "        <version>1.2</version>", pom);
+        // add mpOpenAPI-1.0 feature to server.xml, not available in MP 1.2
+        replaceString("<!--replaceable-->",
+                "<featureManager>\n" +
+                        "<feature>mpOpenAPI-1.0</feature>\n" +
+                        "</featureManager>\n",
+                serverXmlFile);
+        runGenerateFeaturesGoal();
+
+
+        Set<String> conflictingFeatureSet = new HashSet<String>(Arrays.asList("servlet-4.0", "mpOpenAPI-1.0", "jaxrs-2.1"));
+        String mpLevel = "mp1.2";
+        String eeLevel = "ee8";
+        Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
+        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
+        processOutput.contains(
+                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, mpLevel, eeLevel, removeFeatures)));
+    }
+
     // get the app features that conflict with cdi-1.2
     protected Set<String> getCdi12ConflictingFeatures() {
         // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)

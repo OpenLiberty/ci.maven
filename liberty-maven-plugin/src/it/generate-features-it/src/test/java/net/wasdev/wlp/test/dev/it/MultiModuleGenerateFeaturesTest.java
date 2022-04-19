@@ -81,5 +81,8 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     @Test
     public void userConflictTest() throws Exception {
     }
+    @Ignore
+    @Test
+    public void featureUnavailableConflictTest() throws Exception {}
 
 }

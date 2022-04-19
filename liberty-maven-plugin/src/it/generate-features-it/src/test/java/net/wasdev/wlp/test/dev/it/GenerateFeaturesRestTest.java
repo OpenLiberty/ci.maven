@@ -43,7 +43,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
     }
 
     @Test
-    public void mp71Test() throws Exception {
+    public void ee7mp14Test() throws Exception {
         // Test Java EE 7.0 and MicroProfile 1.x
         File pomFile = new File(tempProj, "pom.xml");
         replaceString("EE_VERSION", "7.0", pomFile);
@@ -60,7 +60,7 @@ public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {
     }
 
     @Test
-    public void mp81Test() throws Exception {
+    public void ee8mp14Test() throws Exception {
         // Test Java EE 8.0 and MicroProfile 1.x
         // EE 8 forces use of cdi 2.0
         File pomFile = new File(tempProj, "pom.xml");
