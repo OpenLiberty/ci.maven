@@ -76,4 +76,10 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     public void userAndGeneratedConflictTest() throws Exception {
     }
 
+    @Override
+    @Ignore // TODO re-enable this test once https://github.com/OpenLiberty/ci.maven/issues/1481 is resolved
+    @Test
+    public void userConflictTest() throws Exception {
+    }
+
 }

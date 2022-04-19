@@ -57,7 +57,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(newFeatureFile.exists());
+        assertTrue(formatOutput(processOutput), newFeatureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
         Set<String> features = readFeatures(newFeatureFile);
@@ -177,7 +177,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // Verify BINARY_SCANNER_CONFLICT_MESSAGE2 error is thrown (BinaryScannerUtil.RecommendationSetException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
+        assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
                 processOutput.contains(
                         String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
@@ -202,9 +202,9 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.add("cdi-2.0");
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
-                processOutput.contains(
-                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+        assertTrue("Could not find the feature conflict message in the process output.\n" + formatOutput(processOutput),
+            processOutput.contains(
+                String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
 
     // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE9
