@@ -42,6 +42,8 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
         newFeatureFile = new File(tempProj, "pom" + GENERATED_FEATURES_FILE_PATH);
         serverXmlFile = new File(tempProj, "pom/src/main/liberty/config/server.xml");
         targetDir = new File(tempProj, "war/target");
+        runProcess("install");
+        runProcess("clean");
     }
 
     @Override
