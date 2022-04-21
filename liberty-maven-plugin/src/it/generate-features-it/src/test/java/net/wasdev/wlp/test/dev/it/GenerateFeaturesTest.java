@@ -209,6 +209,33 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE9
 
+    /**
+     * Conflict between required features in API usage or configured features and MP/EE level specified
+     * Check for BINARY_SCANNER_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void featureUnavailableConflictTest() throws Exception {
+        // change MP 4.1 to MP 1.2
+        modifyMPVersion("4.1", "1.2");
+
+        // add mpOpenAPI-1.0 feature to server.xml, not available in MP 1.2
+        replaceString("<!--replaceable-->",
+                "<featureManager>\n" +
+                        "<feature>mpOpenAPI-1.0</feature>\n" +
+                        "</featureManager>\n",
+                serverXmlFile);
+        runCompileAndGenerateFeatures();
+
+        Set<String> conflictingFeatureSet = getExpectedGeneratedFeaturesSet();
+        conflictingFeatureSet.add("mpOpenAPI-1.0");
+        Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
+        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
+        processOutput.contains(
+                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
+    }
+
     // get the app features that conflict with cdi-1.2
     protected Set<String> getCdi12ConflictingFeatures() {
         // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)
@@ -223,6 +250,13 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         return new HashSet<String>(Arrays.asList("servlet-4.0", "jaxrs-2.1"));
     }
 
+    // change MP version in pom file
+    protected void modifyMPVersion(String currentVersion, String updatedVersion) throws IOException { 
+        replaceString("<artifactId>microprofile</artifactId>\n" + 
+        "        <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
+        "        <version>" + updatedVersion + "</version>", pom);
+    }
+
     // get the expected features in string format to insert in server.xml featureManager block
     private String getExpectedFeatureElementString() {
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
@@ -232,4 +266,5 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         }
         return str.toString();
     }
+
 }

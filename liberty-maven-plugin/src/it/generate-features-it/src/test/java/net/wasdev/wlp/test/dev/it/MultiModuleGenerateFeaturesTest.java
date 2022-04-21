@@ -58,7 +58,14 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
     protected Set<String> getExpectedGeneratedFeaturesSet() {
-        return new HashSet<String>(Arrays.asList("cdi-2.0", "mpMetrics-3.0", "jaxrs-2.1"));
+        return new HashSet<String>(Arrays.asList("cdi-2.0", "jaxrs-2.1"));
+    }
+
+    @Override
+    protected void modifyMPVersion(String currentVersion, String updatedVersion) throws IOException { 
+        replaceString("<artifactId>microprofile</artifactId>\n" + 
+        "            <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
+        "            <version>" + updatedVersion + "</version>", new File(tempProj, "war/pom.xml"));
     }
  
     @Override
