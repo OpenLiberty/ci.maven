@@ -131,7 +131,7 @@
                         <configuration>
                             <pomExcludes>
                                 <!--TODO remove when feature generation is re-enabled-->
-                                <pomExclude>generate-features-it</pomExclude>
+                                <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
                             <goals>
@@ -171,7 +171,7 @@
                         <configuration>
                             <pomExcludes>
                                 <!--TODO remove when feature generation is re-enabled-->
-                                <pomExclude>generate-features-it</pomExclude>
+                                <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
                             <goals>
@@ -254,7 +254,7 @@
                                     <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <!--TODO remove when feature generation is re-enabled-->
-                                    <pomExclude>generate-features-it</pomExclude>
+                                    <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
