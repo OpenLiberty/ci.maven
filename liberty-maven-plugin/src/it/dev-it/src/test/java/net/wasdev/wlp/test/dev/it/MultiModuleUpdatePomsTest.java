@@ -54,10 +54,11 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       int warTestsCount = countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile);
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
 
+      // TODO enable when feature generation is re-enabled
       // verify that generated-features.xml file exists
-      File newFeatureFile = getGeneratedFeaturesFile("ear");
-      assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
-      long newFeatureFileLastModified = newFeatureFile.lastModified();
+      // File newFeatureFile = getGeneratedFeaturesFile("ear");
+      // assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
+      // long newFeatureFileLastModified = newFeatureFile.lastModified();
       waitLongEnough();
 
       touchFileTwice("jar/pom.xml");
@@ -77,9 +78,10 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
+      // TODO enable when feature generation is re-enabled
       // verify that feature generation ran
-      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
-      newFeatureFileLastModified = newFeatureFile.lastModified();
+      // assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      // newFeatureFileLastModified = newFeatureFile.lastModified();
       waitLongEnough();
 
       touchFileTwice("war/pom.xml");
@@ -100,9 +102,10 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
+      // TODO enable when feature generation is re-enabled
       // verify that feature generation ran
-      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
-      newFeatureFileLastModified = newFeatureFile.lastModified();
+      // assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
+      // newFeatureFileLastModified = newFeatureFile.lastModified();
       waitLongEnough();
 
       touchFileTwice("ear/pom.xml");
@@ -123,9 +126,10 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
+      // TODO enable when feature generation is re-enabled
       // verify that feature generation did not run since there are no source class
       // files for the ear module
-      assertEquals("generated-features.xml was modified\n" + getLogTail(), newFeatureFileLastModified, newFeatureFile.lastModified());
+      // assertEquals("generated-features.xml was modified\n" + getLogTail(), newFeatureFileLastModified, newFeatureFile.lastModified());
    }
 
 private void touchFileTwice(String path) throws InterruptedException {
