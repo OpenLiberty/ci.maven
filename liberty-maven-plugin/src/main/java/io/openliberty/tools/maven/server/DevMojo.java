@@ -114,8 +114,9 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
-    @Parameter(property = "generateFeatures", defaultValue = "true")
-    private boolean generateFeatures;
+    // TODO enable when feature generation is re-enabled
+    // @Parameter(property = "generateFeatures", defaultValue = "true")
+    // private boolean generateFeatures;
 
     /**
      * Whether to recompile dependencies. Defaults to false for single module
@@ -272,7 +273,6 @@ public class DevMojo extends LooseAppSupport {
     }
 
     private class DevMojoUtil extends DevUtil {
-
         Set<String> existingFeatures;
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
         List<MavenProject> upstreamMavenProjects;
@@ -1116,6 +1116,10 @@ public class DevMojo extends LooseAppSupport {
 
     @Override
     protected void doExecute() throws Exception {
+        // TODO remove once feature generation is re-enabled
+        // force generateFeatures = false to disable feature generation
+        boolean generateFeatures = false; 
+
         if (skip) {
             getLog().info("\nSkipping dev goal.\n");
             return;
