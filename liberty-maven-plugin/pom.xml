@@ -129,6 +129,10 @@
                         <artifactId>maven-invoker-plugin</artifactId>
                         <version>3.2.2</version>
                         <configuration>
+                            <pomExcludes>
+                                <!--TODO remove when feature generation is re-enabled-->
+                                <pomExclude>generate-features-it</pomExclude>
+                            </pomExcludes>
                             <debug>false</debug>
                             <goals>
                                 <goal>install</goal>
@@ -165,6 +169,10 @@
                         <artifactId>maven-invoker-plugin</artifactId>
                         <version>3.1.0</version>
                         <configuration>
+                            <pomExcludes>
+                                <!--TODO remove when feature generation is re-enabled-->
+                                <pomExclude>generate-features-it</pomExclude>
+                            </pomExcludes>
                             <debug>false</debug>
                             <goals>
                                 <goal>install</goal>
@@ -245,6 +253,8 @@
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
+                                    <!--TODO remove when feature generation is re-enabled-->
+                                    <pomExclude>generate-features-it</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
