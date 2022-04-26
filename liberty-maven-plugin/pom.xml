@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.6-SNAPSHOT</version>
+        <version>3.5.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-maven-plugin</artifactId>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.19-M1-SNAPSHOT</version>
+            <version>1.8.19</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
@@ -130,7 +130,6 @@
                         <version>3.2.2</version>
                         <configuration>
                             <pomExcludes>
-                                <!--TODO remove when feature generation is re-enabled-->
                                 <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
@@ -170,7 +169,6 @@
                         <version>3.1.0</version>
                         <configuration>
                             <pomExcludes>
-                                <!--TODO remove when feature generation is re-enabled-->
                                 <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
@@ -251,9 +249,8 @@
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
-                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
-                                    <!--TODO remove when feature generation is re-enabled-->
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
@@ -331,7 +328,7 @@
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
-                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
