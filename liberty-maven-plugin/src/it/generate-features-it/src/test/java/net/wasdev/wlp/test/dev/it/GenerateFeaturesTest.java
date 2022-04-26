@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
@@ -38,6 +39,8 @@ import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
 /**
  * liberty:generate-features goal tests
  */
+// TODO enable when feature generation is re-enabled
+@Ignore
 public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Before

@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+// TODO enable when feature generation is re-enabled
+@Ignore
 public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
