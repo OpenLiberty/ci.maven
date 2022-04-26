@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.19-SNAPSHOT</version>
+            <version>1.8.19</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
@@ -249,7 +249,7 @@
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
-                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
@@ -328,7 +328,7 @@
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-pom-override-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
-                                    <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
+                                    <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
