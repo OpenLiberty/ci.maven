@@ -130,7 +130,6 @@
                         <version>3.2.2</version>
                         <configuration>
                             <pomExcludes>
-                                <!--TODO remove when feature generation is re-enabled-->
                                 <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
@@ -170,7 +169,6 @@
                         <version>3.1.0</version>
                         <configuration>
                             <pomExcludes>
-                                <!--TODO remove when feature generation is re-enabled-->
                                 <pomExclude>generate-features-it/pom.xml</pomExclude>
                             </pomExcludes>
                             <debug>false</debug>
@@ -253,7 +251,6 @@
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-configdir-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
-                                    <!--TODO remove when feature generation is re-enabled-->
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
