@@ -90,6 +90,9 @@ public class DevMojo extends LooseAppSupport {
     private static final String MICROSHED_HTTP_PORT = "microshed_http_port";
     private static final String MICROSHED_HTTPS_PORT = "microshed_https_port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
+    private static final String GEN_FEAT_LIBERTY_DEP_WARNING = "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
+            + "Automatic generation of features does not support Liberty ESA feature dependencies. "
+            + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.";
 
     DevMojoUtil util = null;
 
@@ -953,12 +956,24 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
                 log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
+                if (installFeature) {
+                    libertyDependencyWarning(generateFeatures, e);
+                }
                 log.debug(e);
                 project = backupProject;
                 session.setCurrentProject(backupProject);
                 return false;
             }
             return true;
+        }
+
+        // check if generateFeatures is enabled and install feature failed. If Liberty dependencies
+        // are in the build file display warning
+        private void libertyDependencyWarning(boolean generateFeatures, Exception e) {
+            if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()
+                    && e.getMessage().contains(InstallFeatureUtil.CONFLICT_MESSAGE)) {
+                log.warn(GEN_FEAT_LIBERTY_DEP_WARNING);
+            }
         }
 
         @Override
@@ -996,13 +1011,7 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (MojoExecutionException e) {
                 log.error("Failed to install features from configuration file", e);
-                if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()
-                        && e.getMessage().contains(InstallFeatureUtil.CONFLICT_MESSAGE)) {
-                    log.warn(
-                            "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
-                                    + "Automatic generation of features does not support Liberty ESA feature dependencies. "
-                                    + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.");
-                }
+                libertyDependencyWarning(generateFeatures, e);
             }
         }
 
