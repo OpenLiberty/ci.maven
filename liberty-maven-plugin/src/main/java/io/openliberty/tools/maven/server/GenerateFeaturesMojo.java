@@ -200,16 +200,20 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             Set<String> userFeatures = (optimize) ? existingFeatures :
                 getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
             Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
-
             if (modifiedSet.containsAll(userFeatures)) {
                 // none of the user features were modified, only features which were generated earlier.
-                log.debug("FeatureModifiedException, modifiedSet containsAll userFeatures, pass modifiedSet on to generateFeatures");
+                log.debug(
+                        "FeatureModifiedException, modifiedSet containsAll userFeatures, pass modifiedSet on to generateFeatures");
+                // features were modified to get a working set with the application's API usage, display warning to users and use modified set
+                log.warn(featuresModified.getMessage());
                 scannedFeatureList = modifiedSet;
             } else {
                 Set<String> allAppFeatures = featuresModified.getSuggestions(); // suggestions are scanned from binaries
                 allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
                 log.debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
-                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
+                throw new MojoExecutionException(
+                        String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
+
             }
         } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
