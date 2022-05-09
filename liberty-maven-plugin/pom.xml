@@ -214,6 +214,21 @@
                 <runtimeKernelId>wlp-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>springboot-tests/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
             <id>ol-its</id>
@@ -245,6 +260,7 @@
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
