@@ -57,7 +57,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       // verify that generated-features.xml file exists
       File newFeatureFile = getGeneratedFeaturesFile("ear");
       assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
-      long newFeatureFileLastModified = newFeatureFile.lastModified();
       waitLongEnough();
 
       touchFileTwice("jar/pom.xml");
@@ -77,11 +76,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation ran
-      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
-      newFeatureFileLastModified = newFeatureFile.lastModified();
-      waitLongEnough();
-
       touchFileTwice("war/pom.xml");
 
       // Give time for recompile to occur
@@ -100,11 +94,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
 
-      // verify that feature generation ran
-      assertTrue(getLogTail(), waitForCompilation(newFeatureFile, newFeatureFileLastModified, 1000));
-      newFeatureFileLastModified = newFeatureFile.lastModified();
-      waitLongEnough();
-
       touchFileTwice("ear/pom.xml");
 
       // Give time for recompile to occur
@@ -122,10 +111,6 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
             countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile));
       assertEquals(getLogTail(), ++earTestsCount,
             countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile));
-
-      // verify that feature generation did not run since there are no source class
-      // files for the ear module
-      assertEquals("generated-features.xml was modified\n" + getLogTail(), newFeatureFileLastModified, newFeatureFile.lastModified());
    }
 
 private void touchFileTwice(String path) throws InterruptedException {
