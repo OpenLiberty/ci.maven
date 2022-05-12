@@ -3,8 +3,8 @@
 
 	<!-- Enable features -->
 	<featureManager>
-		<feature>springBoot-1.5</feature>
-		<feature>servlet-3.1</feature>
+		<feature>springBoot-2.0</feature>
+		<feature>servlet-4.0</feature>
 	</featureManager>
 
 	<!-- To access this server from a remote client add a host attribute to 
