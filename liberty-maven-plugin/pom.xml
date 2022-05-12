@@ -298,6 +298,7 @@
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -340,6 +341,7 @@
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
