@@ -223,7 +223,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
         } catch (BinaryScannerUtil.FeatureUnavailableException featureUnavailable) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
-        }catch (PluginExecutionException x) {
+        } catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
             if (o != null) {
@@ -258,22 +258,26 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
         try {
             if (missingLibertyFeatures.size() > 0) {
-                // Create special XML file to contain generated features.
-
-                ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
-                configDocument.createComment(HEADER);
-                Element featureManagerElem = configDocument.createFeatureManager();
-                configDocument.createComment(featureManagerElem, GENERATED_FEATURES_COMMENT);
-                for (String missing : missingLibertyFeatures) {
-                    log.debug(String.format("Adding missing feature %s to %s.", missing, GENERATED_FEATURES_FILE_PATH));
-                    configDocument.createFeature(missing);
+                Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, newServerXmlSrc);
+                if (!missingLibertyFeatures.equals(existingGeneratedFeatures)) {
+                    // Create special XML file to contain generated features.
+                    ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
+                    configDocument.createComment(HEADER);
+                    Element featureManagerElem = configDocument.createFeatureManager();
+                    configDocument.createComment(featureManagerElem, GENERATED_FEATURES_COMMENT);
+                    for (String missing : missingLibertyFeatures) {
+                        log.debug(String.format("Adding missing feature %s to %s.", missing, GENERATED_FEATURES_FILE_PATH));
+                        configDocument.createFeature(missing);
+                    }
+                    // Generate log message before writing file as the file change event kicks off other dev mode actions
+                    log.info("Generated the following features: " + missingLibertyFeatures);
+                    configDocument.writeXMLDocument(newServerXmlSrc);
+                    log.debug("Created file " + newServerXmlSrc);
+                    // Add a reference to this new file in existing server.xml.
+                    addGenerationCommentToConfig(doc, serverXml);
+                } else {
+                    log.info("Regenerated the following features: " + missingLibertyFeatures);
                 }
-                configDocument.writeXMLDocument(newServerXmlSrc);
-                log.debug("Created file " + newServerXmlSrc);
-                // Add a reference to this new file in existing server.xml.
-                addGenerationCommentToConfig(doc, serverXml);
-
-                log.info("Generated the following features: " + missingLibertyFeatures);
             } else {
                 log.info("No additional features were generated.");
                 if (newServerXmlSrc.exists()) {
@@ -308,6 +312,16 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         }
         servUtil.setLowerCaseFeatures(true);
         return existingFeatures;
+    }
+
+    // returns the features specified in the generated-features.xml file
+    private Set<String> getGeneratedFeatures(ServerFeatureUtil servUtil, File generatedFeaturesFile) {
+        servUtil.setLowerCaseFeatures(false);
+        Set<String> genFeatSet = new HashSet<String>();
+        servUtil.getServerXmlFeatures(genFeatSet, configDirectory,
+                generatedFeaturesFile, null, null);
+        servUtil.setLowerCaseFeatures(true);
+        return genFeatSet;
     }
 
     /**
