@@ -79,6 +79,7 @@
                             <goals>
                                 <goal>install-server</goal>
                                 <goal>create</goal>
+				<goal>install-feature</goal>
                             </goals>
                         </execution>
                         <execution>
