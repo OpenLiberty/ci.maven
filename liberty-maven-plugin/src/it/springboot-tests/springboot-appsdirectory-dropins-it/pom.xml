@@ -56,12 +56,12 @@
 				<configuration>
 					<serverName>test</serverName>
                                         <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-					<assemblyArtifact>
-						<groupId>io.openliberty</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>18.0.0.2</version>
-						<type>zip</type>
-					</assemblyArtifact>
+                            		<runtimeArtifact>
+                                		<groupId>${runtimeGroupId}</groupId>
+                                		<artifactId>${runtimeArtifactId}</artifactId>
+                                		<version>${runtimeVersion}</version>
+                                		<type>zip</type>
+                            		</runtimeArtifact>
 					<deployPackages>spring-boot-project</deployPackages>
 				</configuration>
 				
