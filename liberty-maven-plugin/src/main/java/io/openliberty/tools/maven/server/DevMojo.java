@@ -1036,6 +1036,13 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
+        public void updateExistingFeatures() {
+            ServerFeatureUtil servUtil = getServerFeatureUtil(true);
+            Set<String> features = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            this.existingFeatures.addAll(features);
+        }
+
+        @Override
         public boolean compile(File dir) {
             try {
                 if (dir.equals(sourceDirectory)) {
