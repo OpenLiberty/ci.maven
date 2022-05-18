@@ -37,7 +37,26 @@
                     <version>4.13.2</version>
                     <scope>test</scope>
                 </dependency>	
-        </dependencies>
+ 		<!-- Support for JDK 9 and above-->
+    		<dependency>
+        		<groupId>javax.xml.bind</groupId>
+        		<artifactId>jaxb-api</artifactId>
+        		<version>2.3.1</version>
+        		<scope>provided</scope>
+    		</dependency>        
+		<dependency>
+        		<groupId>com.sun.xml.bind</groupId>
+        		<artifactId>jaxb-core</artifactId>
+        		<version>2.3.0.1</version>
+        		<scope>provided</scope>
+    		</dependency>
+    		<dependency>
+        		<groupId>javax.activation</groupId>
+        		<artifactId>activation</artifactId>
+        		<version>1.1.1</version>
+        		<scope>provided</scope>
+    		</dependency>	
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -45,16 +64,9 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<!-- Test support for classifier configuration parameter -->
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-						<configuration>
-							<classifier>exec</classifier>
-						</configuration>
-					</execution>
-				</executions>
+				<configuration>
+					<classifier>exec</classifier>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -66,12 +78,12 @@
 				<configuration>
 					<serverName>test</serverName>
                                         <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-					<assemblyArtifact>
-						<groupId>io.openliberty</groupId>
-						<artifactId>openliberty-runtime</artifactId>
-						<version>18.0.0.2</version>
-						<type>zip</type>
-					</assemblyArtifact>
+                            		<runtimeArtifact>
+                                		<groupId>${runtimeGroupId}</groupId>
+                                		<artifactId>${runtimeArtifactId}</artifactId>
+                                		<version>${runtimeVersion}</version>
+                                		<type>zip</type>
+                            		</runtimeArtifact>
 					<appsDirectory>apps</appsDirectory>
 					<deployPackages>spring-boot-project</deployPackages>
 				</configuration>
@@ -90,6 +102,7 @@
 						<goals>
 							<goal>install-server</goal>
 							<goal>create</goal>
+							<goal>install-feature</goal>
 						</goals>
 					</execution>
 					<execution>
@@ -119,7 +132,7 @@
 
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.20</version>
+				<version>3.0.0-M1</version>
 				<configuration>
 					<runOrder>alphabetical</runOrder>
 				</configuration>
