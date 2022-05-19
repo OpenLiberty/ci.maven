@@ -52,9 +52,7 @@ import io.openliberty.tools.maven.ServerFeatureSupport;
  * in the featureManager elements in the XML configuration files. Then it generates any
  * missing feature names and stores them in a new featureManager element in a new XML file.
  */
-// TODO enable when feature generation is re-enabled
-// disable generate-features Mojo (remove liberty:generate-features goal)
-// @Mojo(name = "generate-features")
+@Mojo(name = "generate-features")
 public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
     public static final String FEATURES_FILE_MESSAGE = "The Liberty Maven Plugin has generated Liberty features necessary for your application in "

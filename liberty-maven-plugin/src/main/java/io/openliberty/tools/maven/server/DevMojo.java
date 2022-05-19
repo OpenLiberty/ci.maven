@@ -117,9 +117,8 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
-    // TODO enable when feature generation is re-enabled
-    // @Parameter(property = "generateFeatures", defaultValue = "true")
-    // private boolean generateFeatures;
+     @Parameter(property = "generateFeatures", defaultValue = "true")
+     private boolean generateFeatures;
 
     /**
      * Whether to recompile dependencies. Defaults to false for single module
