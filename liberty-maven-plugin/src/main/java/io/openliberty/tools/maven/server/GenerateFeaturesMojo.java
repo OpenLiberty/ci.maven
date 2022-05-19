@@ -446,27 +446,40 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      * 
      * @param mavenProjects project modules, for single module projects list of size 1
      * @return the latest version of EE detected across multiple project modules,
-     *         null if an EE version is not found
+     *         null if an EE version is not found or the version number is out of range
      */
     public String getEEVersion(List<MavenProject> mavenProjects) {
         String eeVersion = null;
         if (mavenProjects != null) {
             Set<String> eeVersionsDetected = new HashSet<String>();
             for (MavenProject mavenProject : mavenProjects) {
-                String ver = getEEVersion(mavenProject);
-                if (ver != null) {
-                    eeVersionsDetected.add(ver);
+                try {
+                    String ver = getEEVersion(mavenProject);
+                    log.debug("Java and/or Jakarta EE umbrella dependency found in project: " + mavenProject.getName());
+                    if (ver != null) {
+                        eeVersionsDetected.add(ver);
+                    } else {
+                        // EE version out of range, add max possible verison
+                        eeVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
+                    }
+                } catch (NoUmbrellaDependencyException e) {
+                    // umbrella dependency does not exist, do nothing
                 }
             }
             if (!eeVersionsDetected.isEmpty()) {
                 eeVersion = eeVersionsDetected.iterator().next();
                 // if multiple EE versions are found across multiple modules, return the latest
                 // version
+                // ee8 > ee7 > ee6
                 for (String ver : eeVersionsDetected) {
-                    if (Integer.parseInt(ver.substring(ver.lastIndexOf("ee") + 2)) > Integer
-                            .parseInt(eeVersion.substring(eeVersion.lastIndexOf("ee") + 2))) {
+                    if (ver.compareTo(eeVersion) > 0) {
                         eeVersion = ver;
                     }
+                }
+                if (eeVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
+                    // max version indicates that an umbrella dependency was found, but version was
+                    // out of range. Return null
+                    eeVersion = null;
                 }
             }
             if (eeVersionsDetected.size() > 1) {
@@ -485,16 +498,16 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      * 
      * @param project the MavenProject to search
      * @return EE major version corresponding to the EE umbrella dependency, null if
-     *         an EE umbrella dependency is not found
+     *         an EE umbrella dependency is out of range
+     * @throws NoUmbrellaDependencyException indicates that the umbrella dependency was not found
      */
-    private String getEEVersion(MavenProject project) {
+    private String getEEVersion(MavenProject project) throws NoUmbrellaDependencyException {
         if (project != null) {
             List<Dependency> dependencies = project.getDependencies();
             for (Dependency d : dependencies) {
                 if (!d.getScope().equals("provided")) {
                     continue;
                 }
-                log.debug("getEEVersion, dep=" + d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion());
                 if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
                     if (d.getVersion().startsWith("8.")) {
                         return BINARY_SCANNER_EEV8;
@@ -504,30 +517,42 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                         return BINARY_SCANNER_EEV6;
                     }
                 } else if (d.getGroupId().equals("jakarta.platform") &&
-                        d.getArtifactId().equals("jakarta.jakartaee-api") &&
-                        d.getVersion().startsWith("8.")) {
-                    return BINARY_SCANNER_EEV8;
+                        d.getArtifactId().equals("jakarta.jakartaee-api")) {
+                    if (d.getVersion().startsWith("8.")) {
+                        return BINARY_SCANNER_EEV8;
+                    } else {
+                        return null;
+                    }
                 }
             }
         }
-        return null;
+
+        throw new NoUmbrellaDependencyException();
     }
 
     /**
-     * Returns the MicroProfile major version detected for the given MavenProjects
+     * Returns the MicroProfile version detected for the given MavenProjects
      * 
      * @param mavenProjects project modules, for single module projects list of size 1
      * @return the latest version of MP detected across multiple project modules,
-     *         null if an MP version is not found
+     *         null if an MP version is not found or the version number is out of range
      */
     public String getMPVersion(List<MavenProject> mavenProjects) {
         String mpVersion = null;
         if (mavenProjects != null) {
             Set<String> mpVersionsDetected = new HashSet<String>();
             for (MavenProject mavenProject : mavenProjects) {
-                String ver = getMPVersion(mavenProject);
-                if (ver != null) {
-                    mpVersionsDetected.add(ver);
+                try {
+                    String ver = getMPVersion(mavenProject);
+                    log.debug("MicroProfile umbrella dependency found in project: " + mavenProject.getName());
+                    if (ver != null) {
+                        mpVersionsDetected.add(ver);
+                    } else {
+                        // MP version out of range, add max possible verison
+                        mpVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
+                    }
+                } catch (NoUmbrellaDependencyException e) {
+                    // umbrella dependency does not exist, do nothing
                 }
             }
             if (!mpVersionsDetected.isEmpty()) {
@@ -538,6 +563,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     if (ver.compareTo(mpVersion) > 0) {
                         mpVersion = ver;
                     }
+                }
+                if (mpVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
+                    // max version indicates that an umbrella dependency was found, but version was
+                    // out of range. Return null
+                    mpVersion = null;
                 }
             }
             if (mpVersionsDetected.size() > 1) {
@@ -558,10 +588,10 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      * 
      * @param project the MavenProject to search
      * @return MP exact version code or major version number code corresponding to
-     *         the MP umbrella dependency, null if an MP umbrella dependency is not found
-     *         or the version number is out of range.
+     *         the MP umbrella dependency, null if the version number is out of range
+     * @throws NoUmbrellaDependencyException indicates that the umbrella dependency was not found
      */
-    public String getMPVersion(MavenProject project) { // figure out correct level of MP from declared dependencies
+    public String getMPVersion(MavenProject project) throws NoUmbrellaDependencyException { // figure out correct level of MP from declared dependencies
         if (project != null) {
             List<Dependency> dependencies = project.getDependencies();
             for (Dependency d : dependencies) {
@@ -571,7 +601,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 if (d.getGroupId().equals("org.eclipse.microprofile") &&
                         d.getArtifactId().equals("microprofile")) {
                     String version = d.getVersion();
-                    log.debug("dep=org.eclipse.microprofile:microprofile version=" + version);
                     if (version.length() == 3) { // version is 'm.n'
                         String mpVersion = BINARY_SCANNER_MP.get(version);
                         if (mpVersion != null) {
@@ -592,7 +621,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
             }
         }
-        return null;
+        throw new NoUmbrellaDependencyException();
     }
 
     // Define the logging functions of the binary scanner handler and make it available in this plugin
@@ -631,6 +660,13 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         ProjectBuildingResult build = mavenProjectBuilder.build(buildFile,
                 session.getProjectBuildingRequest().setResolveDependencies(true));
         return build.getProject();
+    }
+
+    /**
+     * Class to indicate that an umbrella dependency was not found in the build file
+     */
+    public class NoUmbrellaDependencyException extends Exception {
+        private static final long serialVersionUID = 1L;
     }
 
 }
