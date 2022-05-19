@@ -1124,10 +1124,6 @@ public class DevMojo extends LooseAppSupport {
 
     @Override
     protected void doExecute() throws Exception {
-        // TODO remove once feature generation is re-enabled
-        // force generateFeatures = false to disable feature generation
-        boolean generateFeatures = false; 
-
         if (skip) {
             getLog().info("\nSkipping dev goal.\n");
             return;
