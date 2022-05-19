@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018.
+ * (C) Copyright IBM Corporation 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import org.junit.Test;
 
-public class InstallSpringBoot15AppIT {
+public class InstallSpringBoot20AppIT {
 
     @Test
     public void testThinApplicationExistsInAppsDirectory() throws Exception {
@@ -32,6 +32,6 @@ public class InstallSpringBoot15AppIT {
     @Test
     public void testLibIndexCacheExists() throws Exception {
         File f = new File("target/liberty/wlp/usr/shared/resources/lib.index.cache");
-        assertTrue(f.getCanonicalFile() + " doesn't exist. Plugin failed to place the cache directory at right destination.", f.exists());
+        assertTrue(f.getCanonicalFile()+ " doesn't exist. Plugin failed to place the cache directory at right destination.", f.exists());
     }
 }

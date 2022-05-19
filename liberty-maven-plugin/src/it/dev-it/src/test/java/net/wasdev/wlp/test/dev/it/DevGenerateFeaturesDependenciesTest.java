@@ -21,12 +21,15 @@ import java.io.File;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Start dev mode, update umbrella dependencies in the pom.xml, ensure that the correct version
  * of features are generated
  */
+// TODO enable when feature generation is re-enabled
+@Ignore
 public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
     @BeforeClass

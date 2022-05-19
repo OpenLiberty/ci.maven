@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018.
+ * (C) Copyright IBM Corporation 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ import java.net.URL;
 
 import org.junit.Test;
 
-public class SpringBoot15RestEndpointIT {
+public class SpringBoot20RestEndpointIT {
 
     @Test
     public void testSpringRestBootEndpoint() throws Exception {
+
         URL requestUrl = new URL("http://localhost:9080/spring/");
         HttpURLConnection conn = (HttpURLConnection) requestUrl.openConnection();
 
