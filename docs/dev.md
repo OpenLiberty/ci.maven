@@ -2,9 +2,9 @@
 
 ----
 
-Start a Liberty server in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.
+Start a Liberty server in dev mode. This goal also invokes the `generate-features`, `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.
 
-N.B. starting in the tech preview 3.5.2-SNAPSHOT, dev mode also invokes `generate-features`. See [generate-features](generate-features.md) for details.
+N.B. starting in 3.6, dev mode invokes `generate-features`. See [generate-features](generate-features.md) for details.
 
 Additionally, starting in 3.5.2-SNAPSHOT, [resource variable filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html) and [WAR overlays](https://maven.apache.org/plugins/maven-war-plugin/overlays.html) are supported for loose WAR applications. This is done by automatically detecting appropriate Maven WAR plugin configuration and calling the WAR plugin's `exploded` goal and the Maven Resource plugin's `resource` goal when appropriate. Behavior for updating/deleting resources is delegated via the Maven WAR plugin configuration, including the `outdatedCheckPath` parameter enhanced in plugin version 3.3.2.
 
@@ -14,8 +14,11 @@ To start the server in a container, see the [devc](#devc-container-mode) section
 
 While dev mode is running, perform the following in the command terminal to run the corresponding actions.
 
+* To toggle the automatic generation of features, type `g` and press Enter.
+* To optimize the list of generated features, type `o` and press Enter.
 * To run tests on demand, press Enter.
 * To restart the server, type `r` and press Enter.
+* To see the help menu for available actions, type `h` and press Enter.
 * To exit dev mode, press `Control-C`, or type `q` and press Enter.
 
 ###### Features
@@ -101,6 +104,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `90` seconds. | No |
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
 | recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
+| generateFeatures | If set to `true`, when a Java file is changed, generate features required by the application. The default value is `true`. | No |
 
 ###### System Properties for Integration Tests
 
@@ -157,8 +161,11 @@ Dev mode offers different levels of file tracking and deployment depending on th
 
 While dev mode is running in container mode, perform the following in the command terminal to run the corresponding actions.
 
+* To toggle the automatic generation of features, type `g` and press Enter.
+* To optimize the list of generated features, type `o` and press Enter.
 * To run tests on demand, press Enter.
 * To rebuild the Docker image and restart the container, type `r` and press Enter.
+* To see the help menu for available actions, type `h` and press Enter.
 * To exit dev mode, press `Control-C`, or type `q` and press Enter.
 
 ###### Linux Limitations
