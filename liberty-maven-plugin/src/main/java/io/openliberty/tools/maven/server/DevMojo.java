@@ -897,6 +897,9 @@ public class DevMojo extends LooseAppSupport {
 
                     // detect compile dependency changes
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
+                        // adding or removing compile dependencies (including version changes) will need
+                        // to deploy loose app again to remove or add or update embedded libraries in
+                        // the loose app
                         redeployApp = true;
                         optimizeGenerateFeatures = true;
                     }
@@ -916,15 +919,17 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
+                boolean generateFeaturesSuccess = false;
                 if (optimizeGenerateFeatures && generateFeatures) {
                     log.debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
-                    boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
+                    generateFeaturesSuccess = libertyGenerateFeatures(null, true);
                     if (generateFeaturesSuccess) {
                         util.getJavaSourceClassPaths().clear();
                     } else {
                         installFeature = false; // skip installing features if generate features fails
                     }
+
                 }
                 if (restartServer) {
                     // - stop Server
@@ -941,7 +946,9 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                    	runLibertyMojoDeploy();
+                        util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
+                                generateFeaturesSuccess);
+                        runLibertyMojoDeploy();
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
