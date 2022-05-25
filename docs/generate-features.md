@@ -2,7 +2,7 @@
 ---
 Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file containing the features the application requires.
 
-This feature is best accessed through [dev mode](dev.md). When you start `liberty:dev` your application will be compiled and the class files will be scanned to verify that all the required Liberty features are included in your server configuration. Then as you work, dev mode will continue to monitor the project to confirm the Liberty features configured are up to date. If you implement a new interface in Java, the scanner will determine if that API is connected to a Liberty feature, then update the server configuration and install the feature. If you remove a feature from `server.xml`, dev mode will determine if that feature is actually necessary, and if so, add it to the generated configuration file as described below.
+This feature is best accessed through [dev mode](dev.md) during development. When you start `liberty:dev` your application will be compiled and the class files will be scanned to verify that all the required Liberty features are included in your server configuration. Then as you work, dev mode will continue to monitor the project to confirm the Liberty features configured are up to date. If you implement a new interface in Java, the scanner will determine if that API is connected to a Liberty feature, then update the server configuration and install the feature. If you remove a feature from `server.xml`, dev mode will determine if that feature is actually necessary, and if so, add it to the generated configuration file as described below.
 
 Feature generation is enabled through dev mode by default. If you need to disable feature generation, you can start dev mode with the parameter `-DgenerateFeatures=false`. When running dev mode, you can toggle the generation of features off and on by typing 'g' and pressing Enter. Normally dev mode only scans a class file that has just been updated, but you can tell dev mode to rescan all class files by typing 'o' and pressing Enter. This will optimize the feature list in the generated configuration file.
 
@@ -12,13 +12,15 @@ This goal is not part of the Maven lifecycle, so to use it in your build you wil
 
 If this goal detects Liberty features used in your project but not present in your Liberty configuration, it will create a new file `configDropins/overrides/generated-features.xml` in the `src/main/liberty/config` directory of your project. The `generated-features.xml` file will contain a list of features required for your project. If the `generated-features.xml` file has been created in the past and no additional features have been detected, this file will be retained.
 
-This goal examines the `pom.xml` dependencies to determine which version of Java/JakartaEE EE and MicroProfile you may be using. Compatible features will then be generated. 
+This goal examines the `pom.xml` dependencies to determine which version of Jakarta EE, MicroProfile or Java EE API you may be using. Compatible features will then be generated. 
 
-For Java EE this goal looks for a `javax:javaee-api` dependency with versions `6.0`, `7.0` or `8.0`. For Jakarta EE this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency with version `8.0`.
+For Jakarta EE API, this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency with version `8.0`.
 
-For MicroProfile this goal looks for a `org.eclipse.microprofile:microprofile` dependency and generates features according to the version number.
+For MicroProfile API, this goal looks for a `org.eclipse.microprofile:microprofile` dependency and generates features according to the version number.
 
-For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` features compatible with Jakarta EE `8.0` and MicroProfile `4.1` will be generated.
+For Java EE API, this goal looks for a `javax:javaee-api` dependency with versions `6.0`, `7.0` or `8.0`. 
+
+For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` file, features compatible with Jakarta EE `8.0` and MicroProfile `4.1` will be generated.
 ```xml
 <dependency>
     <groupId>jakarta.platform</groupId>

@@ -2,7 +2,7 @@
 
 ----
 
-Start a Liberty server in dev mode. This goal also invokes the `generate-features`, `create`, `install-feature`, and `deploy` goals before starting the server. **Note:** This goal is designed to be executed directly from the Maven command line.
+Start a Liberty instance in dev mode. This goal also invokes the `generate-features`, `create`, `install-feature`, and `deploy` goals before starting the runtime. **Note:** This goal is designed to be executed directly from the Maven command line.
 
 N.B. starting in 3.6, dev mode invokes `generate-features`. See [generate-features](generate-features.md) for details.
 
