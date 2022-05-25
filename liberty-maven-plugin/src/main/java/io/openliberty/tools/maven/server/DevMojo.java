@@ -655,6 +655,9 @@ public class DevMojo extends LooseAppSupport {
                             if (generateFeaturesSuccess) {
                                 util.getJavaSourceClassPaths().clear();
                             }
+                            // install new generated features, will not trigger install-feature if the feature list has not changed
+                            util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
+                                generateFeaturesSuccess);
                         }
                         runLibertyMojoDeploy();
                     }
