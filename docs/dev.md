@@ -156,13 +156,13 @@ Finally, if dev mode detects the Liberty command `RUN configure.sh` it will inse
 
 Dev mode offers different levels of file tracking and deployment depending on the way the file is specified in the Dockerfile. 
 1. When you use the COPY command on an individual file, dev mode can track file changes and hot deploy them to the container subject to the limitations below. **This is the recommended way to deploy files for dev mode,** so that you can make changes to those files at any time without needing to rebuild the image or restart the container.
-   - E.g. `COPY src/main/liberty/config/server.xml /config/` 
+   - E.g. `COPY target/liberty/wlp/usr/servers/defaultServer/server.xml /config/`
    - Note that the Dockerfile must copy only one `.war` file for the application. See the section on [Dockerfiles](#Dockerfile) for details.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
 3. The ADD command can be used on individual files, including tar files, as well as on directories. Again, dev mode will rebuild the image and restart the container when it detects file changes.
 4. Certain Dockerfile features are not supported by dev mode. In these cases, the files specified are not tracked. If you change these files, you must rebuild the image and restart the container manually. **Type 'r' and press Enter to rebuild the image and restart the container.**
    - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
-   - wildcards used in the COPY or ADD command e.g. `src/main/liberty/config/*`
+   - wildcards used in the COPY or ADD command e.g. `target/liberty/wlp/usr/servers/defaultServer/configDropins/*`
    - paths relative to WORKDIR e.g. `WORKDIR /other/project` followed by `COPY test.txt relativeDir/`
    - files copied from a different part of a multistage Docker build e.g. `COPY --from=<name>`
 
