@@ -129,6 +129,10 @@ N.B. starting in 3.6, dev mode invokes `generate-features`. Ensure that the `gen
 ```dockerfile
 COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/generated-features.xml /config/configDropins/overrides/
 ```
+If on Linux, it is recommended that you coy the entire `configDropins/overrides` directory.
+```dockerfile
+COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides /config/configDropins/overrides
+```
 
 ###### Prerequisites
 

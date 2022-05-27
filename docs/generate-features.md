@@ -16,6 +16,10 @@ If you are using [devc](dev.md#devc-container-mode), ensure that the `generated-
 ```dockerfile
 COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/generated-features.xml /config/configDropins/overrides/
 ```
+If on Linux, it is recommended that you coy the entire `configDropins/overrides` directory.
+```dockerfile
+COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides /config/configDropins/overrides
+```
 
 This goal examines the `pom.xml` dependencies to determine which version of Jakarta EE, MicroProfile or Java EE API you may be using. Compatible features will then be generated. 
 
