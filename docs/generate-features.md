@@ -12,20 +12,20 @@ This goal is not part of the Maven lifecycle, so to use it in your build you wil
 
 If this goal detects Liberty features used in your project but not present in your Liberty configuration, it will create a new file `configDropins/overrides/generated-features.xml` in the `src/main/liberty/config` directory of your project. The `generated-features.xml` file will contain a list of features required for your project. If the `generated-features.xml` file has been created in the past and no additional features have been detected, this file will be retained.
 
-If you are using [devc](dev.md#devc-container-mode), ensure that the `generated-features.xml` configuration file is copied via your Dockerfile.
+If you are using [devc](dev.md#devc-container-mode), ensure that the `generated-features.xml` configuration file is copied to your Docker image via your Dockerfile.
 ```dockerfile
 COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/generated-features.xml /config/configDropins/overrides/
 ```
 
 This goal examines the `pom.xml` dependencies to determine which version of Jakarta EE, MicroProfile or Java EE API you may be using. Compatible features will then be generated. 
 
-For Jakarta EE API, this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency with version `8.0`.
+For Jakarta EE API, this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency with version `8.0.0`.
 
 For MicroProfile API, this goal looks for a `org.eclipse.microprofile:microprofile` dependency and generates features according to the version number.
 
 For Java EE API, this goal looks for a `javax:javaee-api` dependency with versions `6.0`, `7.0` or `8.0`. 
 
-For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` file, features compatible with Jakarta EE `8.0` and MicroProfile `4.1` will be generated.
+For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` file, features compatible with Jakarta EE `8.0.0` and MicroProfile `4.1` will be generated.
 ```xml
 <dependency>
     <groupId>jakarta.platform</groupId>
