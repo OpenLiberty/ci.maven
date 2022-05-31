@@ -491,8 +491,7 @@ public class BaseDevTest {
    }
 
    protected static void tagLog(String line) throws Exception {
-      // uncomment when ci.common change made
-      // writer.write(line + "\n");
-      // writer.flush();
+      writer.write(line + "\n");
+      writer.flush();
    }
 }
