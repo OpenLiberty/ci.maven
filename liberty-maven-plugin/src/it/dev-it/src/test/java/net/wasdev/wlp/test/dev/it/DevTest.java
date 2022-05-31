@@ -291,7 +291,8 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newFeatureFile));
       assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
       // "CWWKF0012I: The server installed the following features:" assume batch-1.0 is in there
-      assertTrue(verifyLogMessageExists(SERVER_INSTALLED_FEATURES, 10000, ++installedFeaturesCount));
+      // batch-1.0 pulls in other features that can take a long time to download.
+      assertTrue(verifyLogMessageExists(SERVER_INSTALLED_FEATURES, 123000, ++installedFeaturesCount));
 
       // When there is a compilation error the generate features process should not run
       final String goodCode = "import javax.ws.rs.GET;";
