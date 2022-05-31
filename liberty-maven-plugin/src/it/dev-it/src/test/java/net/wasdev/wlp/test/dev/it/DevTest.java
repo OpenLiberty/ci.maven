@@ -332,9 +332,6 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyFileDoesNotExist(helloBatchObj, 15000));
       // Just removing the class file does not remove the feature because the feature
       // list is built in an incremental way.
-      // code to test if generate features were called:
-      // assertTrue(verifyLogMessageExists(REGENERATE_FEATURES, 10000, logFile, ++regenerateCount));
-      // assertTrue(verifyLogMessageExists("batch-1.0", 100, newFeatureFile, 1));
 
       int serverUpdateCount = countOccurrences(SERVER_UPDATE_COMPLETE, logFile);
       writer.write("o\n"); // on optimize regenerate
