@@ -44,7 +44,7 @@ public class DevTest extends BaseDevTest {
    @Test
    /* simple double check. if failure, check parse in ci.common */
    public void verifyJsonHost() throws Exception {
-      assertTrue(verifyLogMessageExists("CWWKT0016I", 2000));   // Verify web app code triggered
+      assertTrue(verifyLogMessageExists(WEB_APP_AVAILABLE, 2000));   // Verify web app code triggered
       //TODO: fix below with correct assertion
       verifyLogMessageExists("http:\\/\\/", 2000);  // Verify escape char seq passes
    }
@@ -71,7 +71,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++generateFeaturesCount)); // mojo ran
 
       // check for server configuration was successfully updated message
-      assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
+      assertTrue(verifyLogMessageExists(SERVER_UPDATED, 60000));
       boolean foundUpdate = verifyLogMessageExists("<feature>mpFaultTolerance-2.0</feature>", 60000, targetServerXML);
       assertTrue("Could not find the updated feature in the target server.xml file", foundUpdate);
       tagLog("##configChangeTest end");
@@ -94,7 +94,7 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++generateFeaturesCount)); // mojo ran
 
       // check for server configuration was successfully updated message
-      assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
+      assertTrue(verifyLogMessageExists(SERVER_UPDATED, 60000));
       boolean foundUpdate = verifyLogMessageExists("<feature>servlet-4.0</feature>", 60000, targetServerXMLIncludes);
       assertTrue("Could not find the updated feature in the target extraFeatures.xml file", foundUpdate);
       // restore config files
@@ -104,15 +104,14 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++generateFeaturesCount)); // mojo ran
 
       // check for server configuration was successfully updated message
-      assertTrue(verifyLogMessageExists("CWWKG0017I", 60000));
+      assertTrue(verifyLogMessageExists(SERVER_UPDATED, 60000));
       tagLog("##configIncludesChangeTest end");
    }
 
    @Test
    public void resourceFileChangeTest() throws Exception {
       tagLog("##resourceFileChangeTest start");
-      // CWWKZ0003I: The application xxx updated in y.yyy seconds.
-      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
+      int appUpdatedCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
 
       // make a resource file change
       File resourceDir = new File(tempProj, "src/main/resources");
@@ -124,7 +123,7 @@ public class DevTest extends BaseDevTest {
       // dev mode copies file to target dir
       File targetPropertiesFile = new File(targetDir, "classes/microprofile-config.properties");
       assertTrue(getLogTail(), verifyFileExists(targetPropertiesFile, 30000)); // wait for dev mode
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile, ++appUpdatedCount));
+      assertTrue(getLogTail(), verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, logFile, ++appUpdatedCount));
 
       // delete a resource file
       assertTrue(propertiesFile.delete());
