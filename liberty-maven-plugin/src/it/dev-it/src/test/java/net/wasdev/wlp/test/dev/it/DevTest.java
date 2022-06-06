@@ -72,7 +72,7 @@ public class DevTest extends BaseDevTest {
 
       // check for server configuration was successfully updated message
       assertTrue(verifyLogMessageExists(SERVER_UPDATED, 60000));
-      verifyFileExists(11000, targetServerXML); // ensure file copy is complete.
+      verifyFileExists(targetServerXML, 11000); // ensure file copy is complete.
       boolean foundUpdate = verifyLogMessageExists("<feature>mpFaultTolerance-2.0</feature>", 60000, targetServerXML);
       assertTrue("Could not find the updated feature in the target server.xml file", foundUpdate);
       tagLog("##configChangeTest end");
