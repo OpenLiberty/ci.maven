@@ -1000,14 +1000,12 @@ public class DevMojo extends LooseAppSupport {
                         existingFeaturesCopy.removeAll(featuresCopy);
                         if (!existingFeaturesCopy.isEmpty()) {
                             log.info("Configuration features have been removed: " + existingFeaturesCopy);
-                            existingFeatures.removeAll(existingFeaturesCopy);
                         }
                     }
 
                     // check if features have been added and install new features
                     if (!features.isEmpty()) {
                         log.info("Configuration features have been added: " + features);
-                        existingFeatures.addAll(features);
                         // pass all new features to install-feature as backup in case the serverDir cannot be accessed
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
@@ -1039,7 +1037,7 @@ public class DevMojo extends LooseAppSupport {
         public void updateExistingFeatures() {
             ServerFeatureUtil servUtil = getServerFeatureUtil(true);
             Set<String> features = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
-            this.existingFeatures.addAll(features);
+            existingFeatures = features;
         }
 
         @Override
