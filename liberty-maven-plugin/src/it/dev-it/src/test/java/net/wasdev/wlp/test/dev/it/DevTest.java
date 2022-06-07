@@ -96,6 +96,7 @@ public class DevTest extends BaseDevTest {
 
       // check for server configuration was successfully updated message
       assertTrue(verifyLogMessageExists(SERVER_UPDATED, 60000));
+      verifyFileExists(targetServerXMLIncludes, 11000); // ensure file copy is complete.
       boolean foundUpdate = verifyLogMessageExists("<feature>servlet-4.0</feature>", 60000, targetServerXMLIncludes);
       assertTrue("Could not find the updated feature in the target extraFeatures.xml file", foundUpdate);
       // restore config files
