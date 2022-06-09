@@ -62,6 +62,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
@@ -1279,6 +1280,17 @@ public class DevMojo extends LooseAppSupport {
                 // generate features on startup - provide all classes and only user specified
                 // features to binary scanner
                 try {
+                    String generatedFileCanonicalPath;
+                    try {
+                        generatedFileCanonicalPath = new File(configDirectory,
+                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+                    } catch (IOException e) {
+                        generatedFileCanonicalPath = new File(configDirectory,
+                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
+                    }
+                    log.warn(
+                            "The source configuration directory will be modified. Features will automatically be generated in a new file: "
+                                    + generatedFileCanonicalPath);
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
                     if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
