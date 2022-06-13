@@ -14,7 +14,7 @@ To start the server in a container, see the [devc](#devc-container-mode) section
 
 While dev mode is running, perform the following in the command terminal to run the corresponding actions.
 
-* `g` - toggle the automatic generation of features, type `g` and press Enter. Features will automatically be generated in a new file  of your application. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* `g` - toggle the automatic generation of features, type `g` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
 * `o` - optimize the list of generated features, type `o` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
 * Enter - run tests on demand, press Enter.
 * `r` - restart the server, type `r` and press Enter.
