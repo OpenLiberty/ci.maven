@@ -47,10 +47,12 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.maven.ServerFeatureSupport;
 
 /**
- * This mojo generates the features required in the featureManager element in server.xml.
- * It examines the dependencies declared in the pom.xml and the features already declared
- * in the featureManager elements in the XML configuration files. Then it generates any
- * missing feature names and stores them in a new featureManager element in a new XML file.
+ * This mojo generates the features required in the featureManager element in
+ * server.xml. It examines the dependencies declared in the pom.xml and the
+ * features already declared in the featureManager elements in the XML
+ * configuration files. Then it generates any missing feature names and stores
+ * them in a new featureManager element in a new XML file in the source
+ * config/dropins directory.
  */
 @Mojo(name = "generate-features")
 public class GenerateFeaturesMojo extends ServerFeatureSupport {

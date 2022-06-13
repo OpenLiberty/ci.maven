@@ -148,7 +148,7 @@ public class BaseDevTest {
       // run dev mode on project
       String goal;
       if(isDevMode) {
-         goal = "dev";
+         goal = "dev -DgenerateFeatures=true";
       } else {
          goal = "run";
       }
