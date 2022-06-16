@@ -75,6 +75,8 @@ public class BaseDevTest {
    final static String SERVER_NOT_UPDATED = "CWWKG0018I: The server configuration was not updated.";
    final static String COMPILATION_SUCCESSFUL = "Source compilation was successful.";
    final static String COMPILATION_ERRORS = "Source compilation had errors.";
+   final static String INVALID_EE_VERSION_MSG = "The Java EE or Jakarta EE version number specified in the build file is not supported for feature generation";
+   final static String INVALID_MP_VERSION_MSG = "The MicroProfile version number specified in the build file is not supported for feature generation";
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");
@@ -176,6 +178,9 @@ public class BaseDevTest {
          assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
          if (isDevMode) {
             assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
+            // Can't start testing until compilation is complete if needed.
+            verifyLogMessageExists("Source compilation was successful.", 5000);
+            Thread.sleep(2000); // wait for dev mode to registere all directories
          }
 
          // verify that the target directory was created

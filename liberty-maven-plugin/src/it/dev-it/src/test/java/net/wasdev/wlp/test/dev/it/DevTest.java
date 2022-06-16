@@ -136,6 +136,7 @@ public class DevTest extends BaseDevTest {
    @Test
    public void testDirectoryTest() throws Exception {
       tagLog("##testDirectoryTest start");
+      Thread.sleep(500); // this test often fails, wait for dev mode
       // create the test directory
       File testDir = new File(tempProj, "src/test/java");
       assertTrue(testDir.mkdirs());
@@ -343,6 +344,59 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 10000, serverUpdateCount+1));
       // Need to ensure server finished updating before the next test starts.
       tagLog("##generateFeatureTest end");
+   }
+
+   @Test
+   public void scannerInvalidEETest() throws Exception {
+      tagLog("##scannerInvalidEETest start");
+      String placeholder1 = "<!-- Umbrella dependency replace 1 -->";
+      String badDep = "<dependency>\n" +
+         "        <groupId>jakarta.platform</groupId>\n" +
+         "        <artifactId>jakarta.jakartaee-api</artifactId>\n" +
+         "        <version>99.0.0</version>\n" +
+         "        <scope>provided</scope>\n" +
+         "    </dependency>\n";
+
+      try {
+         int msgCount = countOccurrences(INVALID_EE_VERSION_MSG, logFile);
+         replaceString(placeholder1, badDep, pom);
+         assertTrue(verifyLogMessageExists(INVALID_EE_VERSION_MSG, 9000, logFile, ++msgCount));
+      } finally {
+         // restore pom
+         replaceString(badDep, placeholder1, pom);
+      }
+      int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
+      replaceString(badDep, placeholder1, pom);
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+
+      tagLog("##scannerInvalidEETest end");
+   }
+
+   @Test
+   public void scannerInvalidMPTest() throws Exception {
+      tagLog("##scannerInvalidMPTest start");
+      String placeholder2 = "<!-- Umbrella dependency replace 2 -->";
+      String badDep = "<dependency>\n" +
+         "        <groupId>org.eclipse.microprofile</groupId>\n" +
+         "        <artifactId>microprofile</artifactId>\n" +
+         "        <version>99.0</version>\n" +
+         "        <scope>provided</scope>\n" +
+         "        <type>pom</type>\n" +
+         "    </dependency>\n";
+
+      try {
+         int msgCount = countOccurrences(INVALID_MP_VERSION_MSG, logFile);
+         replaceString(placeholder2, badDep, pom);
+         assertTrue(verifyLogMessageExists(INVALID_MP_VERSION_MSG, 9000, logFile, ++msgCount));
+      } finally {
+         // restore pom
+         replaceString(badDep, placeholder2, pom);
+      }
+      int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
+      replaceString(badDep, placeholder2, pom);
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+
+      tagLog("##scannerInvalidMPTest end");
    }
 
 }

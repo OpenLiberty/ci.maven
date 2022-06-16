@@ -80,6 +80,8 @@
         <type>esa</type>
         <scope>provided</scope>
     </dependency>
+    <!-- Umbrella dependency replace 1 -->
+    <!-- Umbrella dependency replace 2 -->
     <!-- <dependency>
         <groupId>io.openliberty.features</groupId>
         <artifactId>mpHealth-1.0</artifactId>
