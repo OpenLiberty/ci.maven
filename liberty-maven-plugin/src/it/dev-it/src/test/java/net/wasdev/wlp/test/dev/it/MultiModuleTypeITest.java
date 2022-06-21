@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2021, 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,16 +51,14 @@ public class MultiModuleTypeITest extends BaseMultiModuleTest {
 
       // add a dependency to parent pom and check that it resolves compile errors in
       // child modules
-      int appUpdatedCount = countOccurrences("CWWKZ0003I:", logFile);
       File parentPom = new File(tempProj, "parent/pom.xml");
       assertTrue(parentPom.exists());
       replaceString("<!-- SUB JUNIT -->",
             "<dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>5.6.2</version> <scope>test</scope> </dependency>",
             parentPom);
       // wait for compilation
-      assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0003I:", 6000, logFile, ++appUpdatedCount));
+      assertTrue(getLogTail(), verifyLogMessageExists("guide-maven-multimodules-ear tests compilation was successful.", 6000, logFile));
       assertTrue(getLogTail(), verifyFileExists(targetEarClass, 10000));
-
 
       super.manualTestsInvocation("guide-maven-multimodules-jar", "guide-maven-multimodules-war",
             "guide-maven-multimodules-ear");
