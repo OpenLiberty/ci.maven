@@ -349,6 +349,8 @@ public class DevTest extends BaseDevTest {
    @Test
    public void scannerInvalidEETest() throws Exception {
       tagLog("##scannerInvalidEETest start");
+      // TODO: Remove this code once issue 1554 is fixed
+      Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
       String placeholder1 = "<!-- Umbrella dependency replace 1 -->";
       String badDep = "<dependency>\n" +
          "        <groupId>jakarta.platform</groupId>\n" +
@@ -375,6 +377,8 @@ public class DevTest extends BaseDevTest {
    @Test
    public void scannerInvalidMPTest() throws Exception {
       tagLog("##scannerInvalidMPTest start");
+      // TODO: Remove this code once issue 1554 is fixed
+      Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
       String placeholder2 = "<!-- Umbrella dependency replace 2 -->";
       String badDep = "<dependency>\n" +
          "        <groupId>org.eclipse.microprofile</groupId>\n" +

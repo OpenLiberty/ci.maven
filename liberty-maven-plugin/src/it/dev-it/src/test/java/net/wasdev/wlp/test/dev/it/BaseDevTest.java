@@ -178,9 +178,10 @@ public class BaseDevTest {
          assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
          if (isDevMode) {
             assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
-            // Can't start testing until compilation is complete if needed.
-            verifyLogMessageExists("Source compilation was successful.", 5000);
-            Thread.sleep(2000); // wait for dev mode to registere all directories
+            // TODO: Enable this code once issue 1554 is fixed
+            // // Can't start testing until compilation is complete if needed.
+            // verifyLogMessageExists("Source compilation was successful.", 5000);
+            // Thread.sleep(2000); // wait for dev mode to register all directories
          }
 
          // verify that the target directory was created
