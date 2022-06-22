@@ -1,10 +1,13 @@
 #### generate-features
 ---
-Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file containing the features the application requires.
+
+**This goal will modify the source configuration directory of your application.** 
+
+Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file within the source directory containing the features the application requires.
 
 This feature is best accessed through [dev mode](dev.md) during development. When you start `liberty:dev` your application will be compiled and the class files will be scanned to verify that all the required Liberty features are included in your server configuration. Then as you work, dev mode will continue to monitor the project to confirm the Liberty features configured are up to date. If you implement a new interface in Java, the scanner will determine if that API is connected to a Liberty feature, then update the server configuration and install the feature. If you remove a feature from `server.xml`, dev mode will determine if that feature is actually necessary, and if so, add it to the generated configuration file as described below.
 
-Feature generation is enabled through dev mode by default. If you need to disable feature generation, you can start dev mode with the parameter `-DgenerateFeatures=false`. When running dev mode, you can toggle the generation of features off and on by typing 'g' and pressing Enter. Normally dev mode only scans a class file that has just been updated, but you can tell dev mode to rescan all class files by typing 'o' and pressing Enter. This will optimize the feature list in the generated configuration file.
+Feature generation is disabled through dev mode by default. If you need to enable feature generation, you can start dev mode with the parameter `-DgenerateFeatures=true`. When running dev mode, you can toggle the generation of features off and on by typing 'g' and pressing Enter. Normally dev mode only scans a class file that has just been updated, but you can tell dev mode to rescan all class files by typing 'o' and pressing Enter. This will optimize the feature list in the generated configuration file.
 
 ##### Lifecycle
 
