@@ -89,6 +89,7 @@ public class ServerConfigPropertiesTest {
             .setProperties(props);
 
             Invoker invoker = new DefaultInvoker();
+            invoker.setMavenHome(new File(System.getenv("MAVEN_HOME")));
 
             InvocationResult createResult = invoker.execute( createRequest );
 
