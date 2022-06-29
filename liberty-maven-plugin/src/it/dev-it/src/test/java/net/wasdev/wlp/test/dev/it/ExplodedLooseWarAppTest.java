@@ -53,8 +53,7 @@ public class ExplodedLooseWarAppTest extends BaseDevTest {
 		  
 		  // Verify exploded goal running and redeploy
 		  assertTrue(getLogTail(), verifyLogMessageExists("Running liberty:deploy", 4000, logFile, ++appDeployedCount));
-		  assertTrue(getLogTail(), verifyLogMessageExists("Running                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>:exploded", 2000));
+		  assertTrue(getLogTail(), verifyLogMessageExists("Running maven-war-plugin:exploded", 2000));
 		  
 		  // Verify loose app xml is correct
 		  verifyExplodedLooseApp();
@@ -82,8 +81,7 @@ public class ExplodedLooseWarAppTest extends BaseDevTest {
 		   
 		   // Verify exploded goal running and redeploy
 		   assertTrue(getLogTail(), verifyLogMessageExists("Running liberty:deploy", 2000));
-		   assertTrue(getLogTail(), verifyLogMessageExists("Running                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>:exploded", 2000));
+		   assertTrue(getLogTail(), verifyLogMessageExists("Running maven-war-plugin:exploded", 2000));
 		   
 		   // Verify loose app xml is correct
 		   verifyExplodedLooseApp();   
@@ -114,8 +112,7 @@ public class ExplodedLooseWarAppTest extends BaseDevTest {
 		   
 		   // Verify exploded goal running and redeploy
 		   assertTrue(getLogTail(), verifyLogMessageExists("Running liberty:deploy", 2000));
-		   assertTrue(getLogTail(), verifyLogMessageExists("Running                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>:exploded", 2000));
+		   assertTrue(getLogTail(), verifyLogMessageExists("Running maven-war-plugin:exploded", 2000));
 		   
 		   // Verify loose app xml is correct
 		   verifyExplodedLooseApp();   
