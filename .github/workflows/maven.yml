@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-18.04, windows-latest]
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [22.0.0.3, 21.0.0.12]
-        java: [11, 8]
+        java: [17, 11, 8]
         exclude:
         - java: 8
           RUNTIME_VERSION: 21.0.0.12

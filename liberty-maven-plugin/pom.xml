@@ -238,6 +238,7 @@
                             <artifactId>maven-invoker-plugin</artifactId>
                             <configuration>
                                 <pomExcludes>
+                                    <pomExclude>dev-it/pom.xml</pomExclude>
                                     <pomExclude>basic-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>
