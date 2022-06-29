@@ -460,9 +460,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     log.debug("Java and/or Jakarta EE umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         eeVersionsDetected.add(ver);
-                    } else {
-                        // EE version out of range, add max possible version
-                        eeVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
                     }
                 } catch (NoUmbrellaDependencyException e) {
                     // umbrella dependency does not exist, do nothing
@@ -477,11 +474,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     if (ver.compareTo(eeVersion) > 0) {
                         eeVersion = ver;
                     }
-                }
-                if (eeVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
-                    // max version indicates that an umbrella dependency was found, but version was
-                    // out of range. Return null
-                    eeVersion = null;
                 }
             }
             if (eeVersionsDetected.size() > 1) {
@@ -537,9 +529,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     log.debug("MicroProfile umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         mpVersionsDetected.add(ver);
-                    } else {
-                        // MP version out of range, add max possible verison
-                        mpVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
                     }
                 } catch (NoUmbrellaDependencyException e) {
                     // umbrella dependency does not exist, do nothing
@@ -553,11 +542,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     if (ver.compareTo(mpVersion) > 0) {
                         mpVersion = ver;
                     }
-                }
-                if (mpVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
-                    // max version indicates that an umbrella dependency was found, but version was
-                    // out of range. Return null
-                    mpVersion = null;
                 }
             }
             if (mpVersionsDetected.size() > 1) {
