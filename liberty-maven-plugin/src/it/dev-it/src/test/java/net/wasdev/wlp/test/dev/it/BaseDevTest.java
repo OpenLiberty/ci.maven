@@ -75,8 +75,6 @@ public class BaseDevTest {
    final static String SERVER_NOT_UPDATED = "CWWKG0018I: The server configuration was not updated.";
    final static String COMPILATION_SUCCESSFUL = "Source compilation was successful.";
    final static String COMPILATION_ERRORS = "Source compilation had errors.";
-   final static String INVALID_EE_VERSION_MSG = "The Java EE or Jakarta EE version number specified in the build file is not supported for feature generation";
-   final static String INVALID_MP_VERSION_MSG = "The MicroProfile version number specified in the build file is not supported for feature generation";
 
    protected static void setUpBeforeClass(String devModeParams) throws IOException, InterruptedException, FileNotFoundException {
    	setUpBeforeClass(devModeParams, "../resources/basic-dev-project");

@@ -28,6 +28,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
 
 public class DevTest extends BaseDevTest {
 
@@ -360,9 +361,9 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         int msgCount = countOccurrences(INVALID_EE_VERSION_MSG, logFile);
+         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_EE_MESSAGE, logFile);
          replaceString(placeholder1, badDep, pom);
-         assertTrue(verifyLogMessageExists(INVALID_EE_VERSION_MSG, 9000, logFile, ++msgCount));
+         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_EE_MESSAGE, 9000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder1, pom);
@@ -389,9 +390,9 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         int msgCount = countOccurrences(INVALID_MP_VERSION_MSG, logFile);
+         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_MP_MESSAGE, logFile);
          replaceString(placeholder2, badDep, pom);
-         assertTrue(verifyLogMessageExists(INVALID_MP_VERSION_MSG, 9000, logFile, ++msgCount));
+         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_MP_MESSAGE, 9000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder2, pom);
