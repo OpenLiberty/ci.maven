@@ -501,10 +501,8 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 if (!d.getScope().equals("provided")) {
                     continue;
                 }
-                if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
-                    return composeEEVersion(d.getVersion());
-                } else if (d.getGroupId().equals("jakarta.platform") &&
-                        d.getArtifactId().equals("jakarta.jakartaee-api")) {
+                if ((d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) ||
+                    (d.getGroupId().equals("jakarta.platform") && d.getArtifactId().equals("jakarta.jakartaee-api"))) {
                     return composeEEVersion(d.getVersion());
                 }
             }
