@@ -28,6 +28,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
 
 public class DevTest extends BaseDevTest {
 
@@ -136,6 +137,7 @@ public class DevTest extends BaseDevTest {
    @Test
    public void testDirectoryTest() throws Exception {
       tagLog("##testDirectoryTest start");
+      Thread.sleep(500); // this test often fails, wait for dev mode
       // create the test directory
       File testDir = new File(tempProj, "src/test/java");
       assertTrue(testDir.mkdirs());
@@ -343,6 +345,63 @@ public class DevTest extends BaseDevTest {
       assertTrue(verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 10000, serverUpdateCount+1));
       // Need to ensure server finished updating before the next test starts.
       tagLog("##generateFeatureTest end");
+   }
+
+   @Test
+   public void scannerInvalidEETest() throws Exception {
+      tagLog("##scannerInvalidEETest start");
+      // TODO: Remove this code once issue 1554 is fixed
+      Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
+      String placeholder1 = "<!-- Umbrella dependency replace 1 -->";
+      String badDep = "<dependency>\n" +
+         "        <groupId>jakarta.platform</groupId>\n" +
+         "        <artifactId>jakarta.jakartaee-api</artifactId>\n" +
+         "        <version>99.0.0</version>\n" +
+         "        <scope>provided</scope>\n" +
+         "    </dependency>\n";
+
+      try {
+         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_EE_MESSAGE, logFile);
+         replaceString(placeholder1, badDep, pom);
+         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_EE_MESSAGE, 9000, logFile, ++msgCount));
+      } finally {
+         // restore pom
+         replaceString(badDep, placeholder1, pom);
+      }
+      int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
+      replaceString(badDep, placeholder1, pom);
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+
+      tagLog("##scannerInvalidEETest end");
+   }
+
+   @Test
+   public void scannerInvalidMPTest() throws Exception {
+      tagLog("##scannerInvalidMPTest start");
+      // TODO: Remove this code once issue 1554 is fixed
+      Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
+      String placeholder2 = "<!-- Umbrella dependency replace 2 -->";
+      String badDep = "<dependency>\n" +
+         "        <groupId>org.eclipse.microprofile</groupId>\n" +
+         "        <artifactId>microprofile</artifactId>\n" +
+         "        <version>99.0</version>\n" +
+         "        <scope>provided</scope>\n" +
+         "        <type>pom</type>\n" +
+         "    </dependency>\n";
+
+      try {
+         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_MP_MESSAGE, logFile);
+         replaceString(placeholder2, badDep, pom);
+         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_MP_MESSAGE, 9000, logFile, ++msgCount));
+      } finally {
+         // restore pom
+         replaceString(badDep, placeholder2, pom);
+      }
+      int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
+      replaceString(badDep, placeholder2, pom);
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+
+      tagLog("##scannerInvalidMPTest end");
    }
 
 }

@@ -460,9 +460,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     log.debug("Java and/or Jakarta EE umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         eeVersionsDetected.add(ver);
-                    } else {
-                        // EE version out of range, add max possible verison
-                        eeVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
                     }
                 } catch (NoUmbrellaDependencyException e) {
                     // umbrella dependency does not exist, do nothing
@@ -477,11 +474,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     if (ver.compareTo(eeVersion) > 0) {
                         eeVersion = ver;
                     }
-                }
-                if (eeVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
-                    // max version indicates that an umbrella dependency was found, but version was
-                    // out of range. Return null
-                    eeVersion = null;
                 }
             }
             if (eeVersionsDetected.size() > 1) {
@@ -499,8 +491,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      * will return the first EE umbrella dependency version detected.
      * 
      * @param project the MavenProject to search
-     * @return EE major version corresponding to the EE umbrella dependency, null if
-     *         an EE umbrella dependency is out of range
+     * @return EE major version corresponding to the EE umbrella dependency
      * @throws NoUmbrellaDependencyException indicates that the umbrella dependency was not found
      */
     private String getEEVersion(MavenProject project) throws NoUmbrellaDependencyException {
@@ -510,25 +501,12 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 if (!d.getScope().equals("provided")) {
                     continue;
                 }
-                if (d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) {
-                    if (d.getVersion().startsWith("8.")) {
-                        return BINARY_SCANNER_EEV8;
-                    } else if (d.getVersion().startsWith("7.")) {
-                        return BINARY_SCANNER_EEV7;
-                    } else if (d.getVersion().startsWith("6.")) {
-                        return BINARY_SCANNER_EEV6;
-                    }
-                } else if (d.getGroupId().equals("jakarta.platform") &&
-                        d.getArtifactId().equals("jakarta.jakartaee-api")) {
-                    if (d.getVersion().startsWith("8.")) {
-                        return BINARY_SCANNER_EEV8;
-                    } else {
-                        return null;
-                    }
+                if ((d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) ||
+                    (d.getGroupId().equals("jakarta.platform") && d.getArtifactId().equals("jakarta.jakartaee-api"))) {
+                    return composeEEVersion(d.getVersion());
                 }
             }
         }
-
         throw new NoUmbrellaDependencyException();
     }
 
@@ -549,9 +527,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     log.debug("MicroProfile umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         mpVersionsDetected.add(ver);
-                    } else {
-                        // MP version out of range, add max possible verison
-                        mpVersionsDetected.add(BINARY_SCANNER_UMBRELLA_DEP_MAXV);
                     }
                 } catch (NoUmbrellaDependencyException e) {
                     // umbrella dependency does not exist, do nothing
@@ -566,11 +541,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                         mpVersion = ver;
                     }
                 }
-                if (mpVersion.equals(BINARY_SCANNER_UMBRELLA_DEP_MAXV)) {
-                    // max version indicates that an umbrella dependency was found, but version was
-                    // out of range. Return null
-                    mpVersion = null;
-                }
             }
             if (mpVersionsDetected.size() > 1) {
                 log.debug(
@@ -583,14 +553,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
     /**
      * Returns the MicroProfile (MP) version detected for the given MavenProject
-     * First check for versions the binary scanner supports e.g. '3.3'.
-     * If a supported version is not found attempt to detect the major version digit.
      * To match the Maven "nearest in the dependency tree" strategy, this method
      * will return the first MP umbrella dependency version detected.
      * 
      * @param project the MavenProject to search
-     * @return MP exact version code or major version number code corresponding to
-     *         the MP umbrella dependency, null if the version number is out of range
+     * @return MP exact version code corresponding to the MP umbrella dependency
      * @throws NoUmbrellaDependencyException indicates that the umbrella dependency was not found
      */
     public String getMPVersion(MavenProject project) throws NoUmbrellaDependencyException { // figure out correct level of MP from declared dependencies
@@ -602,24 +569,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
                 if (d.getGroupId().equals("org.eclipse.microprofile") &&
                         d.getArtifactId().equals("microprofile")) {
-                    String version = d.getVersion();
-                    if (version.length() == 3) { // version is 'm.n'
-                        String mpVersion = BINARY_SCANNER_MP.get(version);
-                        if (mpVersion != null) {
-                            return mpVersion;
-                        }
-                    }
-                    // Specified version is not explicitly supported by the binary scanner
-                    if (version.startsWith("1")) {
-                        return BINARY_SCANNER_MPV1;
-                    } else if (version.startsWith("2")) {
-                        return BINARY_SCANNER_MPV2;
-                    } else if (version.startsWith("3")) {
-                        return BINARY_SCANNER_MPV3;
-                    } else if (version.startsWith("4")) {
-                        return BINARY_SCANNER_MPV4;
-                    }
-                    return null;
+                    return composeMPVersion(d.getVersion());
                 }
             }
         }
