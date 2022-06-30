@@ -214,6 +214,21 @@
                 <runtimeKernelId>wlp-kernel</runtimeKernelId>
                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
             </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>dev-it/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
             <id>ol-its</id>
@@ -239,6 +254,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
+                                    <pomExclude>server-config-props-it/pom.xml</pomExclude>
                                     <pomExclude>basic-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-with-code-it/pom.xml</pomExclude>

@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  MAVEN_HOME: $(which mvn)
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
