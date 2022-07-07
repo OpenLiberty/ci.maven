@@ -70,64 +70,64 @@ jobs:
     - name: Run tests
       run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Additionally run dev-it if not Java 17
-    - name: Run dev-it tests
-      if: ${{ matrix.java != 17 }}
-      run: mvn verify -Ponline-its -Dinvoker.test="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}
+    # - name: Run dev-it tests
+    #   if: ${{ matrix.java != 17 }}
+    #   run: mvn verify -Ponline-its -Dinvoker.test="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}
 
 # WINDOWS BUILD
-  build-unix:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # test against latest update of each major Java version, as well as specific updates of LTS versions:
-        RUNTIME: [ol, wlp]
-        RUNTIME_VERSION: [22.0.0.6, 22.0.0.3]
-        java: [17, 11, 8]
-        exclude:
-        - java: 8
-          RUNTIME_VERSION: 22.0.0.3
-        - java: 17
-          RUNTIME_VERSION: 22.0.0.3
-    name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
-    steps:    
-    # Checkout repos
-    - name: Checkout ci.maven
-      uses: actions/checkout@v2
-    - name: Setup Java ${{ matrix.java }}
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'temurin'
-        java-version: ${{ matrix.java }}
-        cache: 'maven'
-    # Move and cloning to C: drive for Windows for more disk space
-    - name: Clone ci.ant, ci.common, ci.maven repos to C drive
-      run: |
-        cp -r D:/a/ci.maven/ci.maven C:/ci.maven
-        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
-        git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.2
-      with:
-        maven-version: 3.8.6
-    - name: Cache maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    # Install dependencies
-    - name: Install ci.ant and ci.common
-      run: |
-        cd ./ci.ant
-        mvn clean install
-        cd ../ci.common
-        mvn clean install
-        cd ..
-    # Run tests
-    - name: Run tests
-      run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
-    # Additionally run dev-it if not Java 17
-    - name: Run dev-it tests
-      if: ${{ matrix.java != 17 }}
-      run: mvn verify -Ponline-its -Dinvoker.test="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}
+  # build-unix:
+  #   runs-on: windows-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # test against latest update of each major Java version, as well as specific updates of LTS versions:
+  #       RUNTIME: [ol, wlp]
+  #       RUNTIME_VERSION: [22.0.0.6, 22.0.0.3]
+  #       java: [17, 11, 8]
+  #       exclude:
+  #       - java: 8
+  #         RUNTIME_VERSION: 22.0.0.3
+  #       - java: 17
+  #         RUNTIME_VERSION: 22.0.0.3
+  #   name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
+  #   steps:    
+  #   # Checkout repos
+  #   - name: Checkout ci.maven
+  #     uses: actions/checkout@v2
+  #   - name: Setup Java ${{ matrix.java }}
+  #     uses: actions/setup-java@v2
+  #     with:
+  #       distribution: 'temurin'
+  #       java-version: ${{ matrix.java }}
+  #       cache: 'maven'
+  #   # Move and cloning to C: drive for Windows for more disk space
+  #   - name: Clone ci.ant, ci.common, ci.maven repos to C drive
+  #     run: |
+  #       cp -r D:/a/ci.maven/ci.maven C:/ci.maven
+  #       git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
+  #       git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
+  #   - name: Set up Maven
+  #     uses: stCarolas/setup-maven@v4.2
+  #     with:
+  #       maven-version: 3.8.6
+  #   - name: Cache maven packages
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: ~/.m2
+  #       key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+  #       restore-keys: ${{ runner.os }}-m2
+  #   # Install dependencies
+  #   - name: Install ci.ant and ci.common
+  #     run: |
+  #       cd ./ci.ant
+  #       mvn clean install
+  #       cd ../ci.common
+  #       mvn clean install
+  #       cd ..
+  #   # Run tests
+  #   - name: Run tests
+  #     run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+  #   # Additionally run dev-it if not Java 17
+  #   # - name: Run dev-it tests
+  #   #   if: ${{ matrix.java != 17 }}
+  #   #   run: mvn verify -Ponline-its -Dinvoker.test="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}
