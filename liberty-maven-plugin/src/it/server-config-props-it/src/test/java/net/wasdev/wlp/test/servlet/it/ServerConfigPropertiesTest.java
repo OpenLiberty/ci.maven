@@ -89,7 +89,7 @@ public class ServerConfigPropertiesTest {
             .setProperties(props);
 
             Invoker invoker = new DefaultInvoker();
-
+            invoker.setMavenHome(new File(System.getenv("MAVEN_HOME")));
             InvocationResult createResult = invoker.execute( createRequest );
 
             Assert.assertTrue("Server not created successfully.", createResult.getExitCode() == 0);
@@ -127,7 +127,9 @@ public class ServerConfigPropertiesTest {
                     appInstalledMatches.add(line);
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         s.close();
         in.close();
