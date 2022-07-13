@@ -59,7 +59,7 @@ $ mvn liberty:dev
 ```
 
 Liberty server configuration files (such as `server.xml`) will be used from the module that does not have any other modules depending on it.  If there is more than one module without other modules depending on it, specify which module with Liberty configuration that you want to use by including the parameters `-pl :<module-with-liberty-config-artifact-id> -am`.  
-For example, to use Liberty configuration from a module named `ear`, run:
+For example, to use Liberty configuration from a module with artifact id `ear`, run:
 ```
 $ mvn liberty:dev -pl :ear -am
 ```
