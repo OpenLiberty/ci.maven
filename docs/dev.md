@@ -64,6 +64,8 @@ For example, to use Liberty configuration from a module named `ear`, run:
 $ mvn liberty:dev -pl :ear -am
 ```
 
+More details on the `--projects` flag (`-pl` for short) can be found at https://maven.apache.org/guides/mini/guide-multiple-modules-4.html#inclusion-and-exclusion.
+
 ###### Examples
 
 The examples below apply regardless of whether you are using a single module or multi module project.  
