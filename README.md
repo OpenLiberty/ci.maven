@@ -148,7 +148,7 @@ The `liberty-assembly` default lifecycle includes:
 | process-test-resources | maven-resources-plugin:testResources |
 | test-compile | maven-compiler-plugin:testCompile |
 | test | maven-surefire-plugin:test |
-| prepare-package | liberty:create, liberty:install-feature |
+| prepare-package | liberty:create, liberty:prepare-feature, liberty:install-feature |
 | package | liberty:deploy, liberty:package|
 | pre-integration-test | liberty:test-start|
 | integration-test | maven-failsafe-plugin:integration-test |

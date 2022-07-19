@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>prepare-feature-it</artifactId>
+    <artifactId>prepare-multiple-features-it</artifactId>
     <packaging>jar</packaging>
 
     <build>
@@ -26,12 +26,12 @@
 	                    </goals>
 	
 	                    <configuration>
-			                <outputDirectory>${user.home}/.m2/repository/test/user/test/features/features-bom/19.0.0.8</outputDirectory>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/hello-bom/1.0</outputDirectory>
 			                <resources>
 			                    <resource>
 			                        <directory>src/test/resources</directory>
 			                        <includes>
-			                            <include>features-bom-19.0.0.8.pom</include>
+			                            <include>hello-bom-1.0.pom</include>
 			                        </includes>
 			                    </resource>
 			                </resources>
@@ -45,12 +45,50 @@
 	                    </goals>
 	
 	                    <configuration>
-			                <outputDirectory>${user.home}/.m2/repository/test/user/test/features/testesa1/19.0.0.8</outputDirectory>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/hello-esa-plugin/1.0</outputDirectory>
 			                <resources>
 			                    <resource>
 			                        <directory>src/test/resources</directory>
 			                        <includes>
-			                            <include>testesa1-19.0.0.8.esa</include>
+			                            <include>hello-esa-plugin-1.0.esa</include>
+			                        </includes>
+			                    </resource>
+			                </resources>
+			            </configuration>
+	                </execution>
+					<execution>
+	                    <id>copy-resource-three</id>
+	                    <phase>process-test-resources</phase>
+	                    <goals>
+	                        <goal>copy-resources</goal>
+	                    </goals>
+	
+	                    <configuration>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/SimpleActivator-bom/1.0</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>src/test/resources</directory>
+			                        <includes>
+			                            <include>SimpleActivator-bom-1.0.pom</include>
+			                        </includes>
+			                    </resource>
+			                </resources>
+			            </configuration>
+	                </execution>
+	                <execution>
+	                    <id>copy-resource-four</id>
+	                    <phase>process-test-resources</phase>
+	                    <goals>
+	                        <goal>copy-resources</goal>
+	                    </goals>
+	
+	                    <configuration>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/SimpleActivatorESA/1.0</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>src/test/resources</directory>
+			                        <includes>
+			                            <include>SimpleActivatorESA-1.0.esa</include>
 			                        </includes>
 			                    </resource>
 			                </resources>
@@ -92,12 +130,6 @@
                         <goals>
                             <goal>prepare-feature</goal>
                         </goals>
-                        <configuration>
-                            <features>
-                            	<acceptLicense>true</acceptLicense>
-                            	<feature>testesa1</feature>
-                        </features>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>install-feature</id>
@@ -108,7 +140,8 @@
                         <configuration>
                             <features>
                             	<acceptLicense>true</acceptLicense>
-                            	<feature>testesa1</feature>
+                            	<feature>helloWorld1</feature>
+								<feature>SimpleActivator-1.0</feature>
                         </features>
                         </configuration>
                     </execution>
@@ -120,9 +153,15 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>test.user.test.features</groupId>
-        <artifactId>features-bom</artifactId>
-        <version>19.0.0.8</version>
+        <groupId>test.user.test.osgi</groupId>
+        <artifactId>hello-bom</artifactId>
+        <version>1.0</version>
+        <type>pom</type>
+      </dependency>
+	<dependency>
+        <groupId>test.user.test.osgi</groupId>
+        <artifactId>SimpleActivator-bom</artifactId>
+        <version>1.0</version>
         <type>pom</type>
       </dependency>
     </dependencies>

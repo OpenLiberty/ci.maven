@@ -41,6 +41,7 @@
                             <prepare-package>
                                 :liberty-maven-plugin:install-server,
                                 io.openliberty.tools:liberty-maven-plugin:create,
+								io.openliberty.tools:liberty-maven-plugin:prepare-feature,
                                 io.openliberty.tools:liberty-maven-plugin:install-feature,
                             </prepare-package>
                             <package>

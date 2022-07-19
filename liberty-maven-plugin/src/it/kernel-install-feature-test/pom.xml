@@ -38,7 +38,8 @@
         <module>install-features-server-already-installed-lowercase-it</module>
         <module>install-features-server-it</module>
         <module>install-ol-features-no-accept-license-it</module> 
-        <module>prepare-feature-it</module> 
+        <module>prepare-feature-it</module>
+		<module>prepare-multiple-features-it</module>
         <module>install-usr-feature-ext-it</module>
         <module>install-features-override-server-dir-it</module>
     </modules>
@@ -93,7 +94,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>3.0.0-M7</version>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>once</forkMode>
@@ -123,7 +124,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>3.0.0-M7</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
