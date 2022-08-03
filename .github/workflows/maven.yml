@@ -71,10 +71,6 @@ jobs:
     # Run tests
     - name: Run tests
       run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
-    # Additionally run dev-it if not Java 17
-    - name: Run dev-it tests
-      if: ${{ matrix.java != 17 }}
-      run: mvn verify -Ponline-its -Dinvoker.test="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
@@ -129,8 +125,3 @@ jobs:
     - name: Run tests
       working-directory: C:/ci.maven
       run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
-    # Additionally run dev-it if not Java 17
-    # - name: Run dev-it tests
-    #   working-directory: C:/ci.maven
-    #   if: ${{ matrix.java != 17 }}
-    #   run: mvn verify -Ponline-its -D"invoker.test"="dev-it" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
