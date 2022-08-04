@@ -25,6 +25,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -68,9 +70,9 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.ProjectModule;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
-import io.openliberty.tools.common.plugins.util.ProjectModule;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
 import io.openliberty.tools.maven.applications.LooseWarApplication;
@@ -604,7 +606,7 @@ public class DevMojo extends LooseAppSupport {
                         backupUpstreamProject = p;
                     }
                 }
-                
+
 
                 // TODO rebuild the corresponding module if the compiler options have changed
                 JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupUpstreamProject);
@@ -731,13 +733,33 @@ public class DevMojo extends LooseAppSupport {
                 }
             }
         }
-
+        
         private MavenProject getMavenProject(File buildFile) throws ProjectBuildingException {
             ProjectBuildingResult build = mavenProjectBuilder.build(buildFile,
                     session.getProjectBuildingRequest().setResolveDependencies(true));
-            return build.getProject();
+            MavenProject builtProject = build.getProject();
+            updateUpstreamProjectsArtifactPathToOutputDirectory(builtProject);
+            return builtProject;
         }
 
+        /**
+         * From the project we're running dev mode from, get the artifact representing each of the upstream modules
+         * and make sure the artifact File is associated to the build output (target/classes, not the .m2 repo).
+         * 
+         * Because of the way we dynamically build new model objects we need to do this from a given model's perspective.
+         * 
+         * @param startingProject 
+         */
+        private void updateUpstreamProjectsArtifactPathToOutputDirectory(MavenProject startingProject){
+            Map<String,Artifact> artifactMap = startingProject.getArtifactMap();
+            for (MavenProject p : upstreamMavenProjects) {
+                Artifact projArtifact = artifactMap.get(p.getGroupId() + ":" + p.getArtifactId());
+                if (projArtifact != null) {
+                	updateArtifactPathToOutputDirectory(p, projArtifact);
+                }
+            }
+        }
+        
         @Override
         protected void updateLooseApp() throws PluginExecutionException {
             // Only perform operations if we are a war type application
@@ -1173,13 +1195,10 @@ public class DevMojo extends LooseAppSupport {
                 if (isEar) {
                     runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-
-                    installEmptyEarIfNotFound(project);
+                    getOrCreateEarArtifact(project);
                 } else if (project.getPackaging().equals("pom")) {
                     log.debug("Skipping compile/resources on module with pom packaging type");
                 } else {
-                    purgeLocalRepositoryArtifact();
-
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
                 }
@@ -1425,6 +1444,8 @@ public class DevMojo extends LooseAppSupport {
             return; // enter shutdown hook
         }
     }
+
+
 
     /**
      * Use the following priority ordering for skip test flags: <br>
@@ -1849,6 +1870,7 @@ public class DevMojo extends LooseAppSupport {
      */
     private void runCompileMojoLogWarning() throws MojoExecutionException {
         runCompileMojo("compile", project);
+        updateArtifactPathToOutputDirectory(project);
     }
 
     /**
@@ -1858,6 +1880,7 @@ public class DevMojo extends LooseAppSupport {
      */
     private void runCompileMojoLogWarning(MavenProject mavenProject) throws MojoExecutionException {
         runCompileMojo("compile", mavenProject);
+        updateArtifactPathToOutputDirectory(mavenProject);
     }
 
     /**

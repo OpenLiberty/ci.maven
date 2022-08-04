@@ -15,6 +15,8 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -77,17 +79,14 @@ public class RunServerMojo extends PluginConfigSupport {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
 
             if (hasDownstreamProjects && looseApplication) {
-                installEmptyEarIfNotFound(project);
+                getOrCreateEarArtifact(project);
             }
         } else if (projectPackaging.equals("pom")) {
             log.debug("Skipping compile/resources on module with pom packaging type");
         } else {
-            if (hasDownstreamProjects && looseApplication) {
-                purgeLocalRepositoryArtifact();
-            }
-            
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
+            updateArtifactPathToOutputDirectory(project);
         }
 
         if (!looseApplication) {
