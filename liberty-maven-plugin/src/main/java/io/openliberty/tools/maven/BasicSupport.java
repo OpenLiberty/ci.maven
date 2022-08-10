@@ -323,8 +323,9 @@ public class BasicSupport extends AbstractLibertySupport {
                 outputDirectory = serversDirectory;
                 defaultOutputDirSet = true;
             }
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (Throwable t) {
+            initLog.flush();
+            throw new MojoExecutionException(t.getMessage(), t);
         }
     }
 
@@ -384,7 +385,7 @@ public class BasicSupport extends AbstractLibertySupport {
     	private List<MessageType> msgTypes = new ArrayList<MessageType>();
     	private List<String> messages = new ArrayList<String>();
 
-		public void logInitMessages() {
+		public void flush() {
 			for (int i = 0; i < msgTypes.size(); i++) {
 				if (msgTypes.get(i) == MessageType.INFO) {
 					log.info(messages.get(i));
@@ -392,6 +393,8 @@ public class BasicSupport extends AbstractLibertySupport {
 					log.debug(messages.get(i));
 				}
 			}
+			msgTypes.clear();
+			messages.clear();
 		}
 
 		public void info(String msg) {
@@ -412,7 +415,7 @@ public class BasicSupport extends AbstractLibertySupport {
      * @throws Exception
      */
     protected void installServerAssembly() throws Exception {
-        initLog.logInitMessages();
+        initLog.flush();
         if (installType == InstallType.ALREADY_EXISTS) {
             log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
         } else {
