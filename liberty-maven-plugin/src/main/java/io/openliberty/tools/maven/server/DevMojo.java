@@ -260,7 +260,7 @@ public class DevMojo extends LooseAppSupport {
     }
 
     protected List<File> getResourceDirectories(MavenProject project, File outputDir) {
-    	// Let's just add resources directories unconditionally, the dev util already checks the directories actually exist
+        // Let's just add resources directories unconditionally, the dev util already checks the directories actually exist
         // before adding them to the watch list.   If we avoid checking here we allow for creating them later on.
         List<File> resourceDirs = new ArrayList<File>();
         for (Resource resource : project.getResources()) {
@@ -740,39 +740,39 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         protected void updateLooseApp() throws PluginExecutionException {
-        	// Only perform operations if we are a war type application
-        	if (project.getPackaging().equals("war")) {
-		    	// Check if we are using an exploded loose app
-		    	if (LooseWarApplication.isExploded(project)) {
-		    		if (!isExplodedLooseWarApp) {
-		    			// The project was previously running with a "non-exploded" loose app.
-		    			// Update this flag and redeploy as an exploded loose app.
-		    			isExplodedLooseWarApp = true;
-		    			
-		    			// Validate maven-war-plugin version
-		    			Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-		            	if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-		            		log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
-		            	}
-		            	
-		    			redeployApp();
-		    		} else {
-		    			try {
-		    				runExplodedMojo();
-		    			} catch (MojoExecutionException e) {
-		    				log.error("Failed to run war:exploded goal", e);
-		    			}
-		    		}
-		    	} else {
-		    		if (isExplodedLooseWarApp) {
-		    			// Dev mode was previously running with an exploded loose war app. The app
-		    			// must have been updated to remove any exploded war capabilities 
-		    			// (filtering, overlay, etc). Update this flag and redeploy.
-		    			isExplodedLooseWarApp = false;
-		    			redeployApp();
-		    		}
-		    	}
-        	}
+            // Only perform operations if we are a war type application
+            if (project.getPackaging().equals("war")) {
+                // Check if we are using an exploded loose app
+                if (LooseWarApplication.isExploded(project)) {
+                    if (!isExplodedLooseWarApp) {
+                        // The project was previously running with a "non-exploded" loose app.
+                        // Update this flag and redeploy as an exploded loose app.
+                        isExplodedLooseWarApp = true;
+                        
+                        // Validate maven-war-plugin version
+                        Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+                        if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
+                            log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+                        }
+                        
+                        redeployApp();
+                    } else {
+                        try {
+                            runExplodedMojo();
+                        } catch (MojoExecutionException e) {
+                            log.error("Failed to run war:exploded goal", e);
+                        }
+                    }
+                } else {
+                    if (isExplodedLooseWarApp) {
+                        // Dev mode was previously running with an exploded loose war app. The app
+                        // must have been updated to remove any exploded war capabilities 
+                        // (filtering, overlay, etc). Update this flag and redeploy.
+                        isExplodedLooseWarApp = false;
+                        redeployApp();
+                    }
+                }
+            }
         }
 
         @Override
@@ -789,7 +789,7 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
-        	if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
+            if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
                 try {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runExplodedMojo();
@@ -1320,10 +1320,10 @@ public class DevMojo extends LooseAppSupport {
         
             // Validate maven-war-plugin version
             if (isExplodedLooseWarApp) {
-        	    Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-        	    if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
-        		    log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
-        	    }
+                Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
+                if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
+                    log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
+                }
             }
         }
         
