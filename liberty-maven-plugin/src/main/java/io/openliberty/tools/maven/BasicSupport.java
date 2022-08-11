@@ -20,8 +20,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -217,18 +219,18 @@ public class BasicSupport extends AbstractLibertySupport {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.install.dir.validate"), ""));
                 }
 
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", installDirectory));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "pre-installed assembly", installDirectory));
                 installType = InstallType.ALREADY_EXISTS;
             } else if (assemblyArchive != null) {
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based assembly archive", assemblyArchive));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "non-artifact based assembly archive", assemblyArchive));
                 assemblyArchive = assemblyArchive.getCanonicalFile();
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             } else if(install != null) {
                 installType = InstallType.FROM_ARCHIVE;
                 installDirectory = new File(assemblyInstallDirectory, "wlp");
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             }
             else { // default to install from runtime artifact
                 assemblyArtifact.setType("zip");
@@ -236,14 +238,14 @@ public class BasicSupport extends AbstractLibertySupport {
                 // check for liberty.runtime.groupId property which overrides any groupId set in the assemblyArtifact
                 if (libertyRuntimeGroupId != null && !libertyRuntimeGroupId.isEmpty()) {
                     if (assemblyArtifact.getGroupId() != null) {
-                        log.info("The runtimeArtifact groupId " + assemblyArtifact.getGroupId() + " is overwritten by the liberty.runtime.groupId value "+ libertyRuntimeGroupId +".");
+                        initLog.info("The runtimeArtifact groupId " + assemblyArtifact.getGroupId() + " is overwritten by the liberty.runtime.groupId value "+ libertyRuntimeGroupId +".");
                     } else {
-                        log.info("The liberty.runtime.groupId property value "+ libertyRuntimeGroupId +" is used for the runtimeArtifact groupId.");
+                        initLog.info("The liberty.runtime.groupId property value "+ libertyRuntimeGroupId +" is used for the runtimeArtifact groupId.");
                     }
                     assemblyArtifact.setGroupId(libertyRuntimeGroupId);
                 } else {
                     if(assemblyArtifact.getGroupId() == null) {
-                        log.debug("Defaulting runtimeArtifact group id to 'io.openliberty'");
+                        initLog.debug("Defaulting runtimeArtifact group id to 'io.openliberty'");
                         assemblyArtifact.setGroupId("io.openliberty");
                     }
                 }
@@ -251,14 +253,14 @@ public class BasicSupport extends AbstractLibertySupport {
                 // check for liberty.runtime.artifactId property which overrides any artifactId set in the assemblyArtifact
                 if (libertyRuntimeArtifactId != null && !libertyRuntimeArtifactId.isEmpty()) {
                     if (assemblyArtifact.getArtifactId() != null) {
-                        log.info("The runtimeArtifact artifactId " + assemblyArtifact.getArtifactId() + " is overwritten by the liberty.runtime.artifactId value "+ libertyRuntimeArtifactId +".");
+                        initLog.info("The runtimeArtifact artifactId " + assemblyArtifact.getArtifactId() + " is overwritten by the liberty.runtime.artifactId value "+ libertyRuntimeArtifactId +".");
                     } else {
-                        log.info("The liberty.runtime.artifactId property value "+ libertyRuntimeArtifactId +" is used for the runtimeArtifact artifactId.");
+                        initLog.info("The liberty.runtime.artifactId property value "+ libertyRuntimeArtifactId +" is used for the runtimeArtifact artifactId.");
                     }
                     assemblyArtifact.setArtifactId(libertyRuntimeArtifactId);
                 } else {
                     if(assemblyArtifact.getArtifactId() == null) {
-                        log.debug("Defaulting runtimeArtifact artifact id to 'openliberty-kernel'");
+                        initLog.debug("Defaulting runtimeArtifact artifact id to 'openliberty-kernel'");
                         assemblyArtifact.setArtifactId("openliberty-kernel");
                     }
                 }
@@ -267,9 +269,9 @@ public class BasicSupport extends AbstractLibertySupport {
 
                 if (libertyRuntimeVersion != null && !libertyRuntimeVersion.isEmpty()) {
                     if (assemblyArtifact.getVersion() != null) {
-                        log.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
+                        initLog.info("The runtimeArtifact version " + assemblyArtifact.getVersion() + " is overwritten by the liberty.runtime.version value "+ libertyRuntimeVersion +".");
                     } else {
-                        log.info("The liberty.runtime.version property value "+ libertyRuntimeVersion +" is used for the runtimeArtifact version.");
+                        initLog.info("The liberty.runtime.version property value "+ libertyRuntimeVersion +" is used for the runtimeArtifact version.");
                     }
                     assemblyArtifact.setVersion(libertyRuntimeVersion);
                 }
@@ -277,7 +279,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 Artifact artifact = getResolvedArtifact(assemblyArtifact);
 
                 if (artifact == null) {
-                    log.debug("Defaulting runtimeArtifact version to '[22.0.0.3,)'");
+                    initLog.debug("Defaulting runtimeArtifact version to '[22.0.0.3,)'");
                     assemblyArtifact.setVersion("[22.0.0.3,)");
                     artifact = createArtifact(assemblyArtifact);
                 }
@@ -286,11 +288,11 @@ public class BasicSupport extends AbstractLibertySupport {
                 if (assemblyArchive == null) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.assembly.validate"), "artifact based assembly archive", ""));
                 }
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", assemblyArtifact));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", assemblyArtifact));
                 assemblyArchive = assemblyArchive.getCanonicalFile();
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
-                log.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "installDirectory", installDirectory));
             }
 
             // set server name
@@ -298,7 +300,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 serverName = "defaultServer";
             }
 
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverName", serverName));
+            initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "serverName", serverName));
                                   
             // Set user directory
             if (userDirectory == null) {
@@ -312,7 +314,7 @@ public class BasicSupport extends AbstractLibertySupport {
             // Set server directory
             serverDirectory = new File(serversDirectory, serverName);
             
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
+            initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "serverDirectory", serverDirectory));
                      
             // Set output directory
             if (getWlpOutputDir() != null) {
@@ -321,8 +323,9 @@ public class BasicSupport extends AbstractLibertySupport {
                 outputDirectory = serversDirectory;
                 defaultOutputDirSet = true;
             }
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (Throwable t) {
+            initLog.flush();
+            throw new MojoExecutionException(t.getMessage(), t);
         }
     }
 
@@ -340,8 +343,8 @@ public class BasicSupport extends AbstractLibertySupport {
     
     private File checkServerHome(final File archive) throws IOException,
                     MojoExecutionException {
-        log.debug(MessageFormat.format(messages.getString("debug.discover.server.home"), ""));
 
+    	initLog.debug(MessageFormat.format(messages.getString("debug.discover.server.home"), ""));
         File dir = null;
         ZipFile zipFile = null;
 
@@ -374,6 +377,37 @@ public class BasicSupport extends AbstractLibertySupport {
 
         return dir.getCanonicalFile();
     }
+    
+    private InitLog initLog = new InitLog();
+    private enum MessageType {INFO, DEBUG};
+    private class InitLog {
+    	
+    	private List<MessageType> msgTypes = new ArrayList<MessageType>();
+    	private List<String> messages = new ArrayList<String>();
+
+		public void flush() {
+			for (int i = 0; i < msgTypes.size(); i++) {
+				if (msgTypes.get(i) == MessageType.INFO) {
+					log.info(messages.get(i));
+				} else {
+					log.debug(messages.get(i));
+				}
+			}
+			msgTypes.clear();
+			messages.clear();
+		}
+
+		public void info(String msg) {
+			messages.add(msg);
+			msgTypes.add(MessageType.INFO);
+		}
+		
+		public void debug(String msg) {
+			messages.add(msg);
+			msgTypes.add(MessageType.DEBUG);
+		}
+    	
+    }
 
     /**
      * Performs assembly installation unless the install type is pre-existing.
@@ -381,6 +415,7 @@ public class BasicSupport extends AbstractLibertySupport {
      * @throws Exception
      */
     protected void installServerAssembly() throws Exception {
+        initLog.flush();
         if (installType == InstallType.ALREADY_EXISTS) {
             log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
         } else {
