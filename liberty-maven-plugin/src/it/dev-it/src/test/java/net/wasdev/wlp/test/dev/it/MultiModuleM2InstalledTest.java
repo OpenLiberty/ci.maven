@@ -37,7 +37,7 @@ public class MultiModuleM2InstalledTest extends BaseMultiModuleTest {
    }
 
    @Test
-   public void purgeLocallyInstalledModule_DevMode_Test() throws Exception {
+   public void purgeUpstreamSourcePart_DevMode_Test() throws Exception {
 
       // install everything to m2
       runCommand("mvn install");
@@ -57,8 +57,7 @@ public class MultiModuleM2InstalledTest extends BaseMultiModuleTest {
       // i.e. it should not find the jar dependency from m2
       startProcess(null, true, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":", false);
       
-      // TODO when https://github.com/OpenLiberty/ci.maven/issues/1203 is fixed, check for compilation error instead
-      assertTrue(getLogTail(logFile), verifyLogMessageExists("Could not resolve dependencies for project", 5000));
+      assertTrue(getLogTail(logFile), verifyLogMessageExists("package io.openliberty.guides.multimodules.lib does not exist", 25000));
       
       assertFalse(getLogTail(logFile), targetClass.exists());
    }

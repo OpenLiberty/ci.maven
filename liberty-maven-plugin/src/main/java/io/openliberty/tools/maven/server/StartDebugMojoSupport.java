@@ -31,12 +31,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,7 +53,6 @@ import javax.xml.transform.TransformerException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -921,20 +922,19 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     /**
-     * If the ear artifact is not in .m2, install an empty ear as a workaround so that downstream modules can build.
+     * If the ear artifact is not in .m2, create an ear artifact as a workaround so that downstream modules can build.
      * Only needed if using loose application.
      * 
      * @param earProject
-     * @throws MojoExecutionException If the empty ear artifact could not be installed. Prompts the user to run a manual command as a workaround.
      */
-    protected void installEmptyEarIfNotFound(MavenProject earProject) throws MojoExecutionException {
+    protected void getOrCreateEarArtifact(MavenProject earProject) {
         ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
         try {
             Artifact existingEarArtifact = getArtifact(existingEarItem);
             log.debug("EAR artifact already exists at " + existingEarArtifact.getFile());
         } catch (MojoExecutionException e) {
             log.debug("Installing empty EAR artifact to .m2 directory...");
-            installEmptyEAR(earProject);
+            updateArtifactPathToOutputDirectory(earProject);
         }
     }
 
@@ -988,5 +988,45 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         log.info("Running maven-dependency-plugin:" + goal);
         log.debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
+    }
+    
+    
+    /**
+     * Call {@link #updateArtifactPathToOutputDirectory(MavenProject,Artifact) updateArtifactPathToOutputDirectory(MavenProject mavenProject, Artifact artifactToUpdate)} 
+     * with <code>artifactToUpdate</code> obtained from <code>mavenProject</code>
+     * 
+     * @param mavenProject
+     */
+    protected void updateArtifactPathToOutputDirectory(MavenProject mavenProject) {
+    	updateArtifactPathToOutputDirectory(mavenProject, mavenProject.getArtifact());
+    }    
+    
+    /**
+     * Call <code>artifactToUpdate.setFile()</code> to build output directory (i.e. ".../target/classes") 
+     * (or build directory ".../target" for EAR module) and also creates the directory if not present.  
+     * Together these will help avoid the core Maven artifact resolution trying to resolve the artifact against the local .m2, 
+     * fitting better into dev mode, "all-in-one" use cases.
+     * 
+     * @param mavenProject
+     * @param artifactToUpdate
+     */
+    protected void updateArtifactPathToOutputDirectory(MavenProject mavenProject, Artifact artifactToUpdate) {
+        Path outputDir = null; 
+        if (artifactToUpdate.getType().equals("ear")) {
+            outputDir = Paths.get(mavenProject.getBuild().getDirectory());
+        } else {
+            outputDir = Paths.get(mavenProject.getBuild().getOutputDirectory());
+        }
+
+        try {
+            if (!Files.exists(outputDir)) {
+                Files.createDirectory(outputDir);
+            }
+        } catch(IOException ioe) {
+            // Since this is kind of a hack it seems to draw too much attention to issue a warning message here.
+            log.debug("Failure creating output directory: " + outputDir, ioe);
+        }
+    
+        artifactToUpdate.setFile(outputDir.toFile());
     }
 }

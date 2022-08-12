@@ -48,7 +48,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 public class BaseDevTest {
 
@@ -501,4 +504,14 @@ public class BaseDevTest {
       writer.write(line + "\n");
       writer.flush();
    }
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        @Override
+        protected void failed(Throwable thr, Description description) {
+            try {
+                System.out.println("Failure log in " + logFile + ", tail of contents = " + getLogTail(logFile));
+            } catch (IOException e) {}
+        }
+    };
 }
