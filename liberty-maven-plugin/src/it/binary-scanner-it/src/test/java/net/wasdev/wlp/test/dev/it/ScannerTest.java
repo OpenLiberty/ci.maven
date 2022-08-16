@@ -229,7 +229,7 @@ public class ScannerTest extends BaseScannerTest {
      */
     @Test
     public void onlyEEUmbrellaTest() throws Exception {
-        replaceString(MP_UMBRELLA, ESA_MP_DEPENDENCY, pom);
+        replaceString(MP5_UMBRELLA, ESA_MP_DEPENDENCY, pom);
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -266,7 +266,7 @@ public class ScannerTest extends BaseScannerTest {
     @Test
     public void noUmbrellaTest() throws Exception {
         replaceString(JEE9_UMBRELLA, ESA_JEE9_DEPENDENCY, pom);
-        replaceString(MP_UMBRELLA, ESA_MP_DEPENDENCY, pom);
+        replaceString(MP5_UMBRELLA, ESA_MP_DEPENDENCY, pom);
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -302,8 +302,9 @@ public class ScannerTest extends BaseScannerTest {
         Set<String> keys = EE7_FEATURES.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project7");
-            String oldUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>1.4"); // for basic-dev-project7
-            String newUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>9" + mpVersion);
+            assertFalse(newFeatureFile.exists());
+            String oldUmbrella = MP1_UMBRELLA; // for basic-dev-project7
+            String newUmbrella = MP1_UMBRELLA.replace("<version>1.4", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
             // Compile, generate and check results
             runCompileAndGenerateFeatures();
@@ -327,9 +328,10 @@ public class ScannerTest extends BaseScannerTest {
         Set<String> keys = EE8_FEATURES1.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project8");
+            assertFalse(newFeatureFile.exists());
             replaceString(JEE8_UMBRELLA, EE8_UMBRELLA, pom); // Revert Jakarta EE 8.0.0 to Java EE 8.0
-            String oldUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>4.1"); // for basic-dev-project8
-            String newUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>" + mpVersion);
+            String oldUmbrella = MP4_UMBRELLA; // for basic-dev-project8
+            String newUmbrella = MP4_UMBRELLA.replace("<version>4.1", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
             // @Liveness not supported for these low version numbers, change to @Health
             File codeFile = new File(tempProj, EE8_CODE_FILENAME);
@@ -348,8 +350,9 @@ public class ScannerTest extends BaseScannerTest {
         keys = EE8_FEATURES2.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project8");
-            String oldUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>4.1"); // for basic-dev-project8
-            String newUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>" + mpVersion);
+            assertFalse(newFeatureFile.exists());
+            String oldUmbrella = MP4_UMBRELLA; // for basic-dev-project8
+            String newUmbrella = MP4_UMBRELLA.replace("<version>4.1", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
             // Compile, generate and check results
             runCompileAndGenerateFeatures();
@@ -372,8 +375,9 @@ public class ScannerTest extends BaseScannerTest {
         Set<String> keys = EE9_FEATURES.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project9");
-            String oldUmbrella = MP_UMBRELLA;
-            String newUmbrella = MP_UMBRELLA.replace("<version>5.0", "<version>" + mpVersion);
+            assertFalse(newFeatureFile.exists());
+            String oldUmbrella = MP5_UMBRELLA;
+            String newUmbrella = MP5_UMBRELLA.replace("<version>5.0", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
             // Compile, generate and check results
             runCompileAndGenerateFeatures();
