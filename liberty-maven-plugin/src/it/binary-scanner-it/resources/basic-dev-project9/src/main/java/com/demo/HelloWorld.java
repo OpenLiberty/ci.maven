@@ -24,11 +24,11 @@ public class HelloWorld implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         return HealthCheckResponse
-			.named("liveness check")
-			.build();
-	}
+            .named("liveness check")
+            .build();
+    }
 
-	public String helloWorld() {
-		return "helloWorld";
-	}
+    public String helloWorld() {
+        return "helloWorld";
+    }
 }
