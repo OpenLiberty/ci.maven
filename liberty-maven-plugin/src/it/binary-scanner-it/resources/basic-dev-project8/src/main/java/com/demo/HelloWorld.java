@@ -21,14 +21,14 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 
 @Liveness
 public class HelloWorld implements HealthCheck {
-	@Override
+    @Override
     public HealthCheckResponse call() {
         return HealthCheckResponse
-			.named("liveness check")
-			.build();
-	}
+            .named("liveness check")
+            .build();
+    }
 
-	public String helloWorld() {
-		return "helloWorld";
-	}
+    public String helloWorld() {
+        return "helloWorld";
+    }
 }
