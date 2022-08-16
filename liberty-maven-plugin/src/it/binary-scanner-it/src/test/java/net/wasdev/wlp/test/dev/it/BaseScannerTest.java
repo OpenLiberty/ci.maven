@@ -103,7 +103,24 @@ public class BaseScannerTest {
         "        <type>esa</type>\n" +
         "        <scope>provided</scope>\n" +
         "    </dependency>";
-    static final String MP_UMBRELLA = "<dependency>\n" +
+    // Dependency declared in basic-dev-project7
+    static final String MP1_UMBRELLA = "<dependency>\n" +
+        "        <groupId>org.eclipse.microprofile</groupId>\n" +
+        "        <artifactId>microprofile</artifactId>\n" +
+        "        <version>1.4</version>\n" +
+        "        <type>pom</type>\n" +
+        "        <scope>provided</scope>\n" +
+        "    </dependency>";
+    // Dependency declared in basic-dev-project8
+    static final String MP4_UMBRELLA = "<dependency>\n" +
+        "        <groupId>org.eclipse.microprofile</groupId>\n" +
+        "        <artifactId>microprofile</artifactId>\n" +
+        "        <version>4.1</version>\n" +
+        "        <type>pom</type>\n" +
+        "        <scope>provided</scope>\n" +
+        "    </dependency>";
+    // Dependency declared in basic-dev-project9
+    static final String MP5_UMBRELLA = "<dependency>\n" +
         "        <groupId>org.eclipse.microprofile</groupId>\n" +
         "        <artifactId>microprofile</artifactId>\n" +
         "        <version>5.0</version>\n" +
@@ -125,6 +142,7 @@ public class BaseScannerTest {
     static final String EE8_CODE_FILENAME = "src/main/java/com/demo/HelloWorld.java";
 
     static Set<String> EE6_FEATURES = new HashSet<String>(Arrays.asList("servlet-3.0","jaxrs-1.1"));
+
     static Map<String, Set<String>> EE7_FEATURES = new HashMap<>();
     static { // Maven version number and Liberty feature names
         EE7_FEATURES.put("1.2", new HashSet<String>(Arrays.asList("servlet-3.1", "mpHealth-1.0", "jaxrs-2.0")));
@@ -133,9 +151,6 @@ public class BaseScannerTest {
     }
     static Map<String, Set<String>> EE8_FEATURES1 = new HashMap<>();
     static { // Maven version number and Liberty feature names
-        EE8_FEATURES1.put("1.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
-        EE8_FEATURES1.put("1.3", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
-        EE8_FEATURES1.put("1.4", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
         EE8_FEATURES1.put("2.0.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1"))); // 2.0 has an error
         EE8_FEATURES1.put("2.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
         EE8_FEATURES1.put("2.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
