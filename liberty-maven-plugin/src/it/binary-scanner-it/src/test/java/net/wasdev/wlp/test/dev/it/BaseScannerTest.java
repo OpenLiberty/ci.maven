@@ -149,19 +149,23 @@ public class BaseScannerTest {
         EE7_FEATURES.put("1.3", new HashSet<String>(Arrays.asList("servlet-3.1", "mpHealth-1.0", "jaxrs-2.0")));
         EE7_FEATURES.put("1.4", new HashSet<String>(Arrays.asList("servlet-3.1", "mpHealth-1.0", "jaxrs-2.0")));
     }
-    static Map<String, Set<String>> EE8_FEATURES1 = new HashMap<>();
+
+    // In v2 of MicroProfile support was changed to Java EE8. If you want to use EE7 use MicroProfile v1.
+    static Map<String, Set<String>> EE8_FEATURES_JAVAEE = new HashMap<>();
     static { // Maven version number and Liberty feature names
-        EE8_FEATURES1.put("2.0.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1"))); // 2.0 has an error
-        EE8_FEATURES1.put("2.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
-        EE8_FEATURES1.put("2.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
-        EE8_FEATURES1.put("3.0", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.0", "jaxrs-2.1")));
-        EE8_FEATURES1.put("3.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.1", "jaxrs-2.1")));
-        EE8_FEATURES1.put("3.3", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.2", "jaxrs-2.1")));
+        EE8_FEATURES_JAVAEE.put("2.0.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1"))); // 2.0 has an error
+        EE8_FEATURES_JAVAEE.put("2.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
+        EE8_FEATURES_JAVAEE.put("2.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-1.0", "jaxrs-2.1")));
+        EE8_FEATURES_JAVAEE.put("3.0", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.0", "jaxrs-2.1")));
+        EE8_FEATURES_JAVAEE.put("3.2", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.1", "jaxrs-2.1")));
+        EE8_FEATURES_JAVAEE.put("3.3", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-2.2", "jaxrs-2.1")));
     }
-    static Map<String, Set<String>> EE8_FEATURES2 = new HashMap<>();
+
+    // In v4 of MicroProfile support was changed to Jakarta EE8. If you want to use Java EE8 use MicroProfile v3.3.
+    static Map<String, Set<String>> EE8_FEATURES_JAKARTA = new HashMap<>();
     static { // Maven version number and Liberty feature names
-        EE8_FEATURES2.put("4.0.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-3.0", "jaxrs-2.1"))); // 4.0 has an error
-        EE8_FEATURES2.put("4.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-3.1", "jaxrs-2.1")));
+        EE8_FEATURES_JAKARTA.put("4.0.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-3.0", "jaxrs-2.1"))); // 4.0 has an error
+        EE8_FEATURES_JAKARTA.put("4.1", new HashSet<String>(Arrays.asList("servlet-4.0", "mpHealth-3.1", "jaxrs-2.1")));
     }
     static Map<String, Set<String>> EE9_FEATURES = new HashMap<>();
     static { // Maven version number and Liberty feature names

@@ -318,14 +318,14 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     /**
-     * Test all EE and MP versions: MP 1, 2 and 3 support Java EE.
-     * MP 4 supports Jakarta EE and MP 5 does not support EE8.
+     * Test all EE and MP versions: MP 2.x and 3.x support Java EE8.
+     * MP 4.x supports Jakarta EE8 and MP 5.x does not support either EE8.
      * 
      * @throws Exception
      */
     @Test
     public void testAllVersions8() throws Exception {
-        Set<String> keys = EE8_FEATURES1.keySet();
+        Set<String> keys = EE8_FEATURES_JAVAEE.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project8");
             assertFalse(newFeatureFile.exists());
@@ -341,13 +341,13 @@ public class ScannerTest extends BaseScannerTest {
             runCompileAndGenerateFeatures();
             assertTrue(oldUmbrella + newUmbrella, newFeatureFile.exists());
             Set<String> generatedFeatures = readFeatures(newFeatureFile);
-            Set<String> expectedFeatures = EE8_FEATURES1.get(mpVersion);
+            Set<String> expectedFeatures = EE8_FEATURES_JAVAEE.get(mpVersion);
             assertTrue("Invalid, for MP version:"+ mpVersion +
                 " expected features:" + expectedFeatures + " generated features:" + generatedFeatures, 
                 generatedFeatures.equals(expectedFeatures));
         }
         // Use Jakarta EE8 for the rest
-        keys = EE8_FEATURES2.keySet();
+        keys = EE8_FEATURES_JAKARTA.keySet();
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project8");
             assertFalse(newFeatureFile.exists());
@@ -358,7 +358,7 @@ public class ScannerTest extends BaseScannerTest {
             runCompileAndGenerateFeatures();
             assertTrue(newFeatureFile.exists());
             Set<String> generatedFeatures = readFeatures(newFeatureFile);
-            Set<String> expectedFeatures = EE8_FEATURES2.get(mpVersion);
+            Set<String> expectedFeatures = EE8_FEATURES_JAKARTA.get(mpVersion);
             assertTrue("Invalid, for MP version:"+ mpVersion +
                 " expected features:" + expectedFeatures + " generated features:" + generatedFeatures, 
                 generatedFeatures.equals(expectedFeatures));
