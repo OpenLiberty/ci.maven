@@ -246,7 +246,7 @@
                                     <pomExclude>server-param-default-it/pom.xml</pomExclude>
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
-                                    <pomExclude>scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -284,7 +284,7 @@
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
-                                    <pomExclude>scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -327,7 +327,7 @@
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
-                                    <pomExclude>scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
