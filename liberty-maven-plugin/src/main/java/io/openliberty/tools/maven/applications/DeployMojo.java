@@ -120,7 +120,7 @@ public class DeployMojo extends DeployMojoSupport {
         String appsDirName = getAppsDirectory();
         File archiveTarget = null;
         File appsDir = null;
-        String rootDirectory = serverDirectory;
+        File rootDirectory = serverDirectory;
         
         if (project.getProperties().containsKey("container")) {
             rootDirectory = new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER);
