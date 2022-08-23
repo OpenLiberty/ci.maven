@@ -120,16 +120,11 @@ public class DeployMojo extends DeployMojoSupport {
         String appsDirName = getAppsDirectory();
         File archiveTarget = null;
         File appsDir = null;
-        File rootDirectory = serverDirectory;
-        
-        if (project.getProperties().containsKey("container")) {
-            rootDirectory = new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER);
-        }
         
         if("apps".equals(appsDirName)){
-            appsDir = new File(rootDirectory, appsDirName);        
+            appsDir = new File(serverDirectory, appsDirName);        
         } else if ("dropins".equals(appsDirName)) {
-            appsDir = new File(rootDirectory, appsDirName+"/spring");         
+            appsDir = new File(serverDirectory, appsDirName+"/spring");         
         }       
         archiveTarget = new File(appsDir, "thin-" + archiveSrc.getName());
         return archiveTarget;
