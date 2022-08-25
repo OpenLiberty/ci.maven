@@ -182,6 +182,8 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         }
 
         Set<String> scannedFeatureList = null;
+        String eeVersion = null;
+        String mpVersion = null;
         try {
             List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
             mavenProjects.addAll(upstreamProjects);
@@ -192,10 +194,13 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 // user specified features
                 log.warn(NO_CLASSES_DIR_WARNING);
             }
+            eeVersion = getEEVersion(mavenProjects);
+            mpVersion = getMPVersion(mavenProjects);
+
             String logLocation = project.getBuild().getDirectory();
-            String eeVersion = getEEVersion(mavenProjects);
-            String mpVersion = getMPVersion(mavenProjects);
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, eeVersion, mpVersion, optimize);
+            String eeVersionArg = composeEEVersion(eeVersion);
+            String mpVersionArg = composeMPVersion(mpVersion);
+            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, eeVersionArg, mpVersionArg, optimize);
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
@@ -225,6 +230,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
         } catch (BinaryScannerUtil.FeatureUnavailableException featureUnavailable) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
+        } catch (BinaryScannerUtil.IllegalTargetComboException illegalCombo) {
+            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
+        } catch (BinaryScannerUtil.IllegalTargetException illegalTargets) {
+            String messages = buildInvalidArgExceptionMessage(illegalTargets.getEELevel(), illegalTargets.getMPLevel(), eeVersion, mpVersion);
+            throw new MojoExecutionException(messages);
         } catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
@@ -467,9 +477,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
             if (!eeVersionsDetected.isEmpty()) {
                 eeVersion = eeVersionsDetected.iterator().next();
-                // if multiple EE versions are found across multiple modules, return the latest
-                // version
-                // ee8 > ee7 > ee6
+                // if multiple EE versions are found across multiple modules, return the latest version
                 for (String ver : eeVersionsDetected) {
                     if (ver.compareTo(eeVersion) > 0) {
                         eeVersion = ver;
@@ -503,7 +511,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
                 if ((d.getGroupId().equals("javax") && d.getArtifactId().equals("javaee-api")) ||
                     (d.getGroupId().equals("jakarta.platform") && d.getArtifactId().equals("jakarta.jakartaee-api"))) {
-                    return composeEEVersion(d.getVersion());
+                    return d.getVersion();
                 }
             }
         }
@@ -534,8 +542,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
             if (!mpVersionsDetected.isEmpty()) {
                 mpVersion = mpVersionsDetected.iterator().next();
-                // if multiple MP versions are found across multiple modules, return the latest
-                // version. mp4 > mp3.3 > mp3.0 > mp3
+                // if multiple MP versions are found across multiple modules, return the latest version
                 for (String ver : mpVersionsDetected) {
                     if (ver.compareTo(mpVersion) > 0) {
                         mpVersion = ver;
@@ -569,7 +576,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
                 if (d.getGroupId().equals("org.eclipse.microprofile") &&
                         d.getArtifactId().equals("microprofile")) {
-                    return composeMPVersion(d.getVersion());
+                    return d.getVersion();
                 }
             }
         }
