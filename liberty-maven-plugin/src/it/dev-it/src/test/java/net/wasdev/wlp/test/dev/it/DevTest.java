@@ -364,7 +364,7 @@ public class DevTest extends BaseDevTest {
          String expectedMessage = String.format(BINARY_SCANNER_INVALID_EE_MESSAGE, "99.0.0"); // value used in badDep
          int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder1, badDep, pom);
-         assertTrue(expectedMessage+msgCount+"\n"+getLogTail(), verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
+         assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder1, pom);
