@@ -201,8 +201,8 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     // TODO FeatureModifiedException
-    // TODO java.lang.IllegalArgumentException - targetJavaEE N.B. tested in DevTest.java
-    // TODO java.lang.IllegalArgumentException - targetMicroProfile N.B. tested in DevTest.java
+    // java.lang.IllegalArgumentException - targetJavaEE N.B. tested in DevTest.java
+    // java.lang.IllegalArgumentException - targetMicroProfile N.B. tested in DevTest.java
 
     /**
      * Test calling the scanner with both the EE umbrella dependency and the MP
@@ -212,6 +212,7 @@ public class ScannerTest extends BaseScannerTest {
      */
     @Test
     public void bothEEMPUmbrellaTest() throws Exception {
+        setUpBeforeTest("../resources/basic-dev-project8");
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -229,7 +230,8 @@ public class ScannerTest extends BaseScannerTest {
      */
     @Test
     public void onlyEEUmbrellaTest() throws Exception {
-        replaceString(MP5_UMBRELLA, ESA_MP_DEPENDENCY, pom);
+        setUpBeforeTest("../resources/basic-dev-project8");
+        replaceMicroProfileDependency(ESA_MP_DEPENDENCY, pom);
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -247,7 +249,8 @@ public class ScannerTest extends BaseScannerTest {
      */
     @Test
     public void onlyMPUmbrellaTest() throws Exception {
-        replaceString(JEE9_UMBRELLA, ESA_JEE9_DEPENDENCY, pom);
+        setUpBeforeTest("../resources/basic-dev-project8");
+        replaceJakartaDependency(ESA_JEE8_DEPENDENCY, pom);
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -265,8 +268,9 @@ public class ScannerTest extends BaseScannerTest {
      */
     @Test
     public void noUmbrellaTest() throws Exception {
-        replaceString(JEE9_UMBRELLA, ESA_JEE9_DEPENDENCY, pom);
-        replaceString(MP5_UMBRELLA, ESA_MP_DEPENDENCY, pom);
+        setUpBeforeTest("../resources/basic-dev-project8");
+        replaceJakartaDependency(ESA_JEE8_DEPENDENCY, pom);
+        replaceMicroProfileDependency(ESA_MP_DEPENDENCY, pom);
         runCompileAndGenerateFeatures("-X");
         // Check for "  targetJavaEE: null" in the debug output
         String line = findLogMessage(TARGET_EE_NULL, 3000, logFile);
@@ -329,7 +333,7 @@ public class ScannerTest extends BaseScannerTest {
         for (String mpVersion : keys) {
             setUpBeforeTest("../resources/basic-dev-project8");
             assertFalse(newFeatureFile.exists());
-            replaceString(JEE8_UMBRELLA, EE8_UMBRELLA, pom); // Revert Jakarta EE 8.0.0 to Java EE 8.0
+            replaceJakartaDependency(EE8_UMBRELLA, pom); // Revert Jakarta EE 8.0.0 to Java EE 8.0
             String oldUmbrella = MP4_UMBRELLA; // for basic-dev-project8
             String newUmbrella = MP4_UMBRELLA.replace("<version>4.1", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
@@ -421,8 +425,16 @@ public class ScannerTest extends BaseScannerTest {
 
     // change MP version in pom file
     protected void modifyMPVersion(String currentVersion, String updatedVersion) throws IOException { 
-        replaceString("<artifactId>microprofile</artifactId>\n" + 
-        "        <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
-        "        <version>" + updatedVersion + "</version>", pom);
+        replaceString("<version>" + currentVersion + "</version>", "<version>" + updatedVersion + "</version>", pom);
+    }
+
+    private void replaceJakartaDependency(String dep, File file) throws IOException {
+        replaceString("<!-- Jakarta dependency start -->", "<!-- Jakarta dependency start", file); // open a comment
+        replaceString("<!-- Jakarta dependency end -->", " Jakarta dependency end -->" + dep, file); // close a comment
+    }
+
+    private void replaceMicroProfileDependency(String dep, File file) throws IOException {
+        replaceString("<!-- MicroProfile dependency start -->", "<!-- MicroProfile dependency start", file); // open a comment
+        replaceString("<!-- MicroProfile dependency end -->", " MicroProfile dependency end -->" + dep, file); // close a comment
     }
 }
