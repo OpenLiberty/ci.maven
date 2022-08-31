@@ -361,9 +361,10 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_EE_MESSAGE, logFile);
+         String expectedMessage = String.format(BINARY_SCANNER_INVALID_EE_MESSAGE, "99.0.0"); // value used in badDep
+         int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder1, badDep, pom);
-         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_EE_MESSAGE, 9000, logFile, ++msgCount));
+         assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder1, pom);
@@ -390,9 +391,10 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         int msgCount = countOccurrences(BINARY_SCANNER_INVALID_MP_MESSAGE, logFile);
+         String expectedMessage = String.format(BINARY_SCANNER_INVALID_MP_MESSAGE, "99.0"); // value used in badDep
+         int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder2, badDep, pom);
-         assertTrue(verifyLogMessageExists(BINARY_SCANNER_INVALID_MP_MESSAGE, 9000, logFile, ++msgCount));
+         assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder2, pom);
