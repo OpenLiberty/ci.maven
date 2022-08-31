@@ -63,7 +63,7 @@
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>
                         <runtimeVersion>${runtimeVersion}</runtimeVersion>
                         <!-- Scanner version e.g. 22.0.0.3 or 22.0.0.3-SNAPSHOT -->
-                        <scannerVersion>22.0.0.4-SNAPSHOT</scannerVersion>
+                        <scannerVersion>22.0.0.3-SNAPSHOT</scannerVersion>
                     </systemPropertyVariables>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
