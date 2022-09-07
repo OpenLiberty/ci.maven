@@ -1,0 +1,13 @@
+# Manually cd to ci.maven to start
+# Edit liberty-maven-plugin/src/it/binary-scanner-it/pom.xml and add the version of
+# binary scanner you expect in <scannerVersion>.
+# Execute liberty-maven-plugin/src/it/binary-scanner-it/run-binary-scanner-it
+cd liberty-maven-plugin/
+cp src/it/binary-scanner-it/pom.xml /tmp
+for i in 3.6 3.6.1 3.6.2-SNAPSHOT
+do
+sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
+mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=22.0.0.6 -Dinvoker.test=binary-scanner-it
+read j
+done
+cp /tmp/pom.xml src/it/binary-scanner-it/pom.xml

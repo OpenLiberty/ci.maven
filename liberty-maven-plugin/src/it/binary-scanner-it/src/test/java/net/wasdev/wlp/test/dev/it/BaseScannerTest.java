@@ -73,63 +73,33 @@ public class BaseScannerTest {
     static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
     static final String TARGET_EE_NULL = "targetJavaEE: null";
     static final String TARGET_MP_NULL = "targetMicroP: null";
-    static final String JEE9_UMBRELLA = "<dependency>\n" +
-        "        <groupId>jakarta.platform</groupId>\n" +
-        "        <artifactId>jakarta.jakartaee-api</artifactId>\n" +
-        "        <version>9.1.0</version>\n" +
-        "        <scope>provided</scope>\n" +
-        "    </dependency>";
-    static final String JEE8_UMBRELLA = "<dependency>\n" +
-        "        <groupId>jakarta.platform</groupId>\n" +
-        "        <artifactId>jakarta.jakartaee-api</artifactId>\n" +
-        "        <version>8.0.0</version>\n" +
-        "        <scope>provided</scope>\n" +
-        "    </dependency>";
     static final String EE8_UMBRELLA = "<dependency>\n" +
         "        <groupId>javax</groupId>\n" +
         "        <artifactId>javaee-api</artifactId>\n" +
         "        <version>8.0</version>\n" +
         "        <scope>provided</scope>\n" +
         "    </dependency>";
-    static final String ESA_JEE9_DEPENDENCY = "<dependency>\n" +
+    static final String ESA_JEE8_DEPENDENCY = "<dependency>\n" +
         "        <groupId>io.openliberty.features</groupId>\n" +
-        "        <artifactId>servlet-5.0</artifactId>\n" +
+        "        <artifactId>servlet-4.0</artifactId>\n" +
         "        <type>esa</type>\n" +
         "        <scope>provided</scope>\n" +
         "    </dependency>\n" +
         "    <dependency>\n" +
         "        <groupId>io.openliberty.features</groupId>\n" +
-        "        <artifactId>restfulWS-3.0</artifactId>\n" +
+        "        <artifactId>jaxrs-2.1</artifactId>\n" +
         "        <type>esa</type>\n" +
         "        <scope>provided</scope>\n" +
         "    </dependency>";
     // Dependency declared in basic-dev-project7
-    static final String MP1_UMBRELLA = "<dependency>\n" +
-        "        <groupId>org.eclipse.microprofile</groupId>\n" +
-        "        <artifactId>microprofile</artifactId>\n" +
-        "        <version>1.4</version>\n" +
-        "        <type>pom</type>\n" +
-        "        <scope>provided</scope>\n" +
-        "    </dependency>";
+    static final String MP1_UMBRELLA = "<version>1.4</version>";
     // Dependency declared in basic-dev-project8
-    static final String MP4_UMBRELLA = "<dependency>\n" +
-        "        <groupId>org.eclipse.microprofile</groupId>\n" +
-        "        <artifactId>microprofile</artifactId>\n" +
-        "        <version>4.1</version>\n" +
-        "        <type>pom</type>\n" +
-        "        <scope>provided</scope>\n" +
-        "    </dependency>";
+    static final String MP4_UMBRELLA = "<version>4.1</version>";
     // Dependency declared in basic-dev-project9
-    static final String MP5_UMBRELLA = "<dependency>\n" +
-        "        <groupId>org.eclipse.microprofile</groupId>\n" +
-        "        <artifactId>microprofile</artifactId>\n" +
-        "        <version>5.0</version>\n" +
-        "        <type>pom</type>\n" +
-        "        <scope>provided</scope>\n" +
-        "    </dependency>";
+    static final String MP5_UMBRELLA = "<version>5.0</version>";
     static final String ESA_MP_DEPENDENCY = "<dependency>\n" +
         "        <groupId>io.openliberty.features</groupId>\n" +
-        "        <artifactId>mpHealth-4.0</artifactId>\n" +
+        "        <artifactId>mpHealth-3.0</artifactId>\n" +
         "        <type>esa</type>\n" +
         "        <scope>provided</scope>\n" +
         "    </dependency>";
