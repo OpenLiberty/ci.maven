@@ -5,6 +5,7 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 * [Build](#build)
 * [Plugins](#plugins)
 	* [Liberty Maven Plugin](#liberty-maven-plugin)
+	        * Java support
 		* [Release 3.0 differences](#release-30-differences)
 		* [Configuration](#configuration)
 		* [Goals](#goals)
@@ -28,6 +29,10 @@ Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
 ### Liberty Maven Plugin
 
 The Liberty Maven Plugin provides a number of goals for managing a Liberty server and applications. Maven 3.5.0 or later is recommended to use the Liberty Maven Plugin. 
+
+#### Java Support
+
+The Liberty Maven Plugin is tested with Long-Term-Support (LTS) releases of Java. The plugin is currently supported on Java 8 and 11.
 
 #### Release 3.0 differences
 
