@@ -100,8 +100,8 @@ The Liberty Maven Plugin provides the following goals.
 | [create](docs/create.md#create) | Create a Liberty server. |
 | [debug](docs/debug.md#debug) | Start a Liberty server in debug mode. |
 | [deploy](docs/deploy.md#deploy) | Copy applications to the Liberty server's dropins or apps directory. If the server instance is running, it will also verify the applications started successfully. |
-| [dev](docs/dev.md#dev) | Start a Liberty server in dev mode. |
-| [devc](docs/dev.md#devc-container-mode) | Start a Liberty server in dev mode in a container. |
+| [dev](docs/dev.md#dev) | Start a Liberty server in dev mode.__*__ |
+| [devc](docs/dev.md#devc-container-mode) | Start a Liberty server in dev mode in a container.__*__ |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
 | [dump](docs/dump.md#dump) | Dump diagnostic information from the server into an archive. |
 | [generate-features](docs/generate-features.md#generate-feature) | Scan the class files of an application and create a Liberty configuration file in the source configuration directory containing the Liberty features the application requires. |
@@ -119,6 +119,7 @@ The Liberty Maven Plugin provides the following goals.
 | [undeploy](docs/undeploy.md#undeploy) | Undeploy an application to a Liberty server. The server instance must exist and must be running. |
 | [uninstall-feature](docs/uninstall-feature.md#uninstall-feature) | Uninstall a feature from the Liberty runtime. |
 
+***Note:** With the auto-generation of features functionality turned on (off by default), the dev and devc goals have a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under ILAN. Link to license: https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt/en.html
 
 ##### Common Parameters
 
