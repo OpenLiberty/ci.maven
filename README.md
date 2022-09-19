@@ -32,7 +32,7 @@ The Liberty Maven Plugin provides a number of goals for managing a Liberty serve
 
 #### Java Support
 
-The Liberty Maven Plugin is tested with Long-Term-Support (LTS) releases of Java. The plugin is currently supported on Java 8 and 11.
+The Liberty Maven Plugin is tested with Long-Term-Support (LTS) releases of Java. The plugin, as of release 3.7, supports Java 8, 11 and 17. Prior to this version, the plugin is supported on Java 8 and 11.
 
 #### Release 3.0 differences
 
