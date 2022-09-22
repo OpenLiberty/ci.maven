@@ -119,7 +119,7 @@ The Liberty Maven Plugin provides the following goals.
 | [undeploy](docs/undeploy.md#undeploy) | Undeploy an application to a Liberty server. The server instance must exist and must be running. |
 | [uninstall-feature](docs/uninstall-feature.md#uninstall-feature) | Uninstall a feature from the Liberty runtime. |
 
-*The `dev`, `devc`, and `generate-features` goals have a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under ILAN. Link to license: https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt/en.html   
+*The `dev`, `devc`, and `generate-features` goals have a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under ILAN. Link to license: https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt  
 Note:  The `dev` and `devc` goals have this dependency only when auto-generation of features is turned on. By default, auto-generation of features is turned off.
 
 ##### Common Parameters
