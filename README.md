@@ -104,7 +104,7 @@ The Liberty Maven Plugin provides the following goals.
 | [devc](docs/dev.md#devc-container-mode) | Start a Liberty server in dev mode in a container.* |
 | [display-url](docs/display-url.md#display-url) | Display the application URL in the default browser. |
 | [dump](docs/dump.md#dump) | Dump diagnostic information from the server into an archive. |
-| [generate-features](docs/generate-features.md#generate-feature) | Scan the class files of an application and create a Liberty configuration file in the source configuration directory that contains the Liberty features that the application requires.* |
+| [generate-features](docs/generate-features.md#generate-feature) | Scan the class files of an application and create a Liberty configuration file in the source configuration directory that contains the Liberty features the application requires.* |
 | [install-feature](docs/install-feature.md#install-feature) | Install a feature packaged as a Subsystem Archive (esa) to the Liberty runtime. |
 | [install-server](docs/install-server.md#install-server) | Installs the Liberty runtime. This goal is implicitly invoked by all the other plugin goals and usually does not need to be executed explicitly. |
 | [java-dump](docs/java-dump.md#java-dump) | Dump diagnostic information from the server JVM. |
