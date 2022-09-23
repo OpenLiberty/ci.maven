@@ -26,24 +26,24 @@ COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/
 
 This goal examines the `pom.xml` dependencies to determine which version of Jakarta EE, MicroProfile or Java EE API you may be using. Compatible features will then be generated. 
 
-For Jakarta EE API, this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency with version `8.0.0`.
+For Jakarta EE API, this goal looks for a `jakarta.platform:jakarta.jakartaee-api` dependency and generates features according to the version number.
 
 For MicroProfile API, this goal looks for a `org.eclipse.microprofile:microprofile` dependency and generates features according to the version number.
 
 For Java EE API, this goal looks for a `javax:javaee-api` dependency with versions `6.0`, `7.0` or `8.0`. 
 
-For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` file, features compatible with Jakarta EE `8.0.0` and MicroProfile `4.1` will be generated.
+For example, if you have the following Jakarta EE and MicroProfile dependencies in your `pom.xml` file, features compatible with Jakarta EE `9.1.0` and MicroProfile `5.0` will be generated.
 ```xml
 <dependency>
     <groupId>jakarta.platform</groupId>
     <artifactId>jakarta.jakartaee-api</artifactId>
-    <version>8.0.0</version>
+    <version>9.1.0</version>
     <scope>provided</scope>
 </dependency>
 <dependency>
     <groupId>org.eclipse.microprofile</groupId>
     <artifactId>microprofile</artifactId>
-    <version>4.1</version>
+    <version>5.0</version>
     <type>pom</type>
     <scope>provided</scope>
 </dependency>
@@ -60,8 +60,6 @@ Compile the application code and generate Liberty features.
 
 ##### Limitations
 
-* MicroProfile 5 is not supported at this time
-* Jakarta EE version 9 or 9.1 is not supported at this time
 * When using the `serverXmlFile` parameter in the POM, if you specify a file not in the directory `src/main/liberty/config` and that file uses relative paths to include other files, any features in those files will not be considered for feature generation
 * Any features accessed using property variables (e.g. `${custom.key}/configFile.xml`) are not considered for feature generation
 
