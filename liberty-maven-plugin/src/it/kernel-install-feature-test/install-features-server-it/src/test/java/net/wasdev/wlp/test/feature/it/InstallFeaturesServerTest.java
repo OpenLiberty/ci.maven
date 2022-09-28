@@ -17,11 +17,16 @@ package net.wasdev.wlp.test.feature.it;
 
 import static junit.framework.Assert.*;
 import org.junit.Test;
+import java.io.File;
 
 public class InstallFeaturesServerTest extends BaseInstallFeature {
 
     @Test
     public void testInstalledFeatures() throws Exception {
+        
+        File f1 = new File(".libertyls");
+        assertFalse(".libertyls directory should not exist", f1.exists());
+
         assertInstalled("appSecurityClient-1.0");
         assertNotInstalled("beanValidation-2.0");
         assertNotInstalled("couchdb-1.0");

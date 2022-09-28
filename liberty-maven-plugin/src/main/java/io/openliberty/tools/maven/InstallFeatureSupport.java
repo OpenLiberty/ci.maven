@@ -52,7 +52,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
         public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
                 throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
+            super(installDirectory, new File(project.getBuild().getDirectory()), features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         }
 
         @Override
