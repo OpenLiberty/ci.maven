@@ -1,7 +1,7 @@
 #### generate-features
 ---
 
-**This goal modifies the source configuration directory of your application.** This goal has a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under  IBM License Agreement for Non-Warranted Programs. See license [here](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt).
+**This goal modifies the source configuration directory of your application.** This goal has a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under  IBM License Agreement for Non-Warranted Programs. For more information, see the [license](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt).
 
 Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file in the source configuration directory that contains the Liberty features the application requires.
 
