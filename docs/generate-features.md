@@ -1,9 +1,9 @@
 #### generate-features
 ---
 
-**This goal will modify the source configuration directory of your application.** 
+**This goal modifies the source configuration directory of your application.** This goal has a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under  IBM License Agreement for Non-Warranted Programs. See license [here](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt).
 
-Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file within the source directory containing the features the application requires.
+Scan the class files of an application and create a new `generated-features.xml` Liberty configuration file in the source configuration directory that contains the Liberty features the application requires.
 
 This feature is best accessed through [dev mode](dev.md) during development. When you start `liberty:dev` your application will be compiled and the class files will be scanned to verify that all the required Liberty features are included in your server configuration. Then as you work, dev mode will continue to monitor the project to confirm the Liberty features configured are up to date. If you implement a new interface in Java, the scanner will determine if that API is connected to a Liberty feature, then update the server configuration and install the feature. If you remove a feature from `server.xml`, dev mode will determine if that feature is actually necessary, and if so, add it to the generated configuration file as described below.
 
