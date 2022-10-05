@@ -757,10 +757,12 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             //Skip comments
             if(!line.startsWith("#")) {
                 String[] keyValue = line.split("=", 2);
-                String key = keyValue[0];
-                String value = keyValue[1];
+                if (keyValue.length == 2) {
+                    String key = keyValue[0];
+                    String value = keyValue[1];
 
-                mavenProperties.put(key,value);
+                    mavenProperties.put(key,value);
+                }
             }
         }
         bf.close();
