@@ -33,7 +33,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.10</version>
+            <version>1.9.11</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.23-SNAPSHOT</version>
+            <version>1.8.23</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
