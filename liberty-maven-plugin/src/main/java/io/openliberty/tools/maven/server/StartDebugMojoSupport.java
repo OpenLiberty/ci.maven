@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2021.
+ * (C) Copyright IBM Corporation 2014, 2022.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -543,7 +543,11 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         // copy jvm.options to server directory if end-user explicitly set it
         File optionsFile = new File(serverDirectory, "jvm.options");
         if (optionsFile.exists() && jvmOptionsPath == null) {
-            optionsFile.delete();
+            // if using pre-existing installation, do not delete file
+            if (installType != InstallType.ALREADY_EXISTS) {
+                log.warn(optionsFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                optionsFile.delete();
+            }
         }
         if (jvmOptions != null || !jvmMavenProps.isEmpty()) {
             if (jvmOptionsPath != null) {
@@ -566,7 +570,11 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         // copy bootstrap.properties to server directory if end-user explicitly set it
         File bootstrapFile = new File(serverDirectory, "bootstrap.properties");
         if (bootstrapFile.exists() && bootStrapPropertiesPath == null) {
-            bootstrapFile.delete();
+            // if using pre-existing installation, do not delete file
+            if (installType != InstallType.ALREADY_EXISTS) {
+                log.warn(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                bootstrapFile.delete();
+            }
         } 
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
@@ -614,6 +622,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML);
         if (pluginVariableConfig.exists()) {
+            log.warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!varMavenProps.isEmpty()) {
@@ -622,6 +631,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML);
         if (pluginVariableConfig.exists()) {
+            log.warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!defaultVarMavenProps.isEmpty()) {
