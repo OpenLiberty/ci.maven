@@ -957,7 +957,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         File tempFile;
         try {
-            tempFile = File.createTempFile(earProject.getArtifactId(), ".ear");
+            tempFile = Files.createTempFile(earProject.getArtifactId(), ".ear").toFile();
             tempFile.deleteOnExit();
         } catch (IOException e) {
             String module = getModuleRelativePath(earProject);
