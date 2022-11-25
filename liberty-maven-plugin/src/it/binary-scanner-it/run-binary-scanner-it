@@ -1,13 +1,23 @@
-# Manually cd to ci.maven to start
+# Manually cd to ci.maven to begin.
+# Run mvn clean install to build the current plugin.
 # Edit liberty-maven-plugin/src/it/binary-scanner-it/pom.xml and add the version of
 # binary scanner you expect in <scannerVersion>.
-# Execute liberty-maven-plugin/src/it/binary-scanner-it/run-binary-scanner-it
+# Edit the loop below to specify the versions of the plugin you want to test:
+#   for i in 3.7 3.7.1 <--change 3.7 to the current version
+# Execute the following command in the current directory ci.maven:
+#   liberty-maven-plugin/src/it/binary-scanner-it/run-binary-scanner-it
+# After each version is tested you must press Enter to continue. It takes about
+# five minutes for each test.
 cd liberty-maven-plugin/
 cp src/it/binary-scanner-it/pom.xml /tmp
-for i in 3.6 3.6.1 3.6.2-SNAPSHOT
+for i in 3.7 3.7.1
 do
 sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
 mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=22.0.0.6 -Dinvoker.test=binary-scanner-it
+echo !!
+echo !! PRESS ENTER TO CONTINUE
+echo !!
+# Allow time to inspect the pass/fail status before continuing.
 read j
 done
 cp /tmp/pom.xml src/it/binary-scanner-it/pom.xml
