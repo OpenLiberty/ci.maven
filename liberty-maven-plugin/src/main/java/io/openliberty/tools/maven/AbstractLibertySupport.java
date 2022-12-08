@@ -300,7 +300,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 resolvedDependencies.add(artifact);
                 findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
             } else {
-                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", version "+version+", and type "+type+" in configured repositories.");
+                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", version "+version+", type "+type+" and classifier "+classifier+" in configured repositories.");
             }
         } else {
             Set<Artifact> artifacts = getProject().getArtifacts();
