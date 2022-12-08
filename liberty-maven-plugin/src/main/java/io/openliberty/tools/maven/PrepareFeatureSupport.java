@@ -78,7 +78,7 @@ public class PrepareFeatureSupport extends BasicSupport {
         @Override
         public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
             try {
-                return getArtifact(groupId, artifactId, type, version).getFile();
+                return getArtifact(groupId, artifactId, type, version, null ).getFile();
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }

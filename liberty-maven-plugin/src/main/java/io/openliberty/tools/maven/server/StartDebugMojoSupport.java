@@ -438,7 +438,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             }
         }
 
-        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), dep.getType());
+        Set<Artifact> artifactsToCopy = getResolvedDependencyWithTransitiveDependencies(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), dep.getType(), dep.getClassifier());
 
         if (artifactsToCopy.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -462,7 +462,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
                 if (stripVersion) {
                     targetFileName = stripVersionFromName(targetFileName, nextArtifact.getVersion());
                 }
-           
+
                 File fileToCopyTo = new File(location, targetFileName);
 
                 Copy copy = (Copy) ant.createTask("copy");

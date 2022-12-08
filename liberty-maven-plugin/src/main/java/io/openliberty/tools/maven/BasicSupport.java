@@ -535,7 +535,7 @@ public class BasicSupport extends AbstractLibertySupport {
             return name;
         }
     }
-    
+
     protected void installLicense() throws MojoExecutionException, IOException {
         if (licenseArtifact != null) {
             Artifact license = getArtifact(licenseArtifact);

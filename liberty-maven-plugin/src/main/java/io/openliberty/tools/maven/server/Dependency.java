@@ -46,6 +46,12 @@ public class Dependency {
     @Parameter
     private String type = "jar";
 
+    /**
+     * The classifier of the Maven dependency to copy. This is optional. The default is @{code null}.
+     */
+    @Parameter
+    private String classifier = null;
+
     public String getGroupId() {
         return groupId;
     }
@@ -77,5 +83,14 @@ public class Dependency {
     public void setType(String type) {
         this.type = type;
     }
-    
+
+    public String getClassifier()
+    {
+        return classifier;
+    }
+
+    public void setClassifier( String classifier )
+    {
+        this.classifier = classifier;
+    }
 }

@@ -221,22 +221,28 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @throws MojoExecutionException
      *             Failed to create artifact
      */
-    protected Artifact getArtifact(String groupId, String artifactId, String type, String version) throws MojoExecutionException {
+    protected Artifact getArtifact( String groupId, String artifactId, String type, String version, String classifier ) throws MojoExecutionException {
         ArtifactItem item = new ArtifactItem();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
         item.setVersion(version);
+        item.setClassifier(classifier);
 
         return getArtifact(item);
     }
 
     protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version) {
+        return getArtifactItem( groupId, artifactId, type, version, null );
+    }
+
+    private ArtifactItem getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
         ArtifactItem item = new ArtifactItem();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
         item.setVersion(version);
+        item.setClassifier(classifier);
 
         return item;
     }
@@ -251,16 +257,18 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @param artifactId String specifying the artifactId of the Maven artifact to copy.
      * @param version String specifying the version of the Maven artifact to copy.
      * @param type String specifying the type of the Maven artifact to copy.
+     * @param classifier String specifying the classifier of the Maven artifact to copy.
      *
      * @return Set<Artifact> A collection of Artifact objects for the resolved dependencies and transitive dependencies
      * @throws MojoExecutionException
      */
-    protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies(String groupId, String artifactId, String version, String type) throws MojoExecutionException {
+    protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies( String groupId, String artifactId, String version, String type,
+                                                                             String classifier ) throws MojoExecutionException {
         Set<Artifact> resolvedDependencies = new HashSet<Artifact> ();
 
         if (version != null) {
             // if version is set, it will always override the one in project dependency
-            Artifact artifact = getArtifact(groupId, artifactId, type, version);
+            Artifact artifact = getArtifact(groupId, artifactId, type, version, classifier);
             if (artifact != null) {
                 resolvedDependencies.add(artifact);
                 findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
@@ -435,7 +443,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         File artifactFile = resolveArtifactFile(aetherArtifact);
         
         Artifact artifact = new DefaultArtifact(item.getGroupId(), item.getArtifactId(), item.getVersion(),
-                Artifact.SCOPE_PROVIDED, item.getType(), null, new DefaultArtifactHandler("jar"));
+                Artifact.SCOPE_PROVIDED, item.getType(), item.getClassifier(), new DefaultArtifactHandler("jar"));
         
         
         if (artifactFile != null && artifactFile.exists()) {
