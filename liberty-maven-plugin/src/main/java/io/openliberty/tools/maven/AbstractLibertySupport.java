@@ -263,6 +263,10 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return getArtifactItem( groupId, artifactId, type, version, null );
     }
 
+    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version, String classifier) {
+        return getArtifactItem( groupId, artifactId, type, version, classifier );
+    }
+
     private ArtifactItem getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
         ArtifactItem item = new ArtifactItem();
         item.setGroupId(groupId);
@@ -323,7 +327,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                      (isWildcard && artifact.getArtifactId().startsWith(compareArtifactId)) ||
                      (artifact.getArtifactId().equals(compareArtifactId)))) {
                     if (!artifact.isResolved()) {
-                        ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion()); 
+                        ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion(), artifact.getClassifier());
                         artifact = getArtifact(item);
                     }
                     // Ignore test-scoped artifacts, by design
@@ -345,7 +349,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                         ((compareArtifactId == null) ||
                          (isWildcard && dependency.getArtifactId().startsWith(compareArtifactId)) ||
                          (dependency.getArtifactId().equals(compareArtifactId)))) {
-                        ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()); 
+                        ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
                         Artifact artifact = getArtifact(item);
                         // Ignore test-scoped artifacts, by design
                         if (!"test".equals(artifact.getScope())) {
