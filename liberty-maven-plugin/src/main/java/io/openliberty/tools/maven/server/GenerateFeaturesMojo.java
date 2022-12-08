@@ -346,7 +346,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
      */
     private File getBinaryScannerJarFromRepository() throws PluginExecutionException {
         try {
-            return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION, null ).getFile();
+            return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION).getFile();
         } catch (Exception e) {
             throw new PluginExecutionException("Could not retrieve the artifact " + BINARY_SCANNER_MAVEN_GROUP_ID + "."
                     + BINARY_SCANNER_MAVEN_ARTIFACT_ID

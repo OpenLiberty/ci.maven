@@ -206,8 +206,11 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
     /**
      * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
-     * defined by the given the coordinates.
-     * 
+     * defined by the given the coordinates. Retrieves the main artifact (i.e. with no classifier).
+     *
+     * <p>This is the same as calling
+     * {@link #getArtifact(String, String, String, String, String)} with {@code null} for the classifier (last paramter).</p>
+     *
      * @param groupId
      *            The group ID
      * @param artifactId
@@ -220,8 +223,32 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      * @return Artifact The artifact for the given item
      * @throws MojoExecutionException
      *             Failed to create artifact
+     * @see #getArtifact(String, String, String, String, String)
      */
-    protected Artifact getArtifact( String groupId, String artifactId, String type, String version, String classifier ) throws MojoExecutionException {
+    protected Artifact getArtifact(String groupId, String artifactId, String type, String version) throws MojoExecutionException {
+        return getArtifact(groupId, artifactId, type, version, null);
+    }
+
+    /**
+     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * defined by the given the coordinates.
+     * 
+     * @param groupId
+     *            The group ID
+     * @param artifactId
+     *            The artifact ID
+     * @param type
+     *            The type (e.g. jar)
+     * @param version
+     *            The version, or null to retrieve it from the dependency list
+     *            or from the DependencyManagement section of the pom.
+     * @param classifier
+     *            The classifier for the artifact, or {@code null} to retrieve the main artifact.
+     * @return Artifact The artifact for the given item
+     * @throws MojoExecutionException
+     *             Failed to create artifact
+     */
+    protected Artifact getArtifact(String groupId, String artifactId, String type, String version, String classifier ) throws MojoExecutionException {
         ArtifactItem item = new ArtifactItem();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
