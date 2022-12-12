@@ -70,7 +70,7 @@ jobs:
         cd ..
     # Run tests
     - name: Run tests
-      run: mvn verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: ./mvnw verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
@@ -104,10 +104,6 @@ jobs:
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
         git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.2
-      with:
-        maven-version: 3.8.1
     - name: Cache maven packages
       uses: actions/cache@v3
       with:
@@ -124,4 +120,4 @@ jobs:
     # Run tests
     - name: Run tests
       working-directory: C:/ci.maven
-      run: mvn verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: .\mvnw.cmd verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
