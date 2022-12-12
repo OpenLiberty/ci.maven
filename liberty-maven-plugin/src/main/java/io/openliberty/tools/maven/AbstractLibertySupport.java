@@ -46,6 +46,9 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
+
+import static java.util.Objects.requireNonNull;
+
 /**
  * Liberty Abstract Mojo Support
  * 
@@ -308,8 +311,10 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             }
         } else {
             Set<Artifact> artifacts = getProject().getArtifacts();
-            boolean isWildcard = artifactId != null && artifactId.endsWith("*") ? true : false;
+            boolean isWildcard = artifactId != null && artifactId.endsWith("*");
             String compareArtifactId = artifactId;
+            final boolean isClassifierWildcard = classifier != null && classifier.endsWith("*");
+            String compareClassifier = classifier;
 
             if (isWildcard) {
                 // if the artifactId is "*", just match on groupId
@@ -320,22 +325,26 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                     compareArtifactId = artifactId.substring(0,artifactId.length() -1);
                 }
             }
+            if (isClassifierWildcard) {
+                if (classifier.length() == 1) {
+                    compareClassifier = null;
+                } else {
+                    compareClassifier = classifier.substring(0, classifier.length() -1);
+                }
+            }
         
-            for (Artifact artifact : artifacts) {
-                if (artifact.getGroupId().equals(groupId) && 
-                    ((compareArtifactId == null) ||
-                     (isWildcard && artifact.getArtifactId().startsWith(compareArtifactId)) ||
-                     (artifact.getArtifactId().equals(compareArtifactId)))) {
-                    if (!artifact.isResolved()) {
-                        ArtifactItem item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion(), artifact.getClassifier());
-                        artifact = getArtifact(item);
+            for (Artifact projectArtifact : artifacts) {
+                if (isMatchingProjectDependency(projectArtifact, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
+                    if (!projectArtifact.isResolved()) {
+                        ArtifactItem item = createArtifactItem(projectArtifact.getGroupId(), projectArtifact.getArtifactId(), projectArtifact.getType(), projectArtifact.getVersion(), projectArtifact.getClassifier());
+                        projectArtifact = getArtifact(item);
                     }
                     // Ignore test-scoped artifacts, by design
-                    if (!"test".equals(artifact.getScope())) {
-                        log.debug("Found resolved dependency from project dependencies: " + artifact.getGroupId() + ":"
-                            + artifact.getArtifactId() + ":" + artifact.getVersion());
-                        resolvedDependencies.add(artifact);
-                        findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
+                    if (!"test".equals(projectArtifact.getScope())) {
+                        log.debug("Found resolved dependency from project dependencies: " + projectArtifact.getGroupId() + ":"
+                            + projectArtifact.getArtifactId() + ":" + projectArtifact.getVersion());
+                        resolvedDependencies.add(projectArtifact);
+                        findTransitiveDependencies(projectArtifact, getProject().getArtifacts(), resolvedDependencies);
                     }
                 }
             }
@@ -345,10 +354,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 List<Dependency> list = getProject().getDependencyManagement().getDependencies();
             
                 for (Dependency dependency : list) {
-                    if (dependency.getGroupId().equals(groupId) && 
-                        ((compareArtifactId == null) ||
-                         (isWildcard && dependency.getArtifactId().startsWith(compareArtifactId)) ||
-                         (dependency.getArtifactId().equals(compareArtifactId)))) {
+                    if (isMatchingProjectDependency(dependency, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
                         ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
                         Artifact artifact = getArtifact(item);
                         // Ignore test-scoped artifacts, by design
@@ -371,7 +377,83 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return resolvedDependencies;
      }
 
-     protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<Artifact> resolvedDependencies) {
+    protected static boolean isMatchingProjectDependency(Dependency dependency, String compareGroupId, boolean isWildcard, String compareArtifactId, boolean isClassifierWildcard, String compareClassifier) {
+        return isMatchingProjectDependency(dependency.getArtifactId(), dependency.getGroupId(), dependency.getClassifier() != null, dependency.getClassifier(), compareGroupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier);
+    }
+
+    protected static boolean isMatchingProjectDependency(Artifact artifact, String compareGroupId, boolean isWildcard, String compareArtifactId, boolean isClassifierWildcard, String compareClassifier) {
+        return isMatchingProjectDependency(artifact.getArtifactId(), artifact.getGroupId(), artifact.hasClassifier(), artifact.getClassifier(), compareGroupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier);
+    }
+
+    /**
+     * Compares a project artifact with the copyDependency coordinates.
+     *
+     * @param artifactId           the project artifactId to compare.
+     * @param compareGroupId       the compareGroupId of the requested dependency to compare.
+     * @param isArtifactIdWildcard whether the artifactId contains a wildcard.
+     * @param compareArtifactId    the artifactId to compare. If {@code isArtifactIdWildcard} is {@code true},
+     *                             then this will be treated as {@code startsWith} string.
+     *                             If this parameter is {@code null}, then this is considered a compareGroupId-only based match.
+     * @param isClassifierWildcard whether the original classifier contained a wildcard.
+     * @param compareClassifier           The optional artifact compareClassifier of the copyDependency coordinate. May be an empty string or {@code null}.
+     * @return {@code true} if the given project artifact matches the given and prepared copyDependency parameters.
+     * @throws NullPointerException if {@code projectArtifact} or {@code compareGroupId} is {@code null}.
+     */
+    protected static boolean isMatchingProjectDependency(String artifactId,
+                                                         String groupId,
+                                                         boolean hasClassifier,
+                                                         String classifier,
+                                                         String compareGroupId,
+                                                         boolean isArtifactIdWildcard, String compareArtifactId, boolean isClassifierWildcard, String compareClassifier) {
+        requireNonNull(artifactId, "artifactId");
+        requireNonNull(groupId, "groupId");
+        requireNonNull(compareGroupId, "compareGroupId");
+
+        if (!groupId.equals(compareGroupId)) {
+            return false;
+        }
+        if (compareArtifactId == null && compareClassifier == null) {
+            // wildcards trimmed to null
+            return true;
+        }
+        boolean artifactIdMatches = isMatchingArtifactId(artifactId, isArtifactIdWildcard, compareArtifactId);
+        boolean classifierMatches = isMatchingClassifier(hasClassifier, classifier, isClassifierWildcard, compareClassifier);
+
+        return artifactIdMatches && classifierMatches;
+    }
+
+    private static boolean isMatchingClassifier(boolean hasClassifier, String classifier, boolean isClassifierWildcard, String compareClassifier) {
+        if (isClassifierWildcard && compareClassifier == null) {
+            // wildcards trimmed to null
+            return true;
+        }
+
+        if (isClassifierWildcard && hasClassifier && classifier.startsWith(compareClassifier)) {
+            return true;
+        }
+
+        if (hasClassifier) {
+            return classifier.equals(compareClassifier);
+        }
+
+        return compareClassifier == null;
+    }
+
+    private static boolean isMatchingArtifactId(String artifactId, boolean isArtifactIdWildcard, String compareArtifactId) {
+        if (compareArtifactId == null) {
+            // wildcards trimmed to null
+            return true;
+        }
+        if (isArtifactIdWildcard && artifactId.startsWith(compareArtifactId)) {
+            // wildcard trimmed to 'startsWith'
+            return true;
+        }
+
+        // exact match of artifactId required as no wildcard was specified.
+        return artifactId.equals(compareArtifactId);
+    }
+
+    protected void findTransitiveDependencies(Artifact resolvedArtifact, Set<Artifact> resolvedArtifacts, Set<Artifact> resolvedDependencies) {
         boolean isProvidedScopeAllowed = resolvedArtifact.getScope().equals(Artifact.SCOPE_PROVIDED);
         String coords = resolvedArtifact.getGroupId() + ":" + resolvedArtifact.getArtifactId() + ":";
         for (Artifact artifact : resolvedArtifacts) {
@@ -389,7 +471,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
      protected boolean dependencyTrailContainsArtifact(String gaCoords, String version, List<String> depTrail) {
          for (String nextFullArtifactId : depTrail) {
-             if (nextFullArtifactId.startsWith(gaCoords) && 
+             if (nextFullArtifactId.startsWith(gaCoords) &&
                  ((version == null) || (version != null && nextFullArtifactId.endsWith(":"+version))) ) {
                  return true;
              }
