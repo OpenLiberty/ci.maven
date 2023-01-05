@@ -14,16 +14,16 @@ To start the server in a container, see the [devc](#devc-container-mode) section
 
 While dev mode is running, perform the following in the command terminal to run the corresponding actions.
 
-* `g` - toggle the automatic generation of features, type `g` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* `o` - optimize the list of generated features, type `o` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* Enter - run tests on demand, press Enter.
-* `r` - restart the server, type `r` and press Enter.
-* `h` - see the help menu for available actions, type `h` and press Enter.
-* `q` - stop the server and quit dev mode, press Ctrl-C or type `q` and press Enter.
+* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>Enter</kbd> - run tests on demand, press <kbd>Enter</kbd>.
+* <kbd>r</kbd> - restart the server, type <kbd>r</kbd> and press <kbd>Enter</kbd>.
+* <kbd>h</kbd> - see the help menu for available actions, type <kbd>h</kbd> and press <kbd>Enter</kbd>.
+* <kbd>q</kbd> - stop the server and quit dev mode, press <kbd>Ctrl</kbd>-<kbd>C</kbd> or type <kbd>q</kbd> and press <kbd>Enter</kbd>.
 
 ###### Features
 
-Dev mode provides three key features. Code changes are detected, recompiled, and picked up by your running server. Unit and integration tests are run on demand when you press Enter in the command terminal where dev mode is running, or optionally on every code change to give you instant feedback on the status of your code. Finally, it allows you to attach a debugger to the running server at any time to step through your code.
+Dev mode provides three key features. Code changes are detected, recompiled, and picked up by your running server. Unit and integration tests are run on demand when you press <kbd>Enter</kbd> in the command terminal where dev mode is running, or optionally on every code change to give you instant feedback on the status of your code. Finally, it allows you to attach a debugger to the running server at any time to step through your code.
 
 The following are dev mode supported code changes. Changes to your server such as changes to the port, server name, hostname, etc. will require restarting dev mode to be detected.  Changes other than those listed below may also require restarting dev mode to be detected.
 
@@ -162,7 +162,7 @@ Dev mode offers different levels of file tracking and deployment depending on th
    - Note that the Dockerfile must copy only one `.war` file for the application. See the section on [Dockerfiles](#Dockerfile) for details.
 2. You can use the COPY command to deploy an entire directory and its sub-directories. In this case, dev mode will detect file changes and automatically rebuild the image and restart the container upon changes.
 3. The ADD command can be used on individual files, including tar files, as well as on directories. Again, dev mode will rebuild the image and restart the container when it detects file changes.
-4. Certain Dockerfile features are not supported by dev mode. In these cases, the files specified are not tracked. If you change these files, you must rebuild the image and restart the container manually. **Type 'r' and press Enter to rebuild the image and restart the container.**
+4. Certain Dockerfile features are not supported by dev mode. In these cases, the files specified are not tracked. If you change these files, you must rebuild the image and restart the container manually. **Type 'r' and press <kbd>Enter</kbd> to rebuild the image and restart the container.**
    - variable substitution used in the COPY or ADD command e.g. `$PROJECT/config`
    - wildcards used in the COPY or ADD command e.g. `target/liberty/wlp/usr/servers/defaultServer/configDropins/*`
    - paths relative to WORKDIR e.g. `WORKDIR /other/project` followed by `COPY test.txt relativeDir/`
@@ -172,12 +172,12 @@ Dev mode offers different levels of file tracking and deployment depending on th
 
 While dev mode is running in container mode, perform the following in the command terminal to run the corresponding actions.
 
-* `g` - toggle the automatic generation of features, type `g` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* `o` - optimize the list of generated features, type `o` and press Enter. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* Enter - run tests on demand, press Enter.
-* `r` - rebuild the Docker image and restart the container, type `r` and press Enter.
-* `h` - see the help menu for available actions, type `h` and press Enter.
-* `q` - stop the server and quit dev mode, press Ctrl-C or type `q` and press Enter.
+* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>Enter</kbd> - run tests on demand, press <kbd>Enter</kbd>.
+* <kbd>r</kbd> - rebuild the Docker image and restart the container, type <kbd>r</kbd> and press <kbd>Enter</kbd>.
+* <kbd>h</kbd> - see the help menu for available actions, type <kbd>h</kbd> and press <kbd>Enter</kbd>.
+* <kbd>q</kbd> - stop the server and quit dev mode, press <kbd>Ctrl</kbd>-<kbd>C</kbd> or type <kbd>q</kbd> and press <kbd>Enter</kbd>.
 
 ###### Linux Limitations
 
