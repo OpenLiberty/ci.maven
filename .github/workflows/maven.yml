@@ -64,13 +64,13 @@ jobs:
     - name: Install ci.ant and ci.common
       run: |
         cd ./ci.ant
-        mvn clean install
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
         cd ../ci.common
-        mvn clean install
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
         cd ..
     # Run tests
     - name: Run tests
-      run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: mvn verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
@@ -118,10 +118,10 @@ jobs:
     - name: Install ci.ant and ci.common
       run: |
         cd C:/ci.ant
-        mvn clean install
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
         cd C:/ci.common
-        mvn clean install
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
       working-directory: C:/ci.maven
-      run: mvn verify -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: mvn verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
