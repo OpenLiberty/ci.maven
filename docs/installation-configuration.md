@@ -2,7 +2,7 @@
 
 ### Using a Maven artifact
 
-Use the `runtimeArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided on the [Maven Central repository](http://search.maven.org/). This is the default installation method. The default runtime artifact is the latest version of `io.openliberty:openliberty-kernel`. 
+Use the `runtimeArtifact` parameter to specify the name of the Maven artifact that contains a custom Liberty server or use one of the provided artifacts on the [Maven Central repository](http://search.maven.org/). This is the default installation method. The default runtime artifact is the latest version of `io.openliberty:openliberty-kernel`. 
 
 The Maven Central repository includes the following Liberty runtime artifacts. Versions for each artifact can be found at the specified link.
 
@@ -177,7 +177,7 @@ Use the `runtimeArchive` parameter to specify a packaged server archive (created
 </plugin>
 ```
 
-### Using the `install-liberty` Ant Task
+### Using a repository
 
 Use the `install` parameter to configure a runtime installation using the `install-liberty` Ant task. The Ant task allows you to install a Liberty runtime from a specified location (via `runtimeUrl`) or automatically resolve it from the [Wasdev Liberty repository](https://developer.ibm.com/wasdev/downloads/) or [Open Liberty repository](https://openliberty.io/downloads/) based on a version and a runtime type. 
 
