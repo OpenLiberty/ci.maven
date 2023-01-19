@@ -51,7 +51,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.7.1</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -86,8 +86,33 @@ If you are using a snapshot version of Liberty Maven Plugin then you will also n
 
 ##### Liberty installation configuration
 
-The Liberty Maven Plugin must first be configured with the Liberty server installation information. The installation information can be specified as an [existing installation directory](docs/installation-configuration.md#using-an-existing-installation), a [packaged server](docs/installation-configuration.md#using-a-packaged-server), or as a [Maven artifact](docs/installation-configuration.md#using-maven-artifact). The Liberty Maven Plugin can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository).
-By default, the plugin installs the Open Liberty runtime from Maven Central. 
+The Liberty Maven Plugin must first be configured with the Liberty server installation information. The installation information can be specified as:
+
+* A [Maven artifact](docs/installation-configuration.md#using-maven-artifact)
+* An [existing installation directory](docs/installation-configuration.md#using-an-existing-installation)
+* A [packaged server](docs/installation-configuration.md#using-a-packaged-server)
+
+Installing from a Maven artifact is the default installation method. The default runtime artifact is the latest version of `io.openliberty:openliberty-kernel`. In order to configure WebSphere Liberty for installation, specify the `runtimeArtifact` with the `com.ibm.websphere.appserver.runtime` groupId and the specific `artifactId` and `version` that is needed. For a full list of artifacts available, see the [Liberty installation configuration](docs/installation-configuration.md#using-maven-artifact) documentation. 
+
+Example using the `runtimeArtifact` parameter to install a WebSphere Liberty runtime from a Maven artifact:
+
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <version>3.7.1</version>
+    <configuration>
+        <runtimeArtifact>
+            <groupId>com.ibm.websphere.appserver.runtime</groupId>
+            <artifactId>wlp-webProfile8</artifactId>
+            <version>22.0.0.12</version>
+            <type>zip</type>
+        </runtimeArtifact>
+    </configuration>
+</plugin>
+```
+
+The Liberty Maven Plugin can also download and install a Liberty server from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/) or other location using the [install parameter](docs/installation-configuration.md#using-a-repository).
 
 #### Goals
 
