@@ -50,4 +50,44 @@
         <module>liberty-archetype-webapp</module>
         <module>liberty-archetype-ear</module>
     </modules>
+
+    <profiles>
+        <!--
+          this profile will only activate on Java 9+
+          and can be removed when switching Java baseline to 11+,
+          as long as in this case the `maven.compiler.source` and `m.c.target` properties
+          are being replaced with `m.c.release`.
+        -->
+        <profile>
+            <id>run-animal-sniffer-plugin</id>
+            <activation>
+                <jdk>[9,]</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-maven-plugin</artifactId>
+                        <version>1.22</version>
+                        <configuration>
+                            <signature>
+                                <groupId>org.codehaus.mojo.signature</groupId>
+                                <artifactId>java18</artifactId>
+                                <version>1.0</version>
+                            </signature>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>animal-sniffer</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
