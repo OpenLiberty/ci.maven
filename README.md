@@ -21,7 +21,7 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
 We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/maven-wrapper-plugin/index.html) script, so you do not need to download maven yourself if you are not using it yet. 
 
-* `./mvnw install` : builds the plugin and the archetypes.
+* `./mvnw install -Darchetype.test.skip` : builds the plugin and the archetypes, skipping all tests
 * `./mvnw install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plugin and the archetypes and runs the integration tests by providing an existing installation.
 * `./mvnw install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plugin and archetypes and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WebSphere Liberty Java EE 7 runtime.
 
