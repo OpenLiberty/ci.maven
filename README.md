@@ -16,6 +16,12 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 	* [liberty-archetype-webapp](#liberty-archetype-webapp)
 	* [liberty-archetype-ear](#liberty-archetype-ear)
 
+## Usage - TLDR
+
+* `mvn liberty:dev` : All-in-one goal: installs Liberty, features, starts server and deploys app. Runs in the background while you develop your application. Applies code and configuration changes (and optionally runs tests) for immediate feedback
+* `mvn liberty:help` : List Liberty plugin goals
+* `mvn liberty:help -Ddetail=true -Dgoal=dev` : Detailed information on parameters for goal, e.g. 'dev'
+
 ## Build
 
 Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
