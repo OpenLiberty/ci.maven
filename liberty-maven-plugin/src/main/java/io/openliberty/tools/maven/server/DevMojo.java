@@ -1574,6 +1574,12 @@ public class DevMojo extends LooseAppSupport {
             compilerOptions.setRelease(release);
         }
 
+        String encoding = getCompilerOption(configuration, "encoding", "project.build.sourceEncoding", currentProject);
+        if (encoding != null) {
+            log.debug("Setting compiler encoding to " + encoding);
+            compilerOptions.setEncoding(encoding);
+        }
+
         return compilerOptions;
     }
 

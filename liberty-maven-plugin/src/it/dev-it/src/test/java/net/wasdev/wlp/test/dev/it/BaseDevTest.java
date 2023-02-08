@@ -24,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,6 +61,7 @@ public class BaseDevTest {
    static File tempProj;
    static File basicDevProj;
    static File logFile;
+   static File logErrorFile;
    static File targetDir;
    static File pom;
    static BufferedWriter writer;
@@ -123,7 +125,9 @@ public class BaseDevTest {
       assertTrue(tempProj.listFiles().length > 0);
 
       logFile = new File(basicDevProj, "logFile.txt");
+      logErrorFile = new File(basicDevProj, "logErrorFile.txt");
       assertTrue(logFile.createNewFile());
+      assertTrue(logErrorFile.createNewFile());
 
       if (customPomModule == null) {
          pom = new File(tempProj, "pom.xml");
@@ -163,7 +167,7 @@ public class BaseDevTest {
       ProcessBuilder builder = buildProcess(command.toString());
 
       builder.redirectOutput(logFile);
-      builder.redirectError(logFile);
+      builder.redirectError(logErrorFile);
       if (customPomModule != null) {
          builder.directory(new File(tempProj, customPomModule));
       }
@@ -245,6 +249,7 @@ public class BaseDevTest {
 
       if (logFile != null && logFile.exists()) {
          assertTrue(logFile.delete());
+         assertTrue(logErrorFile.delete());
       }
    }
 
@@ -295,6 +300,23 @@ public class BaseDevTest {
       javaWriter.close();
 
       assertTrue(waitForCompilation(targetHelloWorld, lastModified, 5000));
+   }
+
+   protected static void testModifyJavaFileWithEncoding() throws IOException, InterruptedException {
+      // modify a java file
+      File srcHelloWorld = new File(tempProj, "src/main/java/com/demo/HelloWorld.java");
+      File targetHelloWorld = new File(targetDir, "classes/com/demo/HelloWorld.class");
+      assertTrue(srcHelloWorld.exists());
+      assertTrue(targetHelloWorld.exists());
+
+      waitLongEnough();
+      BufferedWriter javaWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(srcHelloWorld, true), StandardCharsets.ISO_8859_1));
+      javaWriter.append(' ');
+      javaWriter.append("// libert\u00E9");
+
+      javaWriter.close();
+
+      assertTrue(verifyLogMessageDoesNotExist("unmappable character (0xE9) for encoding UTF-8", 5000, logErrorFile));
    }
 
    protected static void testModifyWithRecompileDeps() throws IOException, InterruptedException {
@@ -414,6 +436,20 @@ public class BaseDevTest {
          }
       }
       return false;
+   }
+
+   protected static boolean verifyLogMessageDoesNotExist(String message, int timeout, File log)
+         throws InterruptedException, FileNotFoundException, IOException {
+      int waited = 0;
+      int sleep = 10;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (countOccurrences(message, log) > 0) {
+            return false;
+        }
+      }
+      return true;
    }
 
    protected static boolean verifyFileExists(File file, int timeout)
