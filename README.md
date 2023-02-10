@@ -233,104 +233,12 @@ Example:
     ...
 </project>
 ```
-## Archetypes
+## Legacy archetypes
 
-By default, all archetypes that specify a Liberty runtime use the latest version of the Open Liberty runtime. You can use a different runtime by setting the `runtimeGroupId` and `runtimeArtifactId`. For example, you can use `wlp-webProfile7` by setting `-DruntimeGroupId=com.ibm.websphere.appserver.runtime` and `-DruntimeArtifactId=wlp-webProfile7`. 
+A set of archetypes were provided as of version 3.7.1, now see doc:  <link to old tag/release README>
 
-The runtime version can also be set dynamically. For example, you can specify version `20.0.0.3` of the runtime by setting `-DruntimeVersion=20.0.0.3`.
+### Newer suggestions
 
-Finally, the default Liberty Maven Plugin version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=3.2`.
+* https://start.openliberty.io
 
-### liberty-plugin-archetype
-
-The `liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application then deploys and tests it on a Liberty server. It also creates a Liberty server package that includes the application.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=3.2.3  \
-        -DlibertyPluginVersion=3.2.3  \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### liberty-archetype-webapp
-
-The `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes the [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=3.2.3 \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### liberty-archetype-ear
-
-The `liberty-archetype-ear` is used to generate a multi-module project that includes an EJB module, a web application module and an EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=3.2.3  \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### Using Archetype Snapshots
-
-If you are using a snapshot version of `liberty-archetype-webapp` or `liberty-archetype-ear`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
-
-``` xml
-<settings>
-    ...
-    <profiles>
-        <profile>
-            <id>archetype-snapshot-repo</id>
-            <properties>
-                <archetypeRepository>https://oss.sonatype.org/content/repositories/snapshots
-                </archetypeRepository>
-            </properties>
-            <repositories>
-                <repository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/
-                    </url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/
-                    </url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-    <activeProfiles>
-        <activeProfile>archetype-snapshot-repo</activeProfile>
-    </activeProfiles>
-</settings>
-
-```
+* (SOON): https://github.com/eclipse-ee4j/starter/ 
