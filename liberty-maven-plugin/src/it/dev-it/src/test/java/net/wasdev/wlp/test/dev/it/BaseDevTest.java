@@ -248,9 +248,11 @@ public class BaseDevTest {
       }
 
       if (logFile != null && logFile.exists()) {
-         assertTrue(logFile.delete());
-         assertTrue(logErrorFile.delete());
-      }
+          assertTrue(logFile.delete());
+       }
+      if (logErrorFile != null && logErrorFile.exists()) {
+          assertTrue(logErrorFile.delete());
+       }
    }
 
    protected static void clearLogFile() throws Exception {
