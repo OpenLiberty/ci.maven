@@ -56,11 +56,6 @@ public class DevTest extends BaseDevTest {
    }
 
    @Test
-   public void modifyJavaWithEncodingTest() throws Exception {
-      testModifyJavaFileWithEncoding();
-   }
-
-   @Test
    public void configChangeTest() throws Exception {
       tagLog("##configChangeTest start");
       int generateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);

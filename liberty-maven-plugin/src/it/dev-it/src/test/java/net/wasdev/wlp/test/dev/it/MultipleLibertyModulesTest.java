@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2021, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,6 @@ public class MultipleLibertyModulesTest extends BaseMultiModuleTest {
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
       process.waitFor(10, TimeUnit.SECONDS);
-      //assertEquals(1, process.exitValue()); Why would we require abnormal termination?
       int exitValue = process.exitValue();
       assertTrue("Process exit value is expected to be zero or one, actual value: "+exitValue, exitValue == 0 || exitValue == 1);
 
