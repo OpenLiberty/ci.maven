@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -60,6 +61,7 @@ public class BaseDevTest {
    static File tempProj;
    static File basicDevProj;
    static File logFile;
+   static File logErrorFile;
    static File targetDir;
    static File pom;
    static BufferedWriter writer;
@@ -122,8 +124,18 @@ public class BaseDevTest {
       FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
       assertTrue("temp directory does not contain expected copied files from "+projectRoot, tempProj.listFiles().length > 0);
 
+      // in case cleanup was not successful, try to delete the various log files so we can proceed
       logFile = new File(basicDevProj, "logFile.txt");
+      if (logFile.exists()) {
+         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
+      }
       assertTrue("log file already existed: "+logFile.getCanonicalPath(), logFile.createNewFile());
+
+      logErrorFile = new File(basicDevProj, "logErrorFile.txt");
+      if (logErrorFile.exists()) {
+         assertTrue("Could not delete log error file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
+      }
+      assertTrue("log error file already existed: "+ logErrorFile.getCanonicalPath(), logErrorFile.createNewFile());
 
       if (customPomModule == null) {
          pom = new File(tempProj, "pom.xml");
@@ -163,7 +175,7 @@ public class BaseDevTest {
       ProcessBuilder builder = buildProcess(command.toString());
 
       builder.redirectOutput(logFile);
-      builder.redirectError(logFile);
+      builder.redirectError(logErrorFile);
       if (customPomModule != null) {
          builder.directory(new File(tempProj, customPomModule));
       }
@@ -244,7 +256,11 @@ public class BaseDevTest {
       }
 
       if (logFile != null && logFile.exists()) {
-         assertTrue(logFile.delete());
+         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
+      }
+
+      if (logErrorFile != null && logErrorFile.exists()) {
+         assertTrue("Could not delete log error file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
       }
    }
 
@@ -267,11 +283,14 @@ public class BaseDevTest {
                process.destroy(); // stop run
             }
             writer.flush();
-            writer.close();
 
          } catch (IOException e) {
+         } finally {
+            try {
+               writer.close();
+            } catch (IOException io) {
+            }
          }
-
 
          try {
             process.waitFor(120, TimeUnit.SECONDS);
@@ -296,11 +315,16 @@ public class BaseDevTest {
       long lastModified = targetHelloWorld.lastModified();
       waitLongEnough();
       String str = "// testing";
-      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
-      javaWriter.append(' ');
-      javaWriter.append(str);
-
-      javaWriter.close();
+      BufferedWriter javaWriter = null;
+      try {
+         javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
+         javaWriter.append(' ');
+         javaWriter.append(str);
+      } finally {
+         if (javaWriter != null) {
+            javaWriter.close();
+         }
+      }
 
       assertTrue(waitForCompilation(targetHelloWorld, lastModified, 5000));
    }
@@ -319,6 +343,42 @@ public class BaseDevTest {
       // check that all files were recompiled
       assertTrue(waitForCompilation(targetHelloLogger, helloLoggerLastModified, 1000));
       assertTrue(waitForCompilation(targetHelloServlet, helloServletLastModified, 1000));
+   }
+
+   protected static void testModifyJavaFileWithEncoding() throws IOException, InterruptedException {
+      // modify a java file
+      File srcHelloWorld = new File(tempProj, "src/main/java/com/demo/HelloWorld.java");
+      File targetHelloWorld = new File(targetDir, "classes/com/demo/HelloWorld.class");
+      assertTrue(srcHelloWorld.exists());
+      assertTrue(targetHelloWorld.exists());
+
+      waitLongEnough();
+      BufferedWriter javaWriter = null;
+      try {
+         javaWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(srcHelloWorld, true), StandardCharsets.ISO_8859_1));
+         javaWriter.append(' ');
+         javaWriter.append("// libert\u00E9");
+      } finally {
+         if (javaWriter != null) {
+            javaWriter.close();
+         }
+      }
+
+      assertTrue(verifyLogMessageDoesNotExist("unmappable character (0xE9) for encoding UTF-8", 5000, logErrorFile));
+   }
+
+   protected static boolean verifyLogMessageDoesNotExist(String message, int timeout, File log)
+         throws InterruptedException, FileNotFoundException, IOException {
+      int waited = 0;
+      int sleep = 10;
+      while (waited <= timeout) {
+         Thread.sleep(sleep);
+         waited += sleep;
+         if (countOccurrences(message, log) > 0) {
+            return false;
+        }
+      }
+      return true;
    }
 
    protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
