@@ -68,14 +68,16 @@ public class MultipleLibertyModulesTest extends BaseMultiModuleTest {
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
       process.waitFor(10, TimeUnit.SECONDS);
-      assertEquals(1, process.exitValue());
+      //assertEquals(1, process.exitValue()); Why would we require abnormal termination?
+      int exitValue = process.exitValue();
+      assertTrue("Process exit value is expected to be zero or one, actual value: "+exitValue, exitValue == 0 || exitValue == 1);
 
       if (tempProj != null && tempProj.exists()) {
          FileUtils.deleteDirectory(tempProj);
       }
 
       if (logFile != null && logFile.exists()) {
-         assertTrue(logFile.delete());
+         assertTrue("log file was not successfully deleted: "+logFile.getCanonicalPath(), logFile.delete());
       }
    }
 

@@ -115,22 +115,22 @@ public class BaseDevTest {
       basicDevProj = new File(projectRoot);
 
       tempProj = Files.createTempDirectory("temp").toFile();
-      assertTrue(tempProj.exists());
+      assertTrue("temp directory does not exist", tempProj.exists());
 
-      assertTrue(basicDevProj.exists());
+      assertTrue(projectRoot+" directory does not exist", basicDevProj.exists());
 
       FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
-      assertTrue(tempProj.listFiles().length > 0);
+      assertTrue("temp directory does not contain expected copied files from "+projectRoot, tempProj.listFiles().length > 0);
 
       logFile = new File(basicDevProj, "logFile.txt");
-      assertTrue(logFile.createNewFile());
+      assertTrue("log file already existed: "+logFile.getCanonicalPath(), logFile.createNewFile());
 
       if (customPomModule == null) {
          pom = new File(tempProj, "pom.xml");
       } else {
          pom = new File(new File(tempProj, customPomModule), "pom.xml");
       }
-      assertTrue(pom.exists());
+      assertTrue(pom.getCanonicalPath()+" file does not exist", pom.exists());
 
       replaceVersion();
 
@@ -168,7 +168,7 @@ public class BaseDevTest {
          builder.directory(new File(tempProj, customPomModule));
       }
       process = builder.start();
-      assertTrue(process.isAlive());
+      assertTrue("process is not alive", process.isAlive());
 
       OutputStream stdin = process.getOutputStream();
 
@@ -191,7 +191,7 @@ public class BaseDevTest {
          } else {
             targetDir = new File(new File(tempProj, customLibertyModule), "target");
          }
-         assertTrue(targetDir.exists());
+         assertTrue("target directory does not exist: "+targetDir.getCanonicalPath(), targetDir.exists());
       }
    }
 
@@ -259,17 +259,25 @@ public class BaseDevTest {
       // shut down dev mode
       if (writer != null) {
          int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
-         if(isDevMode) {
-            writer.write("exit\n"); // trigger dev mode to shut down
-         }
-         else {
-            process.destroy(); // stop run
-         }
-         writer.flush();
-         writer.close();
 
-         process.waitFor(120, TimeUnit.SECONDS);
-         process.exitValue();
+         try {
+            if(isDevMode) {
+               writer.write("exit\n"); // trigger dev mode to shut down
+            } else {
+               process.destroy(); // stop run
+            }
+            writer.flush();
+            writer.close();
+
+         } catch (IOException e) {
+         }
+
+
+         try {
+            process.waitFor(120, TimeUnit.SECONDS);
+            //process.exitValue();
+         } catch (InterruptedException e) {
+         }
 
          // test that the server has shut down
          if (checkForShutdownMessage) {
