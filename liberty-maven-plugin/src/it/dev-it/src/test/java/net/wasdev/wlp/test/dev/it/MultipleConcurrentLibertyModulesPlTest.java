@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2021, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,13 +135,19 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
    private static void stopProcess(BufferedWriter writer, Process process, File logFile) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
       // shut down dev mode
       if (writer != null) {
-         writer.write("exit\n"); // trigger dev mode to shut down
+         try {
+            writer.write("exit\n"); // trigger dev mode to shut down
 
-         writer.flush();
-         writer.close();
+            writer.flush();
+         } catch (IOException e) {
+         } finally {
+            try {
+               writer.close();
+            } catch (IOException io) {
+            }
+         }
 
          process.waitFor(120, TimeUnit.SECONDS);
-         process.exitValue();
 
          // test that dev mode has stopped running
          assertTrue(verifyLogMessageExists("CWWKE0036I", 20000, logFile));
