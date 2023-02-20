@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2022.
+ * (c) Copyright IBM Corporation 2019, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,24 +117,31 @@ public class BaseDevTest {
       basicDevProj = new File(projectRoot);
 
       tempProj = Files.createTempDirectory("temp").toFile();
-      assertTrue(tempProj.exists());
+      assertTrue("temp directory does not exist", tempProj.exists());
 
-      assertTrue(basicDevProj.exists());
+      assertTrue(projectRoot+" directory does not exist", basicDevProj.exists());
 
       FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
-      assertTrue(tempProj.listFiles().length > 0);
+      assertTrue("temp directory does not contain expected copied files from "+projectRoot, tempProj.listFiles().length > 0);
 
+      // in case cleanup was not successful, try to delete the various log files so we can proceed
       logFile = new File(basicDevProj, "logFile.txt");
+      if (logFile.exists()) {
+         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
+      }
+      assertTrue("log file already existed: "+logFile.getCanonicalPath(), logFile.createNewFile());
       logErrorFile = new File(basicDevProj, "logErrorFile.txt");
-      assertTrue(logFile.createNewFile());
-      assertTrue(logErrorFile.createNewFile());
+      if (logErrorFile.exists()) {
+          assertTrue("Could not delete logError file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
+       }
+      assertTrue("logError file already existed: "+logErrorFile.getCanonicalPath(), logErrorFile.createNewFile());
 
       if (customPomModule == null) {
          pom = new File(tempProj, "pom.xml");
       } else {
          pom = new File(new File(tempProj, customPomModule), "pom.xml");
       }
-      assertTrue(pom.exists());
+      assertTrue(pom.getCanonicalPath()+" file does not exist", pom.exists());
 
       replaceVersion();
 
@@ -172,7 +179,7 @@ public class BaseDevTest {
          builder.directory(new File(tempProj, customPomModule));
       }
       process = builder.start();
-      assertTrue(process.isAlive());
+      assertTrue("process is not alive", process.isAlive());
 
       OutputStream stdin = process.getOutputStream();
 
@@ -195,7 +202,7 @@ public class BaseDevTest {
          } else {
             targetDir = new File(new File(tempProj, customLibertyModule), "target");
          }
-         assertTrue(targetDir.exists());
+         assertTrue("target directory does not exist: "+targetDir.getCanonicalPath(), targetDir.exists());
       }
    }
 
@@ -248,10 +255,10 @@ public class BaseDevTest {
       }
 
       if (logFile != null && logFile.exists()) {
-          assertTrue(logFile.delete());
+          assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
        }
       if (logErrorFile != null && logErrorFile.exists()) {
-          assertTrue(logErrorFile.delete());
+          assertTrue("Could not delete logError file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
        }
    }
 
@@ -266,17 +273,27 @@ public class BaseDevTest {
       // shut down dev mode
       if (writer != null) {
          int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
-         if(isDevMode) {
-            writer.write("exit\n"); // trigger dev mode to shut down
-         }
-         else {
-            process.destroy(); // stop run
-         }
-         writer.flush();
-         writer.close();
 
-         process.waitFor(120, TimeUnit.SECONDS);
-         process.exitValue();
+         try {
+            if(isDevMode) {
+               writer.write("exit\n"); // trigger dev mode to shut down
+            } else {
+               process.destroy(); // stop run
+            }
+            writer.flush();
+
+         } catch (IOException e) {
+         } finally {
+            try {
+               writer.close();
+            } catch (IOException io) {
+            }
+         }
+
+         try {
+            process.waitFor(120, TimeUnit.SECONDS);
+         } catch (InterruptedException e) {
+         }
 
          // test that the server has shut down
          if (checkForShutdownMessage) {
@@ -295,11 +312,16 @@ public class BaseDevTest {
       long lastModified = targetHelloWorld.lastModified();
       waitLongEnough();
       String str = "// testing";
-      BufferedWriter javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
-      javaWriter.append(' ');
-      javaWriter.append(str);
-
-      javaWriter.close();
+      BufferedWriter javaWriter = null;
+      try {
+         javaWriter = new BufferedWriter(new FileWriter(srcHelloWorld, true));
+         javaWriter.append(' ');
+         javaWriter.append(str);
+      } finally {
+         if (javaWriter != null) {
+            javaWriter.close();
+         }
+      }
 
       assertTrue(waitForCompilation(targetHelloWorld, lastModified, 5000));
    }
@@ -312,11 +334,16 @@ public class BaseDevTest {
       assertTrue(targetHelloWorld.exists());
 
       waitLongEnough();
-      BufferedWriter javaWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(srcHelloWorld, true), StandardCharsets.ISO_8859_1));
-      javaWriter.append(' ');
-      javaWriter.append("// libert\u00E9");
-
-      javaWriter.close();
+      BufferedWriter javaWriter = null;
+      try {
+          javaWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(srcHelloWorld, true), StandardCharsets.ISO_8859_1));
+          javaWriter.append(' ');
+          javaWriter.append("// libert\u00E9");
+      } finally {
+          if (javaWriter != null) {
+              javaWriter.close();
+          }
+      }
 
       assertTrue(verifyLogMessageDoesNotExist("unmappable character (0xE9) for encoding UTF-8", 5000, logErrorFile));
    }
