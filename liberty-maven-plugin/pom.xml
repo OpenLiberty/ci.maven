@@ -183,6 +183,7 @@
                                 <profile>online-its</profile>
                             </profiles>
                             <streamLogs>true</streamLogs>
+                            <mavenOpts>-Dfile.encoding=UTF-8</mavenOpts>
                         </configuration>
                         <executions>
                             <execution>
