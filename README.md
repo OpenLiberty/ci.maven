@@ -112,7 +112,27 @@ Example using the `runtimeArtifact` parameter to install a WebSphere Liberty run
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile8</artifactId>
-            <version>22.0.0.12</version>
+            <version>23.0.0.2</version>
+            <type>zip</type>
+        </runtimeArtifact>
+    </configuration>
+</plugin>
+```
+
+To install an Open Liberty beta runtime, specify the `runtimeArtifact` with the `io.openliberty.beta` groupId, `open liberty-runtime` artifactId and the `version` that is needed.
+
+Example using the `runtimeArtifact` parameter to install an Open Liberty beta runtime from a Maven artifact:
+
+```xml
+<plugin>
+    <groupId>io.openliberty.tools</groupId>
+    <artifactId>liberty-maven-plugin</artifactId>
+    <version>3.7.1</version>
+    <configuration>
+        <runtimeArtifact>
+            <groupId>io.openliberty.beta</groupId>
+            <artifactId>openliberty-runtime</artifactId>
+            <version>23.0.0.3-beta</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
