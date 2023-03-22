@@ -3,14 +3,14 @@ The `liberty-maven-plugin` provides support for Spring Boot applications, allowi
 
 ### Additional Parameters
 
-When installing a Spring Boot application via the Spring Boot executable JAR, the following are the parameters supported by the `install-apps` goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
+When installing a Spring Boot application via the Spring Boot executable JAR, the following are the parameters supported by the `deploy` goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | appsDirectory | The server's `apps` or `dropins` directory where the application files should be copied. The default value is set to `apps` if the application is defined in the server configuration, otherwise it is set to `dropins`.  | No |
-| deployPackages | The Maven packages to copy to Liberty runtime's application directory. `spring-boot-project` should be configured to this parameter. | Yes |
+| deployPackages | The Maven packages to copy to Liberty runtime's application directory. This parameter should be set to `spring-boot-project`. | Yes |
 
-The `server.xml` provided by the `serverXml` parameter should enable the one of the following Spring Boot features.
+The `server.xml` provided by the `serverXmlFile` parameter or located in the `configDirectory` should enable the one of the following Spring Boot features.
 
 | Feature | Description |
 | ------- | ----------- |
@@ -36,7 +36,7 @@ To use the `liberty-maven-plugin` to install a Spring Boot application packaged 
                     <id>install-apps</id>
                     <phase>pre-integration-test</phase>
                     <goals>
-                        <goal>install-apps</goal>
+                        <goal>deploy</goal>
                     </goals>
                     <configuration>
                         <appsDirectory>apps</appsDirectory>

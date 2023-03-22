@@ -8,6 +8,7 @@ The Maven Central repository includes the following Liberty runtime artifacts. V
 
 | Group ID : Artifact ID | Description |
 | ---------------------- | ----------- |
+| [`io.openliberty:openliberty-kernel`](https://repo1.maven.org/maven2/io/openliberty/openliberty-kernel/)  | Open Liberty runtime kernel. |
 | [`io.openliberty:openliberty-runtime`](https://repo1.maven.org/maven2/io/openliberty/openliberty-runtime/)  | Open Liberty runtime. |
 | [`io.openliberty:openliberty-jakartaee9`](https://repo1.maven.org/maven2/io/openliberty/openliberty-jakartaee9/)  | Open Liberty runtime with all Jakarta EE 9 features. |
 | [`io.openliberty:openliberty-javaee8`](https://repo1.maven.org/maven2/io/openliberty/openliberty-javaee8/)  | Open Liberty runtime with all Java EE 8 Full Platform features. |
@@ -16,7 +17,7 @@ The Maven Central repository includes the following Liberty runtime artifacts. V
 | [`io.openliberty:openliberty-microProfile5`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile5/)  | Open Liberty runtime with features for a MicroProfile 5 runtime. |
 | [`io.openliberty:openliberty-microProfile4`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile4/)  | Open Liberty runtime with features for a MicroProfile 4 runtime. |
 | [`io.openliberty:openliberty-microProfile3`](https://repo1.maven.org/maven2/io/openliberty/openliberty-microProfile3/)  | Open Liberty runtime with features for a MicroProfile 3 runtime. |
-| [`io.openliberty:openliberty-kernel`](https://repo1.maven.org/maven2/io/openliberty/openliberty-kernel/)  | Open Liberty runtime kernel. |
+| [`io.openliberty.beta:openliberty-runtime `](https://repo1.maven.org/maven2/io/openliberty/beta/openliberty-runtime/)  | Open Liberty runtime beta. |
 | [`com.ibm.websphere.appserver.runtime:wlp-jakartaee9`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-jakartaee9/)  | WebSphere Liberty runtime with all Jakarta EE 9 features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-javaee8`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee8/)  | WebSphere Liberty runtime with all Java EE 8 Full Platform features. |
 | [`com.ibm.websphere.appserver.runtime:wlp-javaee7`](https://repo1.maven.org/maven2/com/ibm/websphere/appserver/runtime/wlp-javaee7/)  | WebSphere Liberty runtime with all Java EE 7 Full Platform features. |
