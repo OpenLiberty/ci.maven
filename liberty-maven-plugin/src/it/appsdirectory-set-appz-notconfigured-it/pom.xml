@@ -89,6 +89,9 @@
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                        <configuration>
+                            <cleanLogs>false</cleanLogs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -122,6 +122,7 @@
                 <configuration>
                     <cleanDropins>true</cleanDropins>
                     <cleanApps>true</cleanApps>
+                    <cleanLogs>false</cleanLogs>
                 </configuration>
             </execution>
          </executions>

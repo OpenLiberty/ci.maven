@@ -152,6 +152,7 @@
                         <configuration>
                             <cleanDropins>true</cleanDropins>
                             <cleanApps>true</cleanApps>
+                            <cleanLogs>false</cleanLogs>
                             <!-- Temporarily set this to false due to ci.ant issue 131 -->
                             <cleanWorkarea>false</cleanWorkarea>
                         </configuration>
