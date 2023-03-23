@@ -504,7 +504,7 @@ public class BasicSupport extends AbstractLibertySupport {
         
         String cacheDir = install.getCacheDirectory();
         if (cacheDir == null) {
-            File dir = new File(artifactRepository.getBasedir(), "wlp-cache");
+            File dir = new File(getRepoSession().getLocalRepository().getBasedir(), "wlp-cache");
             installTask.setCacheDir(dir.getAbsolutePath());
         } else {
             installTask.setCacheDir(cacheDir);

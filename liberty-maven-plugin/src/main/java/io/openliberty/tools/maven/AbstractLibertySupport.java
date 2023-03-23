@@ -59,10 +59,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     protected MavenProject project = null;
-    
-    @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
-    protected ArtifactRepository artifactRepository = null;
-    
+
     /**
      * The build settings.
      */
@@ -97,10 +94,10 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return project;
     }
     
-    protected ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
+    public RepositorySystemSession getRepoSession() {
+        return repoSession;
     }
-    
+
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
         // Initialize ant helper instance
@@ -561,7 +558,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         
         if (artifactFile != null && artifactFile.exists()) {
         	String pathToLocalArtifact = this.repoSession.getLocalRepositoryManager().getPathForLocalArtifact(aetherArtifact);
-            File localArtifactFile = new File (this.artifactRepository.getBasedir() ,pathToLocalArtifact);
+            File localArtifactFile = new File (this.repoSession.getLocalRepository().getBasedir() ,pathToLocalArtifact);
             
             //sometimes variable artifactFile has a path of a build output folder(target). Setting the artifact file path that corresponds to Maven coord.
             if(localArtifactFile.exists()) {
