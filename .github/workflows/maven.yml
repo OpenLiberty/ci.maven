@@ -12,10 +12,59 @@ on:
 env:
   # server-config-props-it fix
   MAVEN_HOME: $(which mvn)
+  # reference build
+  REF_DISTRIBUTION: 'semeru'
+  REF_JAVA: 8
+  REF_RUNTIME: 'wlp'
+  REF_RUNTIME_VERSION: '22.0.0.6'
 
 jobs:
-# UNIX BUILDS
+  # single reference build before starting matrix build
+  reference-build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    # Checkout repos
+    - name: Checkout ci.maven
+      uses: actions/checkout@v3
+    - name: Setup Java ${{ env.REF_JAVA }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: ${{ env.REF_DISTRIBUTION }}
+        java-version: ${{ env.REF_JAVA }}
+        cache: 'maven'
+    - name: Checkout ci.common
+      uses: actions/checkout@v3
+      with:
+        repository: OpenLiberty/ci.common
+        path: ci.common
+    - name: Checkout ci.ant
+      uses: actions/checkout@v3
+      with:
+        repository: OpenLiberty/ci.ant
+        path: ci.ant
+    - name: Cache maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    # Install dependencies
+    - name: Install ci.ant and ci.common
+      run: |
+        cd ./ci.ant
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        cd ../ci.common
+        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        cd ..
+    # Run tests
+    - name: Run tests
+      run: ./mvnw verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=$REF_RUNTIME -DruntimeVersion="$REF_RUNTIME_VERSION"
+
+  # UNIX BUILDS
   build-unix:
+    needs: reference-build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -24,7 +73,12 @@ jobs:
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [22.0.0.6, 22.0.0.9]
         java: [17, 11, 8]
+        distribution: [ 'temurin', 'semeru' ]
         exclude:
+        - java: $REF_JAVA
+          distribution: $REF_DISTRIBUTION
+          RUNTIME: $REF_RUNTIME
+          RUNTIME_VERSION: $REF_RUNTIME_VERSION
         - java: 8
           RUNTIME_VERSION: 22.0.0.6
         - java: 17
@@ -37,7 +91,7 @@ jobs:
     - name: Setup Java ${{ matrix.java }}
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
+        distribution: ${{ matrix.distribution }}
         java-version: ${{ matrix.java }}
         cache: 'maven'
     - name: Checkout ci.common
@@ -70,6 +124,7 @@ jobs:
 
 # WINDOWS BUILD
   build-windows:
+    needs: reference-build
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -78,6 +133,7 @@ jobs:
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [22.0.0.6, 22.0.0.9]
         java: [17, 11, 8]
+        distribution: ['temurin', 'semeru']
         exclude:
         - java: 8
           RUNTIME_VERSION: 22.0.0.6
@@ -91,7 +147,7 @@ jobs:
     - name: Setup Java ${{ matrix.java }}
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
+        distribution: ${{ matrix.distribution }}
         java-version: ${{ matrix.java }}
         cache: 'maven'
     # Move and cloning to C: drive for Windows for more disk space
