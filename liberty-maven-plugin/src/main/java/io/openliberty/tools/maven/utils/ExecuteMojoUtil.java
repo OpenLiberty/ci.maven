@@ -277,7 +277,7 @@ public class ExecuteMojoUtil {
             config = (Xpp3Dom) plugin.getConfiguration();
         }
         if (numExec > 1) {
-            log.warn(plugin.getArtifactId() + ":" + goal 
+            log.warn(plugin.getArtifactId() + ":" + goal
                     + " goal has multiple execution configurations (default to \"" + execId + "\" execution)");
         }
         

@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -55,7 +56,7 @@ public class DumpServerMojo extends StartDebugMojoSupport {
     private boolean threadDump;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping dump goal.\n");
             return;
@@ -63,7 +64,7 @@ public class DumpServerMojo extends StartDebugMojoSupport {
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
             checkServerDirectoryExists();
         }

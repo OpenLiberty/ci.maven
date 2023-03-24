@@ -62,7 +62,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
     private boolean embedded;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping start goal.\n");
             return;
@@ -70,7 +70,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
         }
 
@@ -111,7 +111,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
             serverTask.execute(); 
         } catch (Exception e) {
             // ignore
-            log.debug("Error stopping server", e);
+            getLog().debug("Error stopping server", e);
         }
     }
 }

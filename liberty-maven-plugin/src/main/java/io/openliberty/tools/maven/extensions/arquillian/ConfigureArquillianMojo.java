@@ -67,7 +67,7 @@ public class ConfigureArquillianMojo extends BasicSupport {
     }
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         File arquillianXml = new File(project.getBuild().getDirectory(), "test-classes/arquillian.xml");
         Set<Artifact> artifacts = project.getArtifacts();
         
@@ -78,7 +78,7 @@ public class ConfigureArquillianMojo extends BasicSupport {
                 String artifactId = artifact.getArtifactId();
                 if (groupId.equals(coors.getGroupId()) && artifactId.equals(coors.getArtifactId())) {
                     type = TypeProperty.REMOTE;
-                    log.info("Automatically detected the Arquillian Liberty Remote container at the following coordinates: " + groupId + ":" + artifactId + ".");
+                    getLog().info("Automatically detected the Arquillian Liberty Remote container at the following coordinates: " + groupId + ":" + artifactId + ".");
                     break outerloop;
                 }
             }
@@ -87,19 +87,19 @@ public class ConfigureArquillianMojo extends BasicSupport {
                 String artifactId = artifact.getArtifactId();
                 if (groupId.equals(coors.getGroupId()) && artifactId.equals(coors.getArtifactId())) {
                     type = TypeProperty.MANAGED;
-                    log.info("Automatically detected the Arquillian Liberty Managed container at the following coordinates: " + groupId + ":" + artifactId + ".");
+                    getLog().info("Automatically detected the Arquillian Liberty Managed container at the following coordinates: " + groupId + ":" + artifactId + ".");
                     break outerloop;
                 }
             }
         }
         
         if (type == TypeProperty.NOTFOUND) {
-            log.warn("Arquillian Liberty Managed and Remote dependencies were not found. Defaulting to use the Liberty Managed container.");
+            getLog().warn("Arquillian Liberty Managed and Remote dependencies were not found. Defaulting to use the Liberty Managed container.");
             type = TypeProperty.MANAGED;
         }
 
         if (skipIfArquillianXmlExists && arquillianXml.exists()) {
-            log.info("Skipping configure-arquillian goal because arquillian.xml already exists in \"target/test-classes\".");
+            getLog().info("Skipping configure-arquillian goal because arquillian.xml already exists in \"target/test-classes\".");
             return;
         }
 

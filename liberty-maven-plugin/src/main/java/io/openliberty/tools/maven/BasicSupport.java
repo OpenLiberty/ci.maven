@@ -52,7 +52,7 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
  * 
  * 
  */
-public class BasicSupport extends AbstractLibertySupport {
+public abstract class BasicSupport extends AbstractLibertySupport {
 
     //Note these next two are regular expressions, not just the code.
     protected static final String START_APP_MESSAGE_REGEXP = "CWWKZ0001I.*";
@@ -198,12 +198,11 @@ public class BasicSupport extends AbstractLibertySupport {
     @Parameter(alias = "libertyRuntimeVersion", property = "liberty.runtime.version")
     protected String libertyRuntimeVersion = null;
     
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
+    public BasicSupport() throws MojoExecutionException, MojoFailureException {
+        super();
         if (skip) {
             return;
         }
-        super.init();
 
         if (skipServerConfigSetup) {
             return;
@@ -388,9 +387,9 @@ public class BasicSupport extends AbstractLibertySupport {
 		public void flush() {
 			for (int i = 0; i < msgTypes.size(); i++) {
 				if (msgTypes.get(i) == MessageType.INFO) {
-					log.info(messages.get(i));
+					getLog().info(messages.get(i));
 				} else {
-					log.debug(messages.get(i));
+                    getLog().debug(messages.get(i));
 				}
 			}
 			msgTypes.clear();
@@ -412,12 +411,12 @@ public class BasicSupport extends AbstractLibertySupport {
     /**
      * Performs assembly installation unless the install type is pre-existing.
      * 
-     * @throws Exception
+     * @throws MojoExecutionException
      */
-    protected void installServerAssembly() throws Exception {
+    protected void installServerAssembly() throws MojoExecutionException, IOException {
         initLog.flush();
         if (installType == InstallType.ALREADY_EXISTS) {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
         } else {
             if (installType == InstallType.FROM_ARCHIVE) {
                 installFromArchive();
@@ -428,7 +427,7 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
     
-    protected void installFromFile() throws Exception {
+    protected void installFromFile() throws MojoExecutionException, IOException {
         // Check if there is a different/newer archive or missing marker to trigger assembly install
         File installMarker = new File(installDirectory, ".installed");
 
@@ -436,18 +435,18 @@ public class BasicSupport extends AbstractLibertySupport {
             if (!installMarker.exists()) {
                 refresh = true;
             } else if (assemblyArchive.lastModified() > installMarker.lastModified()) {
-                log.debug(MessageFormat.format(messages.getString("debug.detect.assembly.archive"), ""));
+                getLog().debug(MessageFormat.format(messages.getString("debug.detect.assembly.archive"), ""));
                 refresh = true;
             } else if(!assemblyArchive.getCanonicalPath().equals(FileUtils.fileRead(installMarker))) {
                 refresh = true;
             }
         } else {
-            log.debug(MessageFormat.format(messages.getString("debug.request.refresh"), ""));
+            getLog().debug(MessageFormat.format(messages.getString("debug.request.refresh"), ""));
         }
 
         String userDirectoryPath = userDirectory.getCanonicalPath();
         if (refresh && installDirectory.exists() && installDirectory.isDirectory()) {
-            log.info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
+            getLog().info(MessageFormat.format(messages.getString("info.uninstalling.server.home"), installDirectory));
             // Delete everything in the install directory except usr directory
             for(File f : installDirectory.listFiles()) {
                 if(!(f.isDirectory() && f.getCanonicalPath().equals(userDirectoryPath))) {
@@ -458,7 +457,7 @@ public class BasicSupport extends AbstractLibertySupport {
 
         // Install the assembly
         if (!installMarker.exists()) {
-            log.info("Installing assembly...");
+            getLog().info("Installing assembly...");
 
             FileUtils.forceMkdir(installDirectory);
 
@@ -483,11 +482,11 @@ public class BasicSupport extends AbstractLibertySupport {
             // Write the assembly archive path so we can determine whether to install a different assembly in future invocations
             FileUtils.fileWrite(installMarker, assemblyArchive.getCanonicalPath());
         } else {
-            log.info(MessageFormat.format(messages.getString("info.reuse.installed.assembly"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.reuse.installed.assembly"), ""));
         }
     }
 
-    protected void installFromArchive() throws Exception {
+    protected void installFromArchive() throws MojoExecutionException {
         InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:io/openliberty/tools/ant:install-liberty");
         if (installTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-liberty"));
@@ -540,7 +539,7 @@ public class BasicSupport extends AbstractLibertySupport {
         if (licenseArtifact != null) {
             Artifact license = getArtifact(licenseArtifact);
             if (!hasSameLicense(license)) {
-                log.info(MessageFormat.format(messages.getString("info.install.license"), 
+                getLog().info(MessageFormat.format(messages.getString("info.install.license"),
                         licenseArtifact.getGroupId() + ":" + licenseArtifact.getArtifactId() + ":" + licenseArtifact.getVersion()));
                 Java installLicenseTask = (Java) ant.createTask("java");
                 installLicenseTask.setJar(license.getFile());
@@ -581,7 +580,7 @@ public class BasicSupport extends AbstractLibertySupport {
         if (license != null) {
             InputStream licenseInfo = getZipEntry(license.getFile(), "wlp/lafiles/LI_en");
             if (licenseInfo == null) {
-                log.warn(MessageFormat.format(messages.getString("warn.install.license"), license.getId()));
+                getLog().warn(MessageFormat.format(messages.getString("warn.install.license"), license.getId()));
                 return sameLicense;
             } 
             
@@ -661,11 +660,11 @@ public class BasicSupport extends AbstractLibertySupport {
             try {
                 return getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
             } catch (Exception e) {
-                log.warn("The properties for directories could not be initialized because an error occurred when accessing the directories.");
-                log.debug("Exception received: "+e.getMessage(), (Throwable) e);
+                getLog().warn("The properties for directories could not be initialized because an error occurred when accessing the directories.");
+                getLog().debug("Exception received: "+e.getMessage(), (Throwable) e);
             }
         } else {
-            log.warn("The " + serverDirectory + " directory cannot be accessed. The properties for directories could not be initialized.");
+            getLog().warn("The " + serverDirectory + " directory cannot be accessed. The properties for directories could not be initialized.");
         }
 
         return new HashMap<String,File> ();

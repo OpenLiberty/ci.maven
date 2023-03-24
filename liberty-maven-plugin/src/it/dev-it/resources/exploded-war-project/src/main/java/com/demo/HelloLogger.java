@@ -31,7 +31,7 @@ public class HelloLogger {
     @GET
     @Produces(TEXT_PLAIN)
     public String showLog() {
-        log.info("Here is the Log");
+        getLog().info("Here is the Log");
         return "Log has been shown";
     }
 }

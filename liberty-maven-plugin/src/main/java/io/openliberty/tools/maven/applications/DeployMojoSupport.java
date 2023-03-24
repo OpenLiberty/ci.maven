@@ -46,7 +46,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
 /**
  * Support for installing and deploying applications to a Liberty server.
  */
-public class DeployMojoSupport extends LooseAppSupport {
+public abstract class DeployMojoSupport extends LooseAppSupport {
 
     private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
@@ -77,7 +77,7 @@ public class DeployMojoSupport extends LooseAppSupport {
         }
 
         File destDir = new File(serverDirectory, getAppsDirectory());
-        log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
+        getLog().info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
         Copy copyFile = (Copy) ant.createTask("copy");
         copyFile.setFile(artifact.getFile());
@@ -117,7 +117,7 @@ public class DeployMojoSupport extends LooseAppSupport {
                 String copyLibsPath = copyLibsDirectory.getCanonicalPath();
                 if (!copyLibsPath.startsWith(projectRoot)) {
                     // Flag an error but allow processing to continue in case dependencies, if any, are not actually referenced by the app.
-                    log.error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
+                    getLog().error("The directory indicated by the copyLibsDirectory parameter must be within the Maven project directory when the container option is specified.");
                 }
             }
         } catch (IOException e) {
@@ -139,14 +139,14 @@ public class DeployMojoSupport extends LooseAppSupport {
             setLooseProjectRootForContainer(proj, config);
         }
 
-        LooseWarApplication looseWar = new LooseWarApplication(proj, config, log);
+        LooseWarApplication looseWar = new LooseWarApplication(proj, config, getLog());
 
         if (looseWar.isExploded()) {
         	
         	// Validate maven-war-plugin version
         	Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
         	if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-        		log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+        		getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
         	}
 
             // If I'm filtering web.xml, etc., I want to monitor from the exploded dir, not via a source dir
@@ -207,7 +207,7 @@ public class DeployMojoSupport extends LooseAppSupport {
         looseEar.addApplicationXmlFile();
 
         Set<Artifact> artifacts = proj.getArtifacts();
-        log.debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
+        getLog().debug("Number of compile dependencies for " + proj.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             if ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) {
@@ -281,8 +281,8 @@ public class DeployMojoSupport extends LooseAppSupport {
                     //appName will be set to a name derived from appFile if no name can be found.
                     appName = scd.findNameForLocation(appFile);
                 } catch (Exception e) {
-                    log.warn(e.getLocalizedMessage());
-                    log.debug(e);
+                    getLog().warn(e.getLocalizedMessage());
+                    getLog().debug(e);
                 } 
             }
 
@@ -296,7 +296,7 @@ public class DeployMojoSupport extends LooseAppSupport {
     private void addEmbeddedLib(Element parent, MavenProject warProject, LooseApplication looseApp, String dir)
             throws Exception {
         Set<Artifact> artifacts = warProject.getArtifacts();
-        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
+        getLog().debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             if ( ("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope())) && 
@@ -308,7 +308,7 @@ public class DeployMojoSupport extends LooseAppSupport {
 
     private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws Exception {
         Set<Artifact> artifacts = warProject.getArtifacts();
-        log.debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
+        getLog().debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear

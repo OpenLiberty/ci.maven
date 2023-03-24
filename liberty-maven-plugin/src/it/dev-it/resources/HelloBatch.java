@@ -32,7 +32,7 @@ public class HelloBatch implements Batchlet {
     @GET
     @Produces(TEXT_PLAIN)
     public String process() {
-        log.info("Called Batchlet.process()");
+        getLog().info("Called Batchlet.process()");
         return "Batchlet.process()";
     }
     public void stop() {}

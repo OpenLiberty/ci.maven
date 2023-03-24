@@ -49,7 +49,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
      */
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping undeploy goal.\n");
             return;
@@ -111,7 +111,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                         undeployApp(new File(installDir, depArchive.getName()));
                     }
                 } else {
-                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                    getLog().warn(MessageFormat.format(messages.getString("error.application.not.supported"),
                             project.getId()));
                 }
             }
@@ -142,7 +142,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 //appName will be set to a name derived from file if no name can be found.
                 appName = scd.findNameForLocation(appName);
             } catch (Exception e) {
-                log.warn(e.getLocalizedMessage());
+                getLog().warn(e.getLocalizedMessage());
             } 
         }
 

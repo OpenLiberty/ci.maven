@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -27,7 +28,6 @@ import io.openliberty.tools.ant.ServerTask;
  * Start a liberty server in debug mode
  */
 @Mojo(name = "debug", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-
 public class DebugServerMojo extends StartDebugMojoSupport {
 
     /**
@@ -37,7 +37,7 @@ public class DebugServerMojo extends StartDebugMojoSupport {
     protected boolean clean;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping debug goal.\n");
             return;
@@ -45,7 +45,7 @@ public class DebugServerMojo extends StartDebugMojoSupport {
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
         }
 

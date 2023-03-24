@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
@@ -25,7 +26,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 public class InstallServerMojo extends PluginConfigSupport {
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping install-server goal.\n");
             return;

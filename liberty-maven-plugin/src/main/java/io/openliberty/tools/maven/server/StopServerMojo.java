@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -35,13 +36,13 @@ public class StopServerMojo extends StartDebugMojoSupport {
     private boolean embedded;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping stop goal.\n");
             return;
         }
         
-        log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
+        getLog().info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
         
         if (serverDirectory.exists()) {
             try {
@@ -54,11 +55,11 @@ public class StopServerMojo extends StartDebugMojoSupport {
                 // not fully exist in the file structure and is not running anyway.
                 // Continue with a warning rather than ending with hard failure especially
                 // as we have bound stop-server to a clean.
-                log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
+                getLog().warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
             }
         }
         else {
-            log.info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
+            getLog().info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
         }
     }
 }

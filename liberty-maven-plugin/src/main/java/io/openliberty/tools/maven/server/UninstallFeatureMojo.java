@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -36,7 +37,6 @@ import java.lang.StringBuilder;
  * runtime.
  */
 @Mojo(name = "uninstall-feature")
-
 public class UninstallFeatureMojo extends BasicSupport {
     
     /**
@@ -45,12 +45,16 @@ public class UninstallFeatureMojo extends BasicSupport {
     @Parameter
     private Features features;
 
+    public UninstallFeatureMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
      */
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping uninstall-feature goal.\n");
             return;

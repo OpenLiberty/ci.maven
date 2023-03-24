@@ -244,7 +244,7 @@ public class LooseWarApplication extends LooseApplication {
             Xpp3Dom filtering = resource.getChild("filtering");
             Path resolvedDir = baseDirPath.resolve(dir.getValue());
             if (handled.contains(resolvedDir)) {
-                log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
+                getLog().warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
             } else {
                 if (onlyUnfiltered && filtering != null && Boolean.parseBoolean(filtering.getValue())) {
                     continue;

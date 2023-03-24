@@ -47,7 +47,7 @@ public class RunServerMojo extends PluginConfigSupport {
     private boolean embedded;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping run goal.\n");
             return;
@@ -63,7 +63,7 @@ public class RunServerMojo extends PluginConfigSupport {
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
-                log.debug("Downstream projects: " + downstreamProjects);
+                getLog().debug("Downstream projects: " + downstreamProjects);
                 hasDownstreamProjects = true;
             }
 
@@ -82,7 +82,7 @@ public class RunServerMojo extends PluginConfigSupport {
                 getOrCreateEarArtifact(project);
             }
         } else if (projectPackaging.equals("pom")) {
-            log.debug("Skipping compile/resources on module with pom packaging type");
+            getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
@@ -108,7 +108,7 @@ public class RunServerMojo extends PluginConfigSupport {
             } catch (MojoExecutionException e) {
                 if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
                     // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
-                    log.warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
+                    getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
                     throw e;
                 }
             }

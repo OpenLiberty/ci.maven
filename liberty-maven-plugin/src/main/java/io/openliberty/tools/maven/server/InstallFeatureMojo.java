@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -59,13 +60,13 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
      */
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if(!initialize()) {
             return;
         }
         if (serverDir != null) {
             serverDirectory = serverDir;
-            log.debug("Overriding the server directory with: " + serverDirectory);
+            getLog().debug("Overriding the server directory with: " + serverDirectory);
         }
         installFeatures();
     }
@@ -81,7 +82,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
             boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
             if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
                 if (!skipBetaInstallFeatureWarning) {
-                    log.warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
+                    getLog().warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
                 }
                 return; // do not install features if the runtime is a beta version
             }

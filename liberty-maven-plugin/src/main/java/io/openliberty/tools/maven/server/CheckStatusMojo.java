@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -27,7 +28,7 @@ import io.openliberty.tools.ant.ServerTask;
 @Mojo(name = "status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
 
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping status goal.\n");
             return;
@@ -35,11 +36,11 @@ public class CheckStatusMojo extends StartDebugMojoSupport {
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
         }
 
-        log.info(MessageFormat.format(messages.getString("info.server.status.check"), ""));
+        getLog().info(MessageFormat.format(messages.getString("info.server.status.check"), ""));
 
         ServerTask serverTask = initializeJava();
         serverTask.setOperation("status");

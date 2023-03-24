@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -50,7 +51,8 @@ public class CleanServerMojo extends StartDebugMojoSupport {
     @Parameter(property = "cleanApps", defaultValue = "false")
     private boolean cleanApps = false;
 
-    protected void doExecute() throws Exception {
+    @Override
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping clean goal.\n");
             return;

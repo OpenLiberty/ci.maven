@@ -28,7 +28,7 @@ import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 
-public class ServerFeatureSupport extends BasicSupport {
+public abstract class ServerFeatureSupport extends BasicSupport {
 
     private ServerFeatureUtil servUtil;
 
@@ -36,40 +36,40 @@ public class ServerFeatureSupport extends BasicSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            getLog().debug(msg);
         }
 
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            getLog().debug(msg, e);
         }
 
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            getLog().debug(e);
         }
 
         @Override
         public void warn(String msg) {
             if (!suppressLogs) {
-                log.warn(msg);
+                getLog().warn(msg);
             } else {
-                log.debug(msg);
+                getLog().debug(msg);
             }
         }
 
         @Override
         public void info(String msg) {
             if (!suppressLogs) {
-                log.info(msg);
+                getLog().info(msg);
             } else {
-                log.debug(msg);
+                getLog().debug(msg);
             }
         }
 
         @Override
         public void error(String msg, Throwable e) {
-            log.error(msg, e);
+            getLog().error(msg, e);
         }
     }
 
@@ -196,10 +196,10 @@ public class ServerFeatureSupport extends BasicSupport {
             }
         }
         if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
-            log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies: "
+            getLog().debug("Found a previous module in the Reactor build order that does not have downstream dependencies: "
                     + mostDownstreamModule);
             if (isSubModule(project, mostDownstreamModule)) {
-                log.debug(
+                getLog().debug(
                         "Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping goal on this module.");
                 return true;
             }

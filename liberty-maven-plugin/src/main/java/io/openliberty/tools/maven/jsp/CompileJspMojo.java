@@ -56,7 +56,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
     protected int timeout;
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping compile-jsp goal.\n");
             return;
@@ -123,7 +123,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
         }
 
         String classpathStr = join(classpath, File.pathSeparator);
-        log.debug("Classpath: " + classpathStr);
+        getLog().debug("Classpath: " + classpathStr);
         compile.setClasspath(classpathStr);
 
         if(initialize()) {

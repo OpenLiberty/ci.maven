@@ -271,7 +271,7 @@ public class DevMojo extends LooseAppSupport {
         }
         if (resourceDirs.isEmpty()) {
             File defaultResourceDir = new File(project.getBasedir(), "src/main/resources");
-            log.debug("No resource directory detected, using default directory: " + defaultResourceDir);
+            getLog().debug("No resource directory detected, using default directory: " + defaultResourceDir);
             resourceDirs.add(defaultResourceDir);
         }
         return resourceDirs;
@@ -305,42 +305,42 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            getLog().debug(msg);
         }
 
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            getLog().debug(msg, e);
         }
 
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            getLog().debug(e);
         }
 
         @Override
         public void warn(String msg) {
-            log.warn(msg);
+            getLog().warn(msg);
         }
 
         @Override
         public void info(String msg) {
-            log.info(msg);
+            getLog().info(msg);
         }
 
         @Override
         public void error(String msg) {
-            log.error(msg);
+            getLog().error(msg);
         }
 
         @Override
         public void error(String msg, Throwable e) {
-            log.error(msg, e);
+            getLog().error(msg, e);
         }
 
         @Override
         public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
+            return getLog().isDebugEnabled();
         }
 
         @Override
@@ -357,7 +357,7 @@ public class DevMojo extends LooseAppSupport {
         public void libertyCreate() throws PluginExecutionException {
             try {
                 if (isUsingBoost()) {
-                    log.info("Running boost:package");
+                    getLog().info("Running boost:package");
                     runBoostMojo("package");
                 } else {
                     runLibertyMojoCreate();
@@ -390,10 +390,10 @@ public class DevMojo extends LooseAppSupport {
                 // stacktrace
                 if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                     // PluginExecutionException indicates that the binary scanner jar could not be found
-                    log.error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                    getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                     setFeatureGeneration(false);
                 } else {
-                    log.error(e.getMessage()
+                    getLog().error(e.getMessage()
                     + "\nTo disable the automatic generation of features, type 'g' and press Enter.");
                 }
                 return false;
@@ -431,7 +431,7 @@ public class DevMojo extends LooseAppSupport {
                 serverTask.setOperation("stop");
                 serverTask.execute();
             } catch (Exception e) {
-                log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
+                getLog().warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
             }
         }
 
@@ -612,7 +612,7 @@ public class DevMojo extends LooseAppSupport {
                 JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupUpstreamProject);
                 JavaCompilerOptions compilerOptions = getMavenCompilerOptions(upstreamProject);
                 if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
-                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    getLog().debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
                     util.getProjectModule(buildFile).setCompilerOptions(compilerOptions);
                 }
 
@@ -652,7 +652,7 @@ public class DevMojo extends LooseAppSupport {
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
                         // optimize generate features
                         if (generateFeatures) {
-                            log.debug("Detected a change in the compile dependencies for "
+                            getLog().debug("Detected a change in the compile dependencies for "
                                     + buildFile + " , regenerating features");
                             boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
                             if (generateFeaturesSuccess) {
@@ -667,9 +667,9 @@ public class DevMojo extends LooseAppSupport {
                 }
             } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
                     | MojoExecutionException e) {
-                log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
+                getLog().error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
                         + ": " + e.getMessage());
-                log.debug(e);
+                getLog().debug(e);
                 return false;
             }
             return true;
@@ -682,9 +682,9 @@ public class DevMojo extends LooseAppSupport {
                 updateChildProjectArtifactPaths(buildFile, parentProject.getCompileClasspathElements(),
                         parentProject.getTestClasspathElements());
             } catch (ProjectBuildingException | IOException | DependencyResolutionRequiredException e) {
-                log.error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
+                getLog().error("An unexpected error occurred while processing changes in " + buildFile.getAbsolutePath()
                         + ": " + e.getMessage());
-                log.debug(e);
+                getLog().debug(e);
                 return false;
             }
             return true;
@@ -774,7 +774,7 @@ public class DevMojo extends LooseAppSupport {
                         // Validate maven-war-plugin version
                         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
                         if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-                            log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+                            getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
                         }
                         
                         redeployApp();
@@ -782,7 +782,7 @@ public class DevMojo extends LooseAppSupport {
                         try {
                             runExplodedMojo();
                         } catch (MojoExecutionException e) {
-                            log.error("Failed to run war:exploded goal", e);
+                            getLog().error("Failed to run war:exploded goal", e);
                         }
                     }
                 } else {
@@ -804,7 +804,7 @@ public class DevMojo extends LooseAppSupport {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runExplodedMojo();
                 } catch (MojoExecutionException e) {
-                    log.error("Failed to run goal(s)", e);
+                    getLog().error("Failed to run goal(s)", e);
                 }
             } 
         }
@@ -816,7 +816,7 @@ public class DevMojo extends LooseAppSupport {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runExplodedMojo();
                 } catch (MojoExecutionException e) {
-                    log.error("Failed to run goal(s)", e);
+                    getLog().error("Failed to run goal(s)", e);
                 }
             } else {
                 copyFile(fileChanged, resourceParent, outputDirectory, null);
@@ -830,7 +830,7 @@ public class DevMojo extends LooseAppSupport {
                 try {
                     runExplodedMojo();
                 } catch (MojoExecutionException e) {
-                    log.error("Failed to run goal(s)", e);
+                    getLog().error("Failed to run goal(s)", e);
                 }
             } 
         }
@@ -854,8 +854,8 @@ public class DevMojo extends LooseAppSupport {
                 build = mavenProjectBuilder.build(buildFile,
                         session.getProjectBuildingRequest().setResolveDependencies(true));
             } catch (ProjectBuildingException e) {
-                log.error("Could not parse pom.xml. " + e.getMessage());
-                log.debug(e);
+                getLog().error("Could not parse pom.xml. " + e.getMessage());
+                getLog().debug(e);
                 return false;
             }
 
@@ -871,7 +871,7 @@ public class DevMojo extends LooseAppSupport {
                 JavaCompilerOptions oldCompilerOptions = getMavenCompilerOptions(backupProject);
                 JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
                 if (!oldCompilerOptions.getOptions().equals(compilerOptions.getOptions())) {
-                    log.debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
+                    getLog().debug("Maven compiler options have been modified: " + compilerOptions.getOptions());
                     util.updateJavaCompilerOptions(compilerOptions);
                 }
 
@@ -887,8 +887,8 @@ public class DevMojo extends LooseAppSupport {
                 Xpp3Dom config;
                 Xpp3Dom oldConfig;
                 if (!restartServer) {
-                    config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", log);
-                    oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", log);
+                    config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "create", getLog());
+                    oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "create", getLog());
                     if (!Objects.equals(config, oldConfig)) {
                         createServer = true;
                         if (restartForLibertyMojoConfigChanged(config, oldConfig)) {
@@ -896,18 +896,18 @@ public class DevMojo extends LooseAppSupport {
                         }
                     }
                 }
-                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", log);
-                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature", log);
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "install-feature", getLog());
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "install-feature", getLog());
                 if (!Objects.equals(config, oldConfig)) {
                     installFeature = true;
                 }
-                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "deploy", log);
-                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "deploy", log);
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "deploy", getLog());
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "deploy", getLog());
                 if (!Objects.equals(config, oldConfig)) {
                     redeployApp = true;
                 }
-                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", log);
-                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", log);
+                config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", getLog());
                 if (!Objects.equals(config, oldConfig)) {
                     optimizeGenerateFeatures = true;
                 }
@@ -947,7 +947,7 @@ public class DevMojo extends LooseAppSupport {
 
                 boolean generateFeaturesSuccess = false;
                 if (optimizeGenerateFeatures && generateFeatures) {
-                    log.debug("Detected a change in the compile dependencies, regenerating features");
+                    getLog().debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
                     generateFeaturesSuccess = libertyGenerateFeatures(null, true);
                     if (generateFeaturesSuccess) {
@@ -967,7 +967,7 @@ public class DevMojo extends LooseAppSupport {
                     return true;
                 } else {
                     if (isUsingBoost() && (createServer || runBoostPackage)) {
-                        log.info("Running boost:package");
+                        getLog().info("Running boost:package");
                         runBoostMojo("package");
                     } else if (createServer) {
                         runLibertyMojoCreate();
@@ -983,15 +983,15 @@ public class DevMojo extends LooseAppSupport {
                 if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
                     // updated project set in the session
-                    log.debug("changes in the pom.xml are not monitored by dev mode");
+                    getLog().debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
             } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
-                log.error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
+                getLog().error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 if (installFeature) {
                     libertyDependencyWarning(generateFeatures, e);
                 }
-                log.debug(e);
+                getLog().debug(e);
                 project = backupProject;
                 session.setCurrentProject(backupProject);
                 return false;
@@ -1004,7 +1004,7 @@ public class DevMojo extends LooseAppSupport {
         private void libertyDependencyWarning(boolean generateFeatures, Exception e) {
             if (generateFeatures && !getEsaDependency(project.getDependencies()).isEmpty()
                     && e.getMessage().contains(InstallFeatureUtil.CONFLICT_MESSAGE)) {
-                log.warn(GEN_FEAT_LIBERTY_DEP_WARNING);
+                getLog().warn(GEN_FEAT_LIBERTY_DEP_WARNING);
             }
         }
 
@@ -1022,13 +1022,13 @@ public class DevMojo extends LooseAppSupport {
                         Set<String> existingFeaturesCopy = new HashSet<String>(existingFeatures);
                         existingFeaturesCopy.removeAll(featuresCopy);
                         if (!existingFeaturesCopy.isEmpty()) {
-                            log.info("Configuration features have been removed: " + existingFeaturesCopy);
+                            getLog().info("Configuration features have been removed: " + existingFeaturesCopy);
                         }
                     }
 
                     // check if features have been added and install new features
                     if (!features.isEmpty()) {
-                        log.info("Configuration features have been added: " + features);
+                        getLog().info("Configuration features have been added: " + features);
                         // pass all new features to install-feature as backup in case the serverDir cannot be accessed
                         Element[] featureElems = new Element[features.size() + 1];
                         featureElems[0] = element(name("acceptLicense"), "true");
@@ -1040,7 +1040,7 @@ public class DevMojo extends LooseAppSupport {
                     }
                 }
             } catch (MojoExecutionException e) {
-                log.error("Failed to install features from configuration file", e);
+                getLog().error("Failed to install features from configuration file", e);
                 libertyDependencyWarning(generateFeatures, e);
             }
         }
@@ -1076,7 +1076,7 @@ public class DevMojo extends LooseAppSupport {
                 }
                 return true;
             } catch (MojoExecutionException e) {
-                log.error("Unable to compile", e);
+                getLog().error("Unable to compile", e);
                 return false;
             }
         }
@@ -1095,7 +1095,7 @@ public class DevMojo extends LooseAppSupport {
                 }
                 return true;
             } catch (MojoExecutionException e) {
-                log.error("Unable to compile", e);
+                getLog().error("Unable to compile", e);
                 return false;
             }
         }
@@ -1161,18 +1161,18 @@ public class DevMojo extends LooseAppSupport {
     }
 
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping dev goal.\n");
             return;
         }
 
         String mvnVersion = runtime.getMavenVersion();
-        log.debug("Maven version: " + mvnVersion);
+        getLog().debug("Maven version: " + mvnVersion);
         // Maven 3.8.2 and 3.8.3 contain a bug where compile artifacts are not resolved
         // correctly in threads. Block dev mode from running on these versions
         if (mvnVersion.equals("3.8.2") || mvnVersion.equals("3.8.3")) {
-            throw new PluginExecutionException("Detected Maven version " + mvnVersion
+            throw new MojoExecutionException("Detected Maven version " + mvnVersion
                     + ". This version is not supported for dev mode. Upgrade to Maven 3.8.4 or higher to use dev mode.");
         }
 
@@ -1191,13 +1191,13 @@ public class DevMojo extends LooseAppSupport {
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
 
             if (!downstreamProjects.isEmpty()) {
-                log.debug("Downstream projects: " + downstreamProjects);
+                getLog().debug("Downstream projects: " + downstreamProjects);
                 if (isEar) {
                     runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     getOrCreateEarArtifact(project);
                 } else if (project.getPackaging().equals("pom")) {
-                    log.debug("Skipping compile/resources on module with pom packaging type");
+                    getLog().debug("Skipping compile/resources on module with pom packaging type");
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     runCompileMojoLogWarning();
@@ -1224,12 +1224,12 @@ public class DevMojo extends LooseAppSupport {
         if (recompileDependencies == null) {
             if (upstreamMavenProjects.isEmpty()) {
                 // single module project default to false
-                log.debug(
+                getLog().debug(
                         "The recompileDependencies parameter was not explicitly set. The default value -DrecompileDependencies=false will be used.");
                 recompileDependencies = "false";
             } else {
                 // multi module project default to true
-                log.debug(
+                getLog().debug(
                         "The recompileDependencies parameter was not explicitly set. The default value for multi module projects -DrecompileDependencies=true will be used.");
                 recompileDependencies = "true";
             }
@@ -1237,12 +1237,12 @@ public class DevMojo extends LooseAppSupport {
         boolean recompileDeps = Boolean.parseBoolean(recompileDependencies);
         if (recompileDeps) {
             if (!upstreamMavenProjects.isEmpty()) {
-                log.info("The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.");
+                getLog().info("The recompileDependencies parameter is set to \"true\". On a file change all dependent modules will be recompiled.");
             } else {
-                log.info("The recompileDependencies parameter is set to \"true\". On a file change the entire project will be recompiled.");
+                getLog().info("The recompileDependencies parameter is set to \"true\". On a file change the entire project will be recompiled.");
             }
         } else {
-            log.info("The recompileDependencies parameter is set to \"false\". On a file change only the affected classes will be recompiled.");
+            getLog().info("The recompileDependencies parameter is set to \"false\". On a file change only the affected classes will be recompiled.");
         }
 
         // Check if this is a Boost application
@@ -1269,7 +1269,7 @@ public class DevMojo extends LooseAppSupport {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
         } else if (project.getPackaging().equals("pom")) {
-            log.debug("Skipping compile/resources on module with pom packaging type");
+            getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runCompileMojoLogWarning();
@@ -1286,13 +1286,13 @@ public class DevMojo extends LooseAppSupport {
         ArrayList<File> javaTestFiles = new ArrayList<File>();
         listFiles(testSourceDirectory, javaTestFiles, ".java");
 
-        log.debug("Source directory: " + sourceDirectory);
-        log.debug("Output directory: " + outputDirectory);
-        log.debug("Test Source directory: " + testSourceDirectory);
-        log.debug("Test Output directory: " + testOutputDirectory);
+        getLog().debug("Source directory: " + sourceDirectory);
+        getLog().debug("Output directory: " + outputDirectory);
+        getLog().debug("Test Source directory: " + testSourceDirectory);
+        getLog().debug("Test Output directory: " + testOutputDirectory);
 
         if (isUsingBoost()) {
-            log.info("Running boost:package");
+            getLog().info("Running boost:package");
             runBoostMojo("package");
         } else {
             if (generateFeatures) {
@@ -1307,14 +1307,14 @@ public class DevMojo extends LooseAppSupport {
                         generatedFileCanonicalPath = new File(configDirectory,
                                 BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
                     }
-                    log.warn(
+                    getLog().warn(
                             "The source configuration directory will be modified. Features will automatically be generated in a new file: "
                                     + generatedFileCanonicalPath);
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
                     if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                         // PluginExecutionException indicates that the binary scanner jar could not be found
-                        log.error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                        getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                         generateFeatures = false;
                     } else {
                         throw new MojoExecutionException(e.getMessage()
@@ -1341,7 +1341,7 @@ public class DevMojo extends LooseAppSupport {
             if (isExplodedLooseWarApp) {
                 Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
                 if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
-                    log.warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
+                    getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
                 }
             }
         }
@@ -1378,7 +1378,7 @@ public class DevMojo extends LooseAppSupport {
 
                 Plugin libertyPlugin = getLibertyPluginForProject(p);
                 // use "dev" goal, although we don't expect the skip tests flags to be bound to any goal
-                Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "dev", log);
+                Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "dev", getLog());
                 
                 boolean upstreamSkipTests = getBooleanFlag(config, userProps, props, "skipTests");
                 boolean upstreamSkipITs = getBooleanFlag(config, userProps, props, "skipITs");
@@ -1439,7 +1439,7 @@ public class DevMojo extends LooseAppSupport {
             if (e.getMessage() != null) {
                 // a proper message is included in the exception if the server has been stopped
                 // by another process
-                log.info(e.getMessage());
+                getLog().info(e.getMessage());
             }
             return; // enter shutdown hook
         }
@@ -1539,44 +1539,44 @@ public class DevMojo extends LooseAppSupport {
                 }
             }
         } catch (IOException e) {
-            log.error("An unexpected error occurred when trying to resolve " + proj.getFile() + ": " + e.getMessage());
-            log.debug(e);
+            getLog().error("An unexpected error occurred when trying to resolve " + proj.getFile() + ": " + e.getMessage());
+            getLog().debug(e);
         }
     }
 
     private JavaCompilerOptions getMavenCompilerOptions(MavenProject currentProject) {
         Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
-        Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", log);
+        Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", getLog());
         JavaCompilerOptions compilerOptions = new JavaCompilerOptions();
 
         String showWarnings = getCompilerOption(configuration, "showWarnings", "maven.compiler.showWarnings", currentProject);
         if (showWarnings != null) {
             boolean showWarningsBoolean = Boolean.parseBoolean(showWarnings);
-            log.debug("Setting showWarnings to " + showWarningsBoolean);
+            getLog().debug("Setting showWarnings to " + showWarningsBoolean);
             compilerOptions.setShowWarnings(showWarningsBoolean);
         }
 
         String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
         if (source != null) {
-            log.debug("Setting compiler source to " + source);
+            getLog().debug("Setting compiler source to " + source);
             compilerOptions.setSource(source);
         }
 
         String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
         if (target != null) {
-            log.debug("Setting compiler target to " + target);
+            getLog().debug("Setting compiler target to " + target);
             compilerOptions.setTarget(target);
         }
 
         String release = getCompilerOption(configuration, "release", "maven.compiler.release", currentProject);
         if (release != null) {
-            log.debug("Setting compiler release to " + release);
+            getLog().debug("Setting compiler release to " + release);
             compilerOptions.setRelease(release);
         }
 
         String encoding = getCompilerOption(configuration, "encoding", "project.build.sourceEncoding", currentProject);
         if (encoding != null) {
-            log.debug("Setting compiler encoding to " + encoding);
+            getLog().debug("Setting compiler encoding to " + encoding);
             compilerOptions.setEncoding(encoding);
         }
 
@@ -1637,9 +1637,9 @@ public class DevMojo extends LooseAppSupport {
                 }
             }
         } catch (ProjectBuildingException | IOException e) {
-            log.error("An unexpected error occurred when trying to run integration tests for "
+            getLog().error("An unexpected error occurred when trying to run integration tests for "
                     + buildFile.getAbsolutePath() + ": " + e.getMessage());
-            log.debug(e);
+            getLog().debug(e);
         }
         return currentProject;
     }
@@ -1647,7 +1647,7 @@ public class DevMojo extends LooseAppSupport {
     private void runTestMojo(String groupId, String artifactId, String goal, MavenProject project)
             throws MojoExecutionException {
         Plugin plugin = getPluginForProject(groupId, artifactId, project);
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
 
         // check if this is a project module or main module
         if (util.isMultiModuleProject()) {
@@ -1664,9 +1664,9 @@ public class DevMojo extends LooseAppSupport {
                     injectClasspathElements(config, testArtifacts, project.getTestClasspathElements());
                 }
             } catch (IOException | DependencyResolutionRequiredException e) {
-                log.error(
+                getLog().error(
                         "Unable to resolve test artifact paths for " + project.getFile() + ". Restart dev mode to ensure classpaths are properly resolved.");
-                log.debug(e);
+                getLog().debug(e);
             }
         }
 
@@ -1685,19 +1685,19 @@ public class DevMojo extends LooseAppSupport {
                 summaryFile = new File(project.getBuild().getDirectory(), "failsafe-reports/failsafe-summary.xml");
             }
             try {
-                log.debug("Looking for summary file at " + summaryFile.getCanonicalPath());
+                getLog().debug("Looking for summary file at " + summaryFile.getCanonicalPath());
             } catch (IOException e) {
-                log.debug("Unable to resolve summary file " + e.getMessage());
+                getLog().debug("Unable to resolve summary file " + e.getMessage());
             }
             if (summaryFile.exists()) {
                 boolean deleteResult = summaryFile.delete();
-                log.debug("Summary file deleted? " + deleteResult);
+                getLog().debug("Summary file deleted? " + deleteResult);
             } else {
-                log.debug("Summary file doesn't exist");
+                getLog().debug("Summary file doesn't exist");
             }
         } else if (goal.equals("failsafe-report-only")) {
             Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin", project);
-            Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", log);
+            Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test", getLog());
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (failsafeConfig != null) {
                 Xpp3Dom reportsDirectoryElement = failsafeConfig.getChild("reportsDirectory");
@@ -1715,7 +1715,7 @@ public class DevMojo extends LooseAppSupport {
             config.addChild(linkXRef);
         } else if (goal.equals("report-only")) {
             Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin", project);
-            Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", log);
+            Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", getLog());
             Xpp3Dom linkXRef = new Xpp3Dom("linkXRef");
             if (surefireConfig != null) {
                 Xpp3Dom reportsDirectoryElement = surefireConfig.getChild("reportsDirectory");
@@ -1733,7 +1733,7 @@ public class DevMojo extends LooseAppSupport {
             config.addChild(linkXRef);
         }
 
-        log.debug("POM file: " + project.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
+        getLog().debug("POM file: " + project.getFile() + "\n" + groupId + ":" + artifactId + " " + goal
                 + " configuration:\n" + config);
         MavenSession tempSession = session.clone();
         tempSession.setCurrentProject(project);
@@ -1821,12 +1821,12 @@ public class DevMojo extends LooseAppSupport {
         }
     }
 
-    private void runBoostMojo(String goal) throws MojoExecutionException, ProjectBuildingException {
+    private void runBoostMojo(String goal) throws MojoExecutionException {
 
         MavenProject boostProject = this.project;
         MavenSession boostSession = this.session;
 
-        log.debug("plugin version: " + boostPlugin.getVersion());
+        getLog().debug("plugin version: " + boostPlugin.getVersion());
         executeMojo(boostPlugin, goal(goal), configuration(),
                 executionEnvironment(boostProject, boostSession, pluginManager));
 
@@ -1853,7 +1853,7 @@ public class DevMojo extends LooseAppSupport {
      * logged as warning messages
      * 
      * @param goal         Maven compile goal
-     * @param MavenProject Maven project to run compile goal against, null if
+     * @param mavenProject Maven project to run compile goal against, null if
      *                     default project is to be used
      * @throws MojoExecutionException
      */
@@ -1862,10 +1862,10 @@ public class DevMojo extends LooseAppSupport {
         MavenSession tempSession = session.clone();
         tempSession.setCurrentProject(mavenProject);
         MavenProject tempProject = mavenProject;
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
-        log.info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
-        log.debug("configuration:\n" + config);
+        getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
+        getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
     }
 
@@ -1926,7 +1926,7 @@ public class DevMojo extends LooseAppSupport {
     @Override
     protected void runLibertyMojoCreate() throws MojoExecutionException {
         if (container) {
-            log.debug("runLibertyMojoCreate check for installDirectory and serverDirectory");
+            getLog().debug("runLibertyMojoCreate check for installDirectory and serverDirectory");
             if (!installDirectory.isDirectory()) {
                 installDirectory.mkdirs();
             }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
@@ -37,7 +38,7 @@ public class PrepareFeatureMojo extends PrepareFeatureSupport {
 	
 	
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping prepare-feature goal.\n");
             return;

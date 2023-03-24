@@ -27,6 +27,8 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -53,7 +55,7 @@ import static java.util.Objects.requireNonNull;
  * Liberty Abstract Mojo Support
  * 
  */
-public abstract class AbstractLibertySupport extends MojoSupport {
+public abstract class AbstractLibertySupport extends AbstractMojo {
     /**
      * Maven Project
      */
@@ -98,8 +100,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return repoSession;
     }
 
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        super.init();
+    AbstractLibertySupport() throws MojoExecutionException, MojoFailureException {
         // Initialize ant helper instance
         ant.setProject(getProject());
     }
@@ -151,7 +152,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    @Override
     protected Artifact getArtifact(final ArtifactItem item) throws MojoExecutionException {
         Artifact artifact = getResolvedArtifact(item);
 
@@ -304,7 +304,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 resolvedDependencies.add(artifact);
                 findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
             } else {
-                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", version "+version+", type "+type+" and classifier "+classifier+" in configured repositories.");
+                getLog().warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+", version "+version+", type "+type+" and classifier "+classifier+" in configured repositories.");
             }
         } else {
             Set<Artifact> artifacts = getProject().getArtifacts();
@@ -338,7 +338,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                     }
                     // Ignore test-scoped artifacts, by design
                     if (!"test".equals(projectArtifact.getScope())) {
-                        log.debug("Found resolved dependency from project dependencies: " + projectArtifact.getGroupId() + ":"
+                        getLog().debug("Found resolved dependency from project dependencies: " + projectArtifact.getGroupId() + ":"
                             + projectArtifact.getArtifactId() + ":" + projectArtifact.getVersion());
                         resolvedDependencies.add(projectArtifact);
                         findTransitiveDependencies(projectArtifact, getProject().getArtifacts(), resolvedDependencies);
@@ -356,7 +356,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                         Artifact artifact = getArtifact(item);
                         // Ignore test-scoped artifacts, by design
                         if (!"test".equals(artifact.getScope())) {
-                            log.debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
+                            getLog().debug("Found resolved dependency from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
                             resolvedDependencies.add(artifact);
                             findTransitiveDependencies(artifact, getProject().getArtifacts(), resolvedDependencies);
@@ -367,7 +367,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
 
             if (resolvedDependencies.isEmpty()) {
                 // No matching artifacts were found in the resolved dependencies. Send warning.
-                log.warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+" of any version in either project dependencies or in project dependencyManagement (note test-scoped dependencies are excluded).");
+                getLog().warn("Unable to find artifact matching groupId "+ groupId +", artifactId "+artifactId+" of any version in either project dependencies or in project dependencyManagement (note test-scoped dependencies are excluded).");
             }
         }
 
@@ -459,7 +459,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             if (!artifact.equals(resolvedArtifact) && (!isProvidedScope || isProvidedScopeAllowed)) {
                 List<String> depTrail = artifact.getDependencyTrail();
                 if (dependencyTrailContainsArtifact(coords, resolvedArtifact.getVersion(), depTrail)) {
-                    log.info("Adding transitive dependency with scope: "+artifact.getScope()+" and GAV: "+artifact.getGroupId()+":"+artifact.getArtifactId()+":"+artifact.getVersion());
+                    getLog().info("Adding transitive dependency with scope: "+artifact.getScope()+" and GAV: "+artifact.getGroupId()+":"+artifact.getArtifactId()+":"+artifact.getVersion());
                     resolvedDependencies.add(artifact);
                 }
             }
@@ -484,7 +484,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    @Override
     protected Artifact createArtifact(final ArtifactItem item) throws MojoExecutionException {
         assert item != null;
         
@@ -512,7 +511,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             if (artifact.getGroupId().equals(item.getGroupId()) && 
                 artifact.getArtifactId().equals(item.getArtifactId()) && 
                 artifact.getType().equals(item.getType())) {
-                log.debug("Found ArtifactItem from project dependencies: " + artifact.getGroupId() + ":"
+                getLog().debug("Found ArtifactItem from project dependencies: " + artifact.getGroupId() + ":"
                         + artifact.getArtifactId() + ":" + artifact.getVersion());
                 // if (!artifact.getVersion().equals(item.getVersion())) {
                 // item.setVersion(artifact.getVersion());
@@ -520,8 +519,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 return artifact;
             }
         }
-        
-        log.debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
+
+        getLog().debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
                 + " is not found from project dependencies.");
         return null;
     }
@@ -535,13 +534,13 @@ public abstract class AbstractLibertySupport extends MojoSupport {
                 if (dependency.getGroupId().equals(item.getGroupId()) && 
                     dependency.getArtifactId().equals(item.getArtifactId()) && 
                     dependency.getType().equals(item.getType())) {
-                    log.debug("Found ArtifactItem from project dependencyManagement " + dependency.getGroupId() + ":"
+                    getLog().debug("Found ArtifactItem from project dependencyManagement " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + ":" + dependency.getVersion());
                     return dependency;
                 }
             }
         }
-        log.debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
+        getLog().debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
                 + " is not found from project dependencyManagement.");
         return null;
     }
@@ -567,7 +566,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             	artifact.setFile(artifactFile);
             }   
             artifact.setResolved(true);
-            log.debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
+            getLog().debug(item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()
                     + " is resolved from project repositories.");
         } else {
             getLog().warn("Artifact " + item.getGroupId() + ":" + item.getArtifactId() + ":" + item.getVersion()

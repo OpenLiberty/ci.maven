@@ -76,7 +76,7 @@ import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 /**
  * Start/Debug server support.
  */
-public class StartDebugMojoSupport extends ServerFeatureSupport {
+public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
     private static final String LIBERTY_MAVEN_PLUGIN_GROUP_ID = "io.openliberty.tools";
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
@@ -185,9 +185,9 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     
     protected void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
-        log.info("Running " + artifactId + ":" + goal);
-        log.debug("configuration:\n" + config);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+        getLog().info("Running " + artifactId + ":" + goal);
+        getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
@@ -200,13 +200,13 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
      */
     protected void runExplodedMojo() throws MojoExecutionException {
         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-        Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", log);
+        Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", getLog());
         
         if (validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
             explodedConfig.addChild(element(name("outdatedCheckPath"), "WEB-INF").toDom());
         }
-        log.info("Running maven-war-plugin:exploded");
-        log.debug("configuration:\n" + explodedConfig);
+        getLog().info("Running maven-war-plugin:exploded");
+        getLog().debug("configuration:\n" + explodedConfig);
         session.getRequest().setStartTime(new Date());
         executeMojo(warPlugin, goal("exploded"), explodedConfig, executionEnvironment(project, session, pluginManager));
     }
@@ -214,9 +214,9 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     protected void runMojoForProject(String groupId, String artifactId, String goal, MavenProject project)
             throws MojoExecutionException {
         Plugin plugin = getPluginForProject(groupId, artifactId, project);
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
-        log.info("Running " + artifactId + ":" + goal + " on " + project.getFile());
-        log.debug("configuration:\n" + config);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+        getLog().info("Running " + artifactId + ":" + goal + " on " + project.getFile());
+        getLog().debug("configuration:\n" + config);
         MavenSession tempSession = session.clone();
         tempSession.setCurrentProject(project);
         executeMojo(plugin, goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
@@ -274,7 +274,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         String version = null;
         if (plugin != null && plugin.getPlugin() != null) {
             version = plugin.getVersion();
-            log.debug("Setting plugin version to " + version);
+            getLog().debug("Setting plugin version to " + version);
         }
         Plugin projectPlugin = currentProject.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (projectPlugin == null) {
@@ -304,7 +304,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     protected void runLibertyMojoCreate() throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "create", log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "create", getLog());
         runLibertyMojo("create", config);
     }
 
@@ -313,11 +313,11 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
     
     protected void runLibertyMojoDeploy(boolean forceLooseApp) throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "deploy", log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "deploy", getLog());
         if(forceLooseApp) {
             Xpp3Dom looseApp = config.getChild("looseApplication");
             if (looseApp != null && "false".equals(looseApp.getValue())) {
-                log.warn("Overriding liberty plugin parameter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
+                getLog().warn("Overriding liberty plugin parameter, \"looseApplication\" to \"true\" and deploying application in looseApplication format");
                 looseApp.setValue("true");
             }
         }
@@ -330,7 +330,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     protected void runLibertyMojoInstallFeature(Element features, File serverDir, String containerName) throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "install-feature", getLog());
         if (features != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(features), config);
         }
@@ -341,7 +341,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             try {
                 config.addChild(element(name("serverDir"), serverDir.getCanonicalPath()).toDom());
             } catch (IOException e) {
-                log.warn("Unable to pass 'serverDir' configuration parameter to liberty:install-feature: "
+                getLog().warn("Unable to pass 'serverDir' configuration parameter to liberty:install-feature: "
                         + serverDir);
             }
         }
@@ -349,7 +349,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", getLog());
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
@@ -358,8 +358,8 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
-        log.info("Running liberty:" + goal);
-        log.debug("configuration:\n" + config);
+        getLog().info("Running liberty:" + goal);
+        getLog().debug("configuration:\n" + config);
         executeMojo(getLibertyPlugin(), goal(goal), config,
                 executionEnvironment(project, session, pluginManager));
     }
@@ -386,7 +386,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             String dftLocationPath = dftLocationFile.getCanonicalPath();
 
             if (!deps.isEmpty()) {      
-                log.debug("copyDependencies to location: "+dftLocationPath);
+                getLog().debug("copyDependencies to location: "+dftLocationPath);
             }
 
             for (Dependency dep : deps) {
@@ -398,9 +398,9 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             for (DependencyGroup depGroup : depGroups) {
                 String overrideLocation = depGroup.getLocation();
                 if (overrideLocation != null) {
-                    log.debug("copyDependencies to location: "+ overrideLocation);
+                    getLog().debug("copyDependencies to location: "+ overrideLocation);
                 } else {
-                    log.debug("copyDependencies to location: "+dftLocationPath);
+                    getLog().debug("copyDependencies to location: "+dftLocationPath);
                 }
                 boolean stripVersion = defaultStripVersion;
                 Boolean overrideStripVersion = depGroup.getStripVersion();
@@ -433,7 +433,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
                 overrideLocationFile.mkdirs();
             } else if (!overrideLocationFile.isDirectory()) {
                 // send config error
-                log.warn("The specified dependency location "+ overrideLocationFile.getCanonicalPath() +" is not a directory. Using default copyDependencies location "+ defaultLocation +" instead.");
+                getLog().warn("The specified dependency location "+ overrideLocationFile.getCanonicalPath() +" is not a directory. Using default copyDependencies location "+ defaultLocation +" instead.");
                 location = defaultLocation;
             }
         }
@@ -454,7 +454,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             sb.append(" and type "+dep.getType());
             sb.append(". No matching resolved dependencies were found.");
 
-            log.warn(sb.toString());
+            getLog().warn(sb.toString());
         } else {
             for (Artifact nextArtifact : artifactsToCopy) {
                 File nextFile = nextArtifact.getFile();
@@ -471,7 +471,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
                 copy.setOverwrite(true);
                 copy.execute();
 
-                log.info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
+                getLog().info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
             }
         }
     }
@@ -530,7 +530,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         // copy server.xml file to server directory if end-user explicitly set it.
         if (serverXmlFile != null && serverXmlFile.exists()) {
             if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
-                log.warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
+                getLog().warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(serverXmlFile);
@@ -545,19 +545,19 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         if (optionsFile.exists() && jvmOptionsPath == null) {
             // if using pre-existing installation, do not delete file
             if (installType != InstallType.ALREADY_EXISTS) {
-                log.warn(optionsFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                getLog().warn(optionsFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 optionsFile.delete();
             }
         }
         if (jvmOptions != null || !jvmMavenProps.isEmpty()) {
             if (jvmOptionsPath != null) {
-                log.warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
+                getLog().warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
             }
             writeJvmOptions(optionsFile, jvmOptions, jvmMavenProps);
             jvmOptionsPath = "inlined configuration";
         } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
             if (jvmOptionsPath != null) {
-                log.warn("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
+                getLog().warn("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(jvmOptionsFile);
@@ -572,19 +572,19 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         if (bootstrapFile.exists() && bootStrapPropertiesPath == null) {
             // if using pre-existing installation, do not delete file
             if (installType != InstallType.ALREADY_EXISTS) {
-                log.warn(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                getLog().warn(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 bootstrapFile.delete();
             }
         } 
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
-                log.warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
+                getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
             }
             writeBootstrapProperties(bootstrapFile, bootstrapProperties, bootstrapMavenProps);
             bootStrapPropertiesPath = "inlined configuration";
         } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
             if (bootStrapPropertiesPath != null) {
-                log.warn("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
+                getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(bootstrapPropertiesFile);
@@ -606,7 +606,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
                     // Do a special case merge but ONLY if there are no other config options present
                     envPropsToWrite = mergeSpecialPropsFromInstallServerEnvIfAbsent(envMavenProps);
                 } else if (serverEnvPath != null) {
-                    log.warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
+                    getLog().warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
                 }
                 writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
@@ -622,7 +622,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML);
         if (pluginVariableConfig.exists()) {
-            log.warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
+            getLog().warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!varMavenProps.isEmpty()) {
@@ -631,7 +631,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML);
         if (pluginVariableConfig.exists()) {
-            log.warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
+            getLog().warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!defaultVarMavenProps.isEmpty()) {
@@ -640,19 +640,19 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
 
         // log info on the configuration files that get used
         if (serverXMLPath != null && !serverXMLPath.isEmpty()) {
-            log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
+            getLog().info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "server.xml", serverXMLPath));
         }
         if (jvmOptionsPath != null && !jvmOptionsPath.isEmpty()) {
-            log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
+            getLog().info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "jvm.options", jvmOptionsPath));
         }
         if (bootStrapPropertiesPath != null && !bootStrapPropertiesPath.isEmpty()) {
-            log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
+            getLog().info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "bootstrap.properties", bootStrapPropertiesPath));
         }
         if (serverEnvPath != null && !serverEnvPath.isEmpty()) {
-            log.info(MessageFormat.format(messages.getString("info.server.start.update.config"),
+            getLog().info(MessageFormat.format(messages.getString("info.server.start.update.config"),
                 "server.env", serverEnvPath));
         }
 
@@ -796,7 +796,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             if (propType != null) {
                 String suffix = key.substring(propType.getPrefix().length());
                 String value = (String) entry.getValue();
-                log.debug("Processing Liberty configuration from property with key "+key+" and value "+value);
+                getLog().debug("Processing Liberty configuration from property with key "+key+" and value "+value);
                 switch (propType) {
                     case ENV:        envMavenProps.put(suffix, value);
                                      break;
@@ -843,7 +843,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
        
                 writer.println((value != null) ? value.replace("\\", "/") : "");
                 if (value == null) {
-                    log.warn("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
+                    getLog().warn("The value of the bootstrap property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
         } finally {
@@ -866,7 +866,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
                 String value = entry.getValue();
                 writer.println((value != null) ? value.replace("\\", "/") : "");
                 if (value == null) {
-                    log.warn("The value of the server.env property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
+                    getLog().warn("The value of the server.env property " + entry.getKey() + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
         } finally {
@@ -943,9 +943,9 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
         ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
         try {
             Artifact existingEarArtifact = getArtifact(existingEarItem);
-            log.debug("EAR artifact already exists at " + existingEarArtifact.getFile());
+            getLog().debug("EAR artifact already exists at " + existingEarArtifact.getFile());
         } catch (MojoExecutionException e) {
-            log.debug("Installing empty EAR artifact to .m2 directory...");
+            getLog().debug("Installing empty EAR artifact to .m2 directory...");
             updateArtifactPathToOutputDirectory(earProject);
         }
     }
@@ -953,7 +953,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     private void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
         String goal = "install-file";
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
-        log.debug("Running maven-install-plugin:" + goal);
+        getLog().debug("Running maven-install-plugin:" + goal);
 
         File tempFile;
         try {
@@ -961,7 +961,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             tempFile.deleteOnExit();
         } catch (IOException e) {
             String module = getModuleRelativePath(earProject);
-            log.debug(e);
+            getLog().debug(e);
             throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
 
@@ -970,12 +970,12 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             element(name("pomFile"), earProject.getFile().getAbsolutePath())
         );
 
-        log.debug("configuration:\n" + config);
+        getLog().debug("configuration:\n" + config);
         try {
             executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
         } catch (MojoExecutionException e) {
             String module = getModuleRelativePath(earProject);
-            log.debug(e);
+            getLog().debug(e);
             throw new MojoExecutionException("Could not install placeholder EAR artifact for module " + module + ". Manually run the following command to resolve this issue: mvn install -pl " + module + " -am");
         }
     }
@@ -991,14 +991,14 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
     protected void purgeLocalRepositoryArtifact() throws MojoExecutionException {
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-dependency-plugin");
         String goal = "purge-local-repository";
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, log);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
         config = Xpp3Dom.mergeXpp3Dom(configuration(
             element(name("reResolve"), "false"), 
             element(name("actTransitively"), "false"), 
             element(name("manualIncludes"), project.getGroupId()+":"+project.getArtifactId())
             ), config);
-        log.info("Running maven-dependency-plugin:" + goal);
-        log.debug("configuration:\n" + config);
+        getLog().info("Running maven-dependency-plugin:" + goal);
+        getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(project, session, pluginManager));
     }
     
@@ -1036,7 +1036,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
             }
         } catch(IOException ioe) {
             // Since this is kind of a hack it seems to draw too much attention to issue a warning message here.
-            log.debug("Failure creating output directory: " + outputDir, ioe);
+            getLog().debug("Failure creating output directory: " + outputDir, ioe);
         }
     
         artifactToUpdate.setFile(outputDir.toFile());

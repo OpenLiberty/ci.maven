@@ -46,7 +46,8 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployMojo extends DeployMojoSupport {
 
-    protected void doExecute() throws Exception {
+    @Override
+    public void execute() throws MojoExecutionException {
         if (skip) {
             getLog().info("\nSkipping deploy goal.\n");
             return;
@@ -91,7 +92,7 @@ public class DeployMojo extends DeployMojoSupport {
         
         // create application configuration in configDropins if it is not configured
         if (applicationXml.hasChildElements()) {
-            log.warn(messages.getString("warn.install.app.add.configuration"));
+            getLog().warn(messages.getString("warn.install.app.add.configuration"));
             applicationXml.writeApplicationXmlDocument(serverDirectory);
         }
     }
@@ -151,7 +152,7 @@ public class DeployMojo extends DeployMojoSupport {
 
     protected void installDependencies() throws Exception {
         Set<Artifact> artifacts = project.getArtifacts();
-        log.debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
+        getLog().debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty
@@ -171,7 +172,7 @@ public class DeployMojo extends DeployMojoSupport {
                         installApp(resolveArtifact(artifact));
                     }
                 } else {
-                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                    getLog().warn(MessageFormat.format(messages.getString("error.application.not.supported"),
                             project.getId()));
                 }
             }
@@ -205,7 +206,7 @@ public class DeployMojo extends DeployMojoSupport {
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(application, proj.getArtifactId());
-                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigWar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
@@ -217,7 +218,7 @@ public class DeployMojo extends DeployMojoSupport {
                 break;
             case "ear":
                 validateAppConfig(application, proj.getArtifactId());
-                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigEar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
@@ -230,7 +231,7 @@ public class DeployMojo extends DeployMojoSupport {
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(application, proj.getArtifactId());
-                    log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                    getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config, false);
                     installAndVerifyApp(config, looseConfigFile, application);
                     if (proj.getProperties().containsKey("container")) {
@@ -240,11 +241,11 @@ public class DeployMojo extends DeployMojoSupport {
                         config.toXmlFile(devcLooseConfigFile);
                     }
                 } else {
-                    log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
+                    getLog().debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
                 break;
             default:
-                log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
+                getLog().info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
                         proj.getPackaging()));
                 installApp(proj.getArtifact());
                 break;
