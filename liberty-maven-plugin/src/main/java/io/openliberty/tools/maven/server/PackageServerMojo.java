@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.EnumSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,6 +39,10 @@ import io.openliberty.tools.ant.ServerTask;
  */
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class PackageServerMojo extends StartDebugMojoSupport {
+
+    public PackageServerMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     private enum PackageFileType {
         JAR("jar"),

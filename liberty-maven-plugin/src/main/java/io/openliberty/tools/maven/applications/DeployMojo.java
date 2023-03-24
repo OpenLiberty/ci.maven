@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
@@ -49,6 +50,10 @@ import javax.xml.transform.TransformerException;
  */
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployMojo extends DeployMojoSupport {
+
+    public DeployMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     @Override
     public void execute() throws MojoExecutionException {

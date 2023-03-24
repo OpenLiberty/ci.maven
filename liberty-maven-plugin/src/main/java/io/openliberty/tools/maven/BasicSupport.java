@@ -32,6 +32,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,7 +41,6 @@ import org.apache.tools.ant.taskdefs.Chmod;
 import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Commandline.Argument;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 
@@ -146,7 +146,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
      * be omitted.
      */
     @Parameter(alias="runtimeArtifact", property="runtimeArtifact")
-    protected ArtifactItem assemblyArtifact;
+    protected Dependency assemblyArtifact;
     
     /**
      * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
@@ -160,7 +160,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
      * be omitted.
      */
     @Parameter
-    protected ArtifactItem licenseArtifact;
+    protected Dependency licenseArtifact;
 
     /**
      * Location of customized configuration directory

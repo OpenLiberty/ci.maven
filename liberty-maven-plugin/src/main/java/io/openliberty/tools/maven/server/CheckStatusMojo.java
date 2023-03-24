@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -29,6 +30,10 @@ import io.openliberty.tools.ant.ServerTask;
  */
 @Mojo(name = "status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
+
+    public CheckStatusMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     public void execute() throws MojoExecutionException {
         if (skip) {

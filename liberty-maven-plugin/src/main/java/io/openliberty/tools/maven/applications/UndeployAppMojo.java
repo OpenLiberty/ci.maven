@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Set;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -43,7 +44,11 @@ public class UndeployAppMojo extends DeployMojoSupport {
     private static final long APP_STOP_TIMEOUT_DEFAULT = 30 * 1000;
 
     private ServerConfigDocument scd;
-    
+
+    public UndeployAppMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()

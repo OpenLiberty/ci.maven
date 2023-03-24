@@ -57,13 +57,13 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -130,6 +130,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
      */
     @Parameter( defaultValue = "${plugin}", readonly = true )
     private PluginDescriptor plugin;
+
+    public StartDebugMojoSupport() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     private enum PropertyType {
         BOOTSTRAP("liberty.bootstrap."),
@@ -479,7 +483,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     /**
      * @throws Exception
      */
-    protected void copyConfigFiles() throws IOException {
+    protected void copyConfigFiles() throws IOException, MojoExecutionException {
 
         String jvmOptionsPath = null;
         String bootStrapPropertiesPath = null;
@@ -906,19 +910,23 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
-    private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, TransformerException, ParserConfigurationException {
+    private void writeConfigDropinsServerVariables(File file, Map<String,String> props, boolean isDefaultVar) throws IOException, MojoExecutionException {
 
-        ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
+        try {
+            ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
 
-        configDocument.createComment(HEADER);
+            configDocument.createComment(HEADER);
 
-        for (Map.Entry<String, String> entry : props.entrySet()) {
-            configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), isDefaultVar);
+            for (Entry<String, String> entry : props.entrySet()) {
+                configDocument.createVariableWithValue(entry.getKey(), entry.getValue(), isDefaultVar);
+            }
+
+            // write XML document to file
+            makeParentDirectory(file);
+            configDocument.writeXMLDocument(file);
+        } catch (ParserConfigurationException | TransformerException executionException) {
+            throw new MojoExecutionException(executionException);
         }
-
-        // write XML document to file
-        makeParentDirectory(file);
-        configDocument.writeXMLDocument(file);
 
     }
 
@@ -940,7 +948,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
      * @param earProject
      */
     protected void getOrCreateEarArtifact(MavenProject earProject) {
-        ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
+        org.apache.maven.model.Dependency existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
         try {
             Artifact existingEarArtifact = getArtifact(existingEarItem);
             getLog().debug("EAR artifact already exists at " + existingEarArtifact.getFile());

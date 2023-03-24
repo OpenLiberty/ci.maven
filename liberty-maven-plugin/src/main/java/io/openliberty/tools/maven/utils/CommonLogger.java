@@ -15,13 +15,18 @@
  */
 package io.openliberty.tools.maven.utils;
 
-import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.apache.maven.plugin.logging.Log;
 
 import io.openliberty.tools.common.CommonLoggerI;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
-public class CommonLogger extends MojoSupport implements CommonLoggerI {
+/**
+ * Slf4j wrapper
+ */
+public class CommonLogger implements CommonLoggerI {
 
     private static CommonLogger logger = null;
+    private Log loggerImpl;
 
     public static CommonLogger getInstance() {
         if (logger == null) {
@@ -33,6 +38,14 @@ public class CommonLogger extends MojoSupport implements CommonLoggerI {
     @Override
     public void debug(String msg) {
         getLog().debug(msg);
+    }
+
+    public Log getLog() {
+        if (this.loggerImpl == null) {
+            this.loggerImpl = new SystemStreamLog();
+        }
+
+        return loggerImpl;
     }
 
     @Override

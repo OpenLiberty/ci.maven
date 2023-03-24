@@ -41,11 +41,17 @@
             <version>${maven.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- TODO: replace -->
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-mapping</artifactId>
+            <version>3.0.0</version>
+        </dependency>
         <!-- dependencies to annotations -->
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.4</version>
+            <version>3.2</version>
             <scope>provided</scope>            <!-- annotations are needed only to build the plugin -->
         </dependency>
         <dependency>

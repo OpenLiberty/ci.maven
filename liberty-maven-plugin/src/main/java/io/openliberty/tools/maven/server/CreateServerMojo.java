@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -50,7 +51,11 @@ public class CreateServerMojo extends PluginConfigSupport {
      */
     @Parameter(property = "noPassword", defaultValue = "false")
     private boolean noPassword;
-    
+
+    public CreateServerMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {

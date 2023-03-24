@@ -19,19 +19,17 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import io.openliberty.tools.common.plugins.util.PluginScenarioException;
-import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-import org.codehaus.plexus.interpolation.InterpolationException;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -65,6 +63,10 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
     protected File copyLibsDirectory;
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
+
+    public DeployMojoSupport() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     protected void installApp(Artifact artifact) throws MojoExecutionException, IOException {
     
@@ -429,9 +431,9 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                     MessageFormat.format(messages.getString("error.dependencies.not.found"), "springBootUtil"));
         }
 
-        Validate.notNull(fatArchiveSrcLocation, "Spring Boot source archive location cannot be null");
-        Validate.notNull(thinArchiveTargetLocation, "Target thin archive location cannot be null");
-        Validate.notNull(libIndexCacheTargetLocation, "Library cache location cannot be null");
+        Objects.requireNonNull(fatArchiveSrcLocation, "Spring Boot source archive location cannot be null");
+        Objects.requireNonNull(thinArchiveTargetLocation, "Target thin archive location cannot be null");
+        Objects.requireNonNull(libIndexCacheTargetLocation, "Library cache location cannot be null");
 
         springBootUtilTask.setInstallDir(installDirectory);
         springBootUtilTask.setTargetThinAppPath(thinArchiveTargetLocation);
@@ -440,7 +442,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         springBootUtilTask.execute();
     }
 
-    protected boolean matches(Artifact artifact, ArtifactItem assemblyArtifact) {
+    protected boolean matches(Artifact artifact, Dependency assemblyArtifact) {
         return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
                 && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
                 && artifact.getType().equals(assemblyArtifact.getType());

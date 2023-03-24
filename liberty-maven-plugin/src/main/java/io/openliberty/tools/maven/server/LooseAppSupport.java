@@ -18,6 +18,8 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.DevUtil;
@@ -27,6 +29,10 @@ import io.openliberty.tools.maven.utils.MavenProjectUtil;
  * Loose application Liberty server support.
  */
 public abstract class LooseAppSupport extends PluginConfigSupport {
+
+    public LooseAppSupport() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     // get loose application configuration file name for project artifact
     public String getLooseConfigFileName(MavenProject project) {

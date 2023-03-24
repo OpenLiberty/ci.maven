@@ -23,12 +23,10 @@ import java.util.HashSet;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -36,9 +34,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.settings.Settings;
-import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.ant.AntHelper;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -152,7 +148,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    protected Artifact getArtifact(final ArtifactItem item) throws MojoExecutionException {
+    protected Artifact getArtifact(final Dependency item) throws MojoExecutionException {
         Artifact artifact = getResolvedArtifact(item);
 
         if (artifact == null) {
@@ -175,7 +171,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    protected Artifact getResolvedArtifact(final ArtifactItem item) throws MojoExecutionException {
+    protected Artifact getResolvedArtifact(final Dependency item) throws MojoExecutionException {
         assert item != null;
         Artifact artifact = null;
         
@@ -205,7 +201,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
     }
 
     /**
-     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * Equivalent to {@link #getArtifact(Dependency)} with an ArtifactItem
      * defined by the given the coordinates. Retrieves the main artifact (i.e. with no classifier).
      *
      * <p>This is the same as calling
@@ -230,7 +226,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
     }
 
     /**
-     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * Equivalent to {@link #getArtifact(Dependency)} with an ArtifactItem
      * defined by the given the coordinates.
      * 
      * @param groupId
@@ -249,7 +245,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      *             Failed to create artifact
      */
     protected Artifact getArtifact(String groupId, String artifactId, String type, String version, String classifier ) throws MojoExecutionException {
-        ArtifactItem item = new ArtifactItem();
+        Dependency item = new Dependency();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
@@ -259,16 +255,16 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
         return getArtifact(item);
     }
 
-    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version) {
+    protected Dependency createArtifactItem(String groupId, String artifactId, String type, String version) {
         return getArtifactItem( groupId, artifactId, type, version, null );
     }
 
-    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version, String classifier) {
+    protected Dependency createArtifactItem(String groupId, String artifactId, String type, String version, String classifier) {
         return getArtifactItem( groupId, artifactId, type, version, classifier );
     }
 
-    private ArtifactItem getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
-        ArtifactItem item = new ArtifactItem();
+    private Dependency getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
+        Dependency item = new Dependency();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
@@ -333,7 +329,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
             for (Artifact projectArtifact : artifacts) {
                 if (isMatchingProjectDependency(projectArtifact, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
                     if (!projectArtifact.isResolved()) {
-                        ArtifactItem item = createArtifactItem(projectArtifact.getGroupId(), projectArtifact.getArtifactId(), projectArtifact.getType(), projectArtifact.getVersion(), projectArtifact.getClassifier());
+                        Dependency item = createArtifactItem(projectArtifact.getGroupId(), projectArtifact.getArtifactId(), projectArtifact.getType(), projectArtifact.getVersion(), projectArtifact.getClassifier());
                         projectArtifact = getArtifact(item);
                     }
                     // Ignore test-scoped artifacts, by design
@@ -352,7 +348,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
             
                 for (Dependency dependency : list) {
                     if (isMatchingProjectDependency(dependency, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
-                        ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
+                        Dependency item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
                         Artifact artifact = getArtifact(item);
                         // Ignore test-scoped artifacts, by design
                         if (!"test".equals(artifact.getScope())) {
@@ -484,7 +480,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    protected Artifact createArtifact(final ArtifactItem item) throws MojoExecutionException {
+    protected Artifact createArtifact(final Dependency item) throws MojoExecutionException {
         assert item != null;
         
         if (item.getVersion() == null) {
@@ -504,7 +500,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
         return resolveArtifactItem(item);
     }
     
-    private Artifact resolveFromProjectDependencies(ArtifactItem item) {
+    private Artifact resolveFromProjectDependencies(Dependency item) {
         Set<Artifact> actifacts = getProject().getArtifacts();
         
         for (Artifact artifact : actifacts) {
@@ -525,7 +521,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
         return null;
     }
     
-    private Dependency resolveFromProjectDepMgmt(ArtifactItem item) {
+    private Dependency resolveFromProjectDepMgmt(Dependency item) {
         // if project has dependencyManagement section
         if (getProject().getDependencyManagement() != null) {
             List<Dependency> list = getProject().getDependencyManagement().getDependencies();
@@ -545,7 +541,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
         return null;
     }
     
-    private Artifact resolveArtifactItem(final ArtifactItem item) throws MojoExecutionException {
+    private Artifact resolveArtifactItem(final Dependency item) throws MojoExecutionException {
         org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
                 item.getGroupId(), item.getArtifactId(), item.getType(), item.getVersion());
         

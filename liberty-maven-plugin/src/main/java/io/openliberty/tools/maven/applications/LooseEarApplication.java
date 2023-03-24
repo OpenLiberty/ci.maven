@@ -18,12 +18,9 @@ package io.openliberty.tools.maven.applications;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.mapping.MappingUtils;
 import org.apache.maven.project.MavenProject;
