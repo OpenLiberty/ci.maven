@@ -16,13 +16,18 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.mapping.MappingUtils;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
@@ -39,7 +44,7 @@ public class LooseEarApplication extends LooseApplication {
         this.project = project;
     }
 
-    public void addSourceDir() throws Exception {
+    public void addSourceDir() throws IOException {
         File sourceDir = new File(project.getBasedir(), "src/main/application");
         String path = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "earSourceDirectory");
@@ -49,7 +54,7 @@ public class LooseEarApplication extends LooseApplication {
         config.addDir(sourceDir, "/");
     }
 
-    public void addApplicationXmlFile() throws Exception {
+    public void addApplicationXmlFile() throws IOException {
         File applicationXmlFile = null;
         String path = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "applicationXml");
@@ -65,15 +70,15 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public Element addJarModule(MavenProject proj, Artifact artifact) throws Exception {
+    public Element addJarModule(MavenProject proj, Artifact artifact) throws MojoExecutionException, IOException {
         return addModule(proj, artifact, "maven-jar-plugin");
     }
 
-    public Element addEjbModule(MavenProject proj, Artifact artifact) throws Exception {
+    public Element addEjbModule(MavenProject proj, Artifact artifact) throws MojoExecutionException, IOException {
         return addModule(proj, artifact, "maven-ejb-plugin");
     }
 
-    public Element addModule(MavenProject proj, Artifact artifact, String pluginId) throws Exception {
+    public Element addModule(MavenProject proj, Artifact artifact, String pluginId) throws IOException, MojoExecutionException {
         File outputDirectory = new File(proj.getBuild().getOutputDirectory());
         Element moduleArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(moduleArchive, outputDirectory, "/");
@@ -82,13 +87,19 @@ public class LooseEarApplication extends LooseApplication {
 
         String mavenProjectTargetDir = proj.getBuild().getDirectory();
 
-        addManifestFileWithParent(moduleArchive, manifestFile, mavenProjectTargetDir);
-        // add meta-inf files if any
-        addMetaInfFiles(moduleArchive, outputDirectory);
-        return moduleArchive;
+        try {
+            addManifestFileWithParent(moduleArchive, manifestFile, mavenProjectTargetDir);
+            // add meta-inf files if any
+            addMetaInfFiles(moduleArchive, outputDirectory);
+            return moduleArchive;
+        } catch (Exception looseApplicationException) {
+            throw new MojoExecutionException("Problem configuring loose application", looseApplicationException);
+        }
+
+
     }
 
-    public Element addWarModule(MavenProject proj, Artifact artifact, File warSourceDir) throws Exception {
+    public Element addWarModule(MavenProject proj, Artifact artifact, File warSourceDir) throws IOException, MojoExecutionException {
         Element warArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(warArchive, warSourceDir, "/");
         config.addDir(warArchive, new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
@@ -104,11 +115,15 @@ public class LooseEarApplication extends LooseApplication {
         }
 
         // add Manifest file
-        addWarManifestFile(warArchive, artifact, proj);
-        return warArchive;
+        try {
+            addWarManifestFile(warArchive, artifact, proj);
+            return warArchive;
+        } catch (Exception javaLangException) {
+            throw new MojoExecutionException("Problem configuring war manifest", javaLangException);
+        }
     }
 
-    public Element addRarModule(MavenProject proj, Artifact artifact) throws Exception {
+    public Element addRarModule(MavenProject proj, Artifact artifact) throws MojoExecutionException, IOException {
         Element rarArchive = config.addArchive(getModuleUri(artifact));
         config.addDir(rarArchive, getRarSourceDirectory(proj), "/");
 
@@ -124,11 +139,16 @@ public class LooseEarApplication extends LooseApplication {
 
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-rar-plugin");
-        addManifestFileWithParent(rarArchive, manifestFile, mavenProjectTargetDir);
-        return rarArchive;
+        try {
+            addManifestFileWithParent(rarArchive, manifestFile, mavenProjectTargetDir);
+            return rarArchive;
+        } catch (Exception exception) {
+            throw new MojoExecutionException("Error adding manifest file" + manifestFile, exception);
+        }
+
     }
 
-    public File getRarSourceDirectory(MavenProject proj) throws Exception {
+    public File getRarSourceDirectory(MavenProject proj) {
         String dir = MavenProjectUtil.getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-rar-plugin",
                 "rarSourceDirectory");
         if (dir != null) {
@@ -138,7 +158,7 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
-    public String getModuleUri(Artifact artifact) throws Exception {
+    public String getModuleUri(Artifact artifact) throws MojoExecutionException {
         String defaultUri = "/" + getModuleName(artifact);
         // both "jar" and "bundle" packaging type project are "jar" type dependencies
         // that will be packaged in the ear lib directory
@@ -209,7 +229,7 @@ public class LooseEarApplication extends LooseApplication {
         config.addFile(artifact.getFile(), artifactName);
     }
 
-    public String getModuleName(Artifact artifact) throws Exception {
+    public String getModuleName(Artifact artifact) throws MojoExecutionException {
         int earPluginVersion = MavenProjectUtil.getMajorPluginVersion(project, "org.apache.maven.plugins:maven-ear-plugin");
         if (earPluginVersion < 3) {
             return getEarFileNameMappingHelper(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
@@ -248,16 +268,20 @@ public class LooseEarApplication extends LooseApplication {
     }
     
     // Valid for maven-ear-plugin version 3 and greater
-    public String getEarOutputFileNameMapping(Artifact artifact) throws Exception {
+    public String getEarOutputFileNameMapping(Artifact artifact) throws MojoExecutionException {
         String outputFileNameMapping = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
             "maven-ear-plugin", "outputFileNameMapping");
-        String fileNameMapping = MappingUtils.evaluateFileNameMapping( outputFileNameMapping, artifact );
-        if (fileNameMapping == null || fileNameMapping.isEmpty()) {
-            // default format if none is specified
-            String defaultFormat = "@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@";
-            fileNameMapping = MappingUtils.evaluateFileNameMapping( defaultFormat, artifact );
+        try {
+            String fileNameMapping = MappingUtils.evaluateFileNameMapping( outputFileNameMapping, artifact );
+            if (fileNameMapping == null || fileNameMapping.isEmpty()) {
+                // default format if none is specified
+                String defaultFormat = "@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@";
+                fileNameMapping = MappingUtils.evaluateFileNameMapping( defaultFormat, artifact );
+            }
+            return fileNameMapping;
+        } catch (InterpolationException interpolationException)  {
+            throw new MojoExecutionException("Error getting EarOutputFileNameMapping for artifact " + artifact, interpolationException);
         }
-        return fileNameMapping;
     }
 
     // Deprecated for maven-ear-plugin version 3 and greater

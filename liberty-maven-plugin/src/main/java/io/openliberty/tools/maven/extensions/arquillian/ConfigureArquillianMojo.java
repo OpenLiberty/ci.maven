@@ -61,9 +61,8 @@ public class ConfigureArquillianMojo extends BasicSupport {
     @Parameter(property = "skipIfArquillianXmlExists", defaultValue = "false")
     protected boolean skipIfArquillianXmlExists = false;
 
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        super.init();
+    public ConfigureArquillianMojo() throws MojoExecutionException, MojoFailureException {
+        super();
     }
 
     @Override

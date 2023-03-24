@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,18 +50,27 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
             return;
         }
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException javaIoIOException) {
+                throw new MojoExecutionException(javaIoIOException);
+            }
         } else {
             getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
             checkServerDirectoryExists();
         }
 
-        ServerTask serverTask = initializeJava();
-        copyConfigFiles();
-        serverTask.setOperation("javadump");
-        serverTask.setInclude(generateInclude());
-        serverTask.execute();
+        try {
+            ServerTask serverTask = initializeJava();
+            copyConfigFiles();
+            serverTask.setOperation("javadump");
+            serverTask.setInclude(generateInclude());
+            serverTask.execute();
+        } catch (IOException ioException) {
+            throw new MojoExecutionException(ioException);
+        }
+
     }
     
     private String generateInclude() {

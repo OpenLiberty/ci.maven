@@ -364,7 +364,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 executionEnvironment(project, session, pluginManager));
     }
 
-    private void copyDependencies() throws Exception {
+    private void copyDependencies() throws IOException, MojoExecutionException {
         if (copyDependencies != null) {
             List<Dependency> deps = copyDependencies.getDependencies();
             boolean defaultStripVersion = copyDependencies.isStripVersion();
@@ -416,7 +416,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
-    private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws Exception {
+    private void copyDependencies(Dependency dep, String overrideLocation, String defaultLocation, boolean stripVersion) throws IOException, MojoExecutionException {
 
         String location = defaultLocation;
 
@@ -479,7 +479,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     /**
      * @throws Exception
      */
-    protected void copyConfigFiles() throws Exception {
+    protected void copyConfigFiles() throws IOException {
 
         String jvmOptionsPath = null;
         String bootStrapPropertiesPath = null;

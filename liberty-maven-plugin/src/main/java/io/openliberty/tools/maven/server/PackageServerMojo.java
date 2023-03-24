@@ -137,8 +137,20 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             return;
         }
 
+        try {
+            doPackage();
+        } catch (IOException javaIoIOException) {
+            throw new MojoExecutionException(javaIoIOException);
+        }
+    }
+
+    private void doPackage() throws MojoExecutionException, IOException {
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException javaIoIOException) {
+                throw new MojoExecutionException(javaIoIOException);
+            }
         } else {
             getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();

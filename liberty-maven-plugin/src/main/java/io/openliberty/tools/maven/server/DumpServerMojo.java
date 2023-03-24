@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -62,19 +63,27 @@ public class DumpServerMojo extends StartDebugMojoSupport {
             return;
         }
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException javaIoIOException) {
+                throw new MojoExecutionException(javaIoIOException);
+            }
         } else {
             getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
             checkServerDirectoryExists();
         }
 
-        ServerTask serverTask = initializeJava();
-        copyConfigFiles();
-        serverTask.setOperation("dump");
-        serverTask.setArchive(archive);
-        serverTask.setInclude(generateInclude());
-        serverTask.execute();
+        try {
+            ServerTask serverTask = initializeJava();
+            copyConfigFiles();
+            serverTask.setOperation("dump");
+            serverTask.setArchive(archive);
+            serverTask.setInclude(generateInclude());
+            serverTask.execute();
+        } catch (IOException ioException) {
+            throw new MojoExecutionException("unable to copy server config files", ioException);
+        }
     }
     
     private String generateInclude() {

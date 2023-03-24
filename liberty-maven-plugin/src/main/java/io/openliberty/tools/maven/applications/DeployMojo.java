@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,9 @@ import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 /**
  * Copy applications to the specified directory of the Liberty server. 
  * The ResolutionScope.COMPILE_PLUS_RUNTIME includes compile + system + provided + runtime dependencies. 
@@ -52,19 +56,28 @@ public class DeployMojo extends DeployMojoSupport {
             getLog().info("\nSkipping deploy goal.\n");
             return;
         }
+
+        try {
+            doDeploy();
+        } catch (IOException | ParserConfigurationException | TransformerException ioException) {
+            throw new MojoExecutionException(ioException);
+        }
+    }
+
+    private void doDeploy() throws IOException, MojoExecutionException, TransformerException, ParserConfigurationException {
         checkServerHomeExists();
         checkServerDirectoryExists();
-        
+
         // Delete our generated configDropins XML (a new one will be generated if necessary)
         cleanupPreviousExecution();
 
         // update target server configuration
         copyConfigFiles();
         exportParametersToXml();
-        
+
         boolean installDependencies = false;
         boolean installProject = false;
-                
+
         switch (getDeployPackages()) {
             case "all":
                 installDependencies = true;
@@ -75,21 +88,21 @@ public class DeployMojo extends DeployMojoSupport {
                 break;
             case "project":
                 installProject = true;
-                break;              
+                break;
             case "spring-boot-project":
                 installSpringBootApp();
                 break;
             default:
                 return;
         }
-              
+
         if (installDependencies) {
             installDependencies();
         }
         if (installProject) {
             installProject();
         }
-        
+
         // create application configuration in configDropins if it is not configured
         if (applicationXml.hasChildElements()) {
             getLog().warn(messages.getString("warn.install.app.add.configuration"));
@@ -97,7 +110,7 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
 
-    private void installSpringBootApp() throws Exception {
+    private void installSpringBootApp() throws IOException, MojoExecutionException {
         if (!SpringBootUtil.doesSpringBootRepackageGoalExecutionExist(project)) {
             throw new MojoExecutionException("The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.");
         }
@@ -150,7 +163,7 @@ public class DeployMojo extends DeployMojoSupport {
         return libIndexCacheTarget;
     }
 
-    protected void installDependencies() throws Exception {
+    protected void installDependencies() throws MojoExecutionException, IOException {
         Set<Artifact> artifacts = project.getArtifacts();
         getLog().debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
@@ -179,7 +192,7 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
     
-    protected void installProject() throws Exception {
+    protected void installProject() throws MojoExecutionException, IOException {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
                 installLooseApplication(project);
@@ -192,7 +205,7 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
 
-    private void installLooseApplication(MavenProject proj) throws Exception {
+    private void installLooseApplication(MavenProject proj) throws IOException, MojoExecutionException {
         String looseConfigFileName = getLooseConfigFileName(proj);
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         File destDir = new File(serverDirectory, getAppsDirectory());
@@ -201,7 +214,7 @@ public class DeployMojo extends DeployMojoSupport {
         File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER), getAppsDirectory());
         File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
 
-        LooseConfigData config = new LooseConfigData();
+        LooseConfigData config = createLooseConfigData();
 
         switch (proj.getPackaging()) {
             case "war":
@@ -211,9 +224,13 @@ public class DeployMojo extends DeployMojoSupport {
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
                     // install another copy that is container specific
-                    config = new LooseConfigData();
+                    config = createLooseConfigData();
                     installLooseConfigWar(proj, config, true);
-                    config.toXmlFile(devcLooseConfigFile);
+                    try {
+                        config.toXmlFile(devcLooseConfigFile);
+                    } catch (Exception xmlException) {
+                        throw new MojoExecutionException("Error writing XML file " + devcLooseConfigFile + " from config " + config, xmlException);
+                    }
                 }
                 break;
             case "ear":
@@ -223,9 +240,13 @@ public class DeployMojo extends DeployMojoSupport {
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
                     // install another copy that is container specific
-                    config = new LooseConfigData();
+                    config = createLooseConfigData();
                     installLooseConfigEar(proj, config, true);
-                    config.toXmlFile(devcLooseConfigFile);
+                    try {
+                        config.toXmlFile(devcLooseConfigFile);
+                    } catch (Exception xmlException) {
+                        throw new MojoExecutionException("Error writing XML file " + devcLooseConfigFile + " from config " + config, xmlException);
+                    }
                 }
                 break;
             case "liberty-assembly":
@@ -236,9 +257,13 @@ public class DeployMojo extends DeployMojoSupport {
                     installAndVerifyApp(config, looseConfigFile, application);
                     if (proj.getProperties().containsKey("container")) {
                         // install another copy that is container specific
-                        config = new LooseConfigData();
+                        config = createLooseConfigData();
                         installLooseConfigWar(proj, config, true);
-                        config.toXmlFile(devcLooseConfigFile);
+                        try {
+                            config.toXmlFile(devcLooseConfigFile);
+                        } catch (Exception xmlException) {
+                            throw new MojoExecutionException("Error writing XML file " + devcLooseConfigFile + " from config " + config, xmlException);
+                        }
                     }
                 } else {
                     getLog().debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
@@ -252,10 +277,24 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
 
-    private void installAndVerifyApp(LooseConfigData config, File looseConfigFile, String applicationName) throws Exception {
+    private static LooseConfigData createLooseConfigData() throws MojoExecutionException {
+        try {
+            return new LooseConfigData();
+        } catch (ParserConfigurationException parserConfigurationException) {
+            throw new MojoExecutionException("unable to create new LooseConfigData", parserConfigurationException);
+        }
+    }
+
+    private void installAndVerifyApp(LooseConfigData config, File looseConfigFile, String applicationName) throws IOException, MojoExecutionException {
         deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
         deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-        config.toXmlFile(looseConfigFile);
+
+        try {
+            config.toXmlFile(looseConfigFile);
+        } catch (Exception xmlException) {
+            throw new MojoExecutionException("error writing xml file " + looseConfigFile + " from config " + config, xmlException);
+        }
+
         //Only checks if server is running
         verifyAppStarted(applicationName);
     }

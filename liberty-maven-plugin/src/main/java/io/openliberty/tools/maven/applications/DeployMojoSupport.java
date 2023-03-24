@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
@@ -30,6 +31,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.codehaus.plexus.interpolation.InterpolationException;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -64,7 +66,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
 
-    protected void installApp(Artifact artifact) throws Exception {
+    protected void installApp(Artifact artifact) throws MojoExecutionException, IOException {
     
         if (artifact.getFile() == null || artifact.getFile().isDirectory()) {
             String appFileName = getPreDeployAppFileName(project);
@@ -127,7 +129,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
     }
 
     // install war project artifact using loose application configuration file
-    protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
+    protected void installLooseConfigWar(MavenProject proj, LooseConfigData config, boolean container) throws MojoExecutionException, IOException {
         // return error if webapp contains java source but it is not compiled yet.
         File dir = new File(proj.getBuild().getOutputDirectory());
         if (!dir.exists() && containsJavaSource(proj)) {
@@ -193,11 +195,15 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
-        looseWar.addManifestFile(manifestFile);
+        try {
+            looseWar.addManifestFile(manifestFile);
+        } catch (Exception javaLangException) {
+            throw new MojoExecutionException("Error adding manifest file " + manifestFile, javaLangException);
+        }
     }
 
     // install ear project artifact using loose application configuration file
-    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config, boolean container) throws Exception {
+    protected void installLooseConfigEar(MavenProject proj, LooseConfigData config, boolean container) throws IOException, MojoExecutionException {
         if (container) {
             setLooseProjectRootForContainer(proj, config);
         }
@@ -255,7 +261,11 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
         // add Manifest file
         File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-ear-plugin");
-        looseEar.addManifestFile(manifestFile);
+        try {
+            looseEar.addManifestFile(manifestFile);
+        } catch (Exception javaLangException) {
+            throw new MojoExecutionException("Error adding manifest file " + manifestFile, javaLangException);
+        }
     }
 
     private boolean shouldValidateAppStart() throws MojoExecutionException {
@@ -293,8 +303,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         }
     }
 
-    private void addEmbeddedLib(Element parent, MavenProject warProject, LooseApplication looseApp, String dir)
-            throws Exception {
+    private void addEmbeddedLib(Element parent, MavenProject warProject, LooseApplication looseApp, String dir) throws MojoExecutionException, IOException {
         Set<Artifact> artifacts = warProject.getArtifacts();
         getLog().debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
@@ -306,7 +315,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         }
     }
 
-    private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws Exception {
+    private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws MojoExecutionException, IOException {
         Set<Artifact> artifacts = warProject.getArtifacts();
         getLog().debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
 
@@ -320,7 +329,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         }
     }
 
-    private void addLibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact) throws Exception {
+    private void addLibrary(Element parent, LooseApplication looseApp, String dir, Artifact artifact) throws IOException, MojoExecutionException {
         {
             if (isReactorMavenProject(artifact)) {
                 MavenProject dependProject = getReactorMavenProject(artifact);
@@ -335,7 +344,11 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
                 String dependProjectTargetDir = dependProject.getBuild().getDirectory();
 
-                looseApp.addManifestFileWithParent(archive, manifestFile, dependProjectTargetDir);
+                try {
+                    looseApp.addManifestFileWithParent(archive, manifestFile, dependProjectTargetDir);
+                } catch (Exception javaLangException) {
+                    throw new MojoExecutionException("Error adding manifest file with parent", javaLangException);
+                }
             } else {
                 resolveArtifact(artifact);
                 if(copyLibsDirectory != null) {
@@ -379,11 +392,11 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         return false;
     }
 
-    protected void validateAppConfig(String fileName, String artifactId) throws Exception {
+    protected void validateAppConfig(String fileName, String artifactId) throws MojoExecutionException {
         validateAppConfig(fileName, artifactId, false);
     }
 
-    protected void validateAppConfig(String fileName, String artifactId, boolean isSpringBootApp) throws Exception {
+    protected void validateAppConfig(String fileName, String artifactId, boolean isSpringBootApp) throws MojoExecutionException {
         String appsDir = getAppsDirectory();
         if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
             // add application configuration
@@ -405,9 +418,10 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
      *            : Target thin archive location.
      * @param libIndexCacheTargetLocation
      *            : Library cache location.
+     * @throws IllegalStateException instead of NullPointerException when the given ant task is {@code null}.
      */
     protected void invokeSpringBootUtilCommand(File installDirectory, String fatArchiveSrcLocation,
-            String thinArchiveTargetLocation, String libIndexCacheTargetLocation) throws Exception {
+            String thinArchiveTargetLocation, String libIndexCacheTargetLocation) {
         SpringBootUtilTask springBootUtilTask = (SpringBootUtilTask) ant
                 .createTask("antlib:io/openliberty/tools/ant:springBootUtil");
         if (springBootUtilTask == null) {

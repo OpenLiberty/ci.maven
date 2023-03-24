@@ -55,6 +55,19 @@ public class CompileJspMojo extends InstallFeatureSupport {
     @Parameter(defaultValue = "40")
     protected int timeout;
 
+    public CompileJspMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+        boolean doInstall = (installDirectory == null);
+
+        if (doInstall) {
+            try {
+                installServerAssembly();
+            } catch (Exception e) {
+                throw new MojoExecutionException("Failure installing server", e);
+            }
+        }
+    }
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -174,18 +187,4 @@ public class CompileJspMojo extends InstallFeatureSupport {
         return sb.toString();
     }
 
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        boolean doInstall = (installDirectory == null);
-
-        super.init();
-
-        if (doInstall) {
-            try {
-                installServerAssembly();
-            } catch (Exception e) {
-                throw new MojoExecutionException("Failure installing server", e);
-            }
-        }
-    }
 }

@@ -15,8 +15,10 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
@@ -34,7 +36,12 @@ public class CheckStatusMojo extends StartDebugMojoSupport {
             return;
         }
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException ioException) {
+                throw new MojoExecutionException(ioException);
+            }
+
         } else {
             getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();

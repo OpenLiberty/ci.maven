@@ -362,7 +362,7 @@ public class DevMojo extends LooseAppSupport {
                 } else {
                     runLibertyMojoCreate();
                 }
-            } catch (MojoExecutionException | ProjectBuildingException e) {
+            } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
         }
@@ -986,7 +986,7 @@ public class DevMojo extends LooseAppSupport {
                     getLog().debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (MojoExecutionException | ProjectBuildingException | DependencyResolutionRequiredException | IOException e) {
+            } catch (MojoExecutionException | DependencyResolutionRequiredException | IOException e) {
                 getLog().error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 if (installFeature) {
                     libertyDependencyWarning(generateFeatures, e);

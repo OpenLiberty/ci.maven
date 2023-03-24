@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
@@ -31,6 +32,10 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 public abstract class ServerFeatureSupport extends BasicSupport {
 
     private ServerFeatureUtil servUtil;
+
+    public ServerFeatureSupport() throws MojoExecutionException, MojoFailureException {
+        super();
+    }
 
     protected class ServerFeatureMojoUtil extends ServerFeatureUtil {
 

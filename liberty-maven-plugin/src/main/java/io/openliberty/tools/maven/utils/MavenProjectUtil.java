@@ -193,9 +193,8 @@ public class MavenProjectUtil {
      * @param project
      * @param pluginKey
      * @return the major plugin version
-     * @throws PluginScenarioException
      */
-    public static int getMajorPluginVersion(MavenProject project, String pluginKey) throws PluginScenarioException {
+    public static int getMajorPluginVersion(MavenProject project, String pluginKey) {
         Plugin plugin = project.getPlugin(pluginKey);
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }

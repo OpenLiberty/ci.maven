@@ -68,7 +68,12 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
             serverDirectory = serverDir;
             getLog().debug("Overriding the server directory with: " + serverDirectory);
         }
-        installFeatures();
+
+        try {
+            installFeatures();
+        } catch (PluginExecutionException pluginExecutionException) {
+            throw new MojoExecutionException(pluginExecutionException);
+        }
     }
 
     private void installFeatures() throws PluginExecutionException {

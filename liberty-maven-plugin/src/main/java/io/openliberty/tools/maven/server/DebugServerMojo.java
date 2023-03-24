@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -43,17 +44,25 @@ public class DebugServerMojo extends StartDebugMojoSupport {
             return;
         }
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException javaIoIOException) {
+                throw new MojoExecutionException("unable to install server assembly", javaIoIOException);
+            }
         } else {
             getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
         }
 
-        ServerTask serverTask = initializeJava();
-        copyConfigFiles();
-        serverTask.setClean(clean);
-        serverTask.setOperation("debug");
-        serverTask.execute();        
+        try {
+            ServerTask serverTask = initializeJava();
+            copyConfigFiles();
+            serverTask.setClean(clean);
+            serverTask.setOperation("debug");
+            serverTask.execute();
+        } catch (IOException ioException) {
+            throw new MojoExecutionException("unable to copy server config files", ioException);
+        }
     }
 
 }

@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,9 @@ import io.openliberty.tools.maven.PluginConfigXmlDocument;
 import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 /**
  * Basic Liberty Mojo Support
@@ -90,7 +94,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
      * Export plugin configuration parameters to
      * target/liberty-plugin-config.xml
      */
-    protected File exportParametersToXml() throws Exception {
+    protected File exportParametersToXml() throws ParserConfigurationException, IOException, TransformerException {
         PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
 
         List<Profile> profiles = project.getActiveProfiles();

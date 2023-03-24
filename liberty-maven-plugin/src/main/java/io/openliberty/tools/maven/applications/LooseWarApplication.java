@@ -66,7 +66,7 @@ public class LooseWarApplication extends LooseApplication {
     	return isExploded(project);
     }
     
-    public void addSourceDir() throws Exception {
+    public void addSourceDir() throws IOException {
         Path warSourceDir = getWarSourceDirectory();
         config.addDir(warSourceDir.toFile(), "/");
     }
@@ -244,7 +244,7 @@ public class LooseWarApplication extends LooseApplication {
             Xpp3Dom filtering = resource.getChild("filtering");
             Path resolvedDir = baseDirPath.resolve(dir.getValue());
             if (handled.contains(resolvedDir)) {
-                getLog().warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
+                log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
             } else {
                 if (onlyUnfiltered && filtering != null && Boolean.parseBoolean(filtering.getValue())) {
                     continue;

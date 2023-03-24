@@ -78,6 +78,14 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     @Parameter(property = "optimize", defaultValue = "true")
     private boolean optimize;
 
+    public GenerateFeaturesMojo() throws MojoExecutionException, MojoFailureException {
+        super();
+        // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
+        // setup as generate features does not require the server to be set up install
+        // dir, wlp dir, outputdir, etc.
+        this.skipServerConfigSetup = true;
+    }
+
     /*
      * (non-Javadoc)
      * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
@@ -88,16 +96,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             getLog().info("\nSkipping generate-features goal.\n");
             return;
         }
-        generateFeatures();
-    }
-
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
-        // setup as generate features does not require the server to be set up install
-        // dir, wlp dir, outputdir, etc.
-        this.skipServerConfigSetup = true;
-        super.init();
+        try {
+            generateFeatures();
+        } catch (PluginExecutionException pluginExecutionException) {
+            throw new MojoExecutionException(pluginExecutionException);
+        }
     }
 
     /**

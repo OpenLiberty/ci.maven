@@ -64,6 +64,14 @@ public class CreateServerMojo extends PluginConfigSupport {
             checkServerHomeExists();
         }
 
+        try {
+            doCreateServer();
+        } catch (IOException ioException) {
+            throw new MojoExecutionException("error creating or refreshing the server", ioException);
+        }
+    }
+
+    private void doCreateServer() throws IOException, MojoExecutionException {
         boolean createServer = false;
 
         if (!serverDirectory.exists()) {
@@ -83,7 +91,7 @@ public class CreateServerMojo extends PluginConfigSupport {
             serverTask.execute();
             getLog().info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
         }
-        
+
         // copy files _after_ we create the server
         copyConfigFiles();
 
