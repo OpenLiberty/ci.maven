@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
+import io.openliberty.tools.maven.utils.LibertyAntTaskFactory;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -34,7 +35,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.settings.Settings;
-import org.codehaus.mojo.pluginsupport.ant.AntHelper;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -64,8 +64,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
     @Parameter(defaultValue = "${settings}", required = true, readonly = true)
     protected Settings settings;
     
-    @Component(role = AntHelper.class)
-    protected AntHelper ant;
+    protected LibertyAntTaskFactory antTaskFactory;
     
     @Component
     protected RepositorySystem repositorySystem;
@@ -98,7 +97,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
 
     AbstractLibertySupport() throws MojoExecutionException, MojoFailureException {
         // Initialize ant helper instance
-        ant.setProject(getProject());
+        antTaskFactory = LibertyAntTaskFactory.forMavenProject(project);
     }
     
     protected boolean isReactorMavenProject(Artifact artifact) {

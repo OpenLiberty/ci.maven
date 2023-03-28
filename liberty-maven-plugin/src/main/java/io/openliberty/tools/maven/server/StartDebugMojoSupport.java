@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import io.openliberty.tools.maven.utils.LibertyAntTaskFactory;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
@@ -176,7 +177,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     protected ServerTask initializeJava() {
-        ServerTask serverTask = (ServerTask) ant.createTask("antlib:io/openliberty/tools/ant:server");
+        ServerTask serverTask = antTaskFactory.createTask("antlib:io/openliberty/tools/ant:server");
         if (serverTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "server"));
         }
@@ -469,7 +470,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
                 File fileToCopyTo = new File(location, targetFileName);
 
-                Copy copy = (Copy) ant.createTask("copy");
+                Copy copy = antTaskFactory.createTask("copy");
                 copy.setFile(nextFile);
                 copy.setTofile(fileToCopyTo);
                 copy.setOverwrite(true);
@@ -495,7 +496,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         if (configDirectory != null && configDirectory.exists()) {
             // copy configuration files from configuration directory to server directory if end-user set it
-            Copy copydir = (Copy) ant.createTask("copy");
+            Copy copydir = antTaskFactory.createTask("copy");
             FileSet fileset = new FileSet();
             fileset.setDir(configDirectory);
 
@@ -536,7 +537,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
                 getLog().warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
+            Copy copy = antTaskFactory.createTask("copy");
             copy.setFile(serverXmlFile);
             copy.setTofile(new File(serverDirectory, "server.xml"));
             copy.setOverwrite(true);
@@ -563,7 +564,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (jvmOptionsPath != null) {
                 getLog().warn("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
+            Copy copy = antTaskFactory.createTask("copy");
             copy.setFile(jvmOptionsFile);
             copy.setTofile(optionsFile);
             copy.setOverwrite(true);
@@ -579,7 +580,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 getLog().warn(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 bootstrapFile.delete();
             }
-        } 
+        }
+        LibertyAntTaskFactory ant;
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
                 getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
@@ -590,7 +592,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (bootStrapPropertiesPath != null) {
                 getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
+            Copy copy = antTaskFactory.createTask("copy");
             copy.setFile(bootstrapPropertiesFile);
             copy.setTofile(bootstrapFile);
             copy.setOverwrite(true);
@@ -615,7 +617,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
             } else if (serverEnvFile != null && serverEnvFile.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
+                Copy copy = antTaskFactory.createTask("copy");
                 copy.setFile(serverEnvFile);
                 copy.setTofile(envFile);
                 copy.setOverwrite(true);
@@ -925,7 +927,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             makeParentDirectory(file);
             configDocument.writeXMLDocument(file);
         } catch (ParserConfigurationException | TransformerException executionException) {
-            throw new MojoExecutionException(executionException);
+            throw new MojoExecutionException("Problem writing configDropinsServerVariables", executionException);
         }
 
     }

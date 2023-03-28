@@ -92,7 +92,7 @@ public class StartServerMojo extends StartDebugMojoSupport {
             serverTask.setClean(clean);
             serverTask.setOperation("start");
         } catch (IOException javaIoIOException) {
-            throw new MojoExecutionException(javaIoIOException);
+            throw new MojoExecutionException("Error on StartServerMojo", javaIoIOException);
         }
 
         // Set server start timeout

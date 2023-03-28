@@ -461,14 +461,14 @@ public abstract class BasicSupport extends AbstractLibertySupport {
 
             FileUtils.forceMkdir(installDirectory);
 
-            Expand unzip = (Expand) ant.createTask("unzip");
+            Expand unzip = antTaskFactory.createTask("unzip");
 
             unzip.setSrc(assemblyArchive);
             unzip.setDest(assemblyInstallDirectory.getCanonicalFile());
             unzip.execute();
 
             // Make scripts executable, since Java unzip ignores perms
-            Chmod chmod = (Chmod) ant.createTask("chmod");
+            Chmod chmod = antTaskFactory.createTask("chmod");
             chmod.setPerm("ugo+rx");
             chmod.setDir(installDirectory);
             chmod.setIncludes("bin/*");
@@ -487,7 +487,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     }
 
     protected void installFromArchive() throws MojoExecutionException {
-        InstallLibertyTask installTask = (InstallLibertyTask) ant.createTask("antlib:io/openliberty/tools/ant:install-liberty");
+        InstallLibertyTask installTask = antTaskFactory.createTask("antlib:io/openliberty/tools/ant:install-liberty");
         if (installTask == null) {
             throw new IllegalStateException(MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-liberty"));
         }
@@ -541,7 +541,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
             if (!hasSameLicense(license)) {
                 getLog().info(MessageFormat.format(messages.getString("info.install.license"),
                         licenseArtifact.getGroupId() + ":" + licenseArtifact.getArtifactId() + ":" + licenseArtifact.getVersion()));
-                Java installLicenseTask = (Java) ant.createTask("java");
+                Java installLicenseTask = antTaskFactory.createTask("java");
                 installLicenseTask.setJar(license.getFile());
                 Argument args = installLicenseTask.createArg();
                 args.setLine("--acceptLicense " + assemblyInstallDirectory.getCanonicalPath());

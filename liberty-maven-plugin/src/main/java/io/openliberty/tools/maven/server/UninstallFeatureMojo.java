@@ -70,7 +70,7 @@ public class UninstallFeatureMojo extends BasicSupport {
                     messages.getString("error.install.feature.set.validate"));
         }
 
-        UninstallFeatureTask uninstallFeatureTask = (UninstallFeatureTask) ant
+        UninstallFeatureTask uninstallFeatureTask = (UninstallFeatureTask) antTaskFactory
                 .createTask("antlib:io/openliberty/tools/ant:uninstall-feature");
 
         if (uninstallFeatureTask == null) {

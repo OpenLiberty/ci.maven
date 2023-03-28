@@ -83,7 +83,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         File destDir = new File(serverDirectory, getAppsDirectory());
         getLog().info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
-        Copy copyFile = (Copy) ant.createTask("copy");
+        Copy copyFile = antTaskFactory.createTask("copy");
         copyFile.setFile(artifact.getFile());
         String fileName = artifact.getFile().getName();
         if (stripVersion) {
