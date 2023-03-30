@@ -556,6 +556,31 @@ public class BasicSupport extends AbstractLibertySupport {
             }
         }
     }
+
+    /*
+     * Handle cleaning up all three possible locations for applications, and check for both stripped and non-stripped file name in 
+     * case that setting has been modified.
+     */
+    protected void deleteApplication(File serverDirectory, File artifactFile, File destFile) throws IOException {
+        String destFileName = destFile.getName();
+        String artifactFileName = artifactFile.getName();
+        boolean namesAreDifferent = !destFileName.equals(artifactFileName);
+
+        deleteApplication(new File(serverDirectory, "apps"), artifactFile);
+        deleteApplication(new File(serverDirectory, "dropins"), artifactFile);
+        // application can be expanded if server.xml configure with <applicationManager
+        // autoExpand="true"/>
+        deleteApplication(new File(serverDirectory, "apps/expanded"), artifactFile); 
+
+        if (namesAreDifferent) {
+            deleteApplication(new File(serverDirectory, "apps"), destFile);
+            deleteApplication(new File(serverDirectory, "dropins"), destFile);
+            // application can be expanded if server.xml configure with <applicationManager
+            // autoExpand="true"/>
+            deleteApplication(new File(serverDirectory, "apps/expanded"), destFile);     
+        }
+
+    }
     
     protected void deleteApplication(File parent, File artifactFile) throws IOException {
         deleteApplication(parent, artifactFile.getName());
@@ -571,7 +596,7 @@ public class BasicSupport extends AbstractLibertySupport {
         if (application.isDirectory()) {
             // application can be installed with expanded format
             FileUtils.deleteDirectory(application);
-        } else {
+        } else if (application.exists()) {
             application.delete();
         }
     }

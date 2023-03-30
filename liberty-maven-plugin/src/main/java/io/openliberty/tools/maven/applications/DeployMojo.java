@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class DeployMojo extends DeployMojoSupport {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
             
-            validateAppConfig(thinArchiveTarget.getName(), project.getArtifactId(), true);
+            validateAppConfig(thinArchiveTarget.getCanonicalPath(), thinArchiveTarget.getName(), project.getArtifactId(), true);
             invokeSpringBootUtilCommand(installDirectory, fatArchiveSrc.getCanonicalPath(), thinArchiveTarget.getCanonicalPath(), libIndexCacheTarget.getCanonicalPath());
         } else {
             throw new MojoExecutionException(fatArchiveSrc.getCanonicalPath() +" file is not an executable archive. "

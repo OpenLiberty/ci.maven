@@ -1,0 +1,4 @@
+<server description="environment">
+    <variable name="tidal.url" value="${tidal.url}"/>
+    <variable name="project.artifactId" value="${project.artifactId}"/>
+</server>

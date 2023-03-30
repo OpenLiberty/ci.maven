@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021.
+ * (C) Copyright IBM Corporation 2021, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,16 @@ public class ServerFeatureSupport extends BasicSupport {
         @Override
         public void error(String msg, Throwable e) {
             log.error(msg, e);
+        }
+
+        @Override
+        public void error(String msg) {
+            log.error(msg);
+        }
+
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
         }
     }
 
