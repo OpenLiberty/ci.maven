@@ -46,9 +46,6 @@
     </dependencies>
 
     <build>
-        <filters> 
-            <filter>${project.basedir}/src/main/filters/test.properties</filter>
-        </filters>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,31 +55,6 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingExcludes>pom.xml</packagingExcludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <overwrite>true</overwrite>
-                            <!-- This location can persist across a server recreate, where the refresh can annoyingly wipe out your earlier copy -->
-                            <outputDirectory>target/liberty/wlp/usr/shared/config</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/filtered-config</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
