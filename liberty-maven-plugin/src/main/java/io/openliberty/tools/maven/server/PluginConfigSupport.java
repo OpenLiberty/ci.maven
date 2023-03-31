@@ -284,7 +284,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
         // For Windows, modify fully qualified file name to use forward slashes since resolved app locations were stored that way
-        fullyQualifiedFileName = fullyQualifiedFileName == null ? null : fullyQualifiedFileName.replace("\\","/");
+        //fullyQualifiedFileName = fullyQualifiedFileName == null ? null : fullyQualifiedFileName.replace("\\","/");
 
         if (locations.contains(fileName) || ((fullyQualifiedFileName != null) && locations.contains(fullyQualifiedFileName))) {
             log.info("Application configuration is found in server.xml : " + fileName);
