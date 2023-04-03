@@ -196,6 +196,7 @@ public class DeployMojo extends DeployMojoSupport {
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         File destDir = new File(serverDirectory, getAppsDirectory());
         File looseConfigFile = new File(destDir, looseConfigFileName);
+        File applicationFullPath = new File(destDir, application);
 
         File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER), getAppsDirectory());
         File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
@@ -204,7 +205,7 @@ public class DeployMojo extends DeployMojoSupport {
 
         switch (proj.getPackaging()) {
             case "war":
-                validateAppConfig(application, proj.getArtifactId());
+                validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigWar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
@@ -216,7 +217,7 @@ public class DeployMojo extends DeployMojoSupport {
                 }
                 break;
             case "ear":
-                validateAppConfig(application, proj.getArtifactId());
+                validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
                 log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigEar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
@@ -229,7 +230,7 @@ public class DeployMojo extends DeployMojoSupport {
                 break;
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
-                    validateAppConfig(application, proj.getArtifactId());
+                    validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
                     log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config, false);
                     installAndVerifyApp(config, looseConfigFile, application);

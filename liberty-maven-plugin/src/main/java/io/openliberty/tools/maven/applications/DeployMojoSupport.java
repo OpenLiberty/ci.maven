@@ -381,10 +381,6 @@ public class DeployMojoSupport extends LooseAppSupport {
         return false;
     }
 
-    protected void validateAppConfig(String fileName, String artifactId) throws Exception {
-        validateAppConfig(null, fileName, artifactId, false);
-    }
-
     protected void validateAppConfig(String fullyQualifiedFileName, String fileName, String artifactId) throws Exception {
         validateAppConfig(fullyQualifiedFileName, fileName, artifactId, false);
     }
