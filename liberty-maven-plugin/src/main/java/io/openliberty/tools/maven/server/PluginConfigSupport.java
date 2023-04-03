@@ -316,7 +316,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
             Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-            scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
+            scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(log), serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,
                         libertyDirPropertyFiles);
             } catch (Exception e) {

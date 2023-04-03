@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.utils;
 
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 
 import io.openliberty.tools.common.CommonLoggerI;
@@ -23,11 +24,22 @@ public class CommonLogger extends MojoSupport implements CommonLoggerI {
 
     private static CommonLogger logger = null;
 
-    public static CommonLogger getInstance() {
+    public static CommonLogger getInstance(Log mojoLogger) {
         if (logger == null) {
-            logger = new CommonLogger();
+            logger = new CommonLogger(mojoLogger);
+        } else {
+            logger.setLogger(mojoLogger);
         }
+
         return logger;
+    }
+
+    private CommonLogger(Log mojoLogger) {
+        setLog(mojoLogger);
+    }
+
+    private void setLogger(Log mojoLogger) {
+        setLog(mojoLogger);
     }
 
     @Override
