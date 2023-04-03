@@ -1,0 +1,10 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+
+    <include location="${shared.config.dir}/environment.xml"/>
+
+    <!-- webApplication location="${project.artifactId}.war"/ -->
+    <webApplication location="${server.config.dir}/apps/${project.artifactId}.war"/>
+</server>

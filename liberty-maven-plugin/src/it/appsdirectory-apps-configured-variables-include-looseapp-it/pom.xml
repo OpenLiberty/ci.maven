@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>appsdirectory-apps-configured-variables-include-it</artifactId>
+  <artifactId>appsdirectory-apps-configured-variables-include-looseapp-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -114,7 +114,7 @@
             <type>zip</type>
           </assemblyArtifact>
           <serverName>test</serverName>
-          <looseApplication>false</looseApplication>
+          <looseApplication>true</looseApplication>
         </configuration>
         <executions>
             <execution>
@@ -124,7 +124,7 @@
                     <goal>deploy</goal>
                 </goals>
                 <configuration>
-                    <looseApplication>false</looseApplication>
+                    <looseApplication>true</looseApplication>
                     <appsDirectory>apps</appsDirectory>
                     <stripVersion>true</stripVersion>
                 </configuration>
