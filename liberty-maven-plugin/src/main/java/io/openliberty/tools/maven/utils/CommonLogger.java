@@ -32,17 +32,23 @@ public class CommonLogger extends MojoSupport implements CommonLoggerI {
 
     @Override
     public void debug(String msg) {
-        getLog().debug(msg);
+        if (isDebugEnabled()) {
+            getLog().debug(msg);
+        }
     }
 
     @Override
     public void debug(String msg, Throwable e) {
-        getLog().debug(msg, e);
+        if (isDebugEnabled()) {
+            getLog().debug(msg, e);
+        }
     }
 
     @Override
     public void debug(Throwable e) {
-        getLog().debug(e);
+        if (isDebugEnabled()) {
+            getLog().debug(e);
+        }
     }
 
     @Override

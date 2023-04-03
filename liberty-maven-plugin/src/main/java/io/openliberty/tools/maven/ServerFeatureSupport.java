@@ -36,17 +36,23 @@ public class ServerFeatureSupport extends BasicSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            if (isDebugEnabled()) {
+                log.debug(msg);
+            }
         }
 
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            if (isDebugEnabled()) {
+                log.debug(msg, e);
+            }
         }
 
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            if (isDebugEnabled()) {
+                log.debug(e);
+            }
         }
 
         @Override
@@ -54,7 +60,7 @@ public class ServerFeatureSupport extends BasicSupport {
             if (!suppressLogs) {
                 log.warn(msg);
             } else {
-                log.debug(msg);
+                debug(msg);
             }
         }
 
@@ -63,7 +69,7 @@ public class ServerFeatureSupport extends BasicSupport {
             if (!suppressLogs) {
                 log.info(msg);
             } else {
-                log.debug(msg);
+                debug(msg);
             }
         }
 
