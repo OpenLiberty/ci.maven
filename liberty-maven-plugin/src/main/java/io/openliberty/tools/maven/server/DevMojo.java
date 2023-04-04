@@ -1244,15 +1244,17 @@ public class DevMojo extends LooseAppSupport {
 
         processContainerParams();
 
-        if (!container) {
-            if (serverDirectory.exists()) {
-                if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
+        if (serverDirectory.exists()) {
+            if (ServerStatusUtil.isServerRunning(installDirectory, super.outputDirectory, serverName)) {
+                if (!container) {
                     throw new MojoExecutionException("The server " + serverName
-                            + " is already running. Terminate all instances of the server before starting dev mode."
-                            + " You can stop a server instance with the command 'mvn liberty:stop'.");
+                        + " is already running. Terminate all instances of the server before starting dev mode."
+                        + " You can stop a server instance with the command 'mvn liberty:stop'.");
+                } else {
+                    log.warn("Running server detected from previous execution that did not stop cleanly. If startup does not complete and times out do a clean before re-running.");
                 }
             }
-        } // else TODO check if the container is already running?
+        }
 
         // create an executor for tests with an additional queue of size 1, so
         // any further changes detected mid-test will be in the following run
