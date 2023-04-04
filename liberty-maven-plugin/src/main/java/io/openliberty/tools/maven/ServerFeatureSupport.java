@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021.
+ * (C) Copyright IBM Corporation 2021, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,23 @@ public class ServerFeatureSupport extends BasicSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            if (isDebugEnabled()) {
+                log.debug(msg);
+            }
         }
 
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            if (isDebugEnabled()) {
+                log.debug(msg, e);
+            }
         }
 
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            if (isDebugEnabled()) {
+                log.debug(e);
+            }
         }
 
         @Override
@@ -54,7 +60,7 @@ public class ServerFeatureSupport extends BasicSupport {
             if (!suppressLogs) {
                 log.warn(msg);
             } else {
-                log.debug(msg);
+                debug(msg);
             }
         }
 
@@ -63,13 +69,23 @@ public class ServerFeatureSupport extends BasicSupport {
             if (!suppressLogs) {
                 log.info(msg);
             } else {
-                log.debug(msg);
+                debug(msg);
             }
         }
 
         @Override
         public void error(String msg, Throwable e) {
             log.error(msg, e);
+        }
+
+        @Override
+        public void error(String msg) {
+            log.error(msg);
+        }
+
+        @Override
+        public boolean isDebugEnabled() {
+            return log.isDebugEnabled();
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2022.
+ * (C) Copyright IBM Corporation 2016, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,11 +80,15 @@ public class DeployMojoSupport extends LooseAppSupport {
         log.info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
         Copy copyFile = (Copy) ant.createTask("copy");
-        copyFile.setFile(artifact.getFile());
-        String fileName = artifact.getFile().getName();
+        File fileToCopy = artifact.getFile();
+        copyFile.setFile(fileToCopy);
+        String originalFileName = fileToCopy.getName();
+        File destFile = new File(destDir, originalFileName);
+        String destFileName = originalFileName;
         if (stripVersion) {
-            fileName = stripVersionFromName(fileName, artifact.getBaseVersion());
-            copyFile.setTofile(new File(destDir, fileName));
+            destFileName = stripVersionFromName(originalFileName, artifact.getBaseVersion());
+            destFile = new File(destDir, destFileName); // fileName should have changed after stripping version so recreate destFile
+            copyFile.setTofile(destFile);
         } else {
             copyFile.setTodir(destDir);
         }
@@ -92,16 +96,13 @@ public class DeployMojoSupport extends LooseAppSupport {
         // validate application configuration if appsDirectory="dropins" or inject
         // webApplication
         // to target server.xml if not found for appsDirectory="apps"
-        validateAppConfig(fileName, artifact.getArtifactId());
+        validateAppConfig(destFile.getCanonicalPath(), destFileName, artifact.getArtifactId());
 
-        deleteApplication(new File(serverDirectory, "apps"), artifact.getFile());
-        deleteApplication(new File(serverDirectory, "dropins"), artifact.getFile());
-        // application can be expanded if server.xml configure with <applicationManager
-        // autoExpand="true"/>
-        deleteApplication(new File(serverDirectory, "apps/expanded"), artifact.getFile());
+        deleteApplication(serverDirectory, fileToCopy, destFile);
+        
         copyFile.execute();
 
-        verifyAppStarted(fileName);
+        verifyAppStarted(destFileName);
     }
 
     private void setLooseProjectRootForContainer(MavenProject proj, LooseConfigData config) throws MojoExecutionException {
@@ -275,11 +276,12 @@ public class DeployMojoSupport extends LooseAppSupport {
                 File serverXML = new File(serverDirectory, "server.xml");
 
                 try {
-                    scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                            bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
+                    Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
+                    scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(log), serverXML, configDirectory,
+                            bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                     //appName will be set to a name derived from appFile if no name can be found.
-                    appName = scd.findNameForLocation(appFile);
+                    appName = ServerConfigDocument.findNameForLocation(appFile);
                 } catch (Exception e) {
                     log.warn(e.getLocalizedMessage());
                     log.debug(e);
@@ -379,16 +381,17 @@ public class DeployMojoSupport extends LooseAppSupport {
         return false;
     }
 
-    protected void validateAppConfig(String fileName, String artifactId) throws Exception {
-        validateAppConfig(fileName, artifactId, false);
+    protected void validateAppConfig(String fullyQualifiedFileName, String fileName, String artifactId) throws Exception {
+        validateAppConfig(fullyQualifiedFileName, fileName, artifactId, false);
     }
 
-    protected void validateAppConfig(String fileName, String artifactId, boolean isSpringBootApp) throws Exception {
+    protected void validateAppConfig(String fullyQualifiedFileName, String fileName, String artifactId, boolean isSpringBootApp) throws Exception {
         String appsDir = getAppsDirectory();
-        if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fileName)) {
+        if (appsDir.equalsIgnoreCase("apps") && !isAppConfiguredInSourceServerXml(fullyQualifiedFileName, fileName)) {
             // add application configuration
+            log.info("Could not find application "+fileName+" in server.xml locations.");
             applicationXml.createApplicationElement(fileName, artifactId, isSpringBootApp);
-        } else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fileName))
+        } else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fullyQualifiedFileName, fileName))
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
     }
 

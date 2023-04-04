@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2019.
+ * (C) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -278,14 +279,18 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         }
     }
 
-    protected boolean isAppConfiguredInSourceServerXml(String fileName) {
+    protected boolean isAppConfiguredInSourceServerXml(String fullyQualifiedFileName, String fileName) {
 
         Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
-        if (locations.contains(fileName)) {
-            log.debug("Application configuration is found in server.xml : " + fileName);
+        // For Windows, modify fully qualified file name to use forward slashes since resolved app locations were stored that way
+        fullyQualifiedFileName = fullyQualifiedFileName == null ? null : fullyQualifiedFileName.replace("\\","/");
+
+        if (locations.contains(fileName) || ((fullyQualifiedFileName != null) && locations.contains(fullyQualifiedFileName))) {
+            log.info("Application configuration is found in server.xml : " + fileName);
             return true;
         } else {
+            log.info("Application configuration is not found in server.xml : " + fileName);
             return false;
         }
     }
@@ -310,8 +315,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
         if (serverXML != null && serverXML.exists()) {
             try {
-                scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(), serverXML, configDirectory,
-                        bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false);
+            Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
+            scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(log), serverXML, configDirectory,
+                        bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,
+                        libertyDirPropertyFiles);
             } catch (Exception e) {
                 log.warn(e.getLocalizedMessage());
                 log.debug(e);
