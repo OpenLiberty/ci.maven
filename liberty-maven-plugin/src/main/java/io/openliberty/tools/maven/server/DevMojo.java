@@ -296,9 +296,9 @@ public class DevMojo extends LooseAppSupport {
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
-            ServerFeatureUtil servUtil = getServerFeatureUtil(true);
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
-                    serverDirectory);
+                    serverDirectory);                    
+            ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);           
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
             this.upstreamMavenProjects = upstreamMavenProjects;
         }
@@ -1011,7 +1011,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void installFeatures(File configFile, File serverDir, boolean generateFeatures) {
             try {
-                ServerFeatureUtil servUtil = getServerFeatureUtil(true);
+                ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
                 Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
                 if (features != null) {
                     Set<String> featuresCopy = new HashSet<String>(features);
@@ -1048,7 +1048,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public ServerFeatureUtil getServerFeatureUtilObj() {
             // suppress logs from ServerFeatureUtil so that dev console is not flooded
-            return getServerFeatureUtil(true);
+            return getServerFeatureUtil(true, libertyDirPropertyFiles);
         }
 
         @Override
@@ -1058,7 +1058,7 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         public void updateExistingFeatures() {
-            ServerFeatureUtil servUtil = getServerFeatureUtil(true);
+            ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
             Set<String> features = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
             existingFeatures = features;
         }

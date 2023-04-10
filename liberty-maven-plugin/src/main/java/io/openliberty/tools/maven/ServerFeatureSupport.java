@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -99,9 +100,10 @@ public class ServerFeatureSupport extends BasicSupport {
      * @param suppressLogs if true info and warning will be logged as debug
      * @return instance of ServerFeatureUtil
      */
-    protected ServerFeatureUtil getServerFeatureUtil(boolean suppressLogs) {
+    protected ServerFeatureUtil getServerFeatureUtil(boolean suppressLogs, Map<String, File> libDirPropFiles) {
         if (servUtil == null) {
             createNewServerFeatureUtil();
+            servUtil.setLibertyDirectoryPropertyFiles(libDirPropFiles);
         }
         if (suppressLogs) {
             servUtil.setSuppressLogs(true);
