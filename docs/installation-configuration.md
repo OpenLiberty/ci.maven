@@ -102,20 +102,20 @@ Example of overriding the `runtimeArtifact` parameter with plugin configuration:
 The `runtimeArtifact` configuration is very flexible. It includes the use of properties that can be specified on the command line or in the `pom.xml` file, configuration parameters, use of dependencies and dependencyManagement, as well as default values. The `groupId`, `artifactId` and `version` are determined as follows in order:
 
 1. groupId
-* Check for the `liberty.runtime.groupId` property from the command line or `pom.xml` file.
 * Check for the `libertyRuntimeGroupId` configuration parameter in the `pom.xml` file.
+* Check for the `liberty.runtime.groupId` property from the command line or `pom.xml` file.
 * Use the one specified in `runtimeArtifact`.
 * Default to `io.openliberty`.
 
 2. artifactId
-* Check for the `liberty.runtime.artifactId` property from the command line or `pom.xml` file.
 * Check for the `libertyRuntimeArtifactId` configuration parameter in the `pom.xml` file.
+* Check for the `liberty.runtime.artifactId` property from the command line or `pom.xml` file.
 * Use the one specified in `runtimeArtifact`.
 * Default to `openliberty-kernel`.
 
 3. version
-* Check for the `liberty.runtime.version` property from the command line or `pom.xml` file.
 * Check for the `libertyRuntimeVersion` configuration parameter in the `pom.xml` file.
+* Check for the `liberty.runtime.version` property from the command line or `pom.xml` file.
 * Use the one specified in `runtimeArtifact`.
 * Use the version from a matching `dependency`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
 * Use the version from a matching `dependencyManagement`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
