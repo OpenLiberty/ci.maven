@@ -385,9 +385,34 @@ public class ScannerTest extends BaseScannerTest {
             replaceString(oldUmbrella, newUmbrella, pom);
             // Compile, generate and check results
             runCompileAndGenerateFeatures();
-            assertTrue(newFeatureFile.exists());
+            assertTrue(processOutput, newFeatureFile.exists());
             Set<String> generatedFeatures = readFeatures(newFeatureFile);
             Set<String> expectedFeatures = EE9_FEATURES.get(mpVersion);
+            assertTrue("Invalid, for MP version:"+ mpVersion +
+                " expected features:" + expectedFeatures + " generated features:" + generatedFeatures, 
+                generatedFeatures.equals(expectedFeatures));
+        }
+    }
+
+    /**
+     * Test all EE and MP versions: MP 6 supports only Jakarta EE10
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testAllVersions10() throws Exception {
+        Set<String> keys = EE10_FEATURES.keySet();
+        for (String mpVersion : keys) {
+            setUpBeforeTest("../resources/basic-dev-project10");
+            assertFalse(newFeatureFile.exists());
+            String oldUmbrella = MP6_UMBRELLA;
+            String newUmbrella = MP6_UMBRELLA.replace("<version>6.0", "<version>" + mpVersion);
+            replaceString(oldUmbrella, newUmbrella, pom);
+            // Compile, generate and check results
+            runCompileAndGenerateFeatures();
+            assertTrue(processOutput, newFeatureFile.exists());
+            Set<String> generatedFeatures = readFeatures(newFeatureFile);
+            Set<String> expectedFeatures = EE10_FEATURES.get(mpVersion);
             assertTrue("Invalid, for MP version:"+ mpVersion +
                 " expected features:" + expectedFeatures + " generated features:" + generatedFeatures, 
                 generatedFeatures.equals(expectedFeatures));

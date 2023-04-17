@@ -51,7 +51,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -97,6 +97,8 @@ public class BaseScannerTest {
     static final String MP4_UMBRELLA = "<version>4.1</version>";
     // Dependency declared in basic-dev-project9
     static final String MP5_UMBRELLA = "<version>5.0</version>";
+    // Dependency declared in basic-dev-project10
+    static final String MP6_UMBRELLA = "<version>6.0</version>";
     static final String ESA_MP_DEPENDENCY = "<dependency>\n" +
         "        <groupId>io.openliberty.features</groupId>\n" +
         "        <artifactId>mpHealth-3.0</artifactId>\n" +
@@ -141,6 +143,10 @@ public class BaseScannerTest {
     static { // Maven version number and Liberty feature names
         EE9_FEATURES.put("5.0", new HashSet<String>(Arrays.asList("restfulWS-3.0", "servlet-5.0", "mpHealth-4.0")));
     }
+    static Map<String, Set<String>> EE10_FEATURES = new HashMap<>();
+    static { // Maven version number and Liberty feature names
+        EE10_FEATURES.put("6.0", new HashSet<String>(Arrays.asList("restfulWS-3.1", "servlet-6.0", "mpHealth-4.0")));
+    }
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
@@ -148,7 +154,7 @@ public class BaseScannerTest {
         assertTrue(tempProj.exists());
         assertTrue(basicProj.exists());
 
-        FileUtils.copyDirectoryStructure(basicProj, tempProj);
+        FileUtils.copyDirectory(basicProj, tempProj);
         assertTrue(tempProj.listFiles().length > 0);
         logFile = new File(basicProj, "logFile.txt");
         logFile.delete();
