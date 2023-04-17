@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2019.
+ * (C) Copyright IBM Corporation 2016, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -56,6 +57,10 @@ public class CleanServerMojo extends StartDebugMojoSupport {
             return;
         }
         
+        doCleanServer();
+    }
+
+    private void doCleanServer() throws MojoExecutionException {
         CleanTask cleanTask = (CleanTask) ant.createTask("antlib:io/openliberty/tools/ant:clean");
         cleanTask.setInstallDir(installDirectory);
         cleanTask.setServerName(serverName);

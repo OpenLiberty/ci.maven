@@ -37,42 +37,42 @@ public class PrepareFeatureSupport extends BasicSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            getLog().debug(msg);
         }
         
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            getLog().debug(msg, e);
         }
         
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            getLog().debug(e);
         }
         
         @Override
         public void warn(String msg) {
-            log.warn(msg);
+            getLog().warn(msg);
         }
 
         @Override
         public void info(String msg) {
-            log.info(msg);
+            getLog().info(msg);
         }
         
         @Override
         public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
+            return getLog().isDebugEnabled();
         }
 
         @Override
         public void error(String msg) {
-            log.error(msg);
+            getLog().error(msg);
         }
 
         @Override
         public void error(String msg, Throwable e) {
-            log.error(msg, e);
+            getLog().error(msg, e);
         }
         
         @Override
@@ -109,7 +109,7 @@ public class PrepareFeatureSupport extends BasicSupport {
                 	String coordinate = String.format("%s:%s:%s",
                     		dependencyArtifact.getGroupId(), dependencyArtifact.getArtifactId(), dependencyArtifact.getVersion());
                     result.add(coordinate);
-                    log.debug("Dependency BOM: " + coordinate);
+                    getLog().debug("Dependency BOM: " + coordinate);
                 }
             }
         }

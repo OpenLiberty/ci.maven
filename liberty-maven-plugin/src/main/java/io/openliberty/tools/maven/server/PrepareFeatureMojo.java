@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021.
+ * (C) Copyright IBM Corporation 2021, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
@@ -43,7 +44,15 @@ public class PrepareFeatureMojo extends PrepareFeatureSupport {
             return;
         }
         
-        prepareFeatures();
+        doPrepareFeatures();
+    }
+
+    private void doPrepareFeatures() throws MojoExecutionException {
+        try {
+            prepareFeatures();
+        } catch (PluginExecutionException e) {
+            throw new MojoExecutionException("Error preparing features.", e);
+        }
     }
     
     private void prepareFeatures() throws PluginExecutionException {

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2020.
+ * (C) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.ant.jsp.CompileJSPs;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.maven.InstallFeatureSupport;
 
 /**
@@ -62,6 +63,10 @@ public class CompileJspMojo extends InstallFeatureSupport {
             return;
         }
 
+        doCompileJsps();
+    }
+
+    private void doCompileJsps() throws MojoExecutionException {
         CompileJSPs compile = (CompileJSPs) ant.createTask("antlib:io/openliberty/tools/ant:compileJSPs");
         if (compile == null) {
             throw new IllegalStateException(
@@ -123,11 +128,16 @@ public class CompileJspMojo extends InstallFeatureSupport {
         }
 
         String classpathStr = join(classpath, File.pathSeparator);
-        log.debug("Classpath: " + classpathStr);
+        getLog().debug("Classpath: " + classpathStr);
         compile.setClasspath(classpathStr);
 
         if(initialize()) {
-            Set<String> installedFeatures = getSpecifiedFeatures(null);
+            Set<String> installedFeatures;
+            try {
+                installedFeatures = getSpecifiedFeatures(null);
+            } catch (PluginExecutionException e) {
+                throw new MojoExecutionException("Error getting the list of specified features.", e);
+            }
 
             //Set JSP Feature Version
             setJspVersion(compile, installedFeatures);

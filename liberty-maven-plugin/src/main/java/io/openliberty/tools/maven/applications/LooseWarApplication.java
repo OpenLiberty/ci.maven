@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2021.
+ * (C) Copyright IBM Corporation 2019, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package io.openliberty.tools.maven.applications;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,7 +65,7 @@ public class LooseWarApplication extends LooseApplication {
     	return isExploded(project);
     }
     
-    public void addSourceDir() throws Exception {
+    public void addSourceDir() throws IOException {
         Path warSourceDir = getWarSourceDirectory();
         config.addDir(warSourceDir.toFile(), "/");
     }

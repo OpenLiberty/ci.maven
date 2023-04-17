@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2019.
+ * (C) Copyright IBM Corporation 2014, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -41,7 +42,11 @@ public class StopServerMojo extends StartDebugMojoSupport {
             return;
         }
         
-        log.info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
+        doStopServer();
+    }
+
+    private void doStopServer() throws MojoExecutionException {
+        getLog().info(MessageFormat.format(messages.getString("info.server.stopping"), serverName));
         
         if (serverDirectory.exists()) {
             try {
@@ -54,11 +59,10 @@ public class StopServerMojo extends StartDebugMojoSupport {
                 // not fully exist in the file structure and is not running anyway.
                 // Continue with a warning rather than ending with hard failure especially
                 // as we have bound stop-server to a clean.
-                log.warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
+                getLog().warn(MessageFormat.format(messages.getString("warn.server.stopped"), serverName));
             }
-        }
-        else {
-            log.info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
+        } else {
+            getLog().info(MessageFormat.format(messages.getString("info.server.stop.noexist"), serverName));
         }
     }
 }

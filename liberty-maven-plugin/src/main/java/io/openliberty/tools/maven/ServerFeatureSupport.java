@@ -38,28 +38,28 @@ public class ServerFeatureSupport extends BasicSupport {
         @Override
         public void debug(String msg) {
             if (isDebugEnabled()) {
-                log.debug(msg);
+                getLog().debug(msg);
             }
         }
 
         @Override
         public void debug(String msg, Throwable e) {
             if (isDebugEnabled()) {
-                log.debug(msg, e);
+                getLog().debug(msg, e);
             }
         }
 
         @Override
         public void debug(Throwable e) {
             if (isDebugEnabled()) {
-                log.debug(e);
+                getLog().debug(e);
             }
         }
 
         @Override
         public void warn(String msg) {
             if (!suppressLogs) {
-                log.warn(msg);
+                getLog().warn(msg);
             } else {
                 debug(msg);
             }
@@ -68,7 +68,7 @@ public class ServerFeatureSupport extends BasicSupport {
         @Override
         public void info(String msg) {
             if (!suppressLogs) {
-                log.info(msg);
+                getLog().info(msg);
             } else {
                 debug(msg);
             }
@@ -76,17 +76,17 @@ public class ServerFeatureSupport extends BasicSupport {
 
         @Override
         public void error(String msg, Throwable e) {
-            log.error(msg, e);
+            getLog().error(msg, e);
         }
 
         @Override
         public void error(String msg) {
-            log.error(msg);
+            getLog().error(msg);
         }
 
         @Override
         public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
+            return getLog().isDebugEnabled();
         }
     }
 
@@ -214,10 +214,10 @@ public class ServerFeatureSupport extends BasicSupport {
             }
         }
         if (mostDownstreamModule != null && !mostDownstreamModule.equals(project)) {
-            log.debug("Found a previous module in the Reactor build order that does not have downstream dependencies: "
+            getLog().debug("Found a previous module in the Reactor build order that does not have downstream dependencies: "
                     + mostDownstreamModule);
             if (isSubModule(project, mostDownstreamModule)) {
-                log.debug(
+                getLog().debug(
                         "Detected that this multi module pom contains another module that does not have downstream dependencies. Skipping goal on this module.");
                 return true;
             }

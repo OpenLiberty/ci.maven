@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019.
+ * (C) Copyright IBM Corporation 2019, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 package io.openliberty.tools.maven.utils;
 
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.mojo.pluginsupport.MojoSupport;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
 import io.openliberty.tools.common.CommonLoggerI;
 
-public class CommonLogger extends MojoSupport implements CommonLoggerI {
+public class CommonLogger implements CommonLoggerI {
 
     private static CommonLogger logger = null;
+    private Log loggerImpl;
 
     public static CommonLogger getInstance(Log mojoLogger) {
         if (logger == null) {
@@ -35,11 +36,19 @@ public class CommonLogger extends MojoSupport implements CommonLoggerI {
     }
 
     private CommonLogger(Log mojoLogger) {
-        setLog(mojoLogger);
+        loggerImpl = mojoLogger;
     }
 
     private void setLogger(Log mojoLogger) {
-        setLog(mojoLogger);
+        loggerImpl = mojoLogger;
+    }
+
+    public Log getLog() {
+        if (this.loggerImpl == null) {
+            this.loggerImpl = new SystemStreamLog();
+        }
+
+        return this.loggerImpl;
     }
 
     @Override

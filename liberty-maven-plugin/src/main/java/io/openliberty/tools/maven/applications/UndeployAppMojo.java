@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,10 @@ public class UndeployAppMojo extends DeployMojoSupport {
             return;
         }
         
+        doUndeploy();        
+    }
+
+    private void doUndeploy() throws MojoExecutionException {
         checkServerHomeExists();
         checkServerDirectoryExists();
 
@@ -110,7 +115,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                         undeployApp(new File(installDir, depArchive.getName()));
                     }
                 } else {
-                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                    getLog().warn(MessageFormat.format(messages.getString("error.application.not.supported"),
                             project.getId()));
                 }
             }
@@ -136,13 +141,15 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
             
                 Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-                scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(log), serverXML, configDirectory,
+                CommonLogger logger = CommonLogger.getInstance(log);
+                setLog(logger.getLog());
+                scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                 bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                 //appName will be set to a name derived from file if no name can be found.
                 appName = ServerConfigDocument.findNameForLocation(appName);
             } catch (Exception e) {
-                log.warn(e.getLocalizedMessage());
+                getLog().warn(e.getLocalizedMessage());
             } 
         }
 
@@ -158,7 +165,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
         String stopMessage = STOP_APP_MESSAGE_CODE_REG + appName;
         ServerTask serverTask = initializeJava();
         if (serverTask.waitForStringInLog(stopMessage, APP_STOP_TIMEOUT_DEFAULT, new File(serverDirectory, "logs/messages.log")) == null) {
-            throw new MojoExecutionException("CWWKM2022E: Failed to undeploy application " + file.getPath() + ". The Stop application message cannot be found in console.log.");
+            throw new MojoExecutionException("CWWKM2022E: Failed to undeploy application " + file.getPath() + ". The Stop application message cannot be found in console.getLog().");
         }
     }
 }

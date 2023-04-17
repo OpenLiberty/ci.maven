@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,10 +57,16 @@ public class CreateServerMojo extends PluginConfigSupport {
             getLog().info("\nSkipping create goal.\n");
             return;
         }
+
+        doCreateServer(); 
+    }
+
+    private void doCreateServer() throws MojoExecutionException {
+
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
         }
 
@@ -69,25 +75,37 @@ public class CreateServerMojo extends PluginConfigSupport {
         if (!serverDirectory.exists()) {
             createServer = true;
         } else if (refresh) {
-            FileUtils.forceDelete(serverDirectory);
+            try {
+                FileUtils.forceDelete(serverDirectory);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error deleting existing server directory "+serverDirectory.getAbsolutePath()+". Cannot refresh the server.", e);
+            }
             createServer = true;
         }
 
         if (createServer) {
             // server does not exist or we are refreshing it - create it
-            log.info(MessageFormat.format(messages.getString("info.server.start.create"), serverName));
+            getLog().info(MessageFormat.format(messages.getString("info.server.start.create"), serverName));
             ServerTask serverTask = initializeJava();
             serverTask.setOperation("create");
             serverTask.setTemplate(template);
             serverTask.setNoPassword(noPassword);
             serverTask.execute();
-            log.info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getCanonicalPath()));
+            getLog().info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getAbsolutePath()));
         }
         
         // copy files _after_ we create the server
-        copyConfigFiles();
+        try {
+            copyConfigFiles();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying configuration files to Liberty server directory.", e);
+        }
 
-        copyLibertySettings();
+        try {
+            copyLibertySettings();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying Liberty settings from directory "+libertySettingsFolder.getAbsolutePath()+" to Liberty server directory.", e);
+        }
     }
 
     private void copyLibertySettings() throws MojoExecutionException, IOException {
@@ -96,7 +114,7 @@ public class CreateServerMojo extends PluginConfigSupport {
                 throw new MojoExecutionException("The Liberty configuration <libertySettingsFolder> must be a directory. Value found: " + libertySettingsFolder.toString());
             }
 
-            log.info(MessageFormat.format(messages.getString("info.variable.set"), "libertySettingsFolder", libertySettingsFolder));
+            getLog().info(MessageFormat.format(messages.getString("info.variable.set"), "libertySettingsFolder", libertySettingsFolder));
 
             // copy config files to <install directory>/etc
             File[] files = libertySettingsFolder.listFiles();
@@ -106,13 +124,13 @@ public class CreateServerMojo extends PluginConfigSupport {
                     installDir.mkdirs();
                 }
 
-                log.info("Copying " + files.length + " file" + ((files.length == 1) ? "":"s") + " to " + installDir.getCanonicalPath());
+                getLog().info("Copying " + files.length + " file" + ((files.length == 1) ? "":"s") + " to " + installDir.getCanonicalPath());
                 FileUtils.copyDirectory(libertySettingsFolder, installDir);
             } else {
-                log.info("No custom Liberty configuration files found.");
+                getLog().info("No custom Liberty configuration files found.");
             }
         } else {
-            log.debug("No custom Liberty configuration folder found.");
+            getLog().debug("No custom Liberty configuration folder found.");
         }
     }
 }

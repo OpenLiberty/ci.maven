@@ -16,10 +16,14 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
@@ -28,7 +32,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import org.apache.tools.ant.taskdefs.Copy;
+//import org.apache.tools.ant.taskdefs.Copy;
 
 import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
@@ -51,6 +55,15 @@ public class DeployMojo extends DeployMojoSupport {
             getLog().info("\nSkipping deploy goal.\n");
             return;
         }
+
+        try {
+            doDeploy();
+        } catch (IOException | ParserConfigurationException | TransformerException e) {
+            throw new MojoExecutionException("Error deploying application.", e);
+        }
+    }
+
+    private void doDeploy() throws IOException, MojoExecutionException, TransformerException, ParserConfigurationException {
         checkServerHomeExists();
         checkServerDirectoryExists();
         
@@ -91,12 +104,12 @@ public class DeployMojo extends DeployMojoSupport {
         
         // create application configuration in configDropins if it is not configured
         if (applicationXml.hasChildElements()) {
-            log.warn(messages.getString("warn.install.app.add.configuration"));
+            getLog().warn(messages.getString("warn.install.app.add.configuration"));
             applicationXml.writeApplicationXmlDocument(serverDirectory);
         }
     }
 
-    private void installSpringBootApp() throws Exception {
+    private void installSpringBootApp() throws MojoExecutionException, IOException {
         if (!SpringBootUtil.doesSpringBootRepackageGoalExecutionExist(project)) {
             throw new MojoExecutionException("The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.");
         }
@@ -149,9 +162,9 @@ public class DeployMojo extends DeployMojoSupport {
         return libIndexCacheTarget;
     }
 
-    protected void installDependencies() throws Exception {
+    protected void installDependencies() throws MojoExecutionException, IOException {
         Set<Artifact> artifacts = project.getArtifacts();
-        log.debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
+        getLog().debug("Number of compile dependencies for " + project.getArtifactId() + " : " + artifacts.size());
         
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty
@@ -171,14 +184,14 @@ public class DeployMojo extends DeployMojoSupport {
                         installApp(resolveArtifact(artifact));
                     }
                 } else {
-                    log.warn(MessageFormat.format(messages.getString("error.application.not.supported"),
+                    getLog().warn(MessageFormat.format(messages.getString("error.application.not.supported"),
                             project.getId()));
                 }
             }
         }
     }
     
-    protected void installProject() throws Exception {
+    protected void installProject() throws MojoExecutionException, IOException {
         if (isSupportedType(project.getPackaging())) {
             if (looseApplication) {
                 installLooseApplication(project);
@@ -191,7 +204,7 @@ public class DeployMojo extends DeployMojoSupport {
         }
     }
 
-    private void installLooseApplication(MavenProject proj) throws Exception {
+    private void installLooseApplication(MavenProject proj) throws MojoExecutionException, IOException {
         String looseConfigFileName = getLooseConfigFileName(proj);
         String application = looseConfigFileName.substring(0, looseConfigFileName.length() - 4);
         File destDir = new File(serverDirectory, getAppsDirectory());
@@ -201,65 +214,89 @@ public class DeployMojo extends DeployMojoSupport {
         File devcDestDir = new File(new File(project.getBuild().getDirectory(), DevUtil.DEVC_HIDDEN_FOLDER), getAppsDirectory());
         File devcLooseConfigFile = new File(devcDestDir, looseConfigFileName);
 
-        LooseConfigData config = new LooseConfigData();
+        LooseConfigData config = createLooseConfigData();
 
         switch (proj.getPackaging()) {
             case "war":
                 validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
-                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigWar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
                     // install another copy that is container specific
-                    config = new LooseConfigData();
+                    config = createLooseConfigData();
                     installLooseConfigWar(proj, config, true);
-                    config.toXmlFile(devcLooseConfigFile);
+                    try {
+                        config.toXmlFile(devcLooseConfigFile);
+                    } catch (Exception e) {
+                        throw new MojoExecutionException("Error writing loose application configuration file: "+devcLooseConfigFile.getCanonicalPath(), e);
+                    }
                 }
                 break;
             case "ear":
                 validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
-                log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                 installLooseConfigEar(proj, config, false);
                 installAndVerifyApp(config, looseConfigFile, application);
                 if (proj.getProperties().containsKey("container")) {
                     // install another copy that is container specific
-                    config = new LooseConfigData();
+                    config = createLooseConfigData();
                     installLooseConfigEar(proj, config, true);
-                    config.toXmlFile(devcLooseConfigFile);
+                    try {
+                        config.toXmlFile(devcLooseConfigFile);
+                    } catch (Exception e) {
+                        throw new MojoExecutionException("Error writing loose application configuration file: "+devcLooseConfigFile.getCanonicalPath(), e);
+                    }
                 }
                 break;
             case "liberty-assembly":
                 if (mavenWarPluginExists(proj) || new File(proj.getBasedir(), "src/main/webapp").exists()) {
                     validateAppConfig(applicationFullPath.getCanonicalPath(), application, proj.getArtifactId());
-                    log.info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
+                    getLog().info(MessageFormat.format(messages.getString("info.install.app"), looseConfigFileName));
                     installLooseConfigWar(proj, config, false);
                     installAndVerifyApp(config, looseConfigFile, application);
                     if (proj.getProperties().containsKey("container")) {
                         // install another copy that is container specific
-                        config = new LooseConfigData();
+                        config = createLooseConfigData();
                         installLooseConfigWar(proj, config, true);
-                        config.toXmlFile(devcLooseConfigFile);
+                        try {
+                            config.toXmlFile(devcLooseConfigFile);
+                        } catch (Exception e) {
+                            throw new MojoExecutionException("Error writing loose application configuration file: "+devcLooseConfigFile.getCanonicalPath(), e);
+                        }
                     }
                 } else {
-                    log.debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
+                    getLog().debug("The liberty-assembly project does not contain the maven-war-plugin or src/main/webapp does not exist.");
                 }
                 break;
             default:
-                log.info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
+                getLog().info(MessageFormat.format(messages.getString("info.loose.application.not.supported"),
                         proj.getPackaging()));
                 installApp(proj.getArtifact());
                 break;
         }
     }
 
-    private void installAndVerifyApp(LooseConfigData config, File looseConfigFile, String applicationName) throws Exception {
+    private void installAndVerifyApp(LooseConfigData config, File looseConfigFile, String applicationName) throws MojoExecutionException, IOException {
         deleteApplication(new File(serverDirectory, "apps"), looseConfigFile);
         deleteApplication(new File(serverDirectory, "dropins"), looseConfigFile);
-        config.toXmlFile(looseConfigFile);
+        try {
+            config.toXmlFile(looseConfigFile);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error writing loose application file "+looseConfigFile+" from configuration data.", e);
+        }
         //Only checks if server is running
         verifyAppStarted(applicationName);
     }
 
+    private static LooseConfigData createLooseConfigData() throws MojoExecutionException {
+        try {
+            return new LooseConfigData();
+        } catch (ParserConfigurationException parserConfigurationException) {
+            throw new MojoExecutionException("Unable to create new LooseConfigData due to exception.", parserConfigurationException);
+        }
+    }
+    
     private void cleanupPreviousExecution() {
         if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();

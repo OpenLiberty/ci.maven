@@ -16,14 +16,19 @@
 package io.openliberty.tools.maven.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Profile;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -72,12 +77,16 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
     protected final String PLUGIN_CONFIG_XML = "liberty-plugin-config.xml";
 
     @Override
-    protected void installServerAssembly() throws Exception {
-        File f = exportParametersToXml();
-        super.installServerAssembly();
-        this.buildContext.refresh(f);
-        this.buildContext.refresh(installDirectory);
-    }
+    protected void installServerAssembly() throws MojoExecutionException {
+        try {
+            File f = exportParametersToXml();
+            super.installServerAssembly();
+            this.buildContext.refresh(f);
+            this.buildContext.refresh(installDirectory);
+        } catch (IOException | ParserConfigurationException | TransformerException e) {
+            throw new MojoExecutionException("Error installing Liberty server.", e);
+        }
+     }
 
     protected String getDeployPackages() {
         if ("ear".equals(project.getPackaging())) {
@@ -90,7 +99,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
      * Export plugin configuration parameters to
      * target/liberty-plugin-config.xml
      */
-    protected File exportParametersToXml() throws Exception {
+    protected File exportParametersToXml() throws IOException, ParserConfigurationException, TransformerException {
         PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
 
         List<Profile> profiles = project.getActiveProfiles();
@@ -260,7 +269,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             }
             break;
         default:
-            log.debug("The project artifact cannot be installed to a Liberty server because " + project.getPackaging()
+            getLog().debug("The project artifact cannot be installed to a Liberty server because " + project.getPackaging()
                     + " is not a supported packaging type.");
             name = null;
             break;
@@ -287,10 +296,10 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         fullyQualifiedFileName = fullyQualifiedFileName == null ? null : fullyQualifiedFileName.replace("\\","/");
 
         if (locations.contains(fileName) || ((fullyQualifiedFileName != null) && locations.contains(fullyQualifiedFileName))) {
-            log.info("Application configuration is found in server.xml : " + fileName);
+            getLog().info("Application configuration is found in server.xml : " + fileName);
             return true;
         } else {
-            log.info("Application configuration is not found in server.xml : " + fileName);
+            getLog().info("Application configuration is not found in server.xml : " + fileName);
             return false;
         }
     }
@@ -300,7 +309,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         Set<String> locations = getAppConfigLocationsFromSourceServerXml();
 
         if (locations.size() > 0) {
-            log.debug("Application configuration is found in server.xml.");
+            getLog().debug("Application configuration is found in server.xml.");
             return true;
         } else {
             return false;
@@ -316,12 +325,14 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
             Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-            scd = ServerConfigDocument.getInstance(CommonLogger.getInstance(log), serverXML, configDirectory,
+            CommonLogger logger = CommonLogger.getInstance(log);
+            setLog(logger.getLog());
+            scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,
                         libertyDirPropertyFiles);
             } catch (Exception e) {
-                log.warn(e.getLocalizedMessage());
-                log.debug(e);
+                getLog().warn(e.getLocalizedMessage());
+                getLog().debug(e);
             }
         }
         return scd != null ? scd.getLocations() : new HashSet<String>();
@@ -336,7 +347,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             if ("dropins".equals(appsDirectory) || "apps".equals(appsDirectory)) {
                 return appsDirectory;
             } else {
-                log.warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
+                getLog().warn(MessageFormat.format(messages.getString("warn.invalid.app.directory"), appsDirectory));
             }
         }
 
@@ -349,7 +360,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
             appsDirectory = "apps";
         }
         if (logDirectory) {
-            log.info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
+            getLog().info(MessageFormat.format(messages.getString("info.default.app.directory"), appsDirectory));
         }
         return appsDirectory;
     }
@@ -366,7 +377,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
 
     protected File getWarSourceDirectory(MavenProject proj) {
         String dir = getPluginConfiguration(proj, "org.apache.maven.plugins", "maven-war-plugin", "warSourceDirectory");
-        log.debug(
+        getLog().debug(
         		String.format("WAR source directory from POM: %s", dir));
         File warSourceDir;
         
@@ -380,7 +391,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         } else {
         	warSourceDir = new File(proj.getBasedir(), "src/main/webapp");
         }
-        log.debug(String.format("Final WAR source directory: %s (absolute: %s)", warSourceDir, warSourceDir.getAbsolutePath()));
+        getLog().debug(String.format("Final WAR source directory: %s (absolute: %s)", warSourceDir, warSourceDir.getAbsolutePath()));
         return warSourceDir;
     }
 
