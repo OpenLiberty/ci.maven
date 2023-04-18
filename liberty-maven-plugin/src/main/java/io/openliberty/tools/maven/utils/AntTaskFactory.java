@@ -27,11 +27,9 @@ import org.slf4j.LoggerFactory;
 public class AntTaskFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AntTaskFactory.class);
 
-    //private final MavenProject mavenProject;
     private final Project ant;
 
     private AntTaskFactory(MavenProject mavenProject) {
-        //this.mavenProject = mavenProject;
 
         this.ant = new Project();
         ant.setBaseDir(mavenProject.getBasedir());
