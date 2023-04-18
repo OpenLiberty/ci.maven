@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2021. 
+ * (C) Copyright IBM Corporation 2014, 2023. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,15 +137,23 @@ public class PackageServerMojo extends StartDebugMojoSupport {
             return;
         }
 
+        try {
+            doPackage();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error packaging the Liberty server.", e);
+        }
+    }
+
+    private void doPackage() throws MojoExecutionException, IOException {
         if (isInstall) {
             installServerAssembly();
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
             checkServerDirectoryExists();
         }
 
-        log.info(MessageFormat.format(messages.getString("info.server.package"), serverName));
+        getLog().info(MessageFormat.format(messages.getString("info.server.package"), serverName));
         ServerTask serverTask = initializeJava();
         copyConfigFiles();
         serverTask.setOperation("package");
@@ -156,7 +164,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         serverTask.setInclude(include);
         serverTask.setOs(os);
         serverTask.setServerRoot(serverRoot);
-        log.info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
+        getLog().info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
 
         if ("liberty-assembly".equals(project.getPackaging())) {
@@ -219,10 +227,10 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         ArrayList<String> includeValues = parseInclude();
         if (packageType == null) {
             if (includeValues.contains("runnable")) {
-                log.debug("Defaulting `packageType` to `jar` because the `include` value contains `runnable`.");
+                getLog().debug("Defaulting `packageType` to `jar` because the `include` value contains `runnable`.");
                 packageFileType = PackageFileType.JAR;
             } else {
-                log.debug("Defaulting `packageType` to `zip`.");
+                getLog().debug("Defaulting `packageType` to `zip`.");
                 packageFileType = PackageFileType.ZIP;
             }
         } else {
@@ -234,7 +242,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
                 }
                 packageFileType = packType;
             } else {
-                log.info("The `packageType` value " + packageType + " is not supported. Defaulting to 'zip'.");
+                getLog().info("The `packageType` value " + packageType + " is not supported. Defaulting to 'zip'.");
                 packageFileType = PackageFileType.ZIP;
             }
         }

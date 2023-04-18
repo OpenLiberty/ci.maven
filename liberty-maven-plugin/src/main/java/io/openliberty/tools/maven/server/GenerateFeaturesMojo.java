@@ -85,7 +85,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     @Override
     protected void doExecute() throws Exception {
         if (skip) {
-            log.info("\nSkipping generate-features goal.\n");
+            getLog().info("\nSkipping generate-features goal.\n");
             return;
         }
         generateFeatures();
@@ -117,7 +117,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             checkMultiModuleConflicts(graph);
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
-                log.debug("Downstream projects: " + downstreamProjects);
+                getLog().debug("Downstream projects: " + downstreamProjects);
                 return;
             } else {
                 // get all upstream projects
@@ -129,7 +129,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                         // ensuring that the latest umbrella dependencies are loaded
                         upstreamProjects.add(getMavenProject(upstreamProj.getFile()));
                     } catch (ProjectBuildingException e) {
-                        log.debug("Could not resolve the upstream project: " + upstreamProj.getFile()
+                        getLog().debug("Could not resolve the upstream project: " + upstreamProj.getFile()
                                 + " using the current Maven session. Falling back to last resolved upstream project.");
                         upstreamProjects.add(upstreamProj); // fail gracefully, use last resolved project
                     }
@@ -145,11 +145,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
 
-        log.debug("--- Generate Features values ---");
-        log.debug("Binary scanner jar: " + binaryScanner.getName());
-        log.debug("optimize generate features: " + optimize);
+        getLog().debug("--- Generate Features values ---");
+        getLog().debug("Binary scanner jar: " + binaryScanner.getName());
+        getLog().debug("optimize generate features: " + optimize);
         if (classFiles != null && !classFiles.isEmpty()) {
-            log.debug("Generate features for the following class files: " + classFiles.toString());
+            getLog().debug("Generate features for the following class files: " + classFiles.toString());
         }
 
         // TODO add support for env variables
@@ -159,8 +159,8 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         try {
             libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDirectory, userDirectory, serverDirectory);
         } catch (IOException e) {
-            log.debug("Exception reading the server property files", e);
-            log.error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
+            getLog().debug("Exception reading the server property files", e);
+            getLog().error("Error attempting to generate server feature list. Ensure your user account has read permission to the property files in the server installation directory.");
             return;
         } */
 
@@ -192,7 +192,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
                 // log as warning and continue to call binary scanner to detect conflicts in
                 // user specified features
-                log.warn(NO_CLASSES_DIR_WARNING);
+                getLog().warn(NO_CLASSES_DIR_WARNING);
             }
             eeVersion = getEEVersion(mavenProjects);
             mpVersion = getMPVersion(mavenProjects);
@@ -209,15 +209,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
             if (modifiedSet.containsAll(userFeatures)) {
                 // none of the user features were modified, only features which were generated earlier.
-                log.debug(
+                getLog().debug(
                         "FeatureModifiedException, modifiedSet containsAll userFeatures, pass modifiedSet on to generateFeatures");
                 // features were modified to get a working set with the application's API usage, display warning to users and use modified set
-                log.warn(featuresModified.getMessage());
+                getLog().warn(featuresModified.getMessage());
                 scannedFeatureList = modifiedSet;
             } else {
                 Set<String> allAppFeatures = featuresModified.getSuggestions(); // suggestions are scanned from binaries
                 allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
-                log.debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
+                getLog().debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
                 throw new MojoExecutionException(
                         String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
 
@@ -239,8 +239,8 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             // throw an error when there is a problem not caught in runBinaryScanner()
             Object o = x.getCause();
             if (o != null) {
-                log.debug("Caused by exception:" + x.getCause().getClass().getName());
-                log.debug("Caused by exception message:" + x.getCause().getMessage());
+                getLog().debug("Caused by exception:" + x.getCause().getClass().getName());
+                getLog().debug("Caused by exception message:" + x.getCause().getMessage());
             }
             throw new MojoExecutionException("Failed to generate a working set of features. " + x.getMessage(), x);
         }
@@ -255,18 +255,18 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             Set<String> userDefinedFeatures = optimize ? existingFeatures
                     : servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
                             generatedFiles);
-            log.debug("User defined features:" + userDefinedFeatures);
+            getLog().debug("User defined features:" + userDefinedFeatures);
             servUtil.setLowerCaseFeatures(true);
             if (userDefinedFeatures != null) {
                 missingLibertyFeatures.removeAll(userDefinedFeatures);
             }
         }
-        log.debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
+        getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
         File newServerXmlSrc = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
         File serverXml = findConfigFile("server.xml", serverXmlFile);
         ServerConfigXmlDocument doc = getServerXmlDocFromConfig(serverXml);
-        log.debug("Xml document we'll try to update after generate features doc=" + doc + " file=" + serverXml);
+        getLog().debug("Xml document we'll try to update after generate features doc=" + doc + " file=" + serverXml);
 
         try {
             if (missingLibertyFeatures.size() > 0) {
@@ -278,20 +278,20 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     Element featureManagerElem = configDocument.createFeatureManager();
                     configDocument.createComment(featureManagerElem, GENERATED_FEATURES_COMMENT);
                     for (String missing : missingLibertyFeatures) {
-                        log.debug(String.format("Adding missing feature %s to %s.", missing, GENERATED_FEATURES_FILE_PATH));
+                        getLog().debug(String.format("Adding missing feature %s to %s.", missing, GENERATED_FEATURES_FILE_PATH));
                         configDocument.createFeature(missing);
                     }
                     // Generate log message before writing file as the file change event kicks off other dev mode actions
-                    log.info("Generated the following features: " + missingLibertyFeatures);
+                    getLog().info("Generated the following features: " + missingLibertyFeatures);
                     configDocument.writeXMLDocument(newServerXmlSrc);
-                    log.debug("Created file " + newServerXmlSrc);
+                    getLog().debug("Created file " + newServerXmlSrc);
                     // Add a reference to this new file in existing server.xml.
                     addGenerationCommentToConfig(doc, serverXml);
                 } else {
-                    log.info("Regenerated the following features: " + missingLibertyFeatures);
+                    getLog().info("Regenerated the following features: " + missingLibertyFeatures);
                 }
             } else {
-                log.info("No additional features were generated.");
+                getLog().info("No additional features were generated.");
                 if (newServerXmlSrc.exists()) {
                     // generated-features.xml exists but no additional features were generated
                     // create empty features list with comment
@@ -303,7 +303,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
             }
         } catch (ParserConfigurationException | TransformerException | IOException e) {
-            log.debug("Exception creating the server features file", e);
+            getLog().debug("Exception creating the server features file", e);
                 throw new MojoExecutionException(
                         "Automatic generation of features failed. Error attempting to create the "
                                 + GENERATED_FEATURES_FILE_NAME
@@ -380,7 +380,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         try {
             return ServerConfigXmlDocument.newInstance(serverXml);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.debug("Exception creating server.xml object model", e);
+            getLog().debug("Exception creating server.xml object model", e);
         }
         return null;
     }
@@ -396,7 +396,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             doc.removeFMComment(FEATURES_FILE_MESSAGE);
             doc.writeXMLDocument(serverXml);
         } catch (IOException | TransformerException e) {
-            log.debug("Exception removing comment from server.xml", e);
+            getLog().debug("Exception removing comment from server.xml", e);
         }
         return;
     }
@@ -415,7 +415,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 XmlDocument.addNewlineBeforeFirstElement(serverXml);
             }
         } catch (IOException | TransformerException e) {
-            log.debug("Exception adding comment to server.xml", e);
+            getLog().debug("Exception adding comment to server.xml", e);
         }
         return;
     }
@@ -424,7 +424,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     private Set<String> getClassesDirectories(List<MavenProject> mavenProjects) throws MojoExecutionException {
         Set<String> dirs = new HashSet<String>();
         String classesDirName = null;
-        log.debug("For binary scanner gathering Java build output directories for Maven projects, size="
+        getLog().debug("For binary scanner gathering Java build output directories for Maven projects, size="
                 + mavenProjects.size());
         for (MavenProject mavenProject : mavenProjects) {
             classesDirName = getClassesDirectory(mavenProject.getBuild().getOutputDirectory());
@@ -433,7 +433,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
         }
         for (String s : dirs) {
-            log.debug("Found dir:" + s);
+            getLog().debug("Found dir:" + s);
         }
         return dirs;
     }
@@ -447,7 +447,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             }
         } catch (IOException x) {
             String classesDirAbsPath = classesDir.getAbsolutePath();
-            log.debug("IOException obtaining canonical path name for a project's classes directory: " + classesDirAbsPath);
+            getLog().debug("IOException obtaining canonical path name for a project's classes directory: " + classesDirAbsPath);
             return classesDirAbsPath;
         }
         return null; // directory does not exist.
@@ -467,7 +467,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             for (MavenProject mavenProject : mavenProjects) {
                 try {
                     String ver = getEEVersion(mavenProject);
-                    log.debug("Java and/or Jakarta EE umbrella dependency found in project: " + mavenProject.getName());
+                    getLog().debug("Java and/or Jakarta EE umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         eeVersionsDetected.add(ver);
                     }
@@ -485,7 +485,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
             }
             if (eeVersionsDetected.size() > 1) {
-                log.debug(
+                getLog().debug(
                         "Multiple Java and/or Jakarta EE versions found across multiple project modules, using the latest version ("
                                 + eeVersion + ") found to generate Liberty features.");
             }
@@ -532,7 +532,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
             for (MavenProject mavenProject : mavenProjects) {
                 try {
                     String ver = getMPVersion(mavenProject);
-                    log.debug("MicroProfile umbrella dependency found in project: " + mavenProject.getName());
+                    getLog().debug("MicroProfile umbrella dependency found in project: " + mavenProject.getName());
                     if (ver != null) {
                         mpVersionsDetected.add(ver);
                     }
@@ -550,7 +550,7 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                 }
             }
             if (mpVersionsDetected.size() > 1) {
-                log.debug(
+                getLog().debug(
                         "Multiple MicroProfile versions found across multiple project modules, using the latest version ("
                                 + mpVersion + ") found to generate Liberty features.");
             }
@@ -590,27 +590,27 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         }
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            getLog().debug(msg);
         }
         @Override
         public void debug(String msg, Throwable t) {
-            log.debug(msg, t);
+            getLog().debug(msg, t);
         }
         @Override
         public void error(String msg) {
-            log.error(msg);
+            getLog().error(msg);
         }
         @Override
         public void warn(String msg) {
-            log.warn(msg);
+            getLog().warn(msg);
         }
         @Override
         public void info(String msg) {
-            log.info(msg);
+            getLog().info(msg);
         }
         @Override
         public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
+            return getLog().isDebugEnabled();
         }
     }
 

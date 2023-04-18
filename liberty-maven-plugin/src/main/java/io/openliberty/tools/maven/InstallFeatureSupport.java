@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020, 2021.
+ * (C) Copyright IBM Corporation 2020, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,42 +57,42 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
 
         @Override
         public void debug(String msg) {
-            log.debug(msg);
+            getLog().debug(msg);
         }
         
         @Override
         public void debug(String msg, Throwable e) {
-            log.debug(msg, e);
+            getLog().debug(msg, e);
         }
         
         @Override
         public void debug(Throwable e) {
-            log.debug(e);
+            getLog().debug(e);
         }
         
         @Override
         public void warn(String msg) {
-            log.warn(msg);
+            getLog().warn(msg);
         }
 
         @Override
         public void info(String msg) {
-            log.info(msg);
+            getLog().info(msg);
         }
         
         @Override
         public boolean isDebugEnabled() {
-            return log.isDebugEnabled();
+            return getLog().isDebugEnabled();
         }
 
         @Override
         public void error(String msg) {
-            log.error(msg);
+            getLog().error(msg);
         }
 
         @Override
         public void error(String msg, Throwable e) {
-            log.error(msg, e);
+            getLog().error(msg, e);
         }
         
         @Override
@@ -111,7 +111,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
             if ((findEsaFiles && feature.getFeature().endsWith(".esa"))
                     || (!findEsaFiles && !feature.getFeature().endsWith(".esa"))) {
                 result.add(feature.getFeature());
-                log.debug("Plugin listed " + (findEsaFiles ? "ESA" : "feature") + ": " + feature.getFeature());
+                getLog().debug("Plugin listed " + (findEsaFiles ? "ESA" : "feature") + ": " + feature.getFeature());
             }
         }
         return result;
@@ -123,7 +123,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
         for (org.apache.maven.model.Dependency dependencyArtifact: dependencyArtifacts){
             if (("esa").equals(dependencyArtifact.getType())) {
                 result.add(dependencyArtifact.getArtifactId());
-                log.debug("Dependency feature: " + dependencyArtifact.getArtifactId());
+                getLog().debug("Dependency feature: " + dependencyArtifact.getArtifactId());
             }
         }
         return result;
@@ -135,7 +135,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
         List<String> result = new ArrayList<String>();
         org.apache.maven.model.DependencyManagement dependencyManagement = project.getDependencyManagement();
         if(dependencyManagement == null) {
-        	log.debug("Feature-bom is not provided by the user");
+        	getLog().debug("Feature-bom is not provided by the user");
         	return null;
         }
         List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
@@ -144,7 +144,7 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
                 String coordinate = String.format("%s:%s:%s",
                         dependencyArtifact.getGroupId(), FEATURES_JSON_ARTIFACT_ID, dependencyArtifact.getVersion());
                 result.add(coordinate);
-                log.info("Additional user feature json coordinate: " + coordinate);
+                getLog().info("Additional user feature json coordinate: " + coordinate);
             }
         }
         return result;
@@ -209,16 +209,16 @@ public class InstallFeatureSupport extends ServerFeatureSupport {
         try {
             util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
         } catch (PluginScenarioException e) {
-            log.debug(e.getMessage());
+            getLog().debug(e.getMessage());
             if (noFeaturesSection) {
-                log.debug("Skipping feature installation with installUtility because the "
+                getLog().debug("Skipping feature installation with installUtility because the "
                         + "features configuration element with an acceptLicense parameter "
                         + "was not specified for the install-feature goal.");
             } else if(additionalJsons != null && !additionalJsons.isEmpty()) {
-            	log.debug("Skipping feature installation with installUtility because it is not supported for user feature");
+            	getLog().debug("Skipping feature installation with installUtility because it is not supported for user feature");
         	}else {
                 installFromAnt = true;
-                log.debug("Installing features from installUtility.");
+                getLog().debug("Installing features from installUtility.");
             }
         }
     }

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package io.openliberty.tools.maven.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -60,16 +62,29 @@ public class DumpServerMojo extends StartDebugMojoSupport {
             getLog().info("\nSkipping dump goal.\n");
             return;
         }
+
+        doDumpServer();
+    }
+
+    private void doDumpServer() throws MojoExecutionException {
         if (isInstall) {
-            installServerAssembly();
+            try {
+                installServerAssembly();
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error installing the Liberty server.", e);
+            }
         } else {
-            log.info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
+            getLog().info(MessageFormat.format(messages.getString("info.install.type.preexisting"), ""));
             checkServerHomeExists();
             checkServerDirectoryExists();
         }
 
         ServerTask serverTask = initializeJava();
-        copyConfigFiles();
+        try {
+            copyConfigFiles();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying configuration files to Liberty server directory.", e);
+        }
         serverTask.setOperation("dump");
         serverTask.setArchive(archive);
         serverTask.setInclude(generateInclude());

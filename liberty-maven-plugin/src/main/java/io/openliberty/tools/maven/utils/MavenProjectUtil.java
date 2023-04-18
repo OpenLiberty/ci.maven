@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018, 2020.
+ * (C) Copyright IBM Corporation 2018, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 package io.openliberty.tools.maven.utils;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -193,9 +191,8 @@ public class MavenProjectUtil {
      * @param project
      * @param pluginKey
      * @return the major plugin version
-     * @throws PluginScenarioException
      */
-    public static int getMajorPluginVersion(MavenProject project, String pluginKey) throws PluginScenarioException {
+    public static int getMajorPluginVersion(MavenProject project, String pluginKey) {
         Plugin plugin = project.getPlugin(pluginKey);
         return Character.getNumericValue(plugin.getVersion().charAt(0));
     }

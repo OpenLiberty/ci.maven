@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2021.
+ * (C) Copyright IBM Corporation 2015, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -63,11 +64,20 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         if(!initialize()) {
             return;
         }
+
+        doInstallFeatures();
+    }
+
+    private void doInstallFeatures() throws MojoExecutionException {
         if (serverDir != null) {
             serverDirectory = serverDir;
-            log.debug("Overriding the server directory with: " + serverDirectory);
+            getLog().debug("Overriding the server directory with: " + serverDirectory);
         }
-        installFeatures();
+        try {
+            installFeatures();
+        } catch (PluginExecutionException e) {
+            throw new MojoExecutionException("Error installing features for server "+serverName, e);
+        }
     }
 
     private void installFeatures() throws PluginExecutionException {
@@ -81,7 +91,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
             boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
             if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
                 if (!skipBetaInstallFeatureWarning) {
-                    log.warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
+                    getLog().warn("Features that are not included with the beta runtime cannot be installed. Features that are included with the beta runtime can be enabled by adding them to your server.xml file.");
                 }
                 return; // do not install features if the runtime is a beta version
             }

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2020.
+ * (C) Copyright IBM Corporation 2014, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
-import java.io.File;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -52,6 +51,11 @@ public class RunServerMojo extends PluginConfigSupport {
             getLog().info("\nSkipping run goal.\n");
             return;
         }
+
+        doRunServer();
+    }
+
+    private void doRunServer() throws MojoExecutionException {
         String projectPackaging = project.getPackaging();
 
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
@@ -63,7 +67,7 @@ public class RunServerMojo extends PluginConfigSupport {
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
-                log.debug("Downstream projects: " + downstreamProjects);
+                getLog().debug("Downstream projects: " + downstreamProjects);
                 hasDownstreamProjects = true;
             }
 
@@ -82,7 +86,7 @@ public class RunServerMojo extends PluginConfigSupport {
                 getOrCreateEarArtifact(project);
             }
         } else if (projectPackaging.equals("pom")) {
-            log.debug("Skipping compile/resources on module with pom packaging type");
+            getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
             runMojo("org.apache.maven.plugins", "maven-compiler-plugin", "compile");
@@ -108,7 +112,7 @@ public class RunServerMojo extends PluginConfigSupport {
             } catch (MojoExecutionException e) {
                 if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
                     // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
-                    log.warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
+                    getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
                     throw e;
                 }
             }
@@ -124,7 +128,11 @@ public class RunServerMojo extends PluginConfigSupport {
         runLibertyMojoDeploy(false);
 
         ServerTask serverTask = initializeJava();
-        copyConfigFiles();
+        try {
+            copyConfigFiles();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying configuration files to Liberty server directory.", e);
+        }
         serverTask.setUseEmbeddedServer(embedded);
         serverTask.setClean(clean);
         serverTask.setOperation("run");       
