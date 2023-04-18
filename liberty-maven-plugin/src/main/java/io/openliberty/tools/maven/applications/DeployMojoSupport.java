@@ -280,7 +280,6 @@ public class DeployMojoSupport extends LooseAppSupport {
         if (shouldValidateAppStart()) {
             String appName = appFile.substring(0, appFile.lastIndexOf('.'));
             if (getAppsDirectory().equals("apps")) {
-                ServerConfigDocument scd = null;
 
                 File serverXML = new File(serverDirectory, "server.xml");
 
@@ -288,7 +287,7 @@ public class DeployMojoSupport extends LooseAppSupport {
                     Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                     CommonLogger logger = CommonLogger.getInstance(log);
                     setLog(logger.getLog());
-                    scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
+                    ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                             bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                     //appName will be set to a name derived from appFile if no name can be found.

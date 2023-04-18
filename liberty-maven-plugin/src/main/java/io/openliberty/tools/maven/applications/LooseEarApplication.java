@@ -31,7 +31,6 @@ import org.w3c.dom.Element;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
-import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 
 public class LooseEarApplication extends LooseApplication {
 

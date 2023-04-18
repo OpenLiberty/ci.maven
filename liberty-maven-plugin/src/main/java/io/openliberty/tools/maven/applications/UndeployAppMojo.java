@@ -16,7 +16,6 @@
 package io.openliberty.tools.maven.applications;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Set;
@@ -41,8 +40,6 @@ public class UndeployAppMojo extends DeployMojoSupport {
 
     private static final String STOP_APP_MESSAGE_CODE_REG = "CWWKZ0009I.*";
     private static final long APP_STOP_TIMEOUT_DEFAULT = 30 * 1000;
-
-    private ServerConfigDocument scd;
     
     /*
      * (non-Javadoc)
@@ -135,7 +132,6 @@ public class UndeployAppMojo extends DeployMojoSupport {
         String appName = file.getName().substring(0, file.getName().lastIndexOf('.'));
 
         if (getAppsDirectory().equals("apps")) {
-            scd = null;
 
             try {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
@@ -143,7 +139,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                 CommonLogger logger = CommonLogger.getInstance(log);
                 setLog(logger.getLog());
-                scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
+                ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                 bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                 //appName will be set to a name derived from file if no name can be found.

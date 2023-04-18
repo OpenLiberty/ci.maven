@@ -25,7 +25,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;

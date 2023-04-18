@@ -70,7 +70,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     @Parameter(defaultValue = "${settings}", required = true, readonly = true)
     protected Settings settings;
     
-    //@Component(role = AntHelper.class)
     protected AntTaskFactory ant;
     
     @Component
@@ -105,7 +104,6 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     protected void init() throws MojoExecutionException, MojoFailureException {
         super.init();
         // Initialize ant helper instance
-        //ant.setProject(getProject());
         ant = AntTaskFactory.forMavenProject(getProject());
     }
     
