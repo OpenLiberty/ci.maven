@@ -28,8 +28,11 @@ import io.openliberty.tools.ant.ServerTask;
  */
 @Mojo(name = "status")
 public class CheckStatusMojo extends StartDebugMojoSupport {
-
-    protected void doExecute() throws Exception {
+    
+    @Override
+    public void execute() throws MojoExecutionException {
+        init();
+        
         if (skip) {
             getLog().info("\nSkipping status goal.\n");
             return;

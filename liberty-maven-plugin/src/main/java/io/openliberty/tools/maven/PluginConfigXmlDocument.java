@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (C) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Profile;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.common.plugins.config.XmlDocument;
@@ -77,7 +77,7 @@ public class PluginConfigXmlDocument extends XmlDocument {
         doc.getDocumentElement().appendChild(child);
     }
     
-    public void createElement(String name, ArtifactItem value) {
+    public void createElement(String name, Dependency value) {
         if (value == null) {
             return;
         }

@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

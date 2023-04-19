@@ -55,12 +55,10 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
     @Parameter
     private File serverDir;
 
-    /*
-     * (non-Javadoc)
-     * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
-     */
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if(!initialize()) {
             return;
         }

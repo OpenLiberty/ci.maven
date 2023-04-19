@@ -24,11 +24,11 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.PrepareFeatureUtil;
 
-public class PrepareFeatureSupport extends BasicSupport {
+public abstract class PrepareFeatureSupport extends BasicSupport {
 	
 	
 	private PrepareFeatureUtil util;
-	
+
     protected class PrepareFeatureMojoUtil extends PrepareFeatureUtil {
         public PrepareFeatureMojoUtil(String openLibertyVersion)
                 throws PluginScenarioException, PluginExecutionException {

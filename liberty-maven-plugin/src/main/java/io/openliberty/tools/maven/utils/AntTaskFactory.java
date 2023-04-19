@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package io.openliberty.tools.maven.utils;
+ */
+package io.openliberty.tools.maven.utils;
 
 import java.io.PrintStream;
 import java.util.Objects;

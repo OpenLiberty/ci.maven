@@ -18,7 +18,6 @@ package io.openliberty.tools.maven.server;
 import java.text.MessageFormat;
 
 import org.apache.maven.plugin.MojoExecutionException;
-
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -45,13 +44,11 @@ public class UninstallFeatureMojo extends BasicSupport {
     @Parameter
     private Features features;
 
-    /*
-     * (non-Javadoc)
-     * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
-     */
     @Override
-    protected void doExecute() throws Exception {
-        if (skip) {
+    public void execute() throws MojoExecutionException {
+        init();
+
+         if (skip) {
             getLog().info("\nSkipping uninstall-feature goal.\n");
             return;
         }

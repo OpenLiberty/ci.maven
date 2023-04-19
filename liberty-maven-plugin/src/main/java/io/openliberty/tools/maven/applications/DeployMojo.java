@@ -47,8 +47,11 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
  */
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class DeployMojo extends DeployMojoSupport {
-
-    protected void doExecute() throws Exception {
+    
+    @Override
+    public void execute() throws MojoExecutionException {
+        init();
+        
         if (skip) {
             getLog().info("\nSkipping deploy goal.\n");
             return;

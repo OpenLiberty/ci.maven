@@ -45,7 +45,7 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
  * 
  * 
  */
-public class PluginConfigSupport extends StartDebugMojoSupport {
+public abstract class PluginConfigSupport extends StartDebugMojoSupport {
 
     /**
      * Application directory.
@@ -325,7 +325,7 @@ public class PluginConfigSupport extends StartDebugMojoSupport {
         if (serverXML != null && serverXML.exists()) {
             try {
             Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-            CommonLogger logger = CommonLogger.getInstance(log);
+            CommonLogger logger = CommonLogger.getInstance(getLog());
             setLog(logger.getLog());
             scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,

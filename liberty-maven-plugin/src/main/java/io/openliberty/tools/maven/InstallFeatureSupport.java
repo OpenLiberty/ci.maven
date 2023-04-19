@@ -32,7 +32,7 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProper
 import io.openliberty.tools.maven.server.types.Features;
 
 
-public class InstallFeatureSupport extends ServerFeatureSupport {
+public abstract class InstallFeatureSupport extends ServerFeatureSupport {
 
     /**
      * Define a set of features to install in the server and the configuration

@@ -50,8 +50,11 @@ public class CleanServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "cleanApps", defaultValue = "false")
     private boolean cleanApps = false;
+    
+    @Override
+    public void execute() throws MojoExecutionException {
+        init();
 
-    protected void doExecute() throws Exception {
         if (skip) {
             getLog().info("\nSkipping clean goal.\n");
             return;

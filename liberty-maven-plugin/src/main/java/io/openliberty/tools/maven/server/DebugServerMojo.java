@@ -37,9 +37,11 @@ public class DebugServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "clean", defaultValue = "false")
     protected boolean clean;
-
+    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping debug goal.\n");
             return;

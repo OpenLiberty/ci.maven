@@ -26,7 +26,7 @@ import io.openliberty.tools.maven.utils.MavenProjectUtil;
 /**
  * Loose application Liberty server support.
  */
-public class LooseAppSupport extends PluginConfigSupport {
+public abstract class LooseAppSupport extends PluginConfigSupport {
 
     // get loose application configuration file name for project artifact
     public String getLooseConfigFileName(MavenProject project) {

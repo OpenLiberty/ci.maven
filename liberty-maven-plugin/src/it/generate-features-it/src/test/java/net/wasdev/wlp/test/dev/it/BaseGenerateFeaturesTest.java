@@ -48,7 +48,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -75,7 +75,7 @@ public class BaseGenerateFeaturesTest {
         assertTrue(tempProj.exists());
         assertTrue(basicProj.exists());
 
-        FileUtils.copyDirectoryStructure(basicProj, tempProj);
+        FileUtils.copyDirectory(basicProj, tempProj);
         assertTrue(tempProj.listFiles().length > 0);
         logFile = new File(basicProj, "logFile.txt");
         assertTrue(logFile.createNewFile());

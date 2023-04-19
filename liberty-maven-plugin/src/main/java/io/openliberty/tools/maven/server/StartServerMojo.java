@@ -61,9 +61,11 @@ public class StartServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "embedded", defaultValue = "false")
     private boolean embedded;
-
+   
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping start goal.\n");
             return;

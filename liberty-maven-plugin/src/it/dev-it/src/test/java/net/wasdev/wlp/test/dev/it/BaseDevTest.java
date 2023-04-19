@@ -44,7 +44,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -121,7 +122,7 @@ public class BaseDevTest {
 
       assertTrue(projectRoot+" directory does not exist", basicDevProj.exists());
 
-      FileUtils.copyDirectoryStructure(basicDevProj, tempProj);
+      FileUtils.copyDirectory(basicDevProj, tempProj);
       assertTrue("temp directory does not contain expected copied files from "+projectRoot, tempProj.listFiles().length > 0);
 
       // in case cleanup was not successful, try to delete the various log files so we can proceed

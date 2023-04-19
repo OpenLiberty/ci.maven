@@ -63,7 +63,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -76,7 +75,7 @@ import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 /**
  * Start/Debug server support.
  */
-public class StartDebugMojoSupport extends ServerFeatureSupport {
+public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
     private static final String LIBERTY_MAVEN_PLUGIN_GROUP_ID = "io.openliberty.tools";
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
@@ -945,7 +944,7 @@ public class StartDebugMojoSupport extends ServerFeatureSupport {
      * @param earProject
      */
     protected void getOrCreateEarArtifact(MavenProject earProject) {
-        ArtifactItem existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
+        org.apache.maven.model.Dependency existingEarItem = createArtifactItem(earProject.getGroupId(), earProject.getArtifactId(), earProject.getPackaging(), earProject.getVersion());
         try {
             Artifact existingEarArtifact = getArtifact(existingEarItem);
             getLog().debug("EAR artifact already exists at " + existingEarArtifact.getFile());

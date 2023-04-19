@@ -55,9 +55,11 @@ public class DumpServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "threadDump")
     private boolean threadDump;
-
+    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping dump goal.\n");
             return;

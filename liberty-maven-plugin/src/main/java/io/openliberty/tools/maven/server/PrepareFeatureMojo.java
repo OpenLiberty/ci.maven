@@ -33,10 +33,11 @@ import io.openliberty.tools.maven.PrepareFeatureSupport;
  */
 @Mojo(name = "prepare-feature")
 public class PrepareFeatureMojo extends PrepareFeatureSupport {
-	
-	
+	    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping prepare-feature goal.\n");
             return;

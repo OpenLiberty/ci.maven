@@ -23,19 +23,16 @@ import java.util.HashSet;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.settings.Settings;
-import org.codehaus.mojo.pluginsupport.MojoSupport;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -54,15 +51,15 @@ import static java.util.Objects.requireNonNull;
  * Liberty Abstract Mojo Support
  * 
  */
-public abstract class AbstractLibertySupport extends MojoSupport {
+public abstract class AbstractLibertySupport extends AbstractMojo {
     /**
      * Maven Project
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     protected MavenProject project = null;
     
-    @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
-    protected ArtifactRepository artifactRepository = null;
+    //@Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
+    //protected ArtifactRepository artifactRepository = null;
     
     /**
      * The build settings.
@@ -97,14 +94,13 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return project;
     }
     
-    protected ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
+    protected RepositorySystemSession getRepoSession() {
+        return this.repoSession;
     }
     
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        super.init();
-        // Initialize ant helper instance
-        ant = AntTaskFactory.forMavenProject(getProject());
+    protected void init() throws MojoExecutionException {
+       // Initialize ant helper instance
+       ant = AntTaskFactory.forMavenProject(getProject());
     }
     
     protected boolean isReactorMavenProject(Artifact artifact) {
@@ -139,13 +135,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return null;
     }
     
-    //
-    // Override methods in org.codehaus.mojo.pluginsupport.MojoSupport to resolve/create Artifact 
-    // from ArtifactItem with Maven3 APIs.
-    //
-    
     /**
-     * Resolves the Artifact from the remote repository if necessary. If no version is specified, it will
+     * Resolves the Dependency from the remote repository if necessary. If no version is specified, it will
      * be retrieved from the dependency list or from the DependencyManagement section of the pom.
      *
      *
@@ -154,8 +145,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    @Override
-    protected Artifact getArtifact(final ArtifactItem item) throws MojoExecutionException {
+    protected Artifact getArtifact(final Dependency item) throws MojoExecutionException {
         Artifact artifact = getResolvedArtifact(item);
 
         if (artifact == null) {
@@ -168,7 +158,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     }
     
     /**
-     * Resolves the Artifact from the remote repository if necessary. If no version is specified, it will
+     * Resolves the Dependency from the remote repository if necessary. If no version is specified, it will
      * be retrieved from the dependency list or from the DependencyManagement section of the pom.  If no
      * dependency or dependencyManagement artifact is found for the given item a 'null' will be returned.
      *
@@ -178,7 +168,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    protected Artifact getResolvedArtifact(final ArtifactItem item) throws MojoExecutionException {
+    protected Artifact getResolvedArtifact(final Dependency item) throws MojoExecutionException {
         assert item != null;
         Artifact artifact = null;
         
@@ -208,7 +198,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     }
 
     /**
-     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * Equivalent to {@link #getArtifact(Dependency)} with an Dependency
      * defined by the given the coordinates. Retrieves the main artifact (i.e. with no classifier).
      *
      * <p>This is the same as calling
@@ -233,7 +223,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
     }
 
     /**
-     * Equivalent to {@link #getArtifact(ArtifactItem)} with an ArtifactItem
+     * Equivalent to {@link #getArtifact(Dependency)} with an Dependency
      * defined by the given the coordinates.
      * 
      * @param groupId
@@ -252,7 +242,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *             Failed to create artifact
      */
     protected Artifact getArtifact(String groupId, String artifactId, String type, String version, String classifier ) throws MojoExecutionException {
-        ArtifactItem item = new ArtifactItem();
+        Dependency item = new Dependency();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
@@ -262,16 +252,16 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return getArtifact(item);
     }
 
-    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version) {
+    protected Dependency createArtifactItem(String groupId, String artifactId, String type, String version) {
         return getArtifactItem( groupId, artifactId, type, version, null );
     }
 
-    protected ArtifactItem createArtifactItem(String groupId, String artifactId, String type, String version, String classifier) {
+    protected Dependency createArtifactItem(String groupId, String artifactId, String type, String version, String classifier) {
         return getArtifactItem( groupId, artifactId, type, version, classifier );
     }
 
-    private ArtifactItem getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
-        ArtifactItem item = new ArtifactItem();
+    private Dependency getArtifactItem( String groupId, String artifactId, String type, String version, String classifier ) {
+        Dependency item = new Dependency();
         item.setGroupId(groupId);
         item.setArtifactId(artifactId);
         item.setType(type);
@@ -336,7 +326,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             for (Artifact projectArtifact : artifacts) {
                 if (isMatchingProjectDependency(projectArtifact, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
                     if (!projectArtifact.isResolved()) {
-                        ArtifactItem item = createArtifactItem(projectArtifact.getGroupId(), projectArtifact.getArtifactId(), projectArtifact.getType(), projectArtifact.getVersion(), projectArtifact.getClassifier());
+                        Dependency item = createArtifactItem(projectArtifact.getGroupId(), projectArtifact.getArtifactId(), projectArtifact.getType(), projectArtifact.getVersion(), projectArtifact.getClassifier());
                         projectArtifact = getArtifact(item);
                     }
                     // Ignore test-scoped artifacts, by design
@@ -355,7 +345,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
             
                 for (Dependency dependency : list) {
                     if (isMatchingProjectDependency(dependency, groupId, isWildcard, compareArtifactId, isClassifierWildcard, compareClassifier)) {
-                        ArtifactItem item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
+                        Dependency item = createArtifactItem(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getClassifier());
                         Artifact artifact = getArtifact(item);
                         // Ignore test-scoped artifacts, by design
                         if (!"test".equals(artifact.getScope())) {
@@ -487,8 +477,8 @@ public abstract class AbstractLibertySupport extends MojoSupport {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    @Override
-    protected Artifact createArtifact(final ArtifactItem item) throws MojoExecutionException {
+    //@Override
+    protected Artifact createArtifact(final Dependency item) throws MojoExecutionException {
         assert item != null;
         
         if (item.getVersion() == null) {
@@ -508,7 +498,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return resolveArtifactItem(item);
     }
     
-    private Artifact resolveFromProjectDependencies(ArtifactItem item) {
+    private Artifact resolveFromProjectDependencies(Dependency item) {
         Set<Artifact> actifacts = getProject().getArtifacts();
         
         for (Artifact artifact : actifacts) {
@@ -529,7 +519,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return null;
     }
     
-    private Dependency resolveFromProjectDepMgmt(ArtifactItem item) {
+    private Dependency resolveFromProjectDepMgmt(Dependency item) {
         // if project has dependencyManagement section
         if (getProject().getDependencyManagement() != null) {
             List<Dependency> list = getProject().getDependencyManagement().getDependencies();
@@ -549,7 +539,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         return null;
     }
     
-    private Artifact resolveArtifactItem(final ArtifactItem item) throws MojoExecutionException {
+    private Artifact resolveArtifactItem(final Dependency item) throws MojoExecutionException {
         org.eclipse.aether.artifact.Artifact aetherArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
                 item.getGroupId(), item.getArtifactId(), item.getType(), item.getVersion());
         
@@ -561,7 +551,7 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         
         if (artifactFile != null && artifactFile.exists()) {
         	String pathToLocalArtifact = this.repoSession.getLocalRepositoryManager().getPathForLocalArtifact(aetherArtifact);
-            File localArtifactFile = new File (this.artifactRepository.getBasedir() ,pathToLocalArtifact);
+            File localArtifactFile = new File (this.getRepoSession().getLocalRepository().getBasedir(), pathToLocalArtifact);
             
             //sometimes variable artifactFile has a path of a build output folder(target). Setting the artifact file path that corresponds to Maven coord.
             if(localArtifactFile.exists()) {
@@ -617,5 +607,14 @@ public abstract class AbstractLibertySupport extends MojoSupport {
         }
         getLog().debug("Available versions: " + rangeResult.getVersions());
         return rangeResult.getHighestVersion().toString();
+    }
+
+    protected Artifact resolveArtifact(Artifact artifact) throws MojoExecutionException {
+        Artifact resolvedArtifact = artifact;
+        if (!artifact.isResolved()) {
+            Dependency item = createArtifactItem(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType(), artifact.getVersion(), artifact.getClassifier());
+            resolvedArtifact = getArtifact(item);
+        }
+        return resolvedArtifact;
     }
 }

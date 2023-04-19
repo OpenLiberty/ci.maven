@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020.
+ * (C) Copyright IBM Corporation 2020, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
@@ -23,11 +24,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  */
 @Mojo(name = "devc", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 public class DevcMojo extends DevMojo {
+
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
         super.setContainer(true);
 
         // call dev mode
-        super.doExecute();
+        super.execute();
     }
 }

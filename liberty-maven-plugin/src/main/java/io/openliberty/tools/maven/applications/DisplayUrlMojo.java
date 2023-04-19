@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017.
+ * (C) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ public class DisplayUrlMojo extends AbstractMojo {
     @Parameter
     protected URI applicationURL;
  
+    @Override
     public void execute() throws MojoExecutionException {
+        
         if (applicationURL != null && Desktop.isDesktopSupported()) {
             try {
                 Desktop.getDesktop().browse(applicationURL);

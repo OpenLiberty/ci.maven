@@ -29,7 +29,6 @@ import javax.xml.transform.TransformerException;
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -78,26 +77,29 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
     @Parameter(property = "optimize", defaultValue = "true")
     private boolean optimize;
 
-    /*
-     * (non-Javadoc)
-     * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
-     */
     @Override
-    protected void doExecute() throws Exception {
-        if (skip) {
-            getLog().info("\nSkipping generate-features goal.\n");
-            return;
-        }
-        generateFeatures();
-    }
-
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
+    protected void init() throws MojoExecutionException {
         // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
         // setup as generate features does not require the server to be set up install
         // dir, wlp dir, outputdir, etc.
         this.skipServerConfigSetup = true;
+
         super.init();
+    }
+    
+    @Override
+    public void execute() throws MojoExecutionException {
+        init();
+
+        if (skip) {
+            getLog().info("\nSkipping generate-features goal.\n");
+            return;
+        }
+        try {
+            generateFeatures();
+        } catch (PluginExecutionException e) {
+            throw new MojoExecutionException("Error during generation of features.", e);
+        }
     }
 
     /**

@@ -24,12 +24,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.taskdefs.Copy;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -46,7 +46,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
 /**
  * Support for installing and deploying applications to a Liberty server.
  */
-public class DeployMojoSupport extends LooseAppSupport {
+public abstract class DeployMojoSupport extends LooseAppSupport {
 
     private final String PROJECT_ROOT_TARGET_LIBS = "target/libs";
 
@@ -140,7 +140,7 @@ public class DeployMojoSupport extends LooseAppSupport {
             setLooseProjectRootForContainer(proj, config);
         }
 
-        LooseWarApplication looseWar = new LooseWarApplication(proj, config, log);
+        LooseWarApplication looseWar = new LooseWarApplication(proj, config, getLog());
 
         if (looseWar.isExploded()) {
         	
@@ -285,7 +285,7 @@ public class DeployMojoSupport extends LooseAppSupport {
 
                 try {
                     Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-                    CommonLogger logger = CommonLogger.getInstance(log);
+                    CommonLogger logger = CommonLogger.getInstance(getLog());
                     setLog(logger.getLog());
                     ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                             bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
@@ -443,7 +443,7 @@ public class DeployMojoSupport extends LooseAppSupport {
         springBootUtilTask.execute();
     }
 
-    protected boolean matches(Artifact artifact, ArtifactItem assemblyArtifact) {
+    protected boolean matches(Artifact artifact, Dependency assemblyArtifact) {
         return artifact.getGroupId().equals(assemblyArtifact.getGroupId())
                 && artifact.getArtifactId().equals(assemblyArtifact.getArtifactId())
                 && artifact.getType().equals(assemblyArtifact.getType());

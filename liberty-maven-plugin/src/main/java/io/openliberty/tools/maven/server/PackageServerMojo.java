@@ -124,9 +124,11 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "skipLibertyPackage", defaultValue = "false")
     protected boolean skipLibertyPackage = false;
-    
+       
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         // Set default outputDirectory to liberty-alt-output-dir for package goal.
         if (defaultOutputDirSet) {
             outputDirectory = new File(project.getBuild().getDirectory(), "liberty-alt-output-dir");

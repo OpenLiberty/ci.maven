@@ -23,7 +23,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.Scanner;
 
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
