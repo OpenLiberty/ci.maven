@@ -29,7 +29,7 @@ import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 
-public class ServerFeatureSupport extends BasicSupport {
+public abstract class ServerFeatureSupport extends BasicSupport {
 
     private ServerFeatureUtil servUtil;
 

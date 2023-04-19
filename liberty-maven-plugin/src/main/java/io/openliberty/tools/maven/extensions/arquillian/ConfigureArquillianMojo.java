@@ -28,7 +28,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -60,14 +59,11 @@ public class ConfigureArquillianMojo extends BasicSupport {
      */
     @Parameter(property = "skipIfArquillianXmlExists", defaultValue = "false")
     protected boolean skipIfArquillianXmlExists = false;
-
+    
     @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
-        super.init();
-    }
-
-    @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
+        init();
+        
         File arquillianXml = new File(project.getBuild().getDirectory(), "test-classes/arquillian.xml");
         Set<Artifact> artifacts = project.getArtifacts();
         

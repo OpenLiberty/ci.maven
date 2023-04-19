@@ -33,7 +33,7 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

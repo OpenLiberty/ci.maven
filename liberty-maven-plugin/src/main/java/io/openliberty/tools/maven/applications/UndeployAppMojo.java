@@ -40,13 +40,11 @@ public class UndeployAppMojo extends DeployMojoSupport {
 
     private static final String STOP_APP_MESSAGE_CODE_REG = "CWWKZ0009I.*";
     private static final long APP_STOP_TIMEOUT_DEFAULT = 30 * 1000;
-    
-    /*
-     * (non-Javadoc)
-     * @see org.codehaus.mojo.pluginsupport.MojoSupport#doExecute()
-     */
+        
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping undeploy goal.\n");
             return;
@@ -137,7 +135,7 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
             
                 Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-                CommonLogger logger = CommonLogger.getInstance(log);
+                CommonLogger logger = CommonLogger.getInstance(getLog());
                 setLog(logger.getLog());
                 ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
                 bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);

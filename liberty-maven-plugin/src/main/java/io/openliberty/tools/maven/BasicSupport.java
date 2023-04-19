@@ -32,15 +32,14 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
 import org.apache.tools.ant.taskdefs.Chmod;
 import org.apache.tools.ant.taskdefs.Expand;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Commandline.Argument;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 
@@ -52,7 +51,7 @@ import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
  * 
  * 
  */
-public class BasicSupport extends AbstractLibertySupport {
+public abstract class BasicSupport extends AbstractLibertySupport {
 
     //Note these next two are regular expressions, not just the code.
     protected static final String START_APP_MESSAGE_REGEXP = "CWWKZ0001I.*";
@@ -146,7 +145,7 @@ public class BasicSupport extends AbstractLibertySupport {
      * be omitted.
      */
     @Parameter(alias="runtimeArtifact", property="runtimeArtifact")
-    protected ArtifactItem assemblyArtifact;
+    protected Dependency assemblyArtifact;
     
     /**
      * Liberty install option. If set, Liberty will be downloaded and installed from the WASdev repository or 
@@ -160,7 +159,7 @@ public class BasicSupport extends AbstractLibertySupport {
      * be omitted.
      */
     @Parameter
-    protected ArtifactItem licenseArtifact;
+    protected Dependency licenseArtifact;
 
     /**
      * Location of customized configuration directory
@@ -197,17 +196,19 @@ public class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(alias = "libertyRuntimeVersion", property = "liberty.runtime.version")
     protected String libertyRuntimeVersion = null;
-    
+
     @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
+    protected void init() throws MojoExecutionException {
         if (skip) {
             return;
         }
+
         super.init();
 
         if (skipServerConfigSetup) {
             return;
         }
+
         try {
             // First check if installDirectory is set, if it is, then we can skip this
             if (installDirectory != null) {
@@ -288,7 +289,7 @@ public class BasicSupport extends AbstractLibertySupport {
                 if (assemblyArchive == null) {
                     throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.assembly.validate"), "artifact based assembly archive", ""));
                 }
-                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", assemblyArtifact));
+                initLog.info(MessageFormat.format(messages.getString("info.variable.set"), "artifact based assembly archive", getArtifactString(assemblyArtifact)));
                 assemblyArchive = assemblyArchive.getCanonicalFile();
                 installType = InstallType.FROM_FILE;
                 installDirectory = checkServerHome(assemblyArchive);
@@ -329,6 +330,22 @@ public class BasicSupport extends AbstractLibertySupport {
         }
     }
 
+    protected String getArtifactString(Dependency artifact) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(artifact.getGroupId());
+        sb.append(":");
+        sb.append(artifact.getArtifactId());
+        sb.append(":");
+        sb.append(artifact.getClassifier());
+        sb.append(":");
+        sb.append(artifact.getVersion());
+        sb.append(":");
+        sb.append(artifact.getType());
+
+        return sb.toString();
+    }
+    
     protected void checkServerHomeExists() throws MojoExecutionException {
         if (!installDirectory.exists()) {
             throw new MojoExecutionException(MessageFormat.format(messages.getString("error.server.home.noexist"), installDirectory));
@@ -504,7 +521,7 @@ public class BasicSupport extends AbstractLibertySupport {
         
         String cacheDir = install.getCacheDirectory();
         if (cacheDir == null) {
-            File dir = new File(artifactRepository.getBasedir(), "wlp-cache");
+            File dir = new File(getRepoSession().getLocalRepository().getBasedir(), "wlp-cache");
             installTask.setCacheDir(dir.getAbsolutePath());
         } else {
             installTask.setCacheDir(cacheDir);

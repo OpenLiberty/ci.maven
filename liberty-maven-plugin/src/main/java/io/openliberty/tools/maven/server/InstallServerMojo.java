@@ -24,9 +24,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  */
 @Mojo(name = "install-server", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class InstallServerMojo extends PluginConfigSupport {
-
+   
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping install-server goal.\n");
             return;

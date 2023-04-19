@@ -44,9 +44,11 @@ public class RunServerMojo extends PluginConfigSupport {
      */
     @Parameter(property = "embedded", defaultValue = "false")
     private boolean embedded;
-
+    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping run goal.\n");
             return;

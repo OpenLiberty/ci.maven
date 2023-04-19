@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import io.openliberty.tools.maven.server.DevMojo;
+import io.openliberty.tools.maven.utils.DevHelper;
 
 public class MultiModuleSkipFlagsUnitTest {
 
@@ -47,12 +48,12 @@ public class MultiModuleSkipFlagsUnitTest {
     */
    @Test
    public void getFirstNonNullValueTest() throws Exception {
-      assertTrue(DevMojo.getFirstNonNullValue(null, null, Boolean.valueOf(true)));
-      assertTrue(DevMojo.getFirstNonNullValue(null, Boolean.valueOf(true), Boolean.valueOf(false)));
-      assertFalse(DevMojo.getFirstNonNullValue(null, Boolean.valueOf(false), Boolean.valueOf(true)));
-      assertFalse(DevMojo.getFirstNonNullValue(Boolean.valueOf(false), Boolean.valueOf(true), Boolean.valueOf(false)));
-      assertTrue(DevMojo.getFirstNonNullValue(Boolean.valueOf(true), Boolean.valueOf(true), Boolean.valueOf(false)));
-      assertFalse(DevMojo.getFirstNonNullValue(null, null, null));
+      assertTrue(DevHelper.getFirstNonNullValue(null, null, Boolean.valueOf(true)));
+      assertTrue(DevHelper.getFirstNonNullValue(null, Boolean.valueOf(true), Boolean.valueOf(false)));
+      assertFalse(DevHelper.getFirstNonNullValue(null, Boolean.valueOf(false), Boolean.valueOf(true)));
+      assertFalse(DevHelper.getFirstNonNullValue(Boolean.valueOf(false), Boolean.valueOf(true), Boolean.valueOf(false)));
+      assertTrue(DevHelper.getFirstNonNullValue(Boolean.valueOf(true), Boolean.valueOf(true), Boolean.valueOf(false)));
+      assertFalse(DevHelper.getFirstNonNullValue(null, null, null));
    }
 
    /**
@@ -92,7 +93,7 @@ public class MultiModuleSkipFlagsUnitTest {
          props.setProperty(param, propBool.toString());
       }
 
-      return DevMojo.getBooleanFlag(dom, userProps, props, param);
+      return DevHelper.getBooleanFlag(dom, userProps, props, param);
    }
 
 }

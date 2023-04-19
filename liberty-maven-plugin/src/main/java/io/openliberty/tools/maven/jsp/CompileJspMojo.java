@@ -24,7 +24,6 @@ import java.util.TreeSet;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -54,9 +53,11 @@ public class CompileJspMojo extends InstallFeatureSupport {
      */
     @Parameter(defaultValue = "40")
     protected int timeout;
-
+    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping compile-jsp goal.\n");
             return;
@@ -115,7 +116,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
         for (Artifact dep : dependencies) {
             if (!dep.isResolved()) {
                 // TODO: Is transitive=true correct here?
-                dep = resolveArtifact(dep, true);
+                dep = resolveArtifact(dep);
             }
             if (dep.getFile() != null) {
                 if (!classpath.add(dep.getFile().getAbsolutePath())) {
@@ -180,8 +181,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
         return sb.toString();
     }
 
-    @Override
-    protected void init() throws MojoExecutionException, MojoFailureException {
+    protected void init() throws MojoExecutionException {
         boolean doInstall = (installDirectory == null);
 
         super.init();

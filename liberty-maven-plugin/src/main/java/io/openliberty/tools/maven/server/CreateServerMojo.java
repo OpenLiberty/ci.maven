@@ -52,7 +52,9 @@ public class CreateServerMojo extends PluginConfigSupport {
     private boolean noPassword;
     
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping create goal.\n");
             return;

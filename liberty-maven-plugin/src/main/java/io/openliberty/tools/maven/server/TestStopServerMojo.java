@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -27,10 +28,10 @@ public class TestStopServerMojo extends StopServerMojo {
     
     @Parameter(property = "skipTestServer", defaultValue = "false")
     private boolean skipTestServer;
-
+    
     @Override
-    protected void doExecute() throws Exception {
-        
+    public void execute() throws MojoExecutionException {
+         
         String mavenSkipTest = System.getProperty( "maven.test.skip" );
         String skipTests = System.getProperty( "skipTests" );
         String skipITs = System.getProperty( "skipITs" );
@@ -41,6 +42,6 @@ public class TestStopServerMojo extends StopServerMojo {
             getLog().info("\nSkipping test-stop goal.\n");
             return;
         }
-        super.doExecute();
+        super.execute();
     }
 }

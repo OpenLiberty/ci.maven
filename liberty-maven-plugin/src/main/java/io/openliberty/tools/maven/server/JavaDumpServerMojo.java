@@ -42,9 +42,11 @@ public class JavaDumpServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "systemDump")
     private boolean systemDump;
-
+    
     @Override
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException {
+        init();
+
         if (skip) {
             getLog().info("\nSkipping java-dump goal.\n");
             return;
