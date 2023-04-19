@@ -58,9 +58,6 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     protected MavenProject project = null;
     
-    //@Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
-    //protected ArtifactRepository artifactRepository = null;
-    
     /**
      * The build settings.
      */
@@ -477,7 +474,6 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      *
      * @throws MojoExecutionException   Failed to create artifact
      */
-    //@Override
     protected Artifact createArtifact(final Dependency item) throws MojoExecutionException {
         assert item != null;
         
