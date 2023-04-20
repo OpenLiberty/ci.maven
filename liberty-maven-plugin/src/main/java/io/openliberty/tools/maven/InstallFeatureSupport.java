@@ -44,8 +44,10 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
     public boolean noFeaturesSection = false;
 
     public boolean installFromAnt;
+    
+    public boolean installManually = false;
 
-    private InstallFeatureUtil util;
+    protected InstallFeatureUtil util;
     
     public static final String FEATURES_JSON_ARTIFACT_ID = "features";
 

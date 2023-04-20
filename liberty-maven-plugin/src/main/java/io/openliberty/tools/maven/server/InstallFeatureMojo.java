@@ -82,9 +82,11 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         // If non-container mode, check for Beta version and skip if needed.  Container mode does not need to check since featureUtility will check when it is called.
         List<ProductProperties> propertiesList = null;
         String openLibertyVersion = null;
+        boolean isClosedLiberty = false;
         if (containerName == null) {
             propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
             openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+            isClosedLiberty = InstallFeatureUtil.isClosedLiberty(propertiesList);
     
             boolean skipBetaInstallFeatureWarning = Boolean.parseBoolean(System.getProperty(DevUtil.SKIP_BETA_INSTALL_WARNING));
             if (InstallFeatureUtil.isOpenLibertyBetaVersion(openLibertyVersion)) {
@@ -97,15 +99,18 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
         List<String> additionalJsons = getAdditionalJsonList();
-        InstallFeatureUtil util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+        util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
         Set<String> featuresToInstall = getSpecifiedFeatures(containerName);
         
+        if(!pluginListedEsas.isEmpty() && isClosedLiberty) {
+        	installFromAnt = true;
+        }
+
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
-        }
-        else if(util != null) {
+        } else if(util != null) {
             util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
-        }
+        } 
        
     }
 
