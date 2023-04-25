@@ -1,6 +1,6 @@
 # ci.maven [![Maven Central Latest](https://maven-badges.herokuapp.com/maven-central/io.openliberty.tools/liberty-maven-plugin/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.openliberty.tools%22%20AND%20a%3A%22liberty-maven-plugin%22) [![Build Status](https://github.com/OpenLiberty/ci.maven/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/OpenLiberty/ci.maven/actions?branch=main)
 
-Collection of Maven plugins and archetypes for managing Open Liberty and WebSphere Liberty servers and applications.
+The Liberty Maven plugin supports install and operational control of Liberty runtime and servers. Use it to manage your application on Liberty for integration test and to create Liberty server packages.
 
 * [Build](#build)
 * [Plugins](#plugins)
@@ -11,10 +11,7 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 		* [Goals](#goals)
 * [Packaging types](#packaging-types)
 	* [liberty-assembly](#liberty-assembly)
-* [Archetypes](#archetypes)
-	* [liberty-plugin-archetype](#liberty-plugin-archetype)
-	* [liberty-archetype-webapp](#liberty-archetype-webapp)
-	* [liberty-archetype-ear](#liberty-archetype-ear)
+* [Getting started](#getting-started)
 
 ## Usage - TLDR
 
@@ -24,12 +21,12 @@ Collection of Maven plugins and archetypes for managing Open Liberty and WebSphe
 
 ## Build
 
-Use Maven 3.5.0 or later to build the Liberty plugins and archetypes.
+Use Maven 3.5.0 or later to build the Liberty Maven plugin.
 We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/maven-wrapper-plugin/index.html) script, so you do not need to download maven yourself if you are not using it yet. 
 
-* `./mvnw install -Darchetype.test.skip` : builds the plugin and the archetypes, skipping all tests
-* `./mvnw install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plugin and the archetypes and runs the integration tests by providing an existing installation.
-* `./mvnw install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plugin and archetypes and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WebSphere Liberty Java EE 7 runtime.
+* `./mvnw install` : builds the plugin, skipping all tests
+* `./mvnw install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plugin and runs the integration tests by providing an existing installation.
+* `./mvnw install -Ponline-its -Druntime=<ol|wlp> -DruntimeVersion=<runtime_version>` : builds the plugin and runs the integration tests by downloading a new server. Set runtime to `ol` to run tests using the Open Liberty runtime, or `wlp` to run tests using the WebSphere Liberty Java EE 7 runtime.
 
 ## Plugins
 
@@ -259,104 +256,12 @@ Example:
     ...
 </project>
 ```
-## Archetypes
+## Getting started
 
-By default, all archetypes that specify a Liberty runtime use the latest version of the Open Liberty runtime. You can use a different runtime by setting the `runtimeGroupId` and `runtimeArtifactId`. For example, you can use `wlp-webProfile7` by setting `-DruntimeGroupId=com.ibm.websphere.appserver.runtime` and `-DruntimeArtifactId=wlp-webProfile7`. 
+There are multiple starters available to generate a package to start developing your first application on Open Liberty.
 
-The runtime version can also be set dynamically. For example, you can specify version `20.0.0.3` of the runtime by setting `-DruntimeVersion=20.0.0.3`.
+* [Open Liberty starter](https://openliberty.io/start/)
+* [Eclipse Starter for Jakarta EE](https://start.jakarta.ee/) - choose `Open Liberty` for the `Runtime`
+* [MicroProfile Starter](https://start.microprofile.io/) - choose `Open Liberty` for the `MicroProfile Runtime`
 
-Finally, the default Liberty Maven Plugin version is set to be the latest version of the plugin. To specify a different version of the plugin, use the `libertyPluginVersion` parameter. For example, you could set `-DlibertyPluginVersion=3.2`.
-
-### liberty-plugin-archetype
-
-The `liberty-plugin-archetype` is used to generate a basic multi-module project that builds a simple web application then deploys and tests it on a Liberty server. It also creates a Liberty server package that includes the application.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-plugin-archetype \
-        -DarchetypeVersion=3.2.3  \
-        -DlibertyPluginVersion=3.2.3  \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### liberty-archetype-webapp
-
-The `liberty-archetype-webapp` is used to generate a basic single-module project that builds a simple web application then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application. The generated project includes the [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-archetype-webapp \
-        -DarchetypeVersion=3.2.3 \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### liberty-archetype-ear
-
-The `liberty-archetype-ear` is used to generate a multi-module project that includes an EJB module, a web application module and an EAR module. In the EAR module, it packages the application in a Java EE 7 Enterprise Archive then deploys and tests on a Liberty server. It also creates a minified, runnable Liberty server package that includes the application EAR file. The generated project includes [`liberty-maven-app-parent`](docs/parent-pom.md) parent pom that binds Liberty Maven Plugin goals to the Maven default build lifecycle.
-
-#### Usage
-
-    mvn archetype:generate \
-        -DarchetypeGroupId=io.openliberty.tools \
-        -DarchetypeArtifactId=liberty-archetype-ear \
-        -DarchetypeVersion=3.2.3  \
-        -DgroupId=test \
-        -DartifactId=test \
-        -Dversion=1.0-SNAPSHOT
-
-### Using Archetype Snapshots
-
-If you are using a snapshot version of `liberty-archetype-webapp` or `liberty-archetype-ear`, then you will also need to add the following archetype repository to `${user.home}/.m2/settings.xml`:
-
-``` xml
-<settings>
-    ...
-    <profiles>
-        <profile>
-            <id>archetype-snapshot-repo</id>
-            <properties>
-                <archetypeRepository>https://oss.sonatype.org/content/repositories/snapshots
-                </archetypeRepository>
-            </properties>
-            <repositories>
-                <repository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/
-                    </url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/
-                    </url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-    <activeProfiles>
-        <activeProfile>archetype-snapshot-repo</activeProfile>
-    </activeProfiles>
-</settings>
-
-```
+If you want to use one of the previously published archetypes that we are no longer enhancing, refer to this [documentation](docs/archetypes.md).
