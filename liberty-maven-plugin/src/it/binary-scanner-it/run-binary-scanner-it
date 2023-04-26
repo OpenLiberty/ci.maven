@@ -13,7 +13,7 @@ cp src/it/binary-scanner-it/pom.xml /tmp
 for i in 3.7 3.7.1
 do
 sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
-mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=22.0.0.6 -Dinvoker.test=binary-scanner-it
+mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=23.0.0.1 -Dinvoker.test=binary-scanner-it
 echo !!
 echo !! PRESS ENTER TO CONTINUE
 echo !!
