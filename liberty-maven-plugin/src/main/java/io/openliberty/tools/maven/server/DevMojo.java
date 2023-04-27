@@ -1251,7 +1251,7 @@ public class DevMojo extends LooseAppSupport {
                         + " is already running. Terminate all instances of the server before starting dev mode."
                         + " You can stop a server instance with the command 'mvn liberty:stop'.");
                 } else {
-                    getLog().warn("Running server detected from previous execution that did not stop cleanly. If startup does not complete and times out do a clean before re-running.");
+                    getLog().warn("Running server detected, which could cause unexpected results. To terminate the local running server, run the command 'mvn liberty:stop'.  Also, the warning may occur because a previous server execution did not stop cleanly, in which case you may want to run 'mvn clean' before re-running");
                 }
             }
         }
