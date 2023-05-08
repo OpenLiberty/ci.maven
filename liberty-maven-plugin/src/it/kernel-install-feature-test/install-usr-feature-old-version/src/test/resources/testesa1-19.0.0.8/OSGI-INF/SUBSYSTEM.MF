@@ -1,0 +1,8 @@
+Subsystem-ManifestVersion: 1
+Subsystem-SymbolicName: testesa1;visibility:=public
+Subsystem-Version: 1.0.0
+Subsystem-Vendor: IBM
+Subsystem-Content: testesa1; version="[1,1.0.100)",
+ testesa1.bat; location:="bin/testesa1.bat"; type="file"
+Subsystem-Type: osgi.subsystem.feature
+IBM-Feature-Version: 2

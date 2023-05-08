@@ -41,6 +41,7 @@
         <module>prepare-feature-it</module>
 		<module>prepare-multiple-features-it</module>
         <module>install-usr-feature-ext-it</module>
+        <module>install-usr-feature-old-version</module>
         <module>install-features-override-server-dir-it</module>
     </modules>
     
