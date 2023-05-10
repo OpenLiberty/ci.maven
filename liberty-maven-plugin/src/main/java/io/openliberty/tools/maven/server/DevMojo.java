@@ -110,7 +110,10 @@ public class DevMojo extends LooseAppSupport {
 
     @Parameter(property = "skipITs", defaultValue = "false")
     private boolean skipITs;
-
+ 
+    @Parameter(property = "skipInstallFeature", defaultValue = "false")
+    protected boolean skipInstallFeature;
+ 
     @Parameter(property = "debug", defaultValue = "true")
     private boolean libertyDebug;
 
@@ -247,6 +250,7 @@ public class DevMojo extends LooseAppSupport {
     private boolean keepTempDockerfile;
     
     private boolean isExplodedLooseWarApp = false;
+    private boolean isNewInstallation = true;
 
     /**
      * Set the container option.
@@ -290,7 +294,7 @@ public class DevMojo extends LooseAppSupport {
                 List<Path> webResourceDirs) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
-                    skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+                    skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
@@ -1323,8 +1327,12 @@ public class DevMojo extends LooseAppSupport {
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
-            if (!container) {
+            // Added check here for the new skip install feature parameter. 
+            // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
+            if (!container && (!skipInstallFeature || isNewInstallation)) {
                 runLibertyMojoInstallFeature(null, null, null);
+            } else {
+                getLog().info("Skipping liberty:install-feature");
             }
             runLibertyMojoDeploy();
         }
@@ -1887,6 +1895,18 @@ public class DevMojo extends LooseAppSupport {
                 serverDirectory.mkdirs();
             }
         } else {
+            // Check to see if Liberty was already installed and set flag accordingly.
+            if (installDirectory != null) {
+                try {
+                    File installDirectoryCanonicalFile = installDirectory.getCanonicalFile();
+                    // Quick check to see if a Liberty installation exists at the installDirectory
+                    File file = new File(installDirectoryCanonicalFile, "lib/ws-launch.jar");
+                    if (file.exists()) {
+                        this.isNewInstallation = false;
+                    }
+                } catch (IOException e) {
+                }
+            }
             super.runLibertyMojoCreate();
         }
     }

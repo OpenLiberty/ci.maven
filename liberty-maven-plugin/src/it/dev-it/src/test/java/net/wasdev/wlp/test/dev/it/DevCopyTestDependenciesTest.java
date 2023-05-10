@@ -40,7 +40,9 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
       String additionalConfiguration = "<copyDependencies> <dependency> <groupId>org.postgresql</groupId> <artifactId>postgresql</artifactId> </dependency> </copyDependencies>";
       replaceString("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
 
-      startProcess(null, true);
+      // add new parameter in first argument to skip install features on restart
+      // in this case, it should not skip install feature because Liberty was not previously installed
+      startProcess("-DskipInstallFeature=true", true);
    }
 
    @AfterClass
@@ -51,10 +53,15 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
    @Test
    public void copyDependenciesTest() throws Exception {
       // Test scoped dependency should be omitted
-      verifyLogMessageExists("copyDependencies failed for dependency with groupId org.postgresql, artifactId postgresql and type jar.", 2000);
-      
+      // verifyLogMessageExists("copyDependencies failed for dependency with groupId org.postgresql, artifactId postgresql and type jar.", 2000);
+      assertTrue("The test scoped dependency was copied unexpectedly: "+getLogTail(), verifyLogMessageExists("copyDependencies failed for dependency with groupId org.postgresql, artifactId postgresql and type jar.", 2000));
+
       File f = new File(targetDir, "liberty/wlp/usr/servers/defaultServer/lib/global/postgresql-42.1.1.jar");
       assertFalse(f.exists());
+
+      assertTrue("The install-feature goal did not run: "+getLogTail(), verifyLogMessageExists("Running liberty:install-feature", 2000));
+      assertFalse("The skip install-feature log message was found unexpectedly: "+getLogTail(), verifyLogMessageExists("Skipping liberty:install-feature", 2000));
+
    }
 
 }
