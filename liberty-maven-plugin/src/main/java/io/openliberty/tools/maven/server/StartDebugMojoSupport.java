@@ -476,9 +476,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     /**
-     * @throws ParserConfigurationException
-     * @throws TransformerException
-     * @throws Exception
+     * @throws IOException
+     * @throws MojoExecutionException
      */
     protected void copyConfigFiles() throws IOException, MojoExecutionException {
 

@@ -56,7 +56,6 @@ public class SpringBootUtil {
      * contents and handling spring-boot-maven-plugin classifier configuration as
      * well. If the JAR was not found in its expected location, then return null.
      * 
-     * @param outputDirectory
      * @param project
      * @param log
      * @return the JAR File if it was found, false otherwise
@@ -79,7 +78,6 @@ public class SpringBootUtil {
      * spring-boot-maven-plugin classifier configuration as well.  No validation is done,
      * that is, there is no guarantee the JAR file actually exists at the returned location.
      *
-     * @param outputDirectory
      * @param project
      * @param log
      * @return the File representing the JAR location, whether a file exists there or not.
