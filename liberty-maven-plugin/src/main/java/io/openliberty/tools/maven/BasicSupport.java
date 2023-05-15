@@ -106,7 +106,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     protected File serverXmlFile;
     
     /**
-     * Liberty user directory (<tT>WLP_USER_DIR</tt>).
+     * Liberty user directory
      */
     @Parameter(property = "userDirectory")
     protected File userDirectory = null;
@@ -114,7 +114,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     protected boolean userDirectorySpecified = false;  // indicates whether userDirectory was configured
 
     /**
-     * Liberty output directory (<tT>WLP_OUTPUT_DIR</tt>).
+     * Liberty output directory
      */
     @Parameter(property = "outputDirectory")
     protected File outputDirectory = null;
@@ -429,7 +429,8 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     /**
      * Performs assembly installation unless the install type is pre-existing.
      * 
-     * @throws Exception
+     * @throws MojoExecutionException
+     * @throws IOException
      */
     protected void installServerAssembly() throws MojoExecutionException, IOException {
         initLog.flush();

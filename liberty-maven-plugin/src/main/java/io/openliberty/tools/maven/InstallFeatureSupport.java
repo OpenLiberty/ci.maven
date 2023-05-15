@@ -176,7 +176,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
     /**
      * Get the current specified Liberty features.
      *
-     * @param String containerName The container name if the features should be installed in a container. Otherwise null.
+     * @param containerName The container name if the features should be installed in a container. Otherwise null.
      * @return Set of Strings containing the specified Liberty features
      */
     protected Set<String> getSpecifiedFeatures(String containerName) throws PluginExecutionException {
@@ -251,11 +251,12 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
      * @param propertiesList The list of product properties installed with the Open Liberty runtime
      * @param openLibertyVersion The version of the Open Liberty runtime
      * @param containerName The container name if the features should be installed in a container. Otherwise null.
+     * @param additionalJsons Collection of Strings for additional jsons for feature install
      * @return instance of InstallFeatureUtil
      */
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVersion, String containerName, List<String> additionalJsons)
             throws PluginExecutionException {
-        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
         return util;
     }
 

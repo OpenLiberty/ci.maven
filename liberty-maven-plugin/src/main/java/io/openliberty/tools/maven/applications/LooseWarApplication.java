@@ -208,7 +208,7 @@ public class LooseWarApplication extends LooseApplication {
 
     /**
      * Get resource configuration values that have "directory" children elements from the Maven WAR plugin
-     * @param proj the Maven project
+     * @param project the Maven project
      * @return a List of war plugin resource elements that contain a "directory" child element or empty list if none are found
      */
     public static List<Xpp3Dom> getWebResourcesConfigurations(MavenProject project) {
