@@ -280,7 +280,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
      * @param type String specifying the type of the Maven artifact to copy.
      * @param classifier String specifying the classifier of the Maven artifact to copy.
      *
-     * @return Set<Artifact> A collection of Artifact objects for the resolved dependencies and transitive dependencies
+     * @return A collection of Artifact objects for the resolved dependencies and transitive dependencies
      * @throws MojoExecutionException
      */
     protected Set<Artifact> getResolvedDependencyWithTransitiveDependencies( String groupId, String artifactId, String version, String type,

@@ -83,7 +83,7 @@ public class CopyDependencies {
     /**
      * Add a Dependency into a list.
      *
-     * @param Dependency
+     * @param dependency
      */
     public void addDependency(Dependency dependency) {
         copyDependencyList.add(dependency);
@@ -101,7 +101,7 @@ public class CopyDependencies {
     /**
      * Add a DependencyGroup into a list.
      *
-     * @param DependencyGroup
+     * @param dependencyGroup
      */
     public void addDependencyGroup(DependencyGroup dependencyGroup) {
         copyDependencyGroupList.add(dependencyGroup);
