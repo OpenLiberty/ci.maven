@@ -201,7 +201,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         else {
             Set<String> dependencyFeatures = getDependencyFeatures();
             Set<String> serverFeatures = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, getLibertyDirectoryPropertyFiles()) : null;
-            return InstallFeatureUtil.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
+            return util.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures);
             
         }
     }
