@@ -151,7 +151,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.4.0</version>
                 <configuration>
                     <packagingExcludes>pom.xml</packagingExcludes>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
@@ -263,7 +263,7 @@
 
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>3.1.2</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                 </configuration>
@@ -287,7 +287,7 @@
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>copy-test-resources</id>
