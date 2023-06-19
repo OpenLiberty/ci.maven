@@ -53,7 +53,7 @@
                         libraries are in easy way to package any libraries needed in the ear, and 
                         automatically have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
-                    <!--outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping-->
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
                     <applicationXml>${project.basedir}/src/main/application/META-INF/application.xml</applicationXml>
                 </configuration>
             </plugin>

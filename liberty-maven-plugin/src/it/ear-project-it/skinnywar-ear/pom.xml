@@ -54,23 +54,7 @@
                     <version>7</version>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <skinnyWars>true</skinnyWars>
-                    <modules>
-                        <webModule>
-                            <groupId>io.openliberty.tools.it</groupId>
-                            <artifactId>SampleWAR</artifactId>
-                            <bundleFileName>SampleWAR.war</bundleFileName>
-                        </webModule>
-                        <ejbModule>
-                            <groupId>io.openliberty.tools.it</groupId>
-                            <artifactId>SampleEJB</artifactId>
-                            <bundleFileName>SampleEJB.jar</bundleFileName>
-                        </ejbModule>
-                        <jarModule>
-                            <groupId>commons-io</groupId>
-                            <artifactId>commons-io</artifactId>
-                            <bundleFileName>commons-io.jar</bundleFileName>   
-                        </jarModule>
-                    </modules>
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
                 </configuration>
             </plugin>
             <plugin>
