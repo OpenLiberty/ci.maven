@@ -53,7 +53,7 @@
                         libraries are in easy way to package any libraries needed in the ear, and 
                         automatically have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
-                    <fileNameMapping>no-version</fileNameMapping>
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
                     <applicationXml>${project.basedir}/src/main/application/META-INF/application.xml</applicationXml>
                 </configuration>
             </plugin>
@@ -134,7 +134,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>once</forkMode>

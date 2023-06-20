@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.4.0</version>
             </plugin>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
@@ -64,7 +64,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.5</version>
+                <version>3.1.0</version>
                 <!--  add WLP_OUTPUT_DIR envvar in server.env to change the server output directory.
                       it will override the <outputDirectory/> value and it will be tested in
                       ServerOutputDirIT. The value must be an absolute path.
@@ -105,7 +105,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>3.1.2</version>
                 <executions>
                     <execution>
                         <goals>
