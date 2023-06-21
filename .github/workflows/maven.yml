@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  # server-config-props-it fix
+  MAVEN_HOME: $(which mvn)
+
 jobs:
 # UNIX BUILDS
   build-unix:
