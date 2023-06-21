@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  # server-config-props-it fix
-  MAVEN_HOME: $(which mvn)
-
 jobs:
 # UNIX BUILDS
   build-unix:
@@ -59,14 +55,11 @@ jobs:
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
-        cd ./ci.ant
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd ../ci.common
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd ..
+=       ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
-      run: ./mvnw verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
@@ -109,11 +102,9 @@ jobs:
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
-        cd C:/ci.ant
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd C:/ci.common
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        .\mvnw.cmd -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        .\mvnw.cmd -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
       working-directory: C:/ci.maven
-      run: .\mvnw.cmd verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
