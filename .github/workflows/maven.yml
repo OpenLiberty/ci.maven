@@ -102,8 +102,8 @@ jobs:
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
-        .\mvnw.cmd -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        .\mvnw.cmd -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        .\mvnw.cmd -V clean install -f ..\ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        .\mvnw.cmd -V clean install -f ..\ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
       working-directory: C:/ci.maven
