@@ -50,6 +50,10 @@ jobs:
       with:
         repository: OpenLiberty/ci.ant
         path: ci.ant
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.9.2
     - name: Cache maven packages
       uses: actions/cache@v3
       with:
@@ -59,14 +63,11 @@ jobs:
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
-        cd ./ci.ant
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd ../ci.common
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd ..
+        ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+        ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
-      run: ./mvnw verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
@@ -106,14 +107,19 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    # Install dependencies
-    - name: Install ci.ant and ci.common
-      run: |
-        cd C:/ci.ant
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
-        cd C:/ci.common
-        mvn clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.9.2
+    # Install ci.ant
+    - name: Install ci.ant
+      working-directory: C:/ci.ant
+      run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
+    # Install ci.common
+    - name: Install ci.common
+      working-directory: C:/ci.common
+      run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
       working-directory: C:/ci.maven
-      run: .\mvnw.cmd verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogs"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
