@@ -326,7 +326,8 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             // skip the embedded library if it is included in the lib directory of the ear
             // package
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
-                    && "jar".equals(artifact.getType()) && !looseEar.isEarDependency(artifact)) {
+                    && ("jar".equals(artifact.getType()) || "jar".equals(artifact.getArtifactHandler().getExtension()))
+                    && !looseEar.isEarDependency(artifact)) {
                 addLibrary(parent, looseEar, "/WEB-INF/lib/", artifact);
             }
         }
