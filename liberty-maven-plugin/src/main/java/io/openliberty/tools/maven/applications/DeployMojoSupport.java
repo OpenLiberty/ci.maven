@@ -340,8 +340,14 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                 Element archive = looseApp.addArchive(parent, dir + artifactFileName);
                 looseApp.addOutputDir(archive, new File(dependProject.getBuild().getOutputDirectory()), "/");
 
-                //Check if reactor project generates an ejb or jar 
-                String archivePlugin = dependProject.getPackaging().equalsIgnoreCase("ejb") ? "maven-ejb-plugin" : "maven-jar-plugin";
+                //Check if reactor project generates an ejb, bundle or jar 
+                String archivePlugin = "maven-jar-plugin";
+                String packaging = dependProject.getPackaging();
+                if (packaging.equalsIgnoreCase("ejb")) {
+                    archivePlugin = "maven-ejb-plugin";
+                } else if (packaging.equalsIgnoreCase("bundle")) {
+                    archivePlugin = "maven-bundle-plugin";
+                }
 
                 File manifestFile = MavenProjectUtil.getManifestFile(dependProject, archivePlugin);
 

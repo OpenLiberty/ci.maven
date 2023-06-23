@@ -69,6 +69,8 @@ public class MavenProjectUtil {
             pluginName = "maven-war-plugin";
         } else if (proj.getPackaging().equals("ear")) {
             pluginName = "maven-ear-plugin";
+        } else if (proj.getPackaging().equals("bundle")) {
+            pluginName = "maven-bundle-plugin";
         } else {
             return null;
         }
