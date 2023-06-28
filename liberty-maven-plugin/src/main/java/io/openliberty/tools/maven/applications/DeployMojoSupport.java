@@ -235,6 +235,9 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                     case "ejb":
                         looseEar.addEjbModule(dependencyProject, artifact);
                         break;
+                    case "bundle":
+                        looseEar.addBundleModule(dependencyProject, artifact);
+                        break;
                     case "war":
                         Element warArchive = looseEar.addWarModule(dependencyProject, artifact,
                                         getWarSourceDirectory(dependencyProject));

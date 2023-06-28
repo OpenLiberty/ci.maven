@@ -107,6 +107,9 @@ public class RunServerMojo extends PluginConfigSupport {
                     case "ejb":
                         runMojo("org.apache.maven.plugins", "maven-ejb-plugin", "ejb");
                         break;
+                    case "bundle":
+                        runMojo("org.apache.felix", "maven-bundle-plugin", "bundle");
+                        break;
                     case "jar":
                         runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
                         break;

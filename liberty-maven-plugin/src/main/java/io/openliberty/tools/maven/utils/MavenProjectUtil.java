@@ -175,7 +175,8 @@ public class MavenProjectUtil {
      * @return the manifest file
      */
     public static File getManifestFile(MavenProject proj, String pluginArtifactId) {
-        Xpp3Dom dom = proj.getGoalConfiguration("org.apache.maven.plugins", pluginArtifactId, null, null);
+        String groupId = pluginArtifactId.equals("maven-bundle-plugin") ? "org.apache.felix" : "org.apache.maven.plugins";
+        Xpp3Dom dom = proj.getGoalConfiguration(groupId, pluginArtifactId, null, null);
         if (dom != null) {
             Xpp3Dom archive = dom.getChild("archive");
             if (archive != null) {
@@ -185,6 +186,16 @@ public class MavenProjectUtil {
                 }
             }
         }
+
+        if (pluginArtifactId.equals("maven-bundle-plugin")) {
+            // check for generated manifest file in target/classes/META-INF
+            String dependProjectTargetDir = proj.getBuild().getDirectory();
+            File generatedManifest = new File(dependProjectTargetDir, "/classes/META-INF/MANIFEST.MF");
+            if (generatedManifest.exists()) {
+                return generatedManifest;
+            }
+        }
+
         return null;
     }
 

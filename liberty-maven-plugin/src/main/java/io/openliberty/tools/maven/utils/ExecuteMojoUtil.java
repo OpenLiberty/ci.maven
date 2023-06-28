@@ -165,6 +165,13 @@ public class ExecuteMojoUtil {
                     "clientIncludes", "ejbJar", "ejbVersion", "escapeBackslashesInFilePath", "escapeString", "excludes",
                     "filterDeploymentDescriptor", "filters", "generateClient", "outputTimestamp"));
 
+    // https://felix.apache.org/documentation/_attachments/components/bundle-plugin/bundle-mojo.html
+    private static final ArrayList<String> BUNDLE_PARAMS = new ArrayList<>(
+            Arrays.asList("archive", "buildDirectory", "classifier", "createDependencyReducedPom", "dependencyReducedPomLocation",
+                    "dumpClasspath", "dumpInstructions", "excludeDependencies", "exportScr", "finalName", "instructions",
+                    "manifestLocation", "niceManifest", "noWarningProjectTypes", "outputDirectory", "packaging", "scrLocation",
+                    "supportedProjectTypes", "unpackbundle"));
+
     // https://maven.apache.org/plugins/maven-war-plugin/war-mojo.html
     private static final ArrayList<String> WAR_PARAMS = new ArrayList<>(Arrays.asList("outputDirectory",
             "warSourceDirectory", "webappDirectory", "workDirectory", "archive", "archiveClasses", "attachClasses",
@@ -349,6 +356,9 @@ public class ExecuteMojoUtil {
             break;
         case "maven-ejb-plugin:ejb":
             goalConfig = stripConfigElements(config, EJB_PARAMS);
+            break;
+        case "maven-bundle-plugin:bundle":
+            goalConfig = stripConfigElements(config, BUNDLE_PARAMS);
             break;
         case "maven-war-plugin:war":
             goalConfig = stripConfigElements(config, WAR_PARAMS);

@@ -14,6 +14,7 @@
 
     <modules>
         <module>SampleEJB</module>
+        <module>SampleBundle</module>
         <module>SampleWAR</module>
         <module>SampleWAR2</module>
         <module>AppXmlEAR</module>
@@ -69,6 +70,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ejb-plugin</artifactId>
                     <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>5.1.8</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

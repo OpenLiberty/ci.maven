@@ -75,6 +75,10 @@ public class LooseEarApplication extends LooseApplication {
         return addModule(proj, artifact, "maven-ejb-plugin");
     }
 
+    public Element addBundleModule(MavenProject proj, Artifact artifact) throws MojoExecutionException, IOException {
+        return addModule(proj, artifact, "maven-bundle-plugin");
+    }
+
     public Element addModule(MavenProject proj, Artifact artifact, String pluginId) throws MojoExecutionException, IOException {
         File outputDirectory = new File(proj.getBuild().getOutputDirectory());
         Element moduleArchive = config.addArchive(getModuleUri(artifact));
