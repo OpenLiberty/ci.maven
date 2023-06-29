@@ -123,6 +123,7 @@
                     <cleanDropins>true</cleanDropins>
                     <cleanApps>true</cleanApps>
                     <cleanLogs>false</cleanLogs>
+                    <cleanWorkarea>false</cleanWorkarea>
                 </configuration>
             </execution>
          </executions>

@@ -91,6 +91,7 @@
                         </goals>
                         <configuration>
                             <cleanLogs>false</cleanLogs>
+                            <cleanWorkarea>false</cleanWorkarea>
                         </configuration>
                     </execution>
                 </executions>
