@@ -9,31 +9,15 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>SampleBundle</artifactId>
+    <packaging>bundle</packaging>
 
-    <artifactId>SampleWAR</artifactId>
-    <packaging>war</packaging>
-
-    <name>ear-project-it:  SampleWAR Module</name>
+    <name>ear-project-it:  SampleBundle Module</name>
 
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.tools.it</groupId>
-            <artifactId>SampleEJB</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.tools.it</groupId>
-            <artifactId>SampleBundle</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Test scope dependencies -->
@@ -44,13 +28,21 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
-                    <packagingExcludes>pom.xml</packagingExcludes>
+                    <instructions>
+                        <Bundle-SymbolicName>io.openliberty.tools.it</Bundle-SymbolicName>
+                        <Export-Package>wasdev.sample.bundle*;version=${project.version}</Export-Package>
+                        <Import-Package>
+                            *
+                        </Import-Package>
+                        <_removeheaders>Bnd-LastModified</_removeheaders>
+                        <_reproducible>true</_reproducible>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>

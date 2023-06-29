@@ -147,6 +147,7 @@
                     <cleanDropins>false</cleanDropins>
                     <cleanApps>false</cleanApps>
                     <cleanLogs>false</cleanLogs>
+                    <cleanWorkarea>false</cleanWorkarea>
                 </configuration>
             </execution>
          </executions>

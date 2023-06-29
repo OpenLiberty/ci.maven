@@ -56,12 +56,13 @@ public abstract class LooseAppSupport extends PluginConfigSupport {
             name += "-" + classifier;
         }
 
-        if (project.getPackaging().equals("liberty-assembly")) {
+        String packagingType = project.getPackaging();
+        if (packagingType.equals("liberty-assembly")) {
             name += ".war";
-        } else if (project.getPackaging().equals("ejb")) {
+        } else if (packagingType.equals("ejb") || packagingType.equals("bundle")) {
             name += ".jar";
         } else {
-            name += "." + project.getPackaging();
+            name += "." + packagingType;
         }
 
         return name;
