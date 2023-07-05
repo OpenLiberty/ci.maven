@@ -15,6 +15,7 @@
     <properties>
         <myArgLine>-javaagent:/path/to/some/jar.jar</myArgLine>
         <liberty.jvm.argLine>@{myArgLine}</liberty.jvm.argLine>
+        <liberty.jvm.undefined>@{undefined}</liberty.jvm.undefined>
         <liberty.jvm.minHeap>-Xms512m</liberty.jvm.minHeap>
         <!-- This maxHeap property should NOT override the one specified below in jvmOptions -->
         <liberty.jvm.maxHeap>-Xmx1024m</liberty.jvm.maxHeap>

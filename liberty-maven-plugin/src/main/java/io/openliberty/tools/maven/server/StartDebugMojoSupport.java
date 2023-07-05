@@ -826,9 +826,11 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         while (m.find()) {
             String varName = m.group(1);
             if (project.getProperties().containsKey(varName)) {
-                String replacementValue = project.getProperties().getProperty(varName,"");
-                returnValue = returnValue.replace("@{"+varName+"}", replacementValue);
-                getLog().debug("Replaced Liberty configuration property value @{"+varName+"} with value "+replacementValue);
+                String replacementValue = project.getProperties().getProperty(varName);
+                if (replacementValue != null) {
+                    returnValue = returnValue.replace("@{"+varName+"}", replacementValue);
+                    getLog().debug("Replaced Liberty configuration property value @{"+varName+"} with value "+replacementValue);
+                }
             }
         }
         
