@@ -37,6 +37,7 @@ import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.LooseAppSupport;
 import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
+import io.openliberty.tools.common.plugins.config.ApplicationMonitorConfigXmlDocument;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
@@ -63,6 +64,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
     protected File copyLibsDirectory;
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
+    protected ApplicationMonitorConfigXmlDocument appMonXml = new ApplicationMonitorConfigXmlDocument();
 
     protected void installApp(Artifact artifact) throws MojoExecutionException, IOException {
     
@@ -415,8 +417,9 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             // add application configuration
             getLog().info("Could not find application "+fileName+" in server.xml locations.");
             applicationXml.createApplicationElement(fileName, artifactId, isSpringBootApp);
-        } else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fullyQualifiedFileName, fileName))
+        } else if (appsDir.equalsIgnoreCase("dropins") && isAppConfiguredInSourceServerXml(fullyQualifiedFileName, fileName)) {
             throw new MojoExecutionException(messages.getString("error.install.app.dropins.directory"));
+        }
     }
 
     /**
