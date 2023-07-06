@@ -110,8 +110,6 @@ public class DeployMojo extends DeployMojoSupport {
         }
         
         // create applicationMonitor configuartion in configDropins/defaults
-        appMonXml.createComment(HEADER);
-        appMonXml.createAppMonitorElement();
         appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory);
     }
 

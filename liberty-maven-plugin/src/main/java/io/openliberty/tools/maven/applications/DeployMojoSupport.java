@@ -64,7 +64,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
     protected File copyLibsDirectory;
 
     protected ApplicationXmlDocument applicationXml = new ApplicationXmlDocument();
-    protected ApplicationMonitorConfigXmlDocument appMonXml = new ApplicationMonitorConfigXmlDocument();
+    protected ApplicationMonitorConfigXmlDocument appMonXml = new ApplicationMonitorConfigXmlDocument("maven");
 
     protected void installApp(Artifact artifact) throws MojoExecutionException, IOException {
     
