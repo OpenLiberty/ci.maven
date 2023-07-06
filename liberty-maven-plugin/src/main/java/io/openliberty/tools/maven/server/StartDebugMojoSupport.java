@@ -811,6 +811,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 }
             }
         }
+        defaultVarMavenProps.put("io.openliberty.tools.update.trigger", "polled");
     }
 
     // The properties parameter comes from the <bootstrapProperties> configuration in pom.xml and takes precedence over
