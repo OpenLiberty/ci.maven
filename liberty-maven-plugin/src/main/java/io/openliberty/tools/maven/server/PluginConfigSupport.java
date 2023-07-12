@@ -120,7 +120,10 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         if (combinedBootstrapProperties != null) {
             configDocument.createElement("bootstrapProperties", combinedBootstrapProperties);
         } else if (bootstrapProperties != null) {
-            configDocument.createElement("bootstrapProperties", bootstrapProperties);
+            if (bootstrapPropertiesResolved == null) {
+                bootstrapPropertiesResolved = handleLatePropertyResolution(bootstrapProperties);
+            }
+            configDocument.createElement("bootstrapProperties", bootstrapPropertiesResolved);
         } else {
             configFile = findConfigFile("bootstrap.properties", bootstrapPropertiesFile);
             if (configFile != null) {
@@ -131,7 +134,10 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         if (combinedJvmOptions != null) {
             configDocument.createElement("jvmOptions", combinedJvmOptions);
         } else if (jvmOptions != null) {
-            configDocument.createElement("jvmOptions", jvmOptions);
+            if (jvmOptionsResolved == null) {
+                jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
+            }
+            configDocument.createElement("jvmOptions", jvmOptionsResolved);
         } else {
             configFile = findConfigFile("jvm.options", jvmOptionsFile);
             if (configFile != null) {
