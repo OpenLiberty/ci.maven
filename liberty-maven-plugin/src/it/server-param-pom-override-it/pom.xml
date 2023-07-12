@@ -13,6 +13,7 @@
     <packaging>war</packaging>
 
     <properties>
+        <myBootstrapArg>someBootstrapValue</myBootstrapArg>
         <myArgLine>-javaagent:/path/to/some/jar.jar</myArgLine>
         <liberty.jvm.argLine>@{myArgLine}</liberty.jvm.argLine>
         <liberty.jvm.undefined>@{undefined}</liberty.jvm.undefined>
@@ -70,6 +71,10 @@
                     <jvmOptions>
                         <param>-Xmx768m</param>
                     </jvmOptions>
+                    <bootstrapProperties>
+                        <someBootstrapVar>@{myBootstrapArg}</someBootstrapVar>
+                        <someUndefinedBootstrapVar>@{undefinedValue}</someUndefinedBootstrapVar>
+                    </bootstrapProperties>
                     <serverName>test</serverName>
                     <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <bootstrapPropertiesFile>src/main/liberty/config/bootstrap.properties</bootstrapPropertiesFile>

@@ -99,6 +99,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     protected Map<String,String> combinedBootstrapProperties = null;
     protected List<String> combinedJvmOptions = null;
     
+    // the following collections are copies of the originals with any @{xxx} references resolved in the values
+    protected Map<String,String> bootstrapPropertiesResolved = null; // original collection is bootstrapProperties
+    protected List<String> jvmOptionsResolved = null; // original collection is jvmOptions
+
     @Component
     protected BuildPluginManager pluginManager;
 
@@ -555,7 +559,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (jvmOptionsPath != null) {
                 getLog().warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
             }
-            writeJvmOptions(optionsFile, jvmOptions, jvmMavenProps);
+            jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
+            writeJvmOptions(optionsFile, jvmOptionsResolved, jvmMavenProps);
             jvmOptionsPath = "inlined configuration";
         } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
             if (jvmOptionsPath != null) {
@@ -582,7 +587,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (bootStrapPropertiesPath != null) {
                 getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
             }
-            writeBootstrapProperties(bootstrapFile, bootstrapProperties, bootstrapMavenProps);
+            bootstrapPropertiesResolved = handleLatePropertyResolution(bootstrapProperties);
+            writeBootstrapProperties(bootstrapFile, bootstrapPropertiesResolved, bootstrapMavenProps);
             bootStrapPropertiesPath = "inlined configuration";
         } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
             if (bootStrapPropertiesPath != null) {
@@ -835,6 +841,30 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
         
         return returnValue;
+    }
+
+    protected Map<String,String> handleLatePropertyResolution(Map<String,String> properties) {
+        Map<String,String> propertiesResolved = null;
+        if (properties != null) {
+            propertiesResolved = new HashMap<String,String> ();
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String value = handleLatePropertyResolution(entry.getValue());
+                propertiesResolved.put(entry.getKey(), value);
+            }
+        }
+        return propertiesResolved;
+    }
+
+    protected List<String> handleLatePropertyResolution(List<String> properties) {
+        List<String> propertiesResolved = null;
+        if (properties != null) {
+            propertiesResolved = new ArrayList<String> ();
+            for (String nextOption : properties) {
+                String value = handleLatePropertyResolution(nextOption);
+                propertiesResolved.add(value);
+            }
+        }
+        return propertiesResolved;
     }
 
     // The properties parameter comes from the <bootstrapProperties> configuration in pom.xml and takes precedence over
