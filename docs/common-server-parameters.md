@@ -170,3 +170,9 @@ Example of Liberty configuration with parameters:
     </executions>
 </plugin>
 ```
+
+#### Late property replacement
+
+Maven does property replacement for `${...}` values in pom.xml before any plugin is run. Starting with the 3.8.3 release of the liberty-maven-plugin, an alternate syntax `@{...}` is supported which allows late replacement of properties when the plugin is executed. This enables properties that are modified by other plugins to be picked up correctly.
+
+The alternate syntax is supported for Liberty configuration specified by Maven properties, as well as the `jvmOptions` and `bootstrapProperties` parameters.
