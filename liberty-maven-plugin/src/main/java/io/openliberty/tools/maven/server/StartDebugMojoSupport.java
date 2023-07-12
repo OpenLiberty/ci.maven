@@ -805,7 +805,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 String suffix = key.substring(propType.getPrefix().length());
                 String value = (String) entry.getValue();
                 // Check the value for late property resolution with @{xxx} syntax.
-                value = handleLatePropertyResolution(value);
+                value = resolveLatePropertyReferences(value);
                 
                 getLog().debug("Processing Liberty configuration from property with key "+key+" and value "+value);
                 switch (propType) {
@@ -825,17 +825,19 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     // Search the value parameter for any properties referenced with @{xxx} syntax and replace those with their property value if defined.
-    private String handleLatePropertyResolution(String value) {
+    private String resolveLatePropertyReferences(String value) {
         String returnValue = value;
 
-        Matcher m = LATE_PROP_PATTERN.matcher(value);
-        while (m.find()) {
-            String varName = m.group(1);
-            if (project.getProperties().containsKey(varName)) {
-                String replacementValue = project.getProperties().getProperty(varName);
-                if (replacementValue != null) {
-                    returnValue = returnValue.replace("@{"+varName+"}", replacementValue);
-                    getLog().debug("Replaced Liberty configuration property value @{"+varName+"} with value "+replacementValue);
+        if (value != null) {
+            Matcher m = LATE_PROP_PATTERN.matcher(value);
+            while (m.find()) {
+                String varName = m.group(1);
+                if (project.getProperties().containsKey(varName)) {
+                    String replacementValue = project.getProperties().getProperty(varName);
+                    if (replacementValue != null) {
+                        returnValue = returnValue.replace("@{"+varName+"}", replacementValue);
+                        getLog().debug("Replaced Liberty configuration property value @{"+varName+"} with value "+replacementValue);
+                    }
                 }
             }
         }
@@ -848,7 +850,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (properties != null) {
             propertiesResolved = new HashMap<String,String> ();
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String value = handleLatePropertyResolution(entry.getValue());
+                String value = resolveLatePropertyReferences(entry.getValue());
                 propertiesResolved.put(entry.getKey(), value);
             }
         }
@@ -860,7 +862,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (properties != null) {
             propertiesResolved = new ArrayList<String> ();
             for (String nextOption : properties) {
-                String value = handleLatePropertyResolution(nextOption);
+                String value = resolveLatePropertyReferences(nextOption);
                 propertiesResolved.add(value);
             }
         }
