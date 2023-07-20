@@ -48,6 +48,7 @@
     <modules>
         <module>liberty-maven-app-parent</module>
         <module>liberty-maven-plugin</module>
+        <module>liberty-maven-plugin-integration-tests</module>
     </modules>
 
     <build>
