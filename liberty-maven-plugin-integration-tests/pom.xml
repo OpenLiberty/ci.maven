@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.openliberty.tools</groupId>
+        <artifactId>liberty-maven</artifactId>
+        <version>3.8.3-SNAPSHOT</version>
+    </parent>
+
+    <groupId>io.openliberty.tools.it</groupId>
+    <artifactId>liberty-maven-plugin-integration-tests</artifactId>
+    <version>3.8.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Liberty Maven Plugin :: ITs</name>
+
+    <modules>
+        <module>assembly-server</module>
+        <module>config-directory-it</module>
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.3.0</version>
+                    <inherited>true</inherited>
+                    <executions>
+                        <execution>
+                            <id>portnumber</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>reserve-network-port</goal>
+                            </goals>
+                            <configuration>
+                                <portNames>
+                                    <name>liberty.port</name>
+                                </portNames>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+</project>

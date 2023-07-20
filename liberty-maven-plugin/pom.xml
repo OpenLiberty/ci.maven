@@ -183,6 +183,7 @@
                             </profiles>
                             <streamLogs>true</streamLogs>
                             <mavenOpts>-Dfile.encoding=UTF-8</mavenOpts>
+                            <skipInvocation>${skipPluginIts}</skipInvocation>
                         </configuration>
                         <executions>
                             <execution>
