@@ -130,6 +130,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     @Parameter
     protected List<String> jvmOptions;
 
+    @Parameter(property = "appMonitorTrigger")
+    protected String appMonitorTrigger;
+
     /**
      * The current plugin's descriptor. This is auto-filled by Maven 3.
      */
