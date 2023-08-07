@@ -111,7 +111,7 @@ public class DeployMojo extends DeployMojoSupport {
         }
         
         // create applicationMonitor configuration in configDropins/defaults
-        appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory, applicationMonitorValue);
+        appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory, appMonitorTrigger);
     }
 
     private void installSpringBootApp() throws MojoExecutionException, IOException {
