@@ -124,6 +124,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     @Parameter
     protected List<String> jvmOptions;
 
+    @Parameter(property = "applicationMonitor")
+    protected String applicationMonitorValue;
+
     /**
      * The current plugin's descriptor. This is auto-filled by Maven 3.
      */
@@ -811,7 +814,6 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 }
             }
         }
-        defaultVarMavenProps.put("io.openliberty.tools.update.trigger", "polled");
     }
 
     // The properties parameter comes from the <bootstrapProperties> configuration in pom.xml and takes precedence over
