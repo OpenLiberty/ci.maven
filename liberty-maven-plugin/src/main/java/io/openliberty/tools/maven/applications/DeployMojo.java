@@ -37,6 +37,7 @@ import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 
 /**
  * Copy applications to the specified directory of the Liberty server. 
@@ -59,12 +60,12 @@ public class DeployMojo extends DeployMojoSupport {
 
         try {
             doDeploy();
-        } catch (IOException | ParserConfigurationException | TransformerException e) {
+        } catch (IOException | ParserConfigurationException | TransformerException | PluginExecutionException e) {
             throw new MojoExecutionException("Error deploying application.", e);
         }
     }
 
-    private void doDeploy() throws IOException, MojoExecutionException, TransformerException, ParserConfigurationException {
+    private void doDeploy() throws IOException, MojoExecutionException, TransformerException, ParserConfigurationException, PluginExecutionException {
         checkServerHomeExists();
         checkServerDirectoryExists();
         
@@ -95,7 +96,7 @@ public class DeployMojo extends DeployMojoSupport {
             default:
                 return;
         }
-              
+
         if (installDependencies) {
             installDependencies();
         }
@@ -109,8 +110,8 @@ public class DeployMojo extends DeployMojoSupport {
             applicationXml.writeApplicationXmlDocument(serverDirectory);
         }
         
-        // create applicationMonitor configuartion in configDropins/defaults
-        appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory);
+        // create applicationMonitor configuration in configDropins/defaults
+        appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory, applicationMonitorValue);
     }
 
     private void installSpringBootApp() throws MojoExecutionException, IOException {
