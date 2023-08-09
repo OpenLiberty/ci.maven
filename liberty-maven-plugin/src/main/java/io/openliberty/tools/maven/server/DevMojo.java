@@ -1424,6 +1424,18 @@ public class DevMojo extends LooseAppSupport {
         }
 
         util.addShutdownHook(executor);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    runMojoForProject("org.apache.maven.plugins", "maven-war-plugin", "war", project);
+                } catch (MojoExecutionException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
         
         try {
             util.startServer();
