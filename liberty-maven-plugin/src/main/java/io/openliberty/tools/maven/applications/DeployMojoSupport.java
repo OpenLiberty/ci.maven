@@ -150,20 +150,27 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         		getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
         	}
 
-            // If I'm filtering web.xml, etc., I want to monitor from the exploded dir, not via a source dir
+            // Don't especially need to run it exactly here, but in debugger we can see what we have
+            runExplodedMojo();
+
+            // 1. source dir, but if DD filtering is enabled we want to exclude this and add only the exploded (filtered) contents
             if (!looseWar.isFilteringDeploymentDescriptors()) {
                 looseWar.addSourceDir();
             }
 
-            // Add source paths for non-filtered web resources. 
-            // We'll already have the runtime application monitor watching for file changes, and we 
-            // don't want to set up the more expensive dev mode type of watching.
+            // 2. Add source paths for non-filtered web resources.
+            // We'll already have the runtime application monitor watching for file changes, and we don't want to set up the more expensive
+            // dev mode type of watching.
             looseWar.addNonFilteredWebResourcesConfigurationPaths();
 
-            // Don't especially need to run it exactly here, but in debugger we can see what we have
-            runExplodedMojo();
+            // 3. target classes - this allows non-deploy mode cases (e.g. non-deploy cases such as `mvn compile` or m2e update in Eclipse)
+            // to pick up Java class updates
+            // upon compilation.
+            looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
 
             //////////////////////////
+            // 4. Finally add the exploded dir
+            //
             // Per doc: https://www.ibm.com/docs/en/was-liberty/base?topic=liberty-loose-applications
             // ".. If you have two files with the same target location in the loose archive, the first occurrence of the file is used. 
             //    The first occurrence is based on a top-down approach to reading the elements of the loose application configuration file..."
