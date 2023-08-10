@@ -811,20 +811,30 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
-            if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
-                try {
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                    runExplodedMojo();
-                } catch (MojoExecutionException e) {
-                    getLog().error("Failed to run goal(s)", e);
-                }
-            } else {
-                copyFile(fileChanged, resourceParent, outputDirectory, null);
+            /**
+             * There is an asymmetry here that we take advantage of in the exploded case. For multi-mod, this would be a copyFile, which
+             * does not apply Maven filters.
+             */
+            try {
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            } catch (MojoExecutionException e) {
+                getLog().error("Failed to run goal(s)", e);
             }
         }
 
         @Override
         protected void resourceDeleted(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+
+            /**
+             * Why is this so asymmetric compared to resourceModifiedOrCreated() above? For two reasons: 1. The resources:resources plugin
+             * goal doesn't update the target/output directory with deletions, so we have to use our own custom deleteFile() method 2. In
+             * the case of the exploded loose app format, even having deleted the file from the outputDirectory ('target/classes'), the
+             * resource would typically also have been collected into the exploded 'webapp' directory. Even though it would take precedence
+             * in 'target/classes' when it ends up in both locations, it will still be present in the 'webapp' directory. So we re-run the
+             * exploded goal to force an "outdated" update cleaning this file from this location. Another approach might have been to do a
+             * delteFile() in the 'webapp' directory.
+             */
+
             deleteFile(fileChanged, resourceParent, outputDirectory, null);
             if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
                 try {
