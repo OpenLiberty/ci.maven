@@ -146,8 +146,9 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         	
         	// Validate maven-war-plugin version
         	Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-        	if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-        		getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+            if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
+                getLog().warn(
+                        "Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
         	}
 
             // Don't especially need to run it exactly here, but in debugger we can see what we have

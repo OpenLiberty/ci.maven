@@ -773,8 +773,9 @@ public class DevMojo extends LooseAppSupport {
                         
                         // Validate maven-war-plugin version
                         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-                        if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-                            getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+                        if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
+                            getLog().warn(
+                                    "Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
                         }
                         
                         redeployApp();

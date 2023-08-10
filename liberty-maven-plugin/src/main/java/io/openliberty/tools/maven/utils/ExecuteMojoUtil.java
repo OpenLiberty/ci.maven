@@ -141,7 +141,7 @@ public class ExecuteMojoUtil {
     // https://maven.apache.org/plugins/maven-war-plugin/exploded-mojo.html
     private static final ArrayList<String> EXPLODED_PARAMS = new ArrayList<>(Arrays.asList(
             "filteringDeploymentDescriptors", "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
-            "overlays", "webResources"
+            "outdatedCheckPath", "overlays", "webResources"
             ));
 
     // https://maven.apache.org/plugins/maven-ear-plugin/ear-mojo.html
