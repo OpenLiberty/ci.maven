@@ -67,9 +67,12 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
+import io.openliberty.tools.common.plugins.config.ApplicationMonitorConfigXmlDocument;
 import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.maven.ServerFeatureSupport;
 import io.openliberty.tools.maven.applications.LooseWarApplication;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
 
 /**
@@ -97,6 +100,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     protected Map<String,String> combinedBootstrapProperties = null;
     protected List<String> combinedJvmOptions = null;
     
+    protected ApplicationMonitorConfigXmlDocument appMonXml = new ApplicationMonitorConfigXmlDocument("maven");
+
     @Component
     protected BuildPluginManager pluginManager;
 
@@ -660,6 +665,15 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
 
         configFilesCopied = true;
+
+        // create applicationMonitor configuration in configDropins/defaults
+        try {
+            // TODO: do proper logging for writing/deleting the config file (but logic is in ci.common)
+            getLog().debug("Writing or deleting configDropins applicationMonitor config file based on `appMonitorTrigger`: " + appMonitorTrigger);
+            appMonXml.writeAppMonitorConfigXmlDocument(serverDirectory, appMonitorTrigger);
+        } catch (TransformerException | ParserConfigurationException | PluginExecutionException e) {
+            throw new MojoExecutionException("Error writing configDropins applicationMonitor file", e);
+        }
 
         // Now process the copyDependencies configuration
         copyDependencies();
