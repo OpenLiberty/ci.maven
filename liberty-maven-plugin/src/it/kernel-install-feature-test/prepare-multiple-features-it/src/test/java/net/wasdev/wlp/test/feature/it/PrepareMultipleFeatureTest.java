@@ -59,7 +59,7 @@ public class PrepareMultipleFeatureTest {
             assert jsonFile.exists() : "features.json cannot be generated";
             
         } catch (Exception e) {
-            throw new AssertionError ("Fail on task prepareFeature. "+e);
+            throw new AssertionError ("Fail on task prepareFeature.", e);
         }
     }
     
@@ -73,7 +73,7 @@ public class PrepareMultipleFeatureTest {
             assert simpleFile.exists() : "SimpleActivator.mf cannot be generated";
             
         } catch (Exception e) {
-            throw new AssertionError ("Fail to install user features. "+e);
+            throw new AssertionError ("Fail to install user features.", e);
         }
     }
     

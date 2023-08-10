@@ -77,10 +77,10 @@ public class LooseConfigTestIT {
         
         expression = "/archive/archive/dir";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <dir/> element ==>", 3, nodes.getLength());
+        assertEquals("Number of <dir/> element ==>", 2, nodes.getLength());
         
         expression = "/archive/archive/file";
         nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
+        assertEquals("Number of <dir/> element ==>", 2, nodes.getLength());
     }
 }

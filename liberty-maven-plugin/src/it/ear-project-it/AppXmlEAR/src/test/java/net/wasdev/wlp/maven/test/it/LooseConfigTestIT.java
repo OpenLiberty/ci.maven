@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2017.
+ * (c) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,5 +65,20 @@ public class LooseConfigTestIT {
         File appXml = new File("../src/main/application/META-INF/application.xml");     
         assertEquals("file sourceOnDisk attribute value", appXml.getCanonicalPath(), 
                 nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
+
+        expression = "/archive/archive/archive";
+        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of <archive/> element ==>", 1, nodes.getLength());
+        assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/SampleBundle-1.0-SNAPSHOT.jar", 
+                nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+
+        expression = "/archive/archive/archive/dir";
+        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
+        
+        expression = "/archive/archive/archive/file";
+        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+        assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
+
     }
 }

@@ -127,7 +127,7 @@
 			
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.0.0-M1</version>
+				<version>3.1.2</version>
 				<configuration>
 				    <runOrder>alphabetical</runOrder>
 				</configuration>

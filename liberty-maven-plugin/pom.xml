@@ -6,13 +6,17 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.9-SNAPSHOT</version>
+        <version>3.8.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>liberty-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>liberty-maven-plugin</name>
     <description>Liberty Maven Plugin : Install, Start/Stop, Package, Create Server, Deploy/Undeploy applications</description>
+
+    <prerequisites>
+        <maven>${maven.version}</maven>
+    </prerequisites>
 
     <repositories>
         <!-- Configure Sonatype OSS Maven snapshots repository -->
@@ -33,11 +37,29 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.12</version>
+            <version>1.9.13-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>${maven.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
+            <version>${maven.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>${maven.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
             <version>${maven.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -50,23 +72,23 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.8.1</version>
+            <version>${maven.plugin.tools.version}</version>
             <scope>provided</scope>            <!-- annotations are needed only to build the plugin -->
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.1</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.plexus</groupId>
+            <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-build-api</artifactId>
-            <version>0.0.7</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.25-SNAPSHOT</version>
+            <version>1.8.27-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
@@ -85,16 +107,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${maven.plugin.tools.version}</version>
                 <executions>
                     <execution>
                         <id>help-goal</id>
                         <goals>
                             <goal>helpmojo</goal>
                         </goals>
-                        <configuration>
-                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -109,7 +128,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.3.0</version>
                         <configuration>
                             <debug>false</debug>
                             <goals>
@@ -145,7 +163,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.3.0</version>
                         <configuration>
                             <debug>false</debug>
                             <goals>
@@ -334,8 +351,4 @@
             </build>
         </profile>
     </profiles>
-
-    <prerequisites>
-        <maven>3.0</maven>
-    </prerequisites>
 </project>

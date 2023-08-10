@@ -50,12 +50,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
-                <version>2.10.1</version>
                 <configuration>
                     <version>7</version>
-                    <fileNameMapping>no-version</fileNameMapping>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <skinnyWars>true</skinnyWars>
+                    <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
                 </configuration>
             </plugin>
             <plugin>
@@ -95,7 +94,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -107,7 +105,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
                 <executions>
                     <execution>
                         <goals>

@@ -55,7 +55,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.7.1</version>
+                <version>3.8.1</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -104,7 +104,7 @@ Example using the `runtimeArtifact` parameter to install a WebSphere Liberty run
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
-    <version>3.7.1</version>
+    <version>3.8.1</version>
     <configuration>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
@@ -124,7 +124,7 @@ Example using the `runtimeArtifact` parameter to install an Open Liberty beta ru
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
-    <version>3.7.1</version>
+    <version>3.8.1</version>
     <configuration>
         <runtimeArtifact>
             <groupId>io.openliberty.beta</groupId>
@@ -238,7 +238,7 @@ Example:
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>[3.2.3,)</version>
+                <version>[3.8.1,)</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>

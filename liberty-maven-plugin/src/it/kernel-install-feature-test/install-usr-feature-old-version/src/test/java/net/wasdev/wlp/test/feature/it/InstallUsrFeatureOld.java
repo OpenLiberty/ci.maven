@@ -48,7 +48,7 @@ public class InstallUsrFeatureOld {
             assert featureFile.exists() : "testesa1.mf cannot be generated";
             
         } catch (Exception e) {
-            throw new AssertionError ("Fail to install user feature. "+e);
+            throw new AssertionError ("Fail to install user feature.", e);
         }
     }
     
