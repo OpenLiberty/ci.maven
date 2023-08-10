@@ -154,27 +154,38 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             // Don't especially need to run it exactly here, but in debugger we can see what we have
             runExplodedMojo();
 
-            // 1. source dir, but if DD filtering is enabled we want to exclude this and add only the exploded (filtered) contents
-            if (!looseWar.isFilteringDeploymentDescriptors()) {
-                looseWar.addSourceDir();
-            }
+            ////////////////////////////////////
+            // The order matters and establishes a well-defined precedence as documented:
+            //////////////////////////////////// https://www.ibm.com/docs/en/was-liberty/base?topic=liberty-loose-applications
+            //
+            // ".. If you have two files with the same target location in the loose archive, the first occurrence of the file is used.
+            // The first occurrence is based on a top-down approach to reading the elements of the loose application configuration file..."
+            //
+            // Because the flow is so complicated we may have cases where we are applying filtering where one location contains a filtered
+            //////////////////////////////////// version
+            // of a file and another potentially has an unfiltered one, and in such cases we need to make sure the filtered version takes
+            //////////////////////////////////// precedence.
+            //
+            // In certain cases, like step 1. below we avoid writing a location into the loose app XML because we don't want an unfiltered
+            //////////////////////////////////// version
+            // to take precedence and prevent the filtered value from taking effect.
+            //
+            ////////////////////////////////////
 
-            // 2. Add source paths for non-filtered web resources.
+            // 1. Add source paths for the source dir and non-filtered web resources.  Since there could be overlap, i.e. the source dir
+            // could also be configured as a web resource, we combine these into a single step.
+            //
             // We'll already have the runtime application monitor watching for file changes, and we don't want to set up the more expensive
             // dev mode type of watching.
-            looseWar.addNonFilteredWebResourcesConfigurationPaths();
+            looseWar.addNonFilteredSourceAndWebResourcesPaths();
 
-            // 3. target classes - this allows non-deploy mode cases (e.g. non-deploy cases such as `mvn compile` or m2e update in Eclipse)
+            // 2. target classes - this allows non-deploy mode cases (e.g. non-deploy cases such as `mvn compile` or m2e update in Eclipse)
             // to pick up Java class updates
             // upon compilation.
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
 
             //////////////////////////
-            // 4. Finally add the exploded dir
-            //
-            // Per doc: https://www.ibm.com/docs/en/was-liberty/base?topic=liberty-loose-applications
-            // ".. If you have two files with the same target location in the loose archive, the first occurrence of the file is used. 
-            //    The first occurrence is based on a top-down approach to reading the elements of the loose application configuration file..."
+            // 3. Finally add the exploded dir
             //
             // In order to dynamically reflect changes in non-filtered web app source, this needs to go AFTER the unfiltered source entries above, since 
             // changes in these un-monitored directories will NOT cause a new 'exploded' goal execution, so the updated content in the unmonitored source will
@@ -189,14 +200,20 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
         } else {
 
+            // 1.
             looseWar.addSourceDir();
+            // 2.
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()),
                     "/WEB-INF/classes");
 
-            // retrieve the directories defined as resources in the maven war plugin
+            // 3. retrieve the directories defined as resources in the maven war plugin
+            //
+            // TODO - It would be cleaner to avoid duplicating the source dir in the case it also appears as a web resource, like we do in the exploded case.
+            // If this ever became an issue we could combine this with step 1. above.  However at the moment it doesn't seem worth the risk of making a change
+            // in such a key area.
             looseWar.addAllWebResourcesConfigurationPaths();
 
-            // retrieves dependent library jar files
+            // 4. retrieves dependent library jar files
             addEmbeddedLib(looseWar.getDocumentRoot(), proj, looseWar, "/WEB-INF/lib/");
 
         }

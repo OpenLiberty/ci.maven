@@ -102,10 +102,36 @@ public class LooseWarApplication extends LooseApplication {
         }
     }
 
+    /**
+     * @param project
+     * 
+     * @return A list of directory Path(s) including each web source directory that has filtering applied, including the war source
+     *         directory (if so configured) or webResources entries
+     */
     public static List<Path> getFilteredWebSourceDirectories(MavenProject project) {
 
-        List<Path> retVal = new ArrayList<Path>();
+        Set<Path> filteredWebResources = getFilteredWebResourcesConfigurations(project);
 
+        List<Path> retVal = new ArrayList<Path>(filteredWebResources);
+
+        Path warSourceDir = getWarSourceDirectory(project);
+
+        // Need to add warSourceDir if DD filtering enabled, unless it's already in the list having its own webResources config
+        if (isFilteringDeploymentDescriptors(project) && !filteredWebResources.contains(warSourceDir)) {
+            retVal.add(warSourceDir);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * @param project
+     * 
+     * @return List of webResources/resource configurations with filtering enabled, whether they happen to be the war source directory
+     *         or not
+     */
+    private static Set<Path> getFilteredWebResourcesConfigurations(MavenProject project) {
+        Set<Path> retVal = new HashSet<Path>();
         Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
 
         for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
@@ -119,18 +145,21 @@ public class LooseWarApplication extends LooseApplication {
             }
         }
 
-        // Now add warSourceDir
-        if (isFilteringDeploymentDescriptors(project)) {
-            retVal.add(getWarSourceDirectory(project));
-        }
-
         return retVal;
     }
-    
-    public List<Path> getFilteredWebSourceDirectories() {
-    	return getFilteredWebSourceDirectories(project);
+
+    public boolean isSourceDirFiltered() {
+
+        if (isFilteringDeploymentDescriptors()) {
+            return true;
+        }
+
+        Path warSourceDir = getWarSourceDirectory(project);
+
+        return getFilteredWebResourcesConfigurations(project).contains(warSourceDir);
     }
-    
+
+
     private static boolean isFilteringDeploymentDescriptors(MavenProject project) {
         Boolean retVal = false;
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
@@ -260,17 +289,76 @@ public class LooseWarApplication extends LooseApplication {
     }
 
     /*
+     * Add loose app XML elements for each directory within a maven-war-plugin configuration/webResources/resource/directory element 
+     * 
      * @return
      * @throws IOException 
      * @throws DOMException 
      */
-
     public void addAllWebResourcesConfigurationPaths() throws DOMException, IOException {
-        addWebResourcesConfigurationPaths(false);
+        Set<Path> handled = new HashSet<Path>();
+
+        Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
+
+        for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom target = resource.getChild("targetPath");
+            Path resolvedDir = baseDirPath.resolve(dir.getValue());
+            if (handled.contains(resolvedDir)) {
+                log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
+            } else {
+                String targetPath = "/";
+                if (target != null) {
+                    targetPath = "/" + target.getValue();
+                } 
+                addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
+                handled.add(resolvedDir);
+            }
+        }
     }
 
-    public void addNonFilteredWebResourcesConfigurationPaths() throws DOMException, IOException {
-        addWebResourcesConfigurationPaths(true);
+    /*
+     * Add loose app XML elements for the WAR source directory, as long as it is not filtered, and for each non-filtered 
+     * maven-war-plugin configuration/webResources/resource/directory element 
+     * 
+     * @return
+     * @throws IOException 
+     * @throws DOMException 
+     */
+    public void addNonFilteredSourceAndWebResourcesPaths() throws DOMException, IOException {
+
+        Path warSourceDir = getWarSourceDirectory();
+
+        Set<Path> handled = new HashSet<Path>();
+
+        // Write the source dir first, out of tradition/precedence
+        if (!isSourceDirFiltered()) {
+            addSourceDir();
+            handled.add(warSourceDir);
+        }
+        
+        Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
+
+        for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom target = resource.getChild("targetPath");
+            Xpp3Dom filtering = resource.getChild("filtering");
+            Path resolvedDir = baseDirPath.resolve(dir.getValue());
+            if (filtering != null && Boolean.parseBoolean(filtering.getValue())) {
+                continue;
+            } else {
+                if (handled.contains(resolvedDir)) {
+                    log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
+                } else {
+                    String targetPath = "/";
+                     if (target != null) {
+                         targetPath = "/" + target.getValue();
+                     } 
+                     addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
+                     handled.add(resolvedDir);
+                }
+            }
+        }
     }
 
     public Path getWebAppDirectory() {
