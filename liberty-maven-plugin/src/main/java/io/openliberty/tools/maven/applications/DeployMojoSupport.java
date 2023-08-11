@@ -155,19 +155,16 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             runExplodedMojo();
 
             ////////////////////////////////////
-            // The order matters and establishes a well-defined precedence as documented:
-            //////////////////////////////////// https://www.ibm.com/docs/en/was-liberty/base?topic=liberty-loose-applications
+            // The order matters and establishes a well-defined precedence as documented: https://www.ibm.com/docs/en/was-liberty/base?topic=liberty-loose-applications
             //
             // ".. If you have two files with the same target location in the loose archive, the first occurrence of the file is used.
             // The first occurrence is based on a top-down approach to reading the elements of the loose application configuration file..."
             //
             // Because the flow is so complicated we may have cases where we are applying filtering where one location contains a filtered
-            //////////////////////////////////// version
-            // of a file and another potentially has an unfiltered one, and in such cases we need to make sure the filtered version takes
-            //////////////////////////////////// precedence.
+            // version of a file and another potentially has an unfiltered one, and in such cases we need to make sure the filtered version takes
+            // precedence.
             //
             // In certain cases, like step 1. below we avoid writing a location into the loose app XML because we don't want an unfiltered
-            //////////////////////////////////// version
             // to take precedence and prevent the filtered value from taking effect.
             //
             ////////////////////////////////////
@@ -180,8 +177,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             looseWar.addNonFilteredSourceAndWebResourcesPaths();
 
             // 2. target classes - this allows non-deploy mode cases (e.g. non-deploy cases such as `mvn compile` or m2e update in Eclipse)
-            // to pick up Java class updates
-            // upon compilation.
+            // to pick up Java class updates upon compilation.
             looseWar.addOutputDir(looseWar.getDocumentRoot(), new File(proj.getBuild().getOutputDirectory()), "/WEB-INF/classes");
 
             //////////////////////////

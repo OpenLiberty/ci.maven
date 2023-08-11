@@ -872,10 +872,12 @@ public class DevMojo extends LooseAppSupport {
 
             // set the updated project in current session;
             Plugin backupLibertyPlugin = getLibertyPlugin();
+            Plugin backupWarPlugin = getPluginForProject("org.apache.maven.plugins", "maven-war-plugin", project);
             MavenProject backupProject = project;
             project = build.getProject();
             session.setCurrentProject(project);
             Plugin libertyPlugin = getLibertyPlugin();
+            Plugin warPlugin = getPluginForProject("org.apache.maven.plugins", "maven-war-plugin", project);
 
             try {
                 // TODO rebuild the corresponding module if the compiler options have changed
@@ -914,6 +916,11 @@ public class DevMojo extends LooseAppSupport {
                 }
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "deploy", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "deploy", getLog());
+                if (!Objects.equals(config, oldConfig)) {
+                    redeployApp = true;
+                }
+                config = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", getLog());
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupWarPlugin, "exploded", getLog());
                 if (!Objects.equals(config, oldConfig)) {
                     redeployApp = true;
                 }
