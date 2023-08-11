@@ -36,42 +36,34 @@ import io.openliberty.tools.common.plugins.config.LooseConfigData;
 public class LooseWarApplication extends LooseApplication {
     
     protected final MavenProject project;
+
+    protected final Path warSourceDirectory;
     
     protected final Log log;
 
     public LooseWarApplication(MavenProject project, LooseConfigData config, Log log) {
         super(project.getBuild().getDirectory(), config);
         this.project = project;
+        this.warSourceDirectory = getWarSourceDirectory(project);
         this.log = log;
     }
     
     public static boolean isExploded(MavenProject project) {
-    	boolean isExplodedWar = false;
-    	
-    	// Check if filtering is enabled
-    	List<Path> dynamicWebResources = getFilteredWebSourceDirectories(project);
-    	
-    	if (!dynamicWebResources.isEmpty() || isUsingOverlays(project)) {
-    		isExplodedWar = true;
-    	}
-    	
-    	// TODO: Check additional filtering options (properties?)
-    	
-    	return isExplodedWar;
+        if (isUsingOverlays(project)) {
+            return true;
+        } else if (!getWebSourceDirectoriesToMonitor(project).isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
-    
     
     public boolean isExploded() {
     	return isExploded(project);
     }
     
     public void addSourceDir() throws IOException {
-        Path warSourceDir = getWarSourceDirectory();
-        config.addDir(warSourceDir.toFile(), "/");
-    }
-
-    public Path getWarSourceDirectory() {
-        return getWarSourceDirectory(project);
+        config.addDir(warSourceDirectory.toFile(), "/");
     }
 
     private static Path getWarSourceDirectory(MavenProject project) {
@@ -108,7 +100,7 @@ public class LooseWarApplication extends LooseApplication {
      * @return A list of directory Path(s) including each web source directory that has filtering applied, including the war source
      *         directory (if so configured) or webResources entries
      */
-    public static List<Path> getFilteredWebSourceDirectories(MavenProject project) {
+    public static List<Path> getWebSourceDirectoriesToMonitor(MavenProject project) {
 
         Set<Path> filteredWebResources = getFilteredWebResourcesConfigurations(project);
 
@@ -117,7 +109,7 @@ public class LooseWarApplication extends LooseApplication {
         Path warSourceDir = getWarSourceDirectory(project);
 
         // Need to add warSourceDir if DD filtering enabled, unless it's already in the list having its own webResources config
-        if (isFilteringDeploymentDescriptors(project) && !filteredWebResources.contains(warSourceDir)) {
+        if (!filteredWebResources.contains(warSourceDir) && isFilteringDeploymentDescriptors(project)) {
             retVal.add(warSourceDir);
         }
 
@@ -148,16 +140,6 @@ public class LooseWarApplication extends LooseApplication {
         return retVal;
     }
 
-    public boolean isSourceDirFiltered() {
-
-        if (isFilteringDeploymentDescriptors()) {
-            return true;
-        }
-
-        Path warSourceDir = getWarSourceDirectory(project);
-
-        return getFilteredWebResourcesConfigurations(project).contains(warSourceDir);
-    }
 
 
     private static boolean isFilteringDeploymentDescriptors(MavenProject project) {
@@ -261,33 +243,6 @@ public class LooseWarApplication extends LooseApplication {
         return retVal;
     }
 
-    private void addWebResourcesConfigurationPaths(boolean onlyUnfiltered) throws DOMException, IOException {
-        Set<Path> handled = new HashSet<Path>();
-
-        Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
-
-        for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
-            Xpp3Dom dir = resource.getChild("directory");
-            Xpp3Dom target = resource.getChild("targetPath");
-            Xpp3Dom filtering = resource.getChild("filtering");
-            Path resolvedDir = baseDirPath.resolve(dir.getValue());
-            if (handled.contains(resolvedDir)) {
-                log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
-            } else {
-                if (onlyUnfiltered && filtering != null && Boolean.parseBoolean(filtering.getValue())) {
-                    continue;
-                } else {
-                    String targetPath = "/";
-                    if (target != null) {
-                        targetPath = "/" + target.getValue();
-                    } 
-                    addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
-                    handled.add(resolvedDir);
-                }
-            }
-        }
-    }
-
     /*
      * Add loose app XML elements for each directory within a maven-war-plugin configuration/webResources/resource/directory element 
      * 
@@ -327,23 +282,23 @@ public class LooseWarApplication extends LooseApplication {
      */
     public void addNonFilteredSourceAndWebResourcesPaths() throws DOMException, IOException {
 
-        Path warSourceDir = getWarSourceDirectory();
-
-        Set<Path> handled = new HashSet<Path>();
-
         // Write the source dir first, out of tradition/precedence
-        if (!isSourceDirFiltered()) {
+        if (!isFilteringDeploymentDescriptors() && !getFilteredWebResourcesConfigurations(project).contains(warSourceDirectory)) {
             addSourceDir();
-            handled.add(warSourceDir);
         }
         
         Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
 
+        Set<Path> handled = new HashSet<Path>(); // Use to warn for duplicate entries
         for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
             Xpp3Dom dir = resource.getChild("directory");
             Xpp3Dom target = resource.getChild("targetPath");
             Xpp3Dom filtering = resource.getChild("filtering");
             Path resolvedDir = baseDirPath.resolve(dir.getValue());
+            if (resolvedDir.equals(warSourceDirectory)) {
+                // We have already decided to write the source dir or not above
+                continue;
+            }
             if (filtering != null && Boolean.parseBoolean(filtering.getValue())) {
                 continue;
             } else {

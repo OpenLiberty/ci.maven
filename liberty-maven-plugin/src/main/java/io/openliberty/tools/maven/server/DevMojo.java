@@ -1363,7 +1363,7 @@ public class DevMojo extends LooseAppSupport {
         // resource directories
         List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
         
-        List<Path> webResourceDirs = LooseWarApplication.getFilteredWebSourceDirectories(project);
+        List<Path> webResourceDirs = LooseWarApplication.getWebSourceDirectoriesToMonitor(project);
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
