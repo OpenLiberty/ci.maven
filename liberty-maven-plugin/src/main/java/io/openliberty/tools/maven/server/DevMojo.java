@@ -25,6 +25,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -975,6 +976,25 @@ public class DevMojo extends LooseAppSupport {
                     }
 
                 }
+                
+                // We don't currently have the ability to dynamically add new directories to be watched
+                // There is so much that we are dynamically able to do that this could be surprising.
+                // For now issue a warning
+                Set<Path> oldMonitoredWebResourceDirs = new HashSet<Path>(this.monitoredWebResourceDirs);
+                Set<Path> newMonitoredWebResourceDirs = new HashSet<Path>(LooseWarApplication.getWebSourceDirectoriesToMonitor(project));
+                if (!oldMonitoredWebResourceDirs.equals(newMonitoredWebResourceDirs)) {
+                    getLog().warn("Change detected in the set of filtered web resource directories, since dev mode was first launched.  Adding/deleting a web resource directory has no change on the set of directories monitored by dev mode.  Changing the watch list will require a dev mode restart");
+                }
+                
+                // convert to Path, which seems to offer more reliable cross-platform, relative path comparison, then compare
+                Set<Path> oldResourceDirs = new HashSet<Path>();
+                this.resourceDirs.forEach(r -> oldResourceDirs.add(r.toPath()));                
+                Set<Path> newResourceDirs = new HashSet<Path>();
+                project.getResources().forEach(r -> newResourceDirs.add(Paths.get(r.getDirectory())));
+                if (!oldResourceDirs.equals(newResourceDirs)) {
+                    getLog().warn("Change detected in the set of resource directories, since dev mode was first launched. Adding/deleting a resource directory has no change on the set of directories monitored by dev mode.  Changing the watch list will require a dev mode restart");
+                }                
+                
                 if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
