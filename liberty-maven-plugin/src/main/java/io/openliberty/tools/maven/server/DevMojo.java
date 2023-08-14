@@ -922,7 +922,7 @@ public class DevMojo extends LooseAppSupport {
                 }
                 config = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupWarPlugin, "exploded", getLog());
-                if (!Objects.equals(config, oldConfig)) {
+                if (!Objects.equals(config, oldConfig) || warPlugin.getVersion() != backupWarPlugin.getVersion()) {
                     redeployApp = true;
                 }
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
