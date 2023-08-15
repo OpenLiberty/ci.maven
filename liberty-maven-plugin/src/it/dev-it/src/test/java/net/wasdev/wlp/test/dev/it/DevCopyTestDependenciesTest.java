@@ -53,7 +53,6 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
    @Test
    public void copyDependenciesTest() throws Exception {
       // Test scoped dependency should be omitted
-      // verifyLogMessageExists("copyDependencies failed for dependency with groupId org.postgresql, artifactId postgresql and type jar.", 2000);
       assertTrue("The test scoped dependency was copied unexpectedly: "+getLogTail(), verifyLogMessageExists("copyDependencies failed for dependency with groupId org.postgresql, artifactId postgresql and type jar.", 2000));
 
       File f = new File(targetDir, "liberty/wlp/usr/servers/defaultServer/lib/global/postgresql-42.1.1.jar");
