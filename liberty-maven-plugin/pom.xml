@@ -141,7 +141,7 @@
                             <profiles>
                                 <profile>offline-its</profile>
                             </profiles>
-                            <streamLogs>true</streamLogs>
+                            <streamLogsOnFailure>true</streamLogsOnFailure>
                         </configuration>
                         <executions>
                             <execution>
@@ -177,11 +177,10 @@
                                 <runtimeKernelId>${runtimeKernelId}</runtimeKernelId>
                                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
                             </properties>
-                            <streamLogs>true</streamLogs>
                             <profiles>
                                 <profile>online-its</profile>
                             </profiles>
-                            <streamLogs>true</streamLogs>
+                            <streamLogsOnFailure>true</streamLogsOnFailure>
                             <mavenOpts>-Dfile.encoding=UTF-8</mavenOpts>
                         </configuration>
                         <executions>
