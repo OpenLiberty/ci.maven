@@ -40,6 +40,11 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
         cache: 'maven'
+    - name: Free disk space ubuntu
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: false
+        large-packages: false
     - name: Checkout ci.common
       uses: actions/checkout@v3
       with:
