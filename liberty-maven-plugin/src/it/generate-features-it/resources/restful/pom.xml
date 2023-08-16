@@ -202,7 +202,7 @@
                         <id>stop-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>

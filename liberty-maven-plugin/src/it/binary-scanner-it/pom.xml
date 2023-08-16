@@ -3,9 +3,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.openliberty.tools.it</groupId>
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>tests</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>binary-scanner-it</artifactId>
-    <version>1.1</version>
     <packaging>jar</packaging>
 
     <properties>
