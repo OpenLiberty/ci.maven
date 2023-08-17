@@ -59,12 +59,6 @@ jobs:
       uses: stCarolas/setup-maven@v4.5
       with:
         maven-version: 3.9.2
-    - name: Cache maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
@@ -106,12 +100,6 @@ jobs:
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
         git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
-    - name: Cache maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
