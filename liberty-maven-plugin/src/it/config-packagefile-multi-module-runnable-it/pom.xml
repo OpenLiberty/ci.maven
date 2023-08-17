@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>multi-module-package-it</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Deploy app on Liberty and package server</name>
