@@ -19,51 +19,13 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.openliberty.features</groupId>
-				<artifactId>features-bom</artifactId>
-				<version>RUNTIME_VERSION</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<dependencies>
-		<!-- Open Liberty features -->
-		<dependency>
-			<groupId>io.openliberty.features</groupId>
-			<artifactId>jaxrs-2.1</artifactId>
-			<type>esa</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.openliberty.features</groupId>
-			<artifactId>jsonp-1.1</artifactId>
-			<type>esa</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.openliberty.features</groupId>
-			<artifactId>cdi-2.0</artifactId>
-			<type>esa</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.openliberty.features</groupId>
-			<artifactId>mpConfig-1.3</artifactId>
-			<type>esa</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.openliberty.features</groupId>
-			<artifactId>mpRestClient-1.2</artifactId>
-			<type>esa</type>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
 		<!-- For tests -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -166,14 +128,8 @@
 			<plugin>
 				<groupId>io.openliberty.tools</groupId>
 				<artifactId>liberty-maven-plugin</artifactId>
-				<version>SUB_VERSION</version>
+				<version>@pom.version@</version>
 				<configuration>
-					<assemblyArtifact>
-						<groupId>io.openliberty</groupId>
-						<artifactId>openliberty-kernel</artifactId>
-						<version>RUNTIME_VERSION</version>
-						<type>zip</type>
-					</assemblyArtifact>
 					<stripVersion>true</stripVersion>
 				</configuration>
 			</plugin>
