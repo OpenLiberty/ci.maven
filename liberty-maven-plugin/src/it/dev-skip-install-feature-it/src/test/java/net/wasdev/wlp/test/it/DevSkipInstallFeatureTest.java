@@ -36,7 +36,7 @@ public class DevSkipInstallFeatureTest extends BaseDevTest {
    public void installFeatureTest() throws Exception {
       // Verify that currently install-feature is called
       assertFalse("The install-feature goal ran unexpectedly: "+getLogTail(), verifyLogMessageExists("Running liberty:install-feature", 2000));
-      assertTrue("The skip install-feature log message is missing: "+getLogTail(), verifyLogMessageExists("Skipping liberty:install-feature", 2000));
+      assertTrue("The skip install-feature log message is missing: "+getLogTail(), verifyLogMessageExists("Skipping installation of features", 2000));
 
    }
 

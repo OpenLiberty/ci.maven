@@ -111,6 +111,12 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "skipITs", defaultValue = "false")
     private boolean skipITs;
  
+    /**
+     * If set to `true`, the `install-feature` goal will be skipped when `dev` mode is started on an already existing Liberty runtime installation. 
+     * It will also be skipped when `dev` mode is running and a restart of the server is triggered either directly by the user or by application changes. 
+     * The `install-feature` goal will be invoked though when `dev` mode is running and a change to the configured features is detected. 
+     * The default value is `false`.
+     */
     @Parameter(property = "skipInstallFeature", defaultValue = "false")
     protected boolean skipInstallFeature;
  
@@ -1331,8 +1337,8 @@ public class DevMojo extends LooseAppSupport {
             // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
             if (!container && (!skipInstallFeature || isNewInstallation)) {
                 runLibertyMojoInstallFeature(null, null, null);
-            } else {
-                getLog().info("Skipping liberty:install-feature");
+            } else if (skipInstallFeature) {
+                getLog().info("Skipping installation of features due to skipInstallFeature configuration.");
             }
             runLibertyMojoDeploy();
         }
