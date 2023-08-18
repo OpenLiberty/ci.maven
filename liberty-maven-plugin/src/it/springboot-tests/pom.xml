@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.openliberty.tools.it</groupId>
-	<artifactId>springboot-tests</artifactId>
-	<packaging>pom</packaging>
-	<version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>tests</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    	<properties>
-        	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        	<maven.compiler.source>1.7</maven.compiler.source>
-        	<maven.compiler.target>1.7</maven.compiler.target>
-    	</properties>
+    <artifactId>springboot-tests</artifactId>
+    <packaging>pom</packaging>
 
-	<modules>
-		<module>springboot-appsdirectory-apps-it</module>
-		<module>springboot-appsdirectory-dropins-it</module>
-	</modules>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+
+    <modules>
+        <module>springboot-appsdirectory-apps-it</module>
+        <module>springboot-appsdirectory-dropins-it</module>
+    </modules>
 
 </project>

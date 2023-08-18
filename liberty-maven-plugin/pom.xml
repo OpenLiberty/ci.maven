@@ -182,6 +182,7 @@
                             </profiles>
                             <streamLogsOnFailures>true</streamLogsOnFailures>
                             <mavenOpts>-Dfile.encoding=UTF-8</mavenOpts>
+                            <postBuildHookScript>cleanTest</postBuildHookScript>
                         </configuration>
                         <executions>
                             <execution>

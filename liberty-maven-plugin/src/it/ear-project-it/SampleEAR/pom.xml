@@ -97,7 +97,7 @@
                         <id>stop-server-before-clean</id>
                         <phase>pre-clean</phase>
                         <goals>
-                            <goal>stop-server</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>

@@ -3,9 +3,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.openliberty.tools.it</groupId>
+    <parent>
+        <groupId>io.openliberty.tools.it</groupId>
+        <artifactId>tests</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>multi-module-package-it</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Deploy app on Liberty and package server</name>
