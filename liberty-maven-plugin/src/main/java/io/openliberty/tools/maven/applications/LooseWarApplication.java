@@ -36,42 +36,34 @@ import io.openliberty.tools.common.plugins.config.LooseConfigData;
 public class LooseWarApplication extends LooseApplication {
     
     protected final MavenProject project;
+
+    protected final Path warSourceDirectory;
     
     protected final Log log;
 
     public LooseWarApplication(MavenProject project, LooseConfigData config, Log log) {
         super(project.getBuild().getDirectory(), config);
         this.project = project;
+        this.warSourceDirectory = getWarSourceDirectory(project);
         this.log = log;
     }
     
     public static boolean isExploded(MavenProject project) {
-    	boolean isExplodedWar = false;
-    	
-    	// Check if filtering is enabled
-    	List<Path> dynamicWebResources = getFilteredWebSourceDirectories(project);
-    	
-    	if (!dynamicWebResources.isEmpty() || isUsingOverlays(project)) {
-    		isExplodedWar = true;
-    	}
-    	
-    	// TODO: Check additional filtering options (properties?)
-    	
-    	return isExplodedWar;
+        if (isUsingOverlays(project)) {
+            return true;
+        } else if (!getWebSourceDirectoriesToMonitor(project).isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
-    
     
     public boolean isExploded() {
     	return isExploded(project);
     }
     
     public void addSourceDir() throws IOException {
-        Path warSourceDir = getWarSourceDirectory();
-        config.addDir(warSourceDir.toFile(), "/");
-    }
-
-    public Path getWarSourceDirectory() {
-        return getWarSourceDirectory(project);
+        config.addDir(warSourceDirectory.toFile(), "/");
     }
 
     private static Path getWarSourceDirectory(MavenProject project) {
@@ -102,10 +94,36 @@ public class LooseWarApplication extends LooseApplication {
         }
     }
 
-    public static List<Path> getFilteredWebSourceDirectories(MavenProject project) {
+    /**
+     * @param project
+     * 
+     * @return A list of directory Path(s) including each web source directory that has filtering applied, including the war source
+     *         directory (if so configured) or webResources entries
+     */
+    public static List<Path> getWebSourceDirectoriesToMonitor(MavenProject project) {
 
-        List<Path> retVal = new ArrayList<Path>();
+        Set<Path> filteredWebResources = getFilteredWebResourcesConfigurations(project);
 
+        List<Path> retVal = new ArrayList<Path>(filteredWebResources);
+
+        Path warSourceDir = getWarSourceDirectory(project);
+
+        // Need to add warSourceDir if DD filtering enabled, unless it's already in the list having its own webResources config
+        if (!filteredWebResources.contains(warSourceDir) && isFilteringDeploymentDescriptors(project)) {
+            retVal.add(warSourceDir);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * @param project
+     * 
+     * @return List of webResources/resource configurations with filtering enabled, whether they happen to be the war source directory
+     *         or not
+     */
+    private static Set<Path> getFilteredWebResourcesConfigurations(MavenProject project) {
+        Set<Path> retVal = new HashSet<Path>();
         Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
 
         for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
@@ -119,18 +137,11 @@ public class LooseWarApplication extends LooseApplication {
             }
         }
 
-        // Now add warSourceDir
-        if (isFilteringDeploymentDescriptors(project)) {
-            retVal.add(getWarSourceDirectory(project));
-        }
-
         return retVal;
     }
-    
-    public List<Path> getFilteredWebSourceDirectories() {
-    	return getFilteredWebSourceDirectories(project);
-    }
-    
+
+
+
     private static boolean isFilteringDeploymentDescriptors(MavenProject project) {
         Boolean retVal = false;
         Xpp3Dom dom = project.getGoalConfiguration("org.apache.maven.plugins", "maven-war-plugin", null, null);
@@ -232,7 +243,14 @@ public class LooseWarApplication extends LooseApplication {
         return retVal;
     }
 
-    private void addWebResourcesConfigurationPaths(boolean onlyUnfiltered) throws DOMException, IOException {
+    /*
+     * Add loose app XML elements for each directory within a maven-war-plugin configuration/webResources/resource/directory element 
+     * 
+     * @return
+     * @throws IOException 
+     * @throws DOMException 
+     */
+    public void addAllWebResourcesConfigurationPaths() throws DOMException, IOException {
         Set<Path> handled = new HashSet<Path>();
 
         Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
@@ -240,37 +258,62 @@ public class LooseWarApplication extends LooseApplication {
         for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
             Xpp3Dom dir = resource.getChild("directory");
             Xpp3Dom target = resource.getChild("targetPath");
-            Xpp3Dom filtering = resource.getChild("filtering");
             Path resolvedDir = baseDirPath.resolve(dir.getValue());
             if (handled.contains(resolvedDir)) {
                 log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
             } else {
-                if (onlyUnfiltered && filtering != null && Boolean.parseBoolean(filtering.getValue())) {
-                    continue;
-                } else {
-                    String targetPath = "/";
-                    if (target != null) {
-                        targetPath = "/" + target.getValue();
-                    } 
-                    addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
-                    handled.add(resolvedDir);
-                }
+                String targetPath = "/";
+                if (target != null) {
+                    targetPath = "/" + target.getValue();
+                } 
+                addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
+                handled.add(resolvedDir);
             }
         }
     }
 
     /*
+     * Add loose app XML elements for the WAR source directory, as long as it is not filtered, and for each non-filtered 
+     * maven-war-plugin configuration/webResources/resource/directory element 
+     * 
      * @return
      * @throws IOException 
      * @throws DOMException 
      */
+    public void addNonFilteredSourceAndWebResourcesPaths() throws DOMException, IOException {
 
-    public void addAllWebResourcesConfigurationPaths() throws DOMException, IOException {
-        addWebResourcesConfigurationPaths(false);
-    }
+        // Write the source dir first, out of tradition/precedence
+        if (!isFilteringDeploymentDescriptors() && !getFilteredWebResourcesConfigurations(project).contains(warSourceDirectory)) {
+            addSourceDir();
+        }
+        
+        Path baseDirPath = Paths.get(project.getBasedir().getAbsolutePath());
 
-    public void addNonFilteredWebResourcesConfigurationPaths() throws DOMException, IOException {
-        addWebResourcesConfigurationPaths(true);
+        Set<Path> handled = new HashSet<Path>(); // Use to warn for duplicate entries
+        for (Xpp3Dom resource : getWebResourcesConfigurations(project)) {
+            Xpp3Dom dir = resource.getChild("directory");
+            Xpp3Dom target = resource.getChild("targetPath");
+            Xpp3Dom filtering = resource.getChild("filtering");
+            Path resolvedDir = baseDirPath.resolve(dir.getValue());
+            if (resolvedDir.equals(warSourceDirectory)) {
+                // We have already decided to write the source dir or not above
+                continue;
+            }
+            if (filtering != null && Boolean.parseBoolean(filtering.getValue())) {
+                continue;
+            } else {
+                if (handled.contains(resolvedDir)) {
+                    log.warn("Ignoring webResources dir: " + dir.getValue() + ", already have entry for path: " + resolvedDir);
+                } else {
+                    String targetPath = "/";
+                     if (target != null) {
+                         targetPath = "/" + target.getValue();
+                     } 
+                     addOutputDir(getDocumentRoot(), resolvedDir.toFile(), targetPath);
+                     handled.add(resolvedDir);
+                }
+            }
+        }
     }
 
     public Path getWebAppDirectory() {

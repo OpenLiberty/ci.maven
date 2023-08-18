@@ -139,9 +139,17 @@ public class ExecuteMojoUtil {
     private static final ArrayList<String> FAILSAFE_REPORT_ONLY_PARAMS = REPORT_ONLY_PARAMS;
     
     // https://maven.apache.org/plugins/maven-war-plugin/exploded-mojo.html
+    //  as of Version: 3.4.1-SNAPSHOT, 2023-06-11
     private static final ArrayList<String> EXPLODED_PARAMS = new ArrayList<>(Arrays.asList(
-            "filteringDeploymentDescriptors", "warSourceDirectory", "webappDirectory", "workDirectory", "filters",
-            "overlays", "webResources"
+            // Required
+            "warSourceDirectory", "webappDirectory", "workDirectory", 
+            // Optional - skip archive* options which may not make sense with our loose app approach
+            "containerConfigXML", "delimiters", "dependentWarExcludes", 
+            "dependentWarIncludes", "escapedBackslashesInFilePath", "escapeString", "failOnMissingWebXml", 
+            "filteringDeploymentDescriptors", "filters", "includeEmptyDirectories", "nonFilteredFileExtensions",
+            "outdatedCheckPath", "outputFileNameMapping", "outputTimestamp", "overlays", "propertiesEncoding", "recompressZippedFiles",
+            "resourceEncoding", "supportMultiLineFiltering", "useDefaultDelimiters", "useJvmChmod", "warSourceExcludes", "warSourceIncludes",
+            "webResources", "webXml"
             ));
 
     // https://maven.apache.org/plugins/maven-ear-plugin/ear-mojo.html
