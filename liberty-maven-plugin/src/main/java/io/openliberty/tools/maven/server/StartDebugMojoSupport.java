@@ -207,9 +207,14 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
         Xpp3Dom explodedConfig = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", getLog());
         
-        if (validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-            explodedConfig.addChild(element(name("outdatedCheckPath"), "WEB-INF").toDom());
+        if (explodedConfig.getChild("outdatedCheckPath") == null) {
+            if (validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
+                explodedConfig.addChild(element(name("outdatedCheckPath"), "/").toDom());
+            } else if (validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
+                explodedConfig.addChild(element(name("outdatedCheckPath"), "WEB-INF").toDom());
+            }
         }
+
         getLog().info("Running maven-war-plugin:exploded");
         getLog().debug("configuration:\n" + explodedConfig);
         session.getRequest().setStartTime(new Date());

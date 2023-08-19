@@ -25,6 +25,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -783,8 +784,9 @@ public class DevMojo extends LooseAppSupport {
                         
                         // Validate maven-war-plugin version
                         Plugin warPlugin = getPlugin("org.apache.maven.plugins", "maven-war-plugin");
-                        if (!validatePluginVersion(warPlugin.getVersion(), "3.3.1")) {
-                            getLog().warn("Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.1 or greater for best results.");
+                        if (!validatePluginVersion(warPlugin.getVersion(), "3.3.2")) {
+                            getLog().warn(
+                                    "Exploded WAR functionality is enabled. Please use maven-war-plugin version 3.3.2 or greater for best results.");
                         }
                         
                         redeployApp();
@@ -821,20 +823,30 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         protected void resourceModifiedOrCreated(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
-            if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
-                try {
-                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                    runExplodedMojo();
-                } catch (MojoExecutionException e) {
-                    getLog().error("Failed to run goal(s)", e);
-                }
-            } else {
-                copyFile(fileChanged, resourceParent, outputDirectory, null);
+            /**
+             * There is an asymmetry here that we take advantage of in the exploded case. For multi-mod, this would be a copyFile, which
+             * does not apply Maven filters.
+             */
+            try {
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            } catch (MojoExecutionException e) {
+                getLog().error("Failed to run goal(s)", e);
             }
         }
 
         @Override
         protected void resourceDeleted(File fileChanged, File resourceParent, File outputDirectory) throws IOException {
+
+            /**
+             * Why is this so asymmetric compared to resourceModifiedOrCreated() above? For two reasons: 1. The resources:resources plugin
+             * goal doesn't update the target/output directory with deletions, so we have to use our own custom deleteFile() method 2. In
+             * the case of the exploded loose app format, even having deleted the file from the outputDirectory ('target/classes'), the
+             * resource would typically also have been collected into the exploded 'webapp' directory. Even though it would take precedence
+             * in 'target/classes' when it ends up in both locations, it will still be present in the 'webapp' directory. So we re-run the
+             * exploded goal to force an "outdated" update cleaning this file from this location. Another approach might have been to do a
+             * delteFile() in the 'webapp' directory.
+             */
+
             deleteFile(fileChanged, resourceParent, outputDirectory, null);
             if (project.getPackaging().equals("war") && LooseWarApplication.isExploded(project)) {
                 try {
@@ -871,10 +883,12 @@ public class DevMojo extends LooseAppSupport {
 
             // set the updated project in current session;
             Plugin backupLibertyPlugin = getLibertyPlugin();
+            Plugin backupWarPlugin = getPluginForProject("org.apache.maven.plugins", "maven-war-plugin", project);
             MavenProject backupProject = project;
             project = build.getProject();
             session.setCurrentProject(project);
             Plugin libertyPlugin = getLibertyPlugin();
+            Plugin warPlugin = getPluginForProject("org.apache.maven.plugins", "maven-war-plugin", project);
 
             try {
                 // TODO rebuild the corresponding module if the compiler options have changed
@@ -914,6 +928,11 @@ public class DevMojo extends LooseAppSupport {
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "deploy", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "deploy", getLog());
                 if (!Objects.equals(config, oldConfig)) {
+                    redeployApp = true;
+                }
+                config = ExecuteMojoUtil.getPluginGoalConfig(warPlugin, "exploded", getLog());
+                oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupWarPlugin, "exploded", getLog());
+                if (!Objects.equals(config, oldConfig) || !warPlugin.getVersion().equals(backupWarPlugin.getVersion())) {
                     redeployApp = true;
                 }
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
@@ -967,6 +986,25 @@ public class DevMojo extends LooseAppSupport {
                     }
 
                 }
+                
+                // We don't currently have the ability to dynamically add new directories to be watched
+                // There is so much that we are dynamically able to do that this could be surprising.
+                // For now issue a warning
+                Set<Path> oldMonitoredWebResourceDirs = new HashSet<Path>(this.monitoredWebResourceDirs);
+                Set<Path> newMonitoredWebResourceDirs = new HashSet<Path>(LooseWarApplication.getWebSourceDirectoriesToMonitor(project));
+                if (!oldMonitoredWebResourceDirs.equals(newMonitoredWebResourceDirs)) {
+                    getLog().warn("Change detected in the set of filtered web resource directories, since dev mode was first launched.  Adding/deleting a web resource directory has no change on the set of directories monitored by dev mode.  Changing the watch list will require a dev mode restart");
+                }
+                
+                // convert to Path, which seems to offer more reliable cross-platform, relative path comparison, then compare
+                Set<Path> oldResourceDirs = new HashSet<Path>();
+                this.resourceDirs.forEach(r -> oldResourceDirs.add(r.toPath()));                
+                Set<Path> newResourceDirs = new HashSet<Path>();
+                project.getResources().forEach(r -> newResourceDirs.add(Paths.get(r.getDirectory())));
+                if (!oldResourceDirs.equals(newResourceDirs)) {
+                    getLog().warn("Change detected in the set of resource directories, since dev mode was first launched. Adding/deleting a resource directory has no change on the set of directories monitored by dev mode.  Changing the watch list will require a dev mode restart");
+                }                
+                
                 if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
@@ -1359,7 +1397,7 @@ public class DevMojo extends LooseAppSupport {
         // resource directories
         List<File> resourceDirs = getResourceDirectories(project, outputDirectory);
         
-        List<Path> webResourceDirs = LooseWarApplication.getFilteredWebSourceDirectories(project);
+        List<Path> webResourceDirs = LooseWarApplication.getWebSourceDirectoriesToMonitor(project);
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
