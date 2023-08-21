@@ -111,7 +111,16 @@ public class DevMojo extends LooseAppSupport {
 
     @Parameter(property = "skipITs", defaultValue = "false")
     private boolean skipITs;
-
+ 
+    /**
+     * If set to `true`, the `install-feature` goal will be skipped when `dev` mode is started on an already existing Liberty runtime installation. 
+     * It will also be skipped when `dev` mode is running and a restart of the server is triggered either directly by the user or by application changes. 
+     * The `install-feature` goal will be invoked though when `dev` mode is running and a change to the configured features is detected. 
+     * The default value is `false`.
+     */
+    @Parameter(property = "skipInstallFeature", defaultValue = "false")
+    protected boolean skipInstallFeature;
+ 
     @Parameter(property = "debug", defaultValue = "true")
     private boolean libertyDebug;
 
@@ -248,6 +257,7 @@ public class DevMojo extends LooseAppSupport {
     private boolean keepTempDockerfile;
     
     private boolean isExplodedLooseWarApp = false;
+    private boolean isNewInstallation = true;
 
     /**
      * Set the container option.
@@ -287,11 +297,11 @@ public class DevMojo extends LooseAppSupport {
                 File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, Set<String> compileArtifactPaths, Set<String> testArtifactPaths, 
-                List<Path> webResourceDirs) throws IOException {
+                File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
+                Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs) throws IOException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
-                    skipUTs, skipITs, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
+                    skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
                     dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
@@ -1361,8 +1371,12 @@ public class DevMojo extends LooseAppSupport {
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Dockerfile if they want features to be
             // installed.
-            if (!container) {
+            // Added check here for the new skip install feature parameter. 
+            // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
+            if (!container && (!skipInstallFeature || isNewInstallation)) {
                 runLibertyMojoInstallFeature(null, null, null);
+            } else if (skipInstallFeature) {
+                getLog().info("Skipping installation of features due to skipInstallFeature configuration.");
             }
             runLibertyMojoDeploy();
         }
@@ -1456,7 +1470,7 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs);
         } catch (IOException | DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
@@ -1925,6 +1939,18 @@ public class DevMojo extends LooseAppSupport {
                 serverDirectory.mkdirs();
             }
         } else {
+            // Check to see if Liberty was already installed and set flag accordingly.
+            if (installDirectory != null) {
+                try {
+                    File installDirectoryCanonicalFile = installDirectory.getCanonicalFile();
+                    // Quick check to see if a Liberty installation exists at the installDirectory
+                    File file = new File(installDirectoryCanonicalFile, "lib/ws-launch.jar");
+                    if (file.exists()) {
+                        this.isNewInstallation = false;
+                    }
+                } catch (IOException e) {
+                }
+            }
             super.runLibertyMojoCreate();
         }
     }

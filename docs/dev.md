@@ -108,6 +108,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
 | recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
 | generateFeatures | If set to `true`, when a Java file, server configuration file, or build file is changed, generate features required by the application in the source configuration directory. The default value is `false`. | No |
+| skipInstallFeature | If set to `true`, the `install-feature` goal will be skipped when `dev` mode is started on an already existing Liberty runtime installation. It will also be skipped when `dev` mode is running and a restart of the server is triggered either directly by the user or by application changes. The `install-feature` goal will be invoked though when `dev` mode is running and a change to the configured features is detected. The default value is `false`. | No |
 
 ###### System Properties for Integration Tests
 
