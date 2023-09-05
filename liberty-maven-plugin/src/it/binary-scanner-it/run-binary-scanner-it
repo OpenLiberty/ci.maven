@@ -10,14 +10,18 @@
 # five minutes for each test.
 cd liberty-maven-plugin/
 cp src/it/binary-scanner-it/pom.xml /tmp
-for i in 3.7 3.7.1
+for i in 3.8 3.8.1 3.8.2
 do
-sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
-mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=23.0.0.1 -Dinvoker.test=binary-scanner-it
 echo !!
+echo !! About to test using Liberty Maven Plugin version $i.
+echo !! Each test runs for 5-10 minutes and then pauses here
+echo !! so you can check the results.
+echo !! You should already have followed the instructions in
+echo !! the comments at the top of this script. 
 echo !! PRESS ENTER TO CONTINUE
 echo !!
-# Allow time to inspect the pass/fail status before continuing.
 read j
+sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
+mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=23.0.0.1 -Dinvoker.test=binary-scanner-it
 done
 cp /tmp/pom.xml src/it/binary-scanner-it/pom.xml
