@@ -146,7 +146,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         }
 
         // Only write the serverEnvFile path if it was not overridden by liberty.env.{var} Maven properties.
-        if (envMavenProps.isEmpty() && configFile != null) {
+        if (envMavenProps.isEmpty()) {
             configFile = findConfigFile("server.env", serverEnvFile);
             if (configFile != null) {
                 configDocument.createElement("serverEnv", configFile);
