@@ -350,5 +350,31 @@
                 </pluginManagement>
             </build>
         </profile>
+
+        <!-- Profile to skip container tests -->
+        <profile>
+            <id>skip-container-its</id>
+            <activation>
+                <property>
+                    <name>containerTests</name>
+                    <value>!true</value> <!-- Must set -DcontainerTests=true to deactivate this profile -->
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-invoker-plugin</artifactId>
+                            <configuration>
+                                <pomExcludes>
+                                    <pomExclude>dev-container-it/pom.xml</pomExclude>
+                                </pomExcludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
     </profiles>
 </project>
