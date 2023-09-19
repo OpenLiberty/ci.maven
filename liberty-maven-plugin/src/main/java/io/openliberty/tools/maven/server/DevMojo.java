@@ -192,16 +192,16 @@ public class DevMojo extends LooseAppSupport {
     protected boolean pollingTest;
 
     /**
-     * Dockerfile used to build a Docker image to then start a container with
+     * Containerfile used to build an image to then start a container with
      */
-    @Parameter(property = "dockerfile")
-    private File dockerfile;
+    @Parameter(alias="dockerfile", property = "containerfile")
+    private File containerfile;
 
     /**
-     * Context (directory) to use for the Docker build when building the container image
+     * Context (directory) to use for the build when building the container image
      */
-    @Parameter(property = "dockerBuildContext")
-    private File dockerBuildContext;
+    @Parameter(alias="dockerBuildContext", property = "containerBuildContext")
+    private File containerBuildContext;
 
     /**
      * The directory for source files.
@@ -230,31 +230,31 @@ public class DevMojo extends LooseAppSupport {
     private File testOutputDirectory;
 
     /**
-     * Additional options for the docker run command when dev mode starts a
+     * Additional options for the container run command when dev mode starts a
      * container.
      */
-    @Parameter(property = "dockerRunOpts")
-    private String dockerRunOpts;
+    @Parameter(alias="dockerRunOpts", property = "containerRunOpts")
+    private String containerRunOpts;
 
     /**
-     * Specify the amount of time in seconds that dev mode waits for the docker
+     * Specify the amount of time in seconds that dev mode waits for the container
      * build command to run to completion. Default to 600 seconds.
      */
-    @Parameter(property = "dockerBuildTimeout", defaultValue = "600")
-    private int dockerBuildTimeout;
+    @Parameter(alias="dockerBuildTimeout", property = "containerBuildTimeout", defaultValue = "600")
+    private int containerBuildTimeout;
 
     /**
-     * If true, the default Docker port mappings are skipped in the docker run
+     * If true, the default container port mappings are skipped in the container run
      * command
      */
     @Parameter(property = "skipDefaultPorts", defaultValue = "false")
     private boolean skipDefaultPorts;
 
     /**
-     * If true, preserve the temporary Dockerfile used in the docker build command
+     * If true, preserve the temporary Containerfile/Dockerfile used in the container build command
      */
-    @Parameter(property = "keepTempDockerfile", defaultValue = "false")
-    private boolean keepTempDockerfile;
+    @Parameter(alias="keepTempDockerfile", property = "keepTempContainerfile", defaultValue = "false")
+    private boolean keepTempContainerfile;
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
@@ -302,9 +302,9 @@ public class DevMojo extends LooseAppSupport {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
-                    dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
+                    containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
+                    keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
@@ -1369,7 +1369,7 @@ public class DevMojo extends LooseAppSupport {
             }
             runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
-            // should have "RUN features.sh" in their Dockerfile if they want features to be
+            // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
             // installed.
             // Added check here for the new skip install feature parameter. 
             // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
