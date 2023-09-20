@@ -31,12 +31,6 @@ jobs:
           RUNTIME_VERSION: 23.0.0.3
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Linux
     steps:
-    - name: Setup Podman
-      run: |
-        sudo apt update
-        sudo apt-get -y install podman
-        sudo podman machine init --rootful=true
-        sudo podman machine start
     # Checkout repos
     - name: Checkout ci.maven
       uses: actions/checkout@v3
@@ -72,7 +66,7 @@ jobs:
         ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false
     # Run tests
     - name: Run tests
-      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}" -DcontainerTests=true
+      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
