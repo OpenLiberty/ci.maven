@@ -223,6 +223,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -262,6 +263,7 @@
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -300,6 +302,7 @@
                                     <pomExclude>dev-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -343,6 +346,7 @@
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>

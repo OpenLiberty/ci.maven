@@ -207,7 +207,10 @@ public class MavenProjectUtil {
      */
     public static int getMajorPluginVersion(MavenProject project, String pluginKey) {
         Plugin plugin = project.getPlugin(pluginKey);
-        return Character.getNumericValue(plugin.getVersion().charAt(0));
+        if (plugin != null) {
+            return Character.getNumericValue(plugin.getVersion().charAt(0));
+        }
+        return 0;
     }
 
 }

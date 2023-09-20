@@ -123,9 +123,11 @@ public class DeployMojo extends DeployMojoSupport {
             File libIndexCacheTarget = getLibIndexCacheTarget();
             
             validateAppConfig(thinArchiveTarget.getCanonicalPath(), thinArchiveTarget.getName(), project.getArtifactId(), true);
+            installSpringBootFeatureIfNeeded(installDirectory);
             invokeSpringBootUtilCommand(installDirectory, fatArchiveSrc.getCanonicalPath(), thinArchiveTarget.getCanonicalPath(), libIndexCacheTarget.getCanonicalPath());
         } else {
-            throw new MojoExecutionException(fatArchiveSrc.getCanonicalPath() +" file is not an executable archive. "
+            File fatArchive = SpringBootUtil.getSpringBootUberJARLocation(project, getLog()); // fatArchiveSrc can be null - so get location of file to use in message
+            throw new MojoExecutionException(fatArchive.getCanonicalPath() +" file is not an executable archive. "
                     + "The repackage goal of the spring-boot-maven-plugin must be configured to run first in order to create the required executable archive.");
         }
     }
