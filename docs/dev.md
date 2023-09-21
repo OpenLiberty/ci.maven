@@ -221,7 +221,7 @@ Customizing the container configuration in `pom.xml`.  Note that changing these 
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.8.3-SNAPSHOT</version>
+                <version>3.9</version>
                 <configuration>
                     <container>true</container>
                     <containerRunOpts>-e key=value</containerRunOpts>
@@ -265,9 +265,9 @@ These parameters are available in addition to the ones in the `dev` section abov
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | container | If set to `true`, run the server in the container specified by the `containerfile` parameter. Setting this to `true` is equivalent to using the `devc` goal. The default value is `false` when the `dev` goal is used, and `true` when the `devc` goal is used. | No |
-| containerRunOpts | Specifies options to add to the `run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `run` to define an environment variable with the name `key` and value `value`. | No |
-| containerfile | Location of a Containerfile/Dockerfile to be used by dev mode to build the image for the container that will run your Liberty server. The default value is `Containerfile` or `Dockerfile`. | No |
-| containerBuildContext | The container build context directory to be used by dev mode for the `build` command.  The default location is the directory of the Containerfile/Dockerfile. | No |
-| containerBuildTimeout | Maximum time to wait (in seconds) for the completion of the container operation to build the image. The value must be an integer greater than 0. The default value is `600` seconds. | No |
+| containerRunOpts | Specifies options to add to the `run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `run` to define an environment variable with the name `key` and value `value`. This attribute replaces the deprecated `dockerRunOpts` attribute. | No |
+| containerfile | Location of a Containerfile/Dockerfile to be used by dev mode to build the image for the container that will run your Liberty server. The default value is `Containerfile` or `Dockerfile`. This attribute replaces the deprecated `dockerfile` attribute. | No |
+| containerBuildContext | The container build context directory to be used by dev mode for the `build` command.  The default location is the directory of the Containerfile/Dockerfile. This attribute replaces the deprecated `dockerBuildContext` attribute. | No |
+| containerBuildTimeout | Maximum time to wait (in seconds) for the completion of the container operation to build the image. The value must be an integer greater than 0. The default value is `600` seconds. This attribute replaces the deprecated `dockerBuildTimeout` attribute. | No |
 | skipDefaultPorts | If set to `true`, dev mode will not publish the default container port mappings of `9080:9080` (HTTP) and `9443:9443` (HTTPS). Use this option if you would like to specify alternative local ports to map to the exposed container ports for HTTP and HTTPS using the `containerRunOpts` parameter. | No |
-| keepTempContainerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Containerfile used to build the contianer image. This file is handy in case you need to debug the process of building the container image. The path of the temporary Containerfile can be seen when dev mode displays the container's `build` command. The default value is `false`.| No |
+| keepTempContainerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Containerfile used to build the contianer image. This file is handy in case you need to debug the process of building the container image. The path of the temporary Containerfile can be seen when dev mode displays the container's `build` command. The default value is `false`. This attribute replaces the deprecated `keepTempDockerfile` attribute. | No |
