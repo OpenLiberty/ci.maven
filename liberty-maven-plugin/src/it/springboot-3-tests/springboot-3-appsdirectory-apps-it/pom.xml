@@ -79,8 +79,8 @@
 					<serverName>test</serverName>
                     <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <runtimeArtifact>
-                        <groupId>${runtimeGroupId}</groupId>
-                        <artifactId>${runtimeArtifactId}</artifactId>
+                        <groupId>io.openliberty</groupId>
+                        <artifactId>openliberty-runtime</artifactId>
                         <version>23.0.0.9</version>
                         <type>zip</type>
                     </runtimeArtifact>
@@ -102,7 +102,7 @@
 						<goals>
 							<goal>install-server</goal>
 							<goal>create</goal>
-							<goal>install-feature</goal>
+							<!--goal>install-feature</goal-->
 						</goals>
 					</execution>
 					<execution>
