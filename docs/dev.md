@@ -39,7 +39,7 @@ Dev mode can be run on a single Maven module or on a multi module Maven project 
 
 To start dev mode on a multi module project, run the following from the directory containing the multi module `pom.xml`:
 ```
-$ mvn io.openliberty.tools:liberty-maven-plugin:3.4:dev
+$ mvn io.openliberty.tools:liberty-maven-plugin:3.9:dev
 ```
 
 To start dev mode on a multi module project by using the short-form `liberty` name for the Liberty Maven plugin:
