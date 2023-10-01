@@ -43,6 +43,7 @@ import org.apache.tools.ant.types.Commandline.Argument;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 
+import io.openliberty.tools.ant.InstallLibertyInterimFixTask;
 import io.openliberty.tools.ant.install.InstallLibertyTask;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 
@@ -92,6 +93,12 @@ public abstract class BasicSupport extends AbstractLibertySupport {
      */
     @Parameter(property = "installDirectory")
     protected File installDirectory;
+
+    /**
+     * Directory containing interim fixes. 
+     */
+    @Parameter(property = "interimFixDirectory")
+    protected File interimFixDirectory;
 
     /**
      * Liberty server name, default is defaultServer
@@ -443,6 +450,7 @@ public abstract class BasicSupport extends AbstractLibertySupport {
                 installFromFile();
             }
             installLicense();
+            installInterimFixes(installDirectory, interimFixDirectory);
         }
     }
     
@@ -575,6 +583,41 @@ public abstract class BasicSupport extends AbstractLibertySupport {
         }
     }
 
+    /**
+     * Executes the InstallLibertyInterimFixTask to install interim fixes located in the specified interimFixDirectory.
+     * 
+     * @param installDirectory
+     *            : Installation directory of Liberty profile.
+     * @param interimFixDirectory
+     *            : Directory containing interim fixes
+     */
+    protected void installInterimFixes(File installDirectory, File interimFixDirectory) throws MojoExecutionException, IOException {
+        if (interimFixDirectory == null) {
+            return;
+        } else if (!interimFixDirectory.isDirectory()) {
+            getLog().warn("The interimFixDirectory is not a directory or does not exist. Interim fixes will not be installed.");
+            return;
+        }
+
+        getLog().info("Installing interim fixes...");
+        io.openliberty.tools.ant.InstallLibertyInterimFixTask iFixTask = (InstallLibertyInterimFixTask) ant
+                .createTask("antlib:io/openliberty/tools/ant:install-fix");
+        if (iFixTask == null) {
+            throw new IllegalStateException(
+                    MessageFormat.format(messages.getString("error.dependencies.not.found"), "install-fix"));
+        }
+
+        iFixTask.setInstallDir(installDirectory);
+        iFixTask.setInterimFixDirectory(interimFixDirectory);
+        iFixTask.setSuppressInfo(false);
+
+        try {
+            iFixTask.execute();
+        } catch (Exception e) {
+            getLog().warn("An error occurred when installing the Liberty interim fixes: "+e.getMessage());
+            getLog().debug("Exception received: "+e.getMessage(), (Throwable) e);
+        }
+    }
     /*
      * Handle cleaning up all three possible locations for applications, and check for both stripped and non-stripped file name in 
      * case that setting has been modified.

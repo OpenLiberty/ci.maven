@@ -53,7 +53,8 @@ jobs:
     - name: Checkout ci.ant
       uses: actions/checkout@v3
       with:
-        repository: OpenLiberty/ci.ant
+        repository: cherylking/ci.ant
+        ref: addIfixSupport
         path: ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
@@ -99,7 +100,7 @@ jobs:
       run: |
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
         git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
-        git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
+        git clone https://github.com/cherylking/ci.ant.git --branch addIfixSupport --single-branch C:/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
