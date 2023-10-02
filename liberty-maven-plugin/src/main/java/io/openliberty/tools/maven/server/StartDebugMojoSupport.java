@@ -288,9 +288,13 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
         Plugin projectPlugin = currentProject.getPlugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID + ":" + LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID);
         if (projectPlugin == null) {
+            getLog().debug("Did not find liberty-maven-plugin configured in currentProject: "+currentProject.toString());
             projectPlugin = getPluginFromPluginManagement(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, currentProject);
+        } else {
+            getLog().debug("Found liberty-maven-plugin configured in currentProject: "+currentProject.toString());
         }
         if (projectPlugin == null) {
+            getLog().debug("Did not find liberty-maven-plugin in pluginManagement in currentProject: "+currentProject.toString());
             projectPlugin = plugin(LIBERTY_MAVEN_PLUGIN_GROUP_ID, LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID, "LATEST");
         }
         if (version != null) {
@@ -370,8 +374,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     private void runLibertyMojo(String goal, Xpp3Dom config) throws MojoExecutionException {
         getLog().info("Running liberty:" + goal);
         getLog().debug("configuration:\n" + config);
-        executeMojo(getLibertyPlugin(), goal(goal), config,
-                executionEnvironment(project, session, pluginManager));
+        getLog().debug("project:\n" + project);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        executeMojo(getLibertyPlugin(), goal(goal), config, executionEnvironment(project, tempSession, pluginManager));
     }
 
     private void copyDependencies() throws MojoExecutionException, IOException {
