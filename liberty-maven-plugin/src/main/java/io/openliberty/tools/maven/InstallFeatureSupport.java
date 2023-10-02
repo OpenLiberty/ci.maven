@@ -17,8 +17,11 @@ package io.openliberty.tools.maven;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,10 +29,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import io.openliberty.tools.ant.FeatureManagerTask.Feature;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
-import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 import io.openliberty.tools.maven.server.types.Features;
+import io.openliberty.tools.maven.server.types.Key;
 
 
 public abstract class InstallFeatureSupport extends ServerFeatureSupport {
@@ -40,6 +44,14 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
      */
     @Parameter
     protected Features features;
+    
+    /**
+     * key ID and key URL pair
+     */
+    @Parameter(property = "keys")
+    private Map<String, Key> keys;
+    
+    
 
     public boolean noFeaturesSection = false;
 
@@ -52,9 +64,9 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
     public static final String FEATURES_JSON_ARTIFACT_ID = "features";
 
     protected class InstallFeatureMojoUtil extends InstallFeatureUtil {
-        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
+        public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons, Collection<Map<String,String>> keyMap)
                 throws PluginScenarioException, PluginExecutionException {
-            super(installDirectory, new File(project.getBuild().getDirectory()), features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
+            super(installDirectory, new File(project.getBuild().getDirectory()), features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons, features.getVerify(), keyMap);
         }
 
         @Override
@@ -105,6 +117,11 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
                 throw new PluginExecutionException(e);
             }
         }
+        
+        @Override
+        public File downloadSignature(File esa, String groupId, String artifactId, String type, String version) throws PluginExecutionException {
+        	return downloadArtifact(groupId, artifactId, type, version);
+        }
     }
 
     protected Set<String> getPluginListedFeatures(boolean findEsaFiles) {
@@ -150,6 +167,20 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
             }
         }
         return result;
+    }
+    
+    protected Collection<Map<String, String>> getKeyMap(){ 	
+    	Collection<Map<String,String>> keyMapList = new ArrayList<>(); 
+    	if(keys != null) {
+    		for(Key k: keys.values()) {
+    			Map<String, String> keyMap = new HashMap<>();
+        		getLog().info("Key Id: " + k.getKeyid() +" Key URL: " + k.getKeyurl());
+        		keyMap.put("keyid", k.getKeyid());
+        		keyMap.put("keyurl", k.getKeyurl());
+        		keyMapList.add(keyMap);
+        	}
+    	}
+    	return keyMapList;
     }
 
     protected boolean initialize() throws MojoExecutionException {
@@ -206,10 +237,10 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         }
     }
 
-    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons) 
+    private void createNewInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons, Collection<Map<String,String>> keyMap) 
             throws PluginExecutionException {
         try {
-            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
+            util = new InstallFeatureMojoUtil(pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons, keyMap);
         } catch (PluginScenarioException e) {
             getLog().debug(e.getMessage());
             if (noFeaturesSection) {
@@ -241,7 +272,8 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
             openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
         }
         List<String> additionalJsons = getAdditionalJsonList();
-        return getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+        Collection<Map<String,String>> keyMap = getKeyMap();
+        return getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
     }
 
     /**
@@ -254,9 +286,11 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
      * @param additionalJsons Collection of Strings for additional jsons for feature install
      * @return instance of InstallFeatureUtil
      */
-    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVersion, String containerName, List<String> additionalJsons)
+    protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVersion, String containerName, List<String> additionalJsons, Collection<Map<String,String>> keyMap)
             throws PluginExecutionException {
-        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+    	getLog().info("Verify option: " + features.getVerify());
+
+        createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
         return util;
     }
 
