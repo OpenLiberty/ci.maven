@@ -49,6 +49,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: OpenLiberty/ci.common
+        ref: verifySig
         path: ci.common
     - name: Checkout ci.ant
       uses: actions/checkout@v3
@@ -98,7 +99,7 @@ jobs:
     - name: Clone ci.ant, ci.common, ci.maven repos to C drive
       run: |
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
-        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
+        git clone https://github.com/jjiwooLim/ci.common.git --branch verifySig --single-branch C:/ci.common
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
