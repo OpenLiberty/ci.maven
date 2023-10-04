@@ -48,7 +48,7 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v3
       with:
-        repository: OpenLiberty/ci.common
+        repository: jjiwooLim/ci.common
         ref: verifySig
         path: ci.common
     - name: Checkout ci.ant
