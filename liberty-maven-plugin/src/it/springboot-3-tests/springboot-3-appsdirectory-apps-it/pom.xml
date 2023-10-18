@@ -79,9 +79,9 @@
 					<serverName>test</serverName>
                     <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <runtimeArtifact>
-                        <groupId>io.openliberty</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>23.0.0.9</version>
+                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                        <artifactId>wlp-jakartaee10</artifactId>
+                        <version>23.0.0.10</version>
                         <type>zip</type>
                     </runtimeArtifact>
 					<appsDirectory>apps</appsDirectory>
@@ -102,7 +102,7 @@
 						<goals>
 							<goal>install-server</goal>
 							<goal>create</goal>
-							<!--goal>install-feature</goal-->
+							<goal>install-feature</goal>
 						</goals>
 					</execution>
 					<execution>

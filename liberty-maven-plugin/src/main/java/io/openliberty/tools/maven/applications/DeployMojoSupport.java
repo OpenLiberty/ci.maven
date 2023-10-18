@@ -482,34 +482,33 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         springBootUtilTask.execute();
     }
 
-    protected boolean isSpringBootUtilAvailable(File installDirectory) {
-            String fileSuffix = OSUtil.isWindows() ? ".bat" : "";
-            File installUtil = new File(installDirectory, "bin/installUtility"+fileSuffix);
+    protected boolean isUtilityAvailable(File installDirectory, String utilityName) {
+            String utilFileName = OSUtil.isWindows() ? utilityName+".bat" : utilityName;
+            File installUtil = new File(installDirectory, "bin/"+utilFileName);
             return installUtil.exists();
     }
 
     protected void installSpringBootFeatureIfNeeded(File installDirectory) throws MojoExecutionException {
-        List<ProductProperties> propertiesList;
         Process pr = null;
         BufferedReader in = null;
         try {
-            propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-            if (InstallFeatureUtil.isClosedLiberty(propertiesList) && !isSpringBootUtilAvailable(installDirectory)) {
+            if (!isUtilityAvailable(installDirectory, "springBootUtility") && isUtilityAvailable(installDirectory, "featureUtility")) {
                 String fileSuffix = OSUtil.isWindows() ? ".bat" : "";
-                File installUtil = new File(installDirectory, "bin/installUtility"+fileSuffix);
+                File installUtil = new File(installDirectory, "bin/featureUtility"+fileSuffix);
 
                 // only install springBoot feature that matches required version
                 int springBootMajorVersion = SpringBootUtil.getSpringBootMavenPluginVersion(project);
                 String sbFeature = SpringBootUtil.getLibertySpringBootFeature(springBootMajorVersion);
                 if (sbFeature != null) {
+                    getLog().info("Required springBootUtility not found in Liberty installation. Installing feature "+sbFeature+" to enable it.");
                     StringBuilder sb = new StringBuilder();
                     String installUtilCmd;
                     if (OSUtil.isWindows()) {
-                        installUtilCmd = "\"" + installDirectory + "\\bin\\installUtility.bat\"";
+                        installUtilCmd = "\"" + installDirectory + "\\bin\\featureUtility.bat\"";
                     } else {
-                        installUtilCmd = installDirectory + "/bin/installUtility";
+                        installUtilCmd = installDirectory + "/bin/featureUtility";
                     }
-                    ProcessBuilder pb = new ProcessBuilder(installUtilCmd, "install", sbFeature, "--acceptLicense");
+                    ProcessBuilder pb = new ProcessBuilder(installUtilCmd, "installFeature", sbFeature, "--acceptLicense");
                     pr = pb.start();
 
                     in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -520,22 +519,20 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
                     boolean exited = pr.waitFor(300, TimeUnit.SECONDS);
                     if(!exited) { // Command did not exit in time
-                        throw new MojoExecutionException("installUtility command timed out");
+                        throw new MojoExecutionException("featureUtility command timed out");
                     }
 
                     int exitValue = pr.exitValue();
                     if (exitValue != 0) {
-                        throw new MojoExecutionException("installUtility exited with return code " + exitValue +". The installUtility command run was `"+installUtil+" install "+sbFeature+" --acceptLicense`");
+                        throw new MojoExecutionException("featureUtility exited with return code " + exitValue +". The featureUtility command run was `"+installUtil+" installFeature "+sbFeature+" --acceptLicense`");
                     }
                 }
             }
         } catch (IOException ex) {
-            throw new MojoExecutionException("installUtility error: " + ex);
+            throw new MojoExecutionException("featureUtility error: " + ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new MojoExecutionException("installUtility error: " + ex);
-        } catch (PluginExecutionException e) {
-            throw new MojoExecutionException("installUtility error: " + e);
+            throw new MojoExecutionException("featureUtility error: " + ex);
         } finally {
             if (in != null) {
                 try {

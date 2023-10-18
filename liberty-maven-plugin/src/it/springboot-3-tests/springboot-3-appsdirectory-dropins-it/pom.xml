@@ -75,12 +75,12 @@
 				<configuration>
 					<serverName>test</serverName>
                     <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
-                    <runtimeArtifact>
+ 					<runtimeArtifact>
                         <groupId>io.openliberty</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>23.0.0.9</version>
+                        <artifactId>openliberty-kernel</artifactId>
+                        <version>23.0.0.10</version>
                         <type>zip</type>
-                    	</runtimeArtifact>
+                    </runtimeArtifact>				
 					<deployPackages>spring-boot-project</deployPackages>
 				</configuration>
 				
@@ -98,7 +98,6 @@
                             <goals>
                                 <goal>install-server</goal>
                                 <goal>create</goal>
-								<!--goal>install-feature</goal-->
                             </goals>
                         </execution>
                         <execution>
