@@ -1,0 +1,16 @@
+<server description="Sample Liberty server">
+
+  <featureManager>
+      <feature>restfulWS-3.0</feature>
+      <feature>jsonb-2.0</feature>
+      <feature>jsonp-2.0</feature>
+  </featureManager>
+  
+  <variable name="default.http.port" defaultValue="9080"/>
+  <variable name="default.https.port" defaultValue="9443"/>
+
+  <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
+      id="defaultHttpEndpoint" host="*" />
+
+  <webApplication location="rest.war" contextRoot="/"/>
+</server>

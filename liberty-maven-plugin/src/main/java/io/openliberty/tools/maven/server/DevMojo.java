@@ -192,15 +192,15 @@ public class DevMojo extends LooseAppSupport {
     protected boolean pollingTest;
 
     /**
-     * Dockerfile used to build a Docker image to then start a container with
+     * Containerfile used to build an image to then start a container with
      */
-    @Parameter(property = "dockerfile")
+    @Parameter(alias="containerfile", property = "containerfile")
     private File dockerfile;
 
     /**
-     * Context (directory) to use for the Docker build when building the container image
+     * Context (directory) to use for the build when building the container image
      */
-    @Parameter(property = "dockerBuildContext")
+    @Parameter(alias="containerBuildContext", property = "containerBuildContext")
     private File dockerBuildContext;
 
     /**
@@ -230,30 +230,30 @@ public class DevMojo extends LooseAppSupport {
     private File testOutputDirectory;
 
     /**
-     * Additional options for the docker run command when dev mode starts a
+     * Additional options for the container run command when dev mode starts a
      * container.
      */
-    @Parameter(property = "dockerRunOpts")
+    @Parameter(alias="containerRunOpts", property = "containerRunOpts")
     private String dockerRunOpts;
 
     /**
-     * Specify the amount of time in seconds that dev mode waits for the docker
+     * Specify the amount of time in seconds that dev mode waits for the container
      * build command to run to completion. Default to 600 seconds.
      */
-    @Parameter(property = "dockerBuildTimeout", defaultValue = "600")
+    @Parameter(alias="containerBuildTimeout", property = "containerBuildTimeout", defaultValue = "600")
     private int dockerBuildTimeout;
 
     /**
-     * If true, the default Docker port mappings are skipped in the docker run
+     * If true, the default container port mappings are skipped in the container run
      * command
      */
     @Parameter(property = "skipDefaultPorts", defaultValue = "false")
     private boolean skipDefaultPorts;
 
     /**
-     * If true, preserve the temporary Dockerfile used in the docker build command
+     * If true, preserve the temporary Containerfile/Dockerfile used in the container build command
      */
-    @Parameter(property = "keepTempDockerfile", defaultValue = "false")
+    @Parameter(alias="keepTempContainerfile", property = "keepTempContainerfile", defaultValue = "false")
     private boolean keepTempDockerfile;
     
     private boolean isExplodedLooseWarApp = false;
@@ -1369,7 +1369,7 @@ public class DevMojo extends LooseAppSupport {
             }
             runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
-            // should have "RUN features.sh" in their Dockerfile if they want features to be
+            // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
             // installed.
             // Added check here for the new skip install feature parameter. 
             // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
