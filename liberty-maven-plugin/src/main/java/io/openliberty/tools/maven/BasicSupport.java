@@ -720,9 +720,8 @@ public abstract class BasicSupport extends AbstractLibertySupport {
         String LIBERTY_DEV_PODMAN = "liberty.dev.podman";
         Properties mergedProperties = project.getProperties();
         mergedProperties.putAll(System.getProperties()); //System/command line properties will take precedence
-        if (!mergedProperties.isEmpty()) {
+        if (!mergedProperties.isEmpty() && mergedProperties.containsKey(LIBERTY_DEV_PODMAN)) {
             Object isPodman = mergedProperties.get(LIBERTY_DEV_PODMAN);
-            isPodman = mergedProperties.get(LIBERTY_DEV_PODMAN);
             if (isPodman != null) {
                 util.setIsDocker(!(Boolean.parseBoolean(isPodman.toString())));
                 getLog().debug("liberty.dev.podman was set to: " + (Boolean.parseBoolean(isPodman.toString())));
