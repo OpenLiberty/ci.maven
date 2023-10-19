@@ -11,8 +11,8 @@
   <properties>
     <project.build.sourceEncoding>ISO_8859_1</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <app.name>LibertyProject</app.name>
     <!-- tag::ports[] -->
     <testServerHttpPort>9080</testServerHttpPort>
@@ -153,7 +153,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
+      <version>1.8.25</version>
     </dependency>
    <dependency>
       <groupId>ch.qos.logback</groupId>
