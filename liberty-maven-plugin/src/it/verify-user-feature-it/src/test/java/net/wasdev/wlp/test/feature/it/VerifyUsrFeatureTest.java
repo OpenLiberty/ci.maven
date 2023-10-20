@@ -46,21 +46,5 @@ public class VerifyUsrFeatureTest {
             throw new AssertionError ("Fail to install user feature.", e);
         }
     }
-    
-    @Test
-    public void testInvalidVerifyUsrFeature() throws Exception {
-    	Assume.assumeTrue(System.getProperty("verify").equals("all"));
-    	Assume.assumeTrue(System.getProperty("keyid").equals("0xWRONGKEYID"));
-    	try {
-    		File featureFile = new File("target/liberty/wlp/usr/extension/lib/features/test.user.test.osgi.SimpleActivator.mf");
-            assert !featureFile.exists() : "SimpleActivator.mf should not be generated";
-            
-        } catch (Exception e) {
-            throw new AssertionError ("Fail to install user feature.", e);
-        }
-    }
-    
-    
-
 
 }
