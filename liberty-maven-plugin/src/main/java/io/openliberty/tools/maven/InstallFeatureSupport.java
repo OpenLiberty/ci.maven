@@ -55,6 +55,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         public InstallFeatureMojoUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVerion, String containerName, List<String> additionalJsons)
                 throws PluginScenarioException, PluginExecutionException {
             super(installDirectory, new File(project.getBuild().getDirectory()), features.getFrom(), features.getTo(), pluginListedEsas, propertiesList, openLibertyVerion, containerName, additionalJsons);
+            setContainerEngine(this);
         }
 
         @Override
