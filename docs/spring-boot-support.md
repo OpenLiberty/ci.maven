@@ -15,9 +15,14 @@ The `server.xml` provided by the `serverXmlFile` parameter or located in the `co
 | Feature | Description |
 | ------- | ----------- |
 | springBoot-1.5 | Required to support applications with Spring Boot version 1.5.x. |
-| springBoot-2.0 | Required to support applications with Spring Boot version 2.0.x and above. |
+| springBoot-2.0 | Required to support applications with Spring Boot version 2.0.x. |
+| springBoot-3.0 | Required to support applications with Spring Boot version 3.x. |
 
 The Liberty features that support the Spring Boot starters can be found [here](https://www.ibm.com/support/knowledgecenter/SSAW57_liberty/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/rwlp_springboot.html). They should be enabled in the `server.xml` along with the appropriate Spring Boot feature.
+
+### Java Support
+
+The Spring Boot version 3.x requires Java 17 or above.
 
 ### Example
 

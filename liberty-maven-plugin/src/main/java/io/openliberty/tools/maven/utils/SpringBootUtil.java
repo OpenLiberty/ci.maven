@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018, 2020.
+ * (C) Copyright IBM Corporation 2018, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,20 @@ import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 public class SpringBootUtil {
 
     /**
-     * Checks that the plugin exists for the given pluginKey.
+     * Checks that the spring-boot-maven-plugin repackage goal execution exists.
      *
      */    
     public static boolean doesSpringBootRepackageGoalExecutionExist(MavenProject project) {
         return MavenProjectUtil.doesPluginGoalExecutionExist(project, "org.springframework.boot:spring-boot-maven-plugin", "repackage");
+    }
+
+    /**
+     * Returns the major version number of the configured spring-boot-maven-plugin, or zero if not configured.
+     *
+     */    
+    public static int getSpringBootMavenPluginVersion(MavenProject project) {
+        return MavenProjectUtil.getMajorPluginVersion(project, "org.springframework.boot:spring-boot-maven-plugin");
+
     }
 
     /**
@@ -69,7 +78,11 @@ public class SpringBootUtil {
             return fatArchive;
         }
 
-        log.warn("Spring Boot Uber JAR was not found in expected location: " + fatArchive.getAbsolutePath());
+        if (fatArchive.exists()) {
+            log.warn("The file at the following location is not a Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
+        } else {
+            log.warn("Spring Boot Uber JAR was not found in expected location: " + fatArchive.getAbsolutePath());
+        }
         return null;
     }
 
@@ -97,4 +110,23 @@ public class SpringBootUtil {
 
     }
 
+    /*
+     * Returns the required Open Liberty springBoot feature given the passed springBootMajorVersion.
+     */
+    public static String getLibertySpringBootFeature(int springBootMajorVersion) {
+        if (isSpringBoot1(springBootMajorVersion)) {
+            return "springBoot-1.5";
+        } else if (isSpringBoot2plus(springBootMajorVersion)) {
+            return "springBoot-"+springBootMajorVersion+".0";
+        }
+        return null;
+    }
+
+    public static boolean isSpringBoot1(int springBootMajorVersion) {
+        return springBootMajorVersion == 1;
+    }
+
+    public static boolean isSpringBoot2plus(int springBootMajorVersion) {
+        return springBootMajorVersion > 1;
+    }
 }

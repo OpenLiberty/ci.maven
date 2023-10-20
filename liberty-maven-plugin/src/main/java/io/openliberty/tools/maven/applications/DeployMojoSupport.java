@@ -15,12 +15,15 @@
  */
 package io.openliberty.tools.maven.applications;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
@@ -37,11 +40,16 @@ import io.openliberty.tools.ant.SpringBootUtilTask;
 import io.openliberty.tools.maven.server.LooseAppSupport;
 import io.openliberty.tools.maven.utils.CommonLogger;
 import io.openliberty.tools.maven.utils.MavenProjectUtil;
+import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
+import io.openliberty.tools.common.plugins.util.OSUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 
 /**
  * Support for installing and deploying applications to a Liberty server.
@@ -472,6 +480,70 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         springBootUtilTask.setSourceAppPath(fatArchiveSrcLocation);
         springBootUtilTask.setTargetLibCachePath(libIndexCacheTargetLocation);
         springBootUtilTask.execute();
+    }
+
+    protected boolean isUtilityAvailable(File installDirectory, String utilityName) {
+            String utilFileName = OSUtil.isWindows() ? utilityName+".bat" : utilityName;
+            File installUtil = new File(installDirectory, "bin/"+utilFileName);
+            return installUtil.exists();
+    }
+
+    protected void installSpringBootFeatureIfNeeded(File installDirectory) throws MojoExecutionException {
+        Process pr = null;
+        BufferedReader in = null;
+        try {
+            if (!isUtilityAvailable(installDirectory, "springBootUtility") && isUtilityAvailable(installDirectory, "featureUtility")) {
+                String fileSuffix = OSUtil.isWindows() ? ".bat" : "";
+                File installUtil = new File(installDirectory, "bin/featureUtility"+fileSuffix);
+
+                // only install springBoot feature that matches required version
+                int springBootMajorVersion = SpringBootUtil.getSpringBootMavenPluginVersion(project);
+                String sbFeature = SpringBootUtil.getLibertySpringBootFeature(springBootMajorVersion);
+                if (sbFeature != null) {
+                    getLog().info("Required springBootUtility not found in Liberty installation. Installing feature "+sbFeature+" to enable it.");
+                    StringBuilder sb = new StringBuilder();
+                    String installUtilCmd;
+                    if (OSUtil.isWindows()) {
+                        installUtilCmd = "\"" + installDirectory + "\\bin\\featureUtility.bat\"";
+                    } else {
+                        installUtilCmd = installDirectory + "/bin/featureUtility";
+                    }
+                    ProcessBuilder pb = new ProcessBuilder(installUtilCmd, "installFeature", sbFeature, "--acceptLicense");
+                    pr = pb.start();
+
+                    in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        sb.append(line).append(System.lineSeparator());
+                    }
+
+                    boolean exited = pr.waitFor(300, TimeUnit.SECONDS);
+                    if(!exited) { // Command did not exit in time
+                        throw new MojoExecutionException("featureUtility command timed out");
+                    }
+
+                    int exitValue = pr.exitValue();
+                    if (exitValue != 0) {
+                        throw new MojoExecutionException("featureUtility exited with return code " + exitValue +". The featureUtility command run was `"+installUtil+" installFeature "+sbFeature+" --acceptLicense`");
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            throw new MojoExecutionException("featureUtility error: " + ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new MojoExecutionException("featureUtility error: " + ex);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+            if (pr != null) {
+                pr.destroy();
+            }
+        }
     }
 
     protected boolean matches(Artifact artifact, Dependency assemblyArtifact) {
