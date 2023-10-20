@@ -298,7 +298,7 @@ public class DevMojo extends LooseAppSupport {
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
                 File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
-                Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs) throws IOException {
+                Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs) throws IOException, PluginExecutionException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
@@ -312,6 +312,8 @@ public class DevMojo extends LooseAppSupport {
             ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);           
             this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
             this.upstreamMavenProjects = upstreamMavenProjects;
+
+            setContainerEngine(this);
         }
 
         @Override
@@ -1471,7 +1473,7 @@ public class DevMojo extends LooseAppSupport {
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
                     generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs);
-        } catch (IOException | DependencyResolutionRequiredException e) {
+        } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
 
