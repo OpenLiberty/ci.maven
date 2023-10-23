@@ -37,7 +37,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.13</version>
+            <version>1.9.14-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -223,6 +223,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
@@ -263,6 +264,7 @@
                                     <pomExclude>server-param-configdir-not-override-it/pom.xml</pomExclude>
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
@@ -303,6 +305,7 @@
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -347,6 +350,7 @@
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
+                                    <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>

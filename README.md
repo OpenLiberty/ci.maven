@@ -21,7 +21,7 @@ The Liberty Maven plugin supports install and operational control of Liberty run
 
 ## Build
 
-Use Maven 3.5.0 or later to build the Liberty Maven plugin.
+As of version 3.9 of the plugin, you must use Maven 3.8.6 or later to build the Liberty Maven plugin.
 We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/maven-wrapper-plugin/index.html) script, so you do not need to download maven yourself if you are not using it yet. 
 
 * `./mvnw install` : builds the plugin, skipping all tests
@@ -32,7 +32,7 @@ We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/mav
 
 ### Liberty Maven Plugin
 
-The Liberty Maven Plugin provides a number of goals for managing a Liberty server and applications. Maven 3.5.0 or later is recommended to use the Liberty Maven Plugin. 
+The Liberty Maven Plugin provides a number of goals for managing a Liberty server and applications. As of version 3.9 of the plugin, Maven 3.8.6 or later is required to use the Liberty Maven Plugin. 
 
 #### Java Support
 
