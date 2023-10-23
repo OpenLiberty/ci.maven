@@ -48,8 +48,7 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v3
       with:
-        repository: jjiwooLim/ci.common
-        ref: verifySig
+        repository: OpenLiberty/ci.common
         path: ci.common
     - name: Checkout ci.ant
       uses: actions/checkout@v3
@@ -89,7 +88,7 @@ jobs:
         - java: 11
           RUNTIME: wlp
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
-    steps:    
+    steps:
     # Checkout repos
     - name: Checkout ci.maven
       uses: actions/checkout@v3
@@ -103,7 +102,7 @@ jobs:
     - name: Clone ci.ant, ci.common, ci.maven repos to C drive
       run: |
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
-        git clone https://github.com/jjiwooLim/ci.common.git --branch verifySig --single-branch C:/ci.common
+        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
