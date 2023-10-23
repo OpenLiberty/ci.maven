@@ -61,7 +61,7 @@ public class Features {
     @Parameter(property = "from")
     private String from = null;
     
-    @Parameter(property = "verify")
+    @Parameter(property = "verify", defaultValue = "enforce")
     private String verify = "enforce";
 
     public boolean isAcceptLicense() {
@@ -79,6 +79,7 @@ public class Features {
     public void setTo(String to) {
         this.to = to;
     }
+    
     
     public String getVerify() {
         return verify;

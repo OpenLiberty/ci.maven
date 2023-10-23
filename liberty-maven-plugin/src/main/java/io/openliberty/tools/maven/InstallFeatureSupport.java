@@ -175,7 +175,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
     	if(keys != null) {
     		for(Key k: keys.values()) {
     			Map<String, String> keyMap = new HashMap<>();
-        		getLog().info("Key Id: " + k.getKeyid() +" Key URL: " + k.getKeyurl());
+        		getLog().debug("Key Id: " + k.getKeyid() +" Key URL: " + k.getKeyurl());
         		keyMap.put("keyid", k.getKeyid());
         		keyMap.put("keyurl", k.getKeyurl());
         		keyMapList.add(keyMap);
@@ -289,7 +289,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
      */
     protected InstallFeatureUtil getInstallFeatureUtil(Set<String> pluginListedEsas, List<ProductProperties> propertiesList, String openLibertyVersion, String containerName, List<String> additionalJsons, Collection<Map<String,String>> keyMap)
             throws PluginExecutionException {
-    	getLog().info("Verify option: " + features.getVerify());
+    	getLog().info("Feature signature verify option: " + features.getVerify());
 
         createNewInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
         return util;
