@@ -18,7 +18,9 @@ package io.openliberty.tools.maven.server;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -99,7 +101,8 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
 
         Set<String> pluginListedEsas = getPluginListedFeatures(true);
         List<String> additionalJsons = getAdditionalJsonList();
-        util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons);
+        Collection<Map<String,String>> keyMap = getKeyMap();
+        util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
         Set<String> featuresToInstall = getSpecifiedFeatures(containerName);
         
         if(!pluginListedEsas.isEmpty() && isClosedLiberty) {

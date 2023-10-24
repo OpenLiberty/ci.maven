@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.server.types;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -59,6 +60,9 @@ public class Features {
      */
     @Parameter(property = "from")
     private String from = null;
+    
+    @Parameter(property = "verify", defaultValue = "enforce")
+    private String verify = "enforce";
 
     public boolean isAcceptLicense() {
         return acceptLicense;
@@ -74,6 +78,11 @@ public class Features {
 
     public void setTo(String to) {
         this.to = to;
+    }
+    
+    
+    public String getVerify() {
+        return verify;
     }
     
     /**
