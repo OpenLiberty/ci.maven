@@ -26,6 +26,10 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Scanner;
+import java.io.FileInputStream;
 
 public class VerifyUsrFeatureTest {
 	
@@ -45,6 +49,55 @@ public class VerifyUsrFeatureTest {
         } catch (Exception e) {
             throw new AssertionError ("Fail to install user feature.", e);
         }
+    }
+    
+    
+
+    @Test
+    public void buildLogCheck() throws Exception {
+        File buildLog = new File("build.log");
+        assertTrue(buildLog.exists());
+
+        InputStream buildOutput = null;
+        InputStreamReader in = null;
+        Scanner s = null;
+
+        final String VERIFIED_MESSAGE = "All features were successfully verified.";
+        boolean VERIFIED_MESSAGE_FOUND = false;
+
+        final String CWWKF1514E_MESSAGE = "CWWKF1514E";
+        boolean CWWKF1514E_MESSAGE_FOUND = false;
+        
+        final String CWWKF1508E_MESSAGE = "CWWKF1508E";
+        boolean CWWKF1508E_MESSAGE_FOUND = false;
+        
+        final String CWWKF1512E_MESSAGE = "CWWKF1512E";
+        boolean CWWKF1512E_MESSAGE_FOUND = false;
+        
+        
+
+        try {
+            buildOutput = new FileInputStream(buildLog);
+            in = new InputStreamReader(buildOutput);
+            s = new Scanner(in);
+
+            while (s.hasNextLine()) {
+                String line = s.nextLine();
+                if (line.equals(VERIFIED_MESSAGE)) {
+                	VERIFIED_MESSAGE_FOUND = true;
+                } else if (line.equals(CWWKF1514E_MESSAGE)) {
+                	CWWKF1514E_MESSAGE_FOUND = true;
+                } else if (line.equals(CWWKF1508E_MESSAGE)) {
+                	CWWKF1508E_MESSAGE_FOUND = true;
+                } else if (line.equals(CWWKF1512E_MESSAGE)) {
+                	CWWKF1512E_MESSAGE_FOUND = true;
+                }
+            }
+        } catch (Exception e) {
+
+        }
+
+        assertTrue(VERIFIED_MESSAGE_FOUND || CWWKF1514E_MESSAGE_FOUND || CWWKF1508E_MESSAGE_FOUND || CWWKF1512E_MESSAGE_FOUND);
     }
 
 }
