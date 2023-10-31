@@ -2,9 +2,6 @@ package net.wasdev.wlp.maven.test.servlet.it;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -73,8 +70,6 @@ public class ServerConfigPropertiesTest {
     
     @Test
     public void checkMessagesLogForIncludes() throws Exception {
-        InputStream serverOutput = null;
-        InputStreamReader in = null;
         Scanner s = null;
         File logFile = new File("logFile.txt");
         List<String> duplicateMatches = new ArrayList<String>();
@@ -108,9 +103,7 @@ public class ServerConfigPropertiesTest {
             writer.flush();
             writer.close();
 
-            serverOutput = new FileInputStream(logFile);
-            in = new InputStreamReader(serverOutput);
-            s = new Scanner(in);
+            s = new Scanner(logFile);
 
             String foundString = null;
             Pattern pattern1 = Pattern.compile(DUPLICATE_APP_MESSAGE);
@@ -129,11 +122,9 @@ public class ServerConfigPropertiesTest {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            s.close();
         }
-
-        s.close();
-        in.close();
-        serverOutput.close();
 
         //Check app name/appsDir resolved correctly during create, deploy, and start
         Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);

@@ -1,9 +1,7 @@
 package net.wasdev.wlp.maven.test.app;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,16 +9,9 @@ import java.util.regex.Pattern;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 /**
  * 
@@ -43,20 +34,11 @@ public class IncludeBootStrapPathTest {
     @Test
     public void checkMessagesLogForIncludes() throws Exception {
     	File messagesLog = new File(MESSAGES_LOG);
-                
-        InputStream serverOutput = null;
-        InputStreamReader in = null;
-        Scanner s = null;
         List<String> includeMatches = new ArrayList<String>();
         List<String> featureMatches = new ArrayList<String>();
         List<String> includeFailMatches = new ArrayList<String>();
 
-        try {
-            // Read file and search
-            serverOutput = new FileInputStream(messagesLog);
-            in = new InputStreamReader(serverOutput);
-            s = new Scanner(in);
-
+        try (Scanner s = new Scanner(messagesLog)) {
             String foundString = null;
             Pattern pattern1 = Pattern.compile(INCLUDE_REGEX_MESSAGE);
             Pattern pattern2 = Pattern.compile(FEATURE_INSTALL_MESSAGE);
@@ -71,13 +53,8 @@ public class IncludeBootStrapPathTest {
                 } else if (pattern3.matcher(line).find()) {
                     includeFailMatches.add(line);
                 }
-            }
-        } catch (Exception e) {
-
+            }            
         }
-        s.close(); 
-        serverOutput.close();
-        in.close();
 
         Assert.assertTrue("Did not find all test_resources in messages.log", includeMatches.size() == 3);
         Assert.assertTrue("Did not find installed features message in messages.log", featureMatches.size() == 1);

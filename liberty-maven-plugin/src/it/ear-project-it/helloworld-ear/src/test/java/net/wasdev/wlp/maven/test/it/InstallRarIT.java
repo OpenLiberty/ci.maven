@@ -22,32 +22,33 @@ import java.util.Scanner;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class InstallRarIT {
     
+    public static final String LOG_LOCATION = "target/liberty/wlp/usr/servers/jee7sampleServer/logs/messages.log";
     public final File MESSSAGES_LOG = new File("target/liberty/wlp/usr/servers/jee7sampleServer/logs/messages.log");
     
     @Test
     public void testAdapterInstall() throws Exception {
         String message = "J2CA7001I: Resource adapter helloworld-ear.helloworld-ra installed";
-        
-        assertTrue(MESSSAGES_LOG.getCanonicalFile() + " doesn't exist", MESSSAGES_LOG.exists());
         assertTrue("Expecting message [" + message + "] in server message log but not found.", 
-                isAdapterInstalled(message));      
+                logContainsMessage(message));      
     }
     
-    public boolean isAdapterInstalled(String message) throws FileNotFoundException {
-        boolean installed = false;
+    public boolean logContainsMessage(String message) throws FileNotFoundException {
+        File logFile = new File(LOG_LOCATION);
+        assertTrue("Log file not found at location: "+LOG_LOCATION, logFile.exists());
+        boolean found = false;
         
-        Scanner scanner = new Scanner(MESSSAGES_LOG);
-        while (scanner.hasNextLine()) {
-            if(scanner.nextLine().contains(message)) { 
-                installed = true;
+        try (Scanner scanner = new Scanner(logFile);) {
+            while (scanner.hasNextLine()) {
+                if(scanner.nextLine().contains(message)) { 
+                    found = true;
+                }
             }
         }
-        scanner.close();
-        
-        return installed;
+                
+        return found;
     }
 }

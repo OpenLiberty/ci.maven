@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.feature.it;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.AfterClass;
 import java.io.File;
