@@ -46,168 +46,171 @@ public class PluginConfigXmlIT {
     @Test
     public void testServerXmlFileElements() throws Exception {
         File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc = inputBuilder.parse(input);
+            // get input XML Document
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc = inputBuilder.parse(input);
 
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/configFile";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of configFile element ==>", 1, nodes.getLength());
-               
-        expression = "/liberty-plugin-config/configFile/text()";
-        String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        File f1 = new File(SOURCE_CONFIG_FILE);
-        File f2 = new File(nodeValue);
-        assertEquals("configFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
-        assertEquals("verify target server.xml", FileUtils.fileRead(f2),
-                FileUtils.fileRead(TARGET_CONFIG_FILE));
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/liberty-plugin-config/configFile";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of configFile element ==>", 1, nodes.getLength());
+                
+            expression = "/liberty-plugin-config/configFile/text()";
+            String nodeValue = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+            File f1 = new File(SOURCE_CONFIG_FILE);
+            File f2 = new File(nodeValue);
+            assertEquals("configFile value", f1.getAbsolutePath(), f2.getAbsolutePath());
+            assertEquals("verify target server.xml", FileUtils.fileRead(f2),
+                    FileUtils.fileRead(TARGET_CONFIG_FILE));
+        }
     }
     
     @Test
     public void testBootstrapPropertiesFileElements() throws Exception {
         File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc = inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/bootstrapPropertiesFile";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of bootstrapPropertiesFile element ==>", 0, nodes.getLength());
-        
-        expression = "/liberty-plugin-config/bootstrapProperties";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of bootstrapProperties element ==>", 1, nodes.getLength());
-        
-        String fileContents = FileUtils.fileRead(TARGET_BOOTSTRAP_PROPERTIES).replaceAll("\r","");
+            // get input XML Document
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc = inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/liberty-plugin-config/bootstrapPropertiesFile";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of bootstrapPropertiesFile element ==>", 0, nodes.getLength());
+            
+            expression = "/liberty-plugin-config/bootstrapProperties";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of bootstrapProperties element ==>", 1, nodes.getLength());
+            
+            String fileContents = FileUtils.fileRead(TARGET_BOOTSTRAP_PROPERTIES).replaceAll("\r","");
 
-        String[] fileContentsArray = fileContents.split("\\n");
-        assertTrue("fileContents", fileContentsArray.length == 4);
+            String[] fileContentsArray = fileContents.split("\\n");
+            assertTrue("fileContents", fileContentsArray.length == 4);
 
-        boolean someBootstrapVarFound = false;
-        boolean locationFound = false;
-        boolean someUndefinedBootstrapVarFound = false;
+            boolean someBootstrapVarFound = false;
+            boolean locationFound = false;
+            boolean someUndefinedBootstrapVarFound = false;
 
-        for (int i=0; i < fileContentsArray.length; i++) {
-            String nextLine = fileContentsArray[i];
-            if (i == 0) {
-                assertTrue("comment not found on first line", nextLine.equals("# Generated by liberty-maven-plugin"));
-            } else {
-                if (nextLine.equals("someBootstrapVar=someBootstrapValue")) {
-                    someBootstrapVarFound = true;
-                } else if (nextLine.equals("location=pom.xml")) {
-                    locationFound = true;
-                } else if (nextLine.equals("someUndefinedBootstrapVar=@{undefinedValue}")) {
-                    someUndefinedBootstrapVarFound = true;
+            for (int i=0; i < fileContentsArray.length; i++) {
+                String nextLine = fileContentsArray[i];
+                if (i == 0) {
+                    assertTrue("comment not found on first line", nextLine.equals("# Generated by liberty-maven-plugin"));
+                } else {
+                    if (nextLine.equals("someBootstrapVar=someBootstrapValue")) {
+                        someBootstrapVarFound = true;
+                    } else if (nextLine.equals("location=pom.xml")) {
+                        locationFound = true;
+                    } else if (nextLine.equals("someUndefinedBootstrapVar=@{undefinedValue}")) {
+                        someUndefinedBootstrapVarFound = true;
+                    }
                 }
             }
-        }
 
-        assertTrue("someBootstrapVar=someBootstrapValue not found", someBootstrapVarFound);
-        assertTrue("location=pom.xml not found", locationFound);
-        assertTrue("someUndefinedBootstrapVar=@{undefinedValue} not found", someUndefinedBootstrapVarFound);
+            assertTrue("someBootstrapVar=someBootstrapValue not found", someBootstrapVarFound);
+            assertTrue("location=pom.xml not found", locationFound);
+            assertTrue("someUndefinedBootstrapVar=@{undefinedValue} not found", someUndefinedBootstrapVarFound);
+        }
     }
     
     @Test
     public void testJvmOptionsFileElements() throws Exception {
         File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc = inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/jvmOptionsFile";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of jvmOptionsFile element ==>", 0, nodes.getLength());
-        
-        expression = "/liberty-plugin-config/jvmOptions";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of jvmOptions element ==>", 1, nodes.getLength());
-        
-        String fileContents = FileUtils.fileRead(TARGET_JVM_OPTIONS).replaceAll("\r","");
+            // get input XML Document
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc = inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/liberty-plugin-config/jvmOptionsFile";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of jvmOptionsFile element ==>", 0, nodes.getLength());
+            
+            expression = "/liberty-plugin-config/jvmOptions";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of jvmOptions element ==>", 1, nodes.getLength());
+            
+            String fileContents = FileUtils.fileRead(TARGET_JVM_OPTIONS).replaceAll("\r","");
 
-        String[] fileContentsArray = fileContents.split("\\n");
-        assertTrue("fileContents", fileContentsArray.length == 6);
+            String[] fileContentsArray = fileContents.split("\\n");
+            assertTrue("fileContents", fileContentsArray.length == 6);
 
-        boolean myArgLineValueFound = false;
-        boolean myXms512mFound = false;
-        boolean myXmx1024mFound = false;
-        boolean myUndefinedVarFound = false;
+            boolean myArgLineValueFound = false;
+            boolean myXms512mFound = false;
+            boolean myXmx1024mFound = false;
+            boolean myUndefinedVarFound = false;
 
-        for (int i=0; i < fileContentsArray.length; i++) {
-            String nextLine = fileContentsArray[i];
-            // verify that -Xmx768m is last in the jvm.options file, and that -Xms512m and -Xmx1024m appear before it.
-            if (i == 0) {
-                assertTrue("comment not found on first line", nextLine.equals("# Generated by liberty-maven-plugin"));
-            } else if (i == 5) {
-                assertTrue("-Xmx768m not found on last line", nextLine.equals("-Xmx768m"));
-            } else {
-                if (nextLine.equals("-Xms512m")) {
-                    myXms512mFound = true;
-                } else if (nextLine.equals("-Xmx1024m")) {
-                    myXmx1024mFound = true;
-                } else if (nextLine.equals("-javaagent:/path/to/some/jar.jar")) {
-                    myArgLineValueFound = true;
-                } else if (nextLine.equals("@{undefined}")) {
-                    myUndefinedVarFound = true;
+            for (int i=0; i < fileContentsArray.length; i++) {
+                String nextLine = fileContentsArray[i];
+                // verify that -Xmx768m is last in the jvm.options file, and that -Xms512m and -Xmx1024m appear before it.
+                if (i == 0) {
+                    assertTrue("comment not found on first line", nextLine.equals("# Generated by liberty-maven-plugin"));
+                } else if (i == 5) {
+                    assertTrue("-Xmx768m not found on last line", nextLine.equals("-Xmx768m"));
+                } else {
+                    if (nextLine.equals("-Xms512m")) {
+                        myXms512mFound = true;
+                    } else if (nextLine.equals("-Xmx1024m")) {
+                        myXmx1024mFound = true;
+                    } else if (nextLine.equals("-javaagent:/path/to/some/jar.jar")) {
+                        myArgLineValueFound = true;
+                    } else if (nextLine.equals("@{undefined}")) {
+                        myUndefinedVarFound = true;
+                    }
                 }
             }
+
+            assertTrue("-Xms512m not found", myXms512mFound);
+            assertTrue("-Xmx1024m not found", myXmx1024mFound);
+            assertTrue("-javaagent:/path/to/some/jar.jar not found", myArgLineValueFound);
+            assertTrue("@{undefined} not found", myUndefinedVarFound);
         }
-
-        assertTrue("-Xms512m not found", myXms512mFound);
-        assertTrue("-Xmx1024m not found", myXmx1024mFound);
-        assertTrue("-javaagent:/path/to/some/jar.jar not found", myArgLineValueFound);
-        assertTrue("@{undefined} not found", myUndefinedVarFound);
-
     }
 
     @Test
     public void testServerEnvElements() throws Exception {
         File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc = inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/serverEnv";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of serverEnv element ==>", 0, nodes.getLength());
-                
-        assertEquals("verify target server server.env", "# Generated by liberty-maven-plugin\nJAVA_HOME=/opt/ibm/java\n",
-                FileUtils.fileRead(TARGET_SERVER_ENV).replaceAll("\r",""));
+            // get input XML Document
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc = inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/liberty-plugin-config/serverEnv";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of serverEnv element ==>", 0, nodes.getLength());
+                    
+            assertEquals("verify target server server.env", "# Generated by liberty-maven-plugin\nJAVA_HOME=/opt/ibm/java\n",
+                    FileUtils.fileRead(TARGET_SERVER_ENV).replaceAll("\r",""));
+        }
     }
 
     @Test

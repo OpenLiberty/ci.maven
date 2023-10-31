@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2018.
+ * (C) Copyright IBM Corporation 2017, 2023.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 import org.junit.Test;
 
@@ -31,24 +29,13 @@ import org.junit.Test;
  *
  */
 public class VerifyMainAppIT {
+    public static final String ARQUILLIAN_XML_LOCATION = "target/test-classes/arquillian.xml";
 
     @Test
     public void testVerifyAppInArquillianXml() throws Exception {
         // Make sure that the verifyApps property is properly written to
         // arquillian.xml
-
-        File arquillianXML = new File("target/test-classes/arquillian.xml");
-        InputStream is = new FileInputStream(arquillianXML);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.contains("<property name=\"verifyApps\">test-configure-arquillian</property>")) {
-                return;
-            }
-        }
-
-        assertTrue(false); // Should have returned in the while loop if the test
-        // passed
+        assertTrue("Did not find expected property in arquillian.xml", fileContainsMessage("<property name=\"verifyApps\">test-configure-arquillian</property>", ARQUILLIAN_XML_LOCATION)); 
     }
 
     @Test
@@ -63,22 +50,37 @@ public class VerifyMainAppIT {
         boolean foundMainApp = false;
 
         File buildLog = new File("build.log");
-        InputStream is = new FileInputStream(buildLog);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        assertTrue("build.log does not exist", buildLog.exists());
 
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (!foundMainApp) {
-                if (line.contains(mainAppOutput)) {
-                    foundMainApp = true;
+        try (Scanner scanner = new Scanner(buildLog);) {
+           while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+                if (!foundMainApp) {
+                    if (line.contains(mainAppOutput)) {
+                        foundMainApp = true;
+                    }
+                } else if (line.contains(testAppOutput)) {
+                    return;
                 }
-            } else if (line.contains(testAppOutput)) {
-                return;
             }
         }
 
-        assertTrue(false); // Should have returned in the while loop if the test
-                           // passed
+        assertTrue("Did not find expected test app message in build.log", false); // Should have returned in the while loop if the test passed
     }
 
+    public boolean fileContainsMessage(String message, String fileToCheck) throws FileNotFoundException {
+        File logFile = new File(fileToCheck);
+        assertTrue("File not found at location: "+fileToCheck, logFile.exists());
+        boolean found = false;
+        
+        try (Scanner scanner = new Scanner(logFile);) {
+            while (scanner.hasNextLine()) {
+                if(scanner.nextLine().contains(message)) { 
+                    found = true;
+                }
+            }
+        }
+                
+        return found;
+    }
 }

@@ -39,37 +39,38 @@ public class LooseConfigIT {
     @Test
     public void testXmlElements() throws Exception {
         File in = new File("liberty/wlp/usr/servers/test/apps/ejb-type-war.war.xml");
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/archive/dir";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <dir> element ==>", 1, nodes.getLength());
-        
-        expression = "/archive/file";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <file> element ==>", 5, nodes.getLength());
-        
-        //Check correct EJB jar location exists
-        expression = "/archive/archive";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/test-ejb-type.jar", 
-                nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+            // get input XML Document 
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc=inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/archive/dir";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <dir> element ==>", 1, nodes.getLength());
+            
+            expression = "/archive/file";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <file> element ==>", 5, nodes.getLength());
+            
+            //Check correct EJB jar location exists
+            expression = "/archive/archive";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/test-ejb-type.jar", 
+                    nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
 
-        expression = "/archive/archive/file";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("archive targetInArchive attribute value", new File("../../ejb/target/tmp/META-INF/MANIFEST.MF").getCanonicalPath(), 
-                nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
+            expression = "/archive/archive/file";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("archive targetInArchive attribute value", new File("../../ejb/target/tmp/META-INF/MANIFEST.MF").getCanonicalPath(), 
+                    nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
+        }
     }
     
     @Test

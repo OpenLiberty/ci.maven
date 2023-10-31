@@ -43,42 +43,42 @@ public class LooseConfigTestIT {
     
     @Test
     public void testLooseApplicationFileContent() throws Exception {
-        File f = new File(LOOSE_APP);
-        FileInputStream input = new FileInputStream(f);
+        File in = new File(LOOSE_APP);
+        try (FileInputStream input = new FileInputStream(in)) {        
         
-        // get input XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/archive/file";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <file/> element ==>", 2, nodes.getLength());
-        assertEquals("file targetInArchive attribute value", "/META-INF/application.xml", 
-                nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
-        File appXml = new File("../src/main/application/META-INF/application.xml");     
-        assertEquals("file sourceOnDisk attribute value", appXml.getCanonicalPath(), 
-                nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
+            // get input XML Document 
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc=inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/archive/file";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of <file/> element ==>", 2, nodes.getLength());
+            assertEquals("file targetInArchive attribute value", "/META-INF/application.xml", 
+                    nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+            File appXml = new File("../src/main/application/META-INF/application.xml");     
+            assertEquals("file sourceOnDisk attribute value", appXml.getCanonicalPath(), 
+                    nodes.item(0).getAttributes().getNamedItem("sourceOnDisk").getNodeValue());
 
-        expression = "/archive/archive/archive";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <archive/> element ==>", 1, nodes.getLength());
-        assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/SampleBundle-1.0-SNAPSHOT.jar", 
-                nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
+            expression = "/archive/archive/archive";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of <archive/> element ==>", 1, nodes.getLength());
+            assertEquals("archive targetInArchive attribute value", "/WEB-INF/lib/SampleBundle-1.0-SNAPSHOT.jar", 
+                    nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue());
 
-        expression = "/archive/archive/archive/dir";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
-        
-        expression = "/archive/archive/archive/file";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
-
+            expression = "/archive/archive/archive/dir";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
+            
+            expression = "/archive/archive/archive/file";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            assertEquals("Number of <dir/> element ==>", 1, nodes.getLength());
+        }
     }
 }

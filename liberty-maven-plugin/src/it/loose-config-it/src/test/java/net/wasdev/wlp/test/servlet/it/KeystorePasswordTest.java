@@ -26,14 +26,12 @@ public class KeystorePasswordTest {
         assertTrue(in.getCanonicalFile() + " doesn't exist", in.exists());
         
         // Verify that the server.env file does contain a keystore_password entry
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
    
-        Properties prop = new Properties();
-        prop.load( input );
-        String value = prop.getProperty("keystore_password");
-        assertTrue("Expected keystore_password property not found", value != null);
-        
+            Properties prop = new Properties();
+            prop.load( input );
+            String value = prop.getProperty("keystore_password");
+            assertTrue("Expected keystore_password property not found", value != null);
+        }
     }
-    
-
 }

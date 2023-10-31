@@ -40,38 +40,39 @@ public class ExplodedFilteredDDTest {
     @Test
     public void testExplodedLooseAppFormat() throws Exception {
         File in = new File("target/liberty/wlp/usr/servers/defaultServer/dropins/deploy-loose-config-exploded-it.war.xml");
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in)) {        
         
-        // get input XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
+            // get input XML Document 
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc=inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
 
-        String expression = "/archive//*";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of archive elements ==>", 4, nodes.getLength());
+            String expression = "/archive//*";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of archive elements ==>", 4, nodes.getLength());
 
-        expression = "/archive/dir";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <dir> element ==>", 3, nodes.getLength());
+            expression = "/archive/dir";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <dir> element ==>", 3, nodes.getLength());
 
-        // 1. validate:
-        //    <dir sourceOnDisk="...\src\main\resource1" targetInArchive="/"/>
-        validateSrcResourceRoot(nodes.item(0), "src" + File.separator + "main" + File.separator + "resource1");
+            // 1. validate:
+            //    <dir sourceOnDisk="...\src\main\resource1" targetInArchive="/"/>
+            validateSrcResourceRoot(nodes.item(0), "src" + File.separator + "main" + File.separator + "resource1");
 
-        // 2. validate: 
-        //    <dir sourceOnDisk="...\target\classes" targetInArchive="/WEB-INF/classes"/>
-        validateTargetClasses(nodes.item(1));        
+            // 2. validate: 
+            //    <dir sourceOnDisk="...\target\classes" targetInArchive="/WEB-INF/classes"/>
+            validateTargetClasses(nodes.item(1));        
 
-        // 3. validate:
-        //     <dir sourceOnDisk="...\target\ targetInArchive="/"/>
-        validateWebAppDirRoot(nodes.item(2), "deploy-loose-config-exploded-it-1.0-SNAPSHOT");
+            // 3. validate:
+            //     <dir sourceOnDisk="...\target\ targetInArchive="/"/>
+            validateWebAppDirRoot(nodes.item(2), "deploy-loose-config-exploded-it-1.0-SNAPSHOT");
+        }
     }
 }

@@ -1,9 +1,7 @@
 package net.wasdev.wlp.maven.test.app;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -25,13 +23,13 @@ public class PluginConfigXmlTest {
     public final String APP_WAR="liberty/usr/servers/test/apps/appsdirectory-apps-configured-variables-include-looseapp-it.war";
     public final String APP_WAR_XML= APP_WAR + ".xml";
 
-    public final String MESSAGES_LOG = "liberty/usr/servers/test/logs/messages.log";
+    public final String LOG_LOCATION = "liberty/usr/servers/test/logs/messages.log";
     public final String INCLUDE_REGEX_MESSAGE = ".* CWWKG0028A: Processing included configuration resource: .*/|\\\\target/|\\\\liberty/|\\\\usr/|\\\\shared/|\\\\config/|\\\\environment\\.xml";
     public final String APP_STARTED_MESSAGE = ".* CWWKZ0001I: Application appsdirectory-apps-configured-variables-include-looseapp-it started.*";
 
     @Test
     public void testMessagesLogFileExist() throws Exception {
-        File f = new File(MESSAGES_LOG);
+        File f = new File(LOG_LOCATION);
         assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
     }
     
@@ -49,42 +47,25 @@ public class PluginConfigXmlTest {
 
     @Test
     public void checkMessagesLogFor() throws Exception {
-    	File messagesLog = new File(MESSAGES_LOG);
-                
-        InputStream serverOutput = null;
-        InputStreamReader in = null;
-        Scanner s = null;
+        assertTrue("Did not find include file processed message in messages.log", logContainsMessage(INCLUDE_REGEX_MESSAGE));
+        assertTrue("Did not find app started message in messages.log", logContainsMessage(APP_STARTED_MESSAGE));
+    }
 
-        boolean includeFound = false;
-        boolean appStartedFound = false;
+    public boolean logContainsMessage(String regex) throws FileNotFoundException {
+        File logFile = new File(LOG_LOCATION);
+        assertTrue("Log file not found at location: "+LOG_LOCATION, logFile.exists());
+        boolean found = false;
+        Pattern pattern = Pattern.compile(regex);
 
-        try {
-            // Read file and search
-            serverOutput = new FileInputStream(messagesLog);
-            in = new InputStreamReader(serverOutput);
-            s = new Scanner(in);
-
-            String foundString = null;
-            Pattern pattern1 = Pattern.compile(INCLUDE_REGEX_MESSAGE);
-            Pattern pattern2 = Pattern.compile(APP_STARTED_MESSAGE);
-
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                if (pattern1.matcher(line).find()) {
-                    includeFound = true;
-                } else if (pattern2.matcher(line).find()) {
-                    appStartedFound = true;
+        try (Scanner scanner = new Scanner(logFile);) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (pattern.matcher(line).find()) {
+                    found = true;
                 }
             }
-        } catch (Exception e) {
-
         }
-        s.close(); 
-        serverOutput.close();
-        in.close();
-
-        assertTrue("Did not find include file processed message in messages.log", includeFound);
-        assertTrue("Did not find app started message in messages.log", appStartedFound);
-
+                
+        return found;
     }
 }

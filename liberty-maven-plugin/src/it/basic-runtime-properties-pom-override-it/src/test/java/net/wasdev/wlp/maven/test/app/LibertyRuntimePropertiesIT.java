@@ -5,70 +5,58 @@ import java.io.File;
 import org.junit.Test;
 
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Properties;
 import java.util.Scanner;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 // Check that the liberty runtime groupId, artifactId, and version were successfully overridden by the 
 // liberty.runtime.groupId, liberty.runtime.artifactId, and liberty.runtime.version properties in the pom.xml
 public class LibertyRuntimePropertiesIT {
+    public static final String LOG_LOCATION = "../build.log";
     
     @Test
     public void testLibertyVersionInstalled() throws Exception {
         File f = new File("./liberty/wlp/lib/versions/openliberty.properties");
         assertTrue(f.getCanonicalFile() + " doesn't exist.", f.exists());
 
-        FileInputStream input = new FileInputStream(f);
-        Properties libertyProductProperties = new Properties();
+        try (FileInputStream input = new FileInputStream(f)) {        
+            Properties libertyProductProperties = new Properties();
 
-        libertyProductProperties.load(input);
-        String version = libertyProductProperties.getProperty("com.ibm.websphere.productVersion");
-        assertNotNull("The com.ibm.websphere.productVersion property does not exist.",version);
-        assertEquals("The com.ibm.websphere.productVersion property has an unexpected value.","21.0.0.3",version);
+            libertyProductProperties.load(input);
+            
+            String version = libertyProductProperties.getProperty("com.ibm.websphere.productVersion");
+            assertNotNull("The com.ibm.websphere.productVersion property does not exist.",version);
+            assertEquals("The com.ibm.websphere.productVersion property has an unexpected value.","21.0.0.3",version);
+        }
     }
 
     @Test
     public void buildLogCheck() throws Exception {
-        File buildLog = new File("../build.log");
-        assertTrue(buildLog.exists());
+        String GROUPID_MESSAGE = "[INFO] The runtimeArtifact groupId io.openliberty is overwritten by the liberty.runtime.groupId value io.openliberty.";
+        String ARTIFACTID_MESSAGE = "[INFO] The runtimeArtifact artifactId openliberty-webProfile8 is overwritten by the liberty.runtime.artifactId value openliberty-runtime.";
+        String VERSION_MESSAGE = "[INFO] The runtimeArtifact version 19.0.0.6 is overwritten by the liberty.runtime.version value 21.0.0.3.";
 
-        InputStream buildOutput = null;
-        InputStreamReader in = null;
-        Scanner s = null;
-
-        final String GROUPID_MESSAGE = "[INFO] The runtimeArtifact groupId io.openliberty is overwritten by the liberty.runtime.groupId value io.openliberty.";
-        boolean GROUPID_MESSAGE_FOUND = false;
-
-        final String ARTIFACTID_MESSAGE = "[INFO] The runtimeArtifact artifactId openliberty-webProfile8 is overwritten by the liberty.runtime.artifactId value openliberty-runtime.";
-        boolean ARTIFACTID_MESSAGE_FOUND = false;
-
-        final String VERSION_MESSAGE = "[INFO] The runtimeArtifact version 19.0.0.6 is overwritten by the liberty.runtime.version value 21.0.0.3.";
-        boolean VERSION_MESSAGE_FOUND = false;
-
-        try {
-            buildOutput = new FileInputStream(buildLog);
-            in = new InputStreamReader(buildOutput);
-            s = new Scanner(in);
-
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                if (line.equals(GROUPID_MESSAGE)) {
-                    GROUPID_MESSAGE_FOUND = true;
-                } else if (line.equals(ARTIFACTID_MESSAGE)) {
-                    ARTIFACTID_MESSAGE_FOUND = true;
-                } else if (line.equals(VERSION_MESSAGE)) {
-                    VERSION_MESSAGE_FOUND = true;
-                }
-            }
-        } catch (Exception e) {
-
-        }
-
-        assertTrue(GROUPID_MESSAGE_FOUND && ARTIFACTID_MESSAGE_FOUND && VERSION_MESSAGE_FOUND);
+        assertTrue("Expected message not found: "+GROUPID_MESSAGE, logContainsMessage(GROUPID_MESSAGE));
+        assertTrue("Expected message not found: "+ARTIFACTID_MESSAGE, logContainsMessage(ARTIFACTID_MESSAGE));
+        assertTrue("Expected message not found: "+VERSION_MESSAGE, logContainsMessage(VERSION_MESSAGE));
     }
     
+    public boolean logContainsMessage(String message) throws FileNotFoundException {
+        File logFile = new File(LOG_LOCATION);
+        assertTrue("Log file not found at location: "+LOG_LOCATION, logFile.exists());
+        boolean found = false;
+        
+        try (Scanner scanner = new Scanner(logFile);) {
+            while (scanner.hasNextLine()) {
+                if(scanner.nextLine().contains(message)) { 
+                    found = true;
+                }
+            }
+        }
+                
+        return found;
+    }        
 }

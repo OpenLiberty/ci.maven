@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 // Test server output directory that is overriden by WLP_OUTPUT_DIR in server.env
 public class ServerOutputDirIT {

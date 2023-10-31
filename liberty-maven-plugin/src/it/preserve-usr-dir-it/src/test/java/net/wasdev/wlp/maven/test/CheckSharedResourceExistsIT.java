@@ -3,7 +3,7 @@ package net.wasdev.wlp.maven.test;
 import java.io.File;
 import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class CheckSharedResourceExistsIT {
     

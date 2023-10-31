@@ -37,44 +37,45 @@ public class DefaultAppDirectoryTest {
     @Test
     public void testXmlElements() throws Exception {
         File in = new File(CONFIG_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get input XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse input XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/liberty-plugin-config/serverDirectory";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <serverDirectory/> element ==>", 1, nodes.getLength());
-        
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/configFile";
-        nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <configFile/> element ==>", 1, nodes.getLength());
+            // get input XML Document 
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc=inputBuilder.parse(input);
+            
+            // parse input XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/liberty-plugin-config/serverDirectory";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <serverDirectory/> element ==>", 1, nodes.getLength());
+            
+            xPath = XPathFactory.newInstance().newXPath();
+            expression = "/liberty-plugin-config/configFile";
+            nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <configFile/> element ==>", 1, nodes.getLength());
 
-        xPath = XPathFactory.newInstance().newXPath();
-        expression = "/liberty-plugin-config/serverName/text()";
-        String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <serverName/> ==>", "test", value);
+            xPath = XPathFactory.newInstance().newXPath();
+            expression = "/liberty-plugin-config/serverName/text()";
+            String value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+            Assert.assertEquals("Value of <serverName/> ==>", "test", value);
 
-        expression = "/liberty-plugin-config/appsDirectory/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <appsDirectory/> ==>", "apps", value);
-        
-        expression = "/liberty-plugin-config/installAppPackages/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <installAppPackages/> ==>", "all", value);
-        
-        expression = "/liberty-plugin-config/applicationFilename/text()";
-        value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
-        Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-apps-notconfigured-dependency-configured-it.war", value);
+            expression = "/liberty-plugin-config/appsDirectory/text()";
+            value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+            Assert.assertEquals("Value of <appsDirectory/> ==>", "apps", value);
+            
+            expression = "/liberty-plugin-config/installAppPackages/text()";
+            value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+            Assert.assertEquals("Value of <installAppPackages/> ==>", "all", value);
+            
+            expression = "/liberty-plugin-config/applicationFilename/text()";
+            value = (String) xPath.compile(expression).evaluate(inputDoc, XPathConstants.STRING);
+            Assert.assertEquals("Value of <applicationFilename/> ==>", "appsdirectory-apps-notconfigured-dependency-configured-it.war", value);
+        }
     }
     
     @Test
@@ -95,26 +96,27 @@ public class DefaultAppDirectoryTest {
     @Test
     public void testApplicationConfiguredInConfigDropins() throws Exception {
         File in = new File(CONFIG_DROPINS_XML);
-        FileInputStream input = new FileInputStream(in);
+        try (FileInputStream input = new FileInputStream(in);) {
         
-        // get configDropins XML Document 
-        DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
-        inputBuilderFactory.setIgnoringComments(true);
-        inputBuilderFactory.setCoalescing(true);
-        inputBuilderFactory.setIgnoringElementContentWhitespace(true);
-        inputBuilderFactory.setValidating(false);
-        DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
-        Document inputDoc=inputBuilder.parse(input);
-        
-        // parse configDropins XML Document
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String expression = "/server/webApplication";
-        NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-        Assert.assertEquals("Number of <webApplication/> element ==>", 1, nodes.getLength());
+            // get configDropins XML Document 
+            DocumentBuilderFactory inputBuilderFactory = DocumentBuilderFactory.newInstance();
+            inputBuilderFactory.setIgnoringComments(true);
+            inputBuilderFactory.setCoalescing(true);
+            inputBuilderFactory.setIgnoringElementContentWhitespace(true);
+            inputBuilderFactory.setValidating(false);
+            DocumentBuilder inputBuilder = inputBuilderFactory.newDocumentBuilder();
+            Document inputDoc=inputBuilder.parse(input);
+            
+            // parse configDropins XML Document
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            String expression = "/server/webApplication";
+            NodeList nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
+            Assert.assertEquals("Number of <webApplication/> element ==>", 1, nodes.getLength());
 
-        Node node = nodes.item(0);
-        Element element = (Element)node;      
-        Assert.assertEquals("Value of the 1st <webApplication/> ==>", 
-                "appsdirectory-apps-notconfigured-dependency-configured-it.war", element.getAttribute("location"));
-     }
+            Node node = nodes.item(0);
+            Element element = (Element)node;      
+            Assert.assertEquals("Value of the 1st <webApplication/> ==>", 
+                    "appsdirectory-apps-notconfigured-dependency-configured-it.war", element.getAttribute("location"));
+        }
+    }
 }
