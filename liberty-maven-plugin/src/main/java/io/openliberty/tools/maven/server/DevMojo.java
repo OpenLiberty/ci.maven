@@ -194,14 +194,44 @@ public class DevMojo extends LooseAppSupport {
     /**
      * Containerfile used to build an image to then start a container with
      */
-    @Parameter(alias="containerfile", property = "containerfile")
+    private File containerfile;
     private File dockerfile;
+
+    @Parameter(alias="containerfile", property = "containerfile")
+    public void setContainerfile(File containerfile) {
+        this.containerfile = containerfile;
+        this.dockerfile = containerfile;
+    }
+
+    @Parameter(alias="dockerfile", property = "dockerfile")
+    public void setDockerfile(File dockerfile) {
+        if (dockerfile != null && this.containerfile != null) {
+            getLog().warn("Both containerfile and dockerfile have been set. Using containerfile value.");
+        } else {
+            this.dockerfile = dockerfile;
+        }
+    }
 
     /**
      * Context (directory) to use for the build when building the container image
      */
-    @Parameter(alias="containerBuildContext", property = "containerBuildContext")
+    private File containerBuildContext;
     private File dockerBuildContext;
+
+    @Parameter(alias="containerBuildContext", property = "containerBuildContext")
+    public void setContainerBuildContext(File containerBuildContext) {
+        this.containerBuildContext = containerBuildContext;
+        this.dockerBuildContext = containerBuildContext;
+    }
+
+    @Parameter(alias="dockerBuildContext", property = "dockerBuildContext")
+    public void setDockerBuildContext(File dockerBuildContext) {
+        if (dockerBuildContext != null && this.containerBuildContext != null) {
+            getLog().warn("Both containerBuildContext and dockerBuildContext have been set. Using containerBuildContext value.");
+        } else {
+            this.dockerBuildContext = dockerBuildContext;
+        }
+    }
 
     /**
      * The directory for source files.
@@ -231,17 +261,47 @@ public class DevMojo extends LooseAppSupport {
 
     /**
      * Additional options for the container run command when dev mode starts a
-     * container.
+     * container. Takes precedence over dockerRunOpts.
      */
-    @Parameter(alias="containerRunOpts", property = "containerRunOpts")
+    private String containerRunOpts;
     private String dockerRunOpts;
+
+    @Parameter(alias="containerRunOpts", property = "containerRunOpts")
+    public void setContainerRunOpts(String containerRunOpts) {
+        this.containerRunOpts = containerRunOpts; 
+        this.dockerRunOpts = containerRunOpts;
+    }
+
+    @Parameter(alias="dockerRunOpts", property = "dockerRunOpts")
+    public void setDockerRunOpts(String dockerRunOpts) {
+        if (dockerRunOpts != null && this.containerRunOpts != null) {
+            getLog().warn("Both containerRunopts and dockerRunOpts have been set. Using containerRunOpts value.");
+        } else {
+            this.dockerRunOpts = dockerRunOpts;
+        }
+    }
 
     /**
      * Specify the amount of time in seconds that dev mode waits for the container
      * build command to run to completion. Default to 600 seconds.
      */
-    @Parameter(alias="containerBuildTimeout", property = "containerBuildTimeout", defaultValue = "600")
+    private int containerBuildTimeout;
     private int dockerBuildTimeout;
+
+    @Parameter(alias="containerBuildTimeout", property = "containerBuildTimeout", defaultValue = "600")
+    public void setContainerBuildTimeout(int containerBuildTimeout) {
+        this.containerBuildTimeout = containerBuildTimeout;
+        this.dockerBuildTimeout = containerBuildTimeout;
+    }
+
+    @Parameter(alias="dockerBuildTimeout", property = "dockerBuildTimeout")
+    public void setDockerBuildTimeout(int dockerBuildTimeout) {
+        if (dockerBuildTimeout != 600 && this.containerBuildTimeout != 600) {
+            getLog().warn("Both containerBuildTimeout and dockerBuildTimeout have been set. Using containerBuildTimeout value.");
+        } else if (dockerBuildTimeout != 600) {
+            this.dockerBuildTimeout = dockerBuildTimeout;
+        }
+    }
 
     /**
      * If true, the default container port mappings are skipped in the container run
@@ -253,8 +313,19 @@ public class DevMojo extends LooseAppSupport {
     /**
      * If true, preserve the temporary Containerfile/Dockerfile used in the container build command
      */
-    @Parameter(alias="keepTempContainerfile", property = "keepTempContainerfile", defaultValue = "false")
+    private boolean keepTempContainerfile;
     private boolean keepTempDockerfile;
+
+    @Parameter(alias="keepTempContainerfile", property = "keepTempContainerfile", defaultValue = "false")
+    public void setKeepTempContainerfile(boolean keepTempContainerfile) {
+        this.keepTempContainerfile = keepTempContainerfile;
+        this.keepTempDockerfile = keepTempContainerfile;
+    }
+
+    @Parameter(alias="keepTempDockerfile", property = "keepTempDockerfile")
+    public void setKeepTempDockerfile(boolean keepTempDockerfile) {
+        this.keepTempDockerfile = this.keepTempContainerfile || keepTempDockerfile;
+    }
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
