@@ -19,6 +19,24 @@
             <version>4.13.2</version>
         </dependency>
    </dependencies>
+   
+  <properties>
+    <esaFile>/.m2/repository/io/openliberty/features/json-1.0/23.0.0.10/json-1.0-23.0.0.10.esa</esaFile>
+  </properties>
+			  
+  <profiles>   
+   	<profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+              <properties>
+			    <esaFile>\.m2\repository\io\openliberty\features\json-1.0\23.0.0.10\json-1.0-23.0.0.10.esa</esaFile>
+			  </properties>
+   	</profile>
+   </profiles>
 
     <build>
         <pluginManagement>
@@ -96,7 +114,7 @@
                         </goals>
                         <configuration>
                             <features>
-                            	<feature>${user.home}/.m2/repository/io/openliberty/features/json-1.0/23.0.0.10/json-1.0-23.0.0.10.esa</feature>
+                            	<feature>${user.home}${esaFile}</feature>
                             	<feature>jsp-2.3</feature>
                         	</features>
                         </configuration>
