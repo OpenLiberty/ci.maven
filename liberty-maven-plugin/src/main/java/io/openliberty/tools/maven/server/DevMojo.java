@@ -299,7 +299,7 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(alias="keepTempDockerfile", property = "keepTempDockerfile", defaultValue = "false")
     public void setKeepTempDockerfile(Boolean keepTempDockerfile) {
         if (this.keepTempContainerfile == null) {
-            this.keepTempContainerfile = keepTempDockerfile;
+            setKeepTempContainerfile(keepTempDockerfile);
         }
     }
     
