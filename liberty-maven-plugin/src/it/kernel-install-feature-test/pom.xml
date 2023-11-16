@@ -75,6 +75,7 @@
             </activation>
             <!-- Tests that should only run on Open Liberty are here -->
             <modules>
+            	<module>install-features-local-esa-it</module>
             </modules>
         </profile>
     </profiles>
