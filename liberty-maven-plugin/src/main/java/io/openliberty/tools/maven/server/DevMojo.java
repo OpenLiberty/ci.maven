@@ -195,13 +195,31 @@ public class DevMojo extends LooseAppSupport {
      * Containerfile used to build an image to then start a container with
      */
     @Parameter(alias="containerfile", property = "containerfile")
-    private File dockerfile;
+    private File containerfile;
+
+    @Parameter(alias="dockerfile", property = "dockerfile")
+    public void setDockerfile(File dockerfile) {
+        if (dockerfile != null && this.containerfile != null) {
+            getLog().warn("Both containerfile and dockerfile have been set. Using containerfile value.");
+        } else {
+            this.containerfile = dockerfile;
+        }
+    }
 
     /**
      * Context (directory) to use for the build when building the container image
      */
     @Parameter(alias="containerBuildContext", property = "containerBuildContext")
-    private File dockerBuildContext;
+    private File containerBuildContext;
+
+    @Parameter(alias="dockerBuildContext", property = "dockerBuildContext")
+    public void setDockerBuildContext(File dockerBuildContext) {
+        if (dockerBuildContext != null && this.containerBuildContext != null) {
+            getLog().warn("Both containerBuildContext and dockerBuildContext have been set. Using containerBuildContext value.");
+        } else {
+            this.containerBuildContext = dockerBuildContext;
+        }
+    }
 
     /**
      * The directory for source files.
@@ -231,17 +249,35 @@ public class DevMojo extends LooseAppSupport {
 
     /**
      * Additional options for the container run command when dev mode starts a
-     * container.
+     * container. Takes precedence over dockerRunOpts.
      */
     @Parameter(alias="containerRunOpts", property = "containerRunOpts")
-    private String dockerRunOpts;
+    private String containerRunOpts;
+
+    @Parameter(alias="dockerRunOpts", property = "dockerRunOpts")
+    public void setDockerRunOpts(String dockerRunOpts) {
+        if (dockerRunOpts != null && this.containerRunOpts != null) {
+            getLog().warn("Both containerRunopts and dockerRunOpts have been set. Using containerRunOpts value.");
+        } else {
+            this.containerRunOpts = dockerRunOpts;
+        }
+    }
 
     /**
      * Specify the amount of time in seconds that dev mode waits for the container
      * build command to run to completion. Default to 600 seconds.
      */
     @Parameter(alias="containerBuildTimeout", property = "containerBuildTimeout", defaultValue = "600")
-    private int dockerBuildTimeout;
+    private int containerBuildTimeout;
+
+    @Parameter(alias="dockerBuildTimeout", property = "dockerBuildTimeout")
+    public void setDockerBuildTimeout(int dockerBuildTimeout) {
+        if (dockerBuildTimeout != 600 && this.containerBuildTimeout != 600) {
+            getLog().warn("Both containerBuildTimeout and dockerBuildTimeout have been set. Using containerBuildTimeout value.");
+        } else if (dockerBuildTimeout != 600) {
+            this.containerBuildTimeout = dockerBuildTimeout;
+        }
+    }
 
     /**
      * If true, the default container port mappings are skipped in the container run
@@ -253,8 +289,19 @@ public class DevMojo extends LooseAppSupport {
     /**
      * If true, preserve the temporary Containerfile/Dockerfile used in the container build command
      */
-    @Parameter(alias="keepTempContainerfile", property = "keepTempContainerfile", defaultValue = "false")
-    private boolean keepTempDockerfile;
+    private Boolean keepTempContainerfile;
+
+    @Parameter(alias="keepTempContainerfile", property = "keepTempContainerfile")
+    public void setKeepTempContainerfile(Boolean keepTempContainerfile) {
+        this.keepTempContainerfile = keepTempContainerfile;
+    }
+
+    @Parameter(alias="keepTempDockerfile", property = "keepTempDockerfile", defaultValue = "false")
+    public void setKeepTempDockerfile(Boolean keepTempDockerfile) {
+        if (this.keepTempContainerfile == null) {
+            setKeepTempContainerfile(keepTempDockerfile);
+        }
+    }
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
@@ -302,9 +349,9 @@ public class DevMojo extends LooseAppSupport {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
                     skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
-                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, dockerfile,
-                    dockerBuildContext, dockerRunOpts, dockerBuildTimeout, skipDefaultPorts, compilerOptions,
-                    keepTempDockerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
+                    ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
+                    containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
+                    keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
