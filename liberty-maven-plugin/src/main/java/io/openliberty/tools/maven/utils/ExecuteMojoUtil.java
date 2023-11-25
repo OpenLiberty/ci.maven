@@ -201,7 +201,7 @@ public class ExecuteMojoUtil {
                     "version"));
 
     private static final ArrayList<String> LIBERTY_COMMON_PARAMS = new ArrayList<>(Arrays.asList(
-            "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
+            "installDirectory", "interimFixDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
             "assemblyInstallDirectory", "refresh", "skip", "serverXmlFile", "configDirectory", 
             "serverEnvFile", "mergeServerEnv"
