@@ -18,6 +18,8 @@ package io.openliberty.tools.maven;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashSet;
 
 import org.apache.maven.artifact.Artifact;
@@ -52,6 +54,9 @@ import static java.util.Objects.requireNonNull;
  * 
  */
 public abstract class AbstractLibertySupport extends AbstractMojo {
+    private static final String PROP_RESOLUTION_SYNTAX = "\\$\\{(.+?)\\}";
+    private static final Pattern PROP_PATTERN = Pattern.compile(PROP_RESOLUTION_SYNTAX);
+
     /**
      * Maven Project
      */
@@ -130,6 +135,29 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
         }
         
         return null;
+    }
+    
+    // Search the value parameter for any properties referenced with ${xxx} syntax and replace those with their property value if defined.
+    protected String resolvePropertyReferences(String value) {
+        String returnValue = value;
+
+        if (value != null) {
+            Matcher m = PROP_PATTERN.matcher(value);
+            while (m.find()) {
+                String varName = m.group(1);
+                if (project.getProperties().containsKey(varName)) {
+                    String replacementValue = project.getProperties().getProperty(varName);
+                    if (replacementValue != null) {
+                        returnValue = returnValue.replace("${"+varName+"}", replacementValue);
+                        getLog().debug("Replaced Liberty configuration property reference ${"+varName+"} with value "+replacementValue);
+                    }
+                } else {
+                    getLog().debug("Could not replace property reference: "+varName+" in value: "+value);
+                }
+            }
+        }
+        
+        return returnValue;
     }
     
     /**

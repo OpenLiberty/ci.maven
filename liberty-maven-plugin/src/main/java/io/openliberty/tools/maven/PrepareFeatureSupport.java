@@ -78,7 +78,11 @@ public abstract class PrepareFeatureSupport extends BasicSupport {
         @Override
         public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
             try {
-                return getArtifact(groupId, artifactId, type, version).getFile();
+                // Look for and replace maven props in the coordinates
+                return getArtifact(resolvePropertyReferences(groupId), 
+                                    resolvePropertyReferences(artifactId), 
+                                    type, 
+                                    resolvePropertyReferences(version)).getFile();
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }

@@ -113,7 +113,11 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         @Override
         public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
             try {
-                return getArtifact(groupId, artifactId, type, version).getFile();
+                // Look for and replace maven props in the coordinates
+                return getArtifact(resolvePropertyReferences(groupId), 
+                                    resolvePropertyReferences(artifactId), 
+                                    type, 
+                                    resolvePropertyReferences(version)).getFile();
             } catch (MojoExecutionException e) {
                 throw new PluginExecutionException(e);
             }
@@ -142,8 +146,10 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         List<org.apache.maven.model.Dependency> dependencyArtifacts = project.getDependencies();
         for (org.apache.maven.model.Dependency dependencyArtifact: dependencyArtifacts){
             if (("esa").equals(dependencyArtifact.getType())) {
-                result.add(dependencyArtifact.getArtifactId());
-                getLog().debug("Dependency feature: " + dependencyArtifact.getArtifactId());
+                // Look for and replace maven props in the artifactId
+                String artifactId = resolvePropertyReferences(dependencyArtifact.getArtifactId());
+                result.add(artifactId);
+                getLog().debug("Dependency feature: " + artifactId);
             }
         }
         return result;
