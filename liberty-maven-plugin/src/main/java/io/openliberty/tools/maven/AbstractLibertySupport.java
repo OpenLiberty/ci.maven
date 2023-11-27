@@ -149,7 +149,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
                     String replacementValue = project.getProperties().getProperty(varName);
                     if (replacementValue != null) {
                         returnValue = returnValue.replace("${"+varName+"}", replacementValue);
-                        getLog().debug("Replaced Liberty configuration property reference ${"+varName+"} with value "+replacementValue);
+                        getLog().info("Replaced Liberty configuration property reference ${"+varName+"} with value "+replacementValue);
                     }
                 } else {
                     getLog().debug("Could not replace property reference: "+varName+" in value: "+value);

@@ -78,7 +78,8 @@ public abstract class PrepareFeatureSupport extends BasicSupport {
         @Override
         public File downloadArtifact(String groupId, String artifactId, String type, String version) throws PluginExecutionException {
             try {
-                // Look for and replace maven props in the coordinates
+                // Look for and replace maven props in the coordinates. This is necessary when called from 
+                // PrepareFeatureUtil.downloadArtifactsFromBOM(File) because that bom file will not have been processed by maven.
                 return getArtifact(resolvePropertyReferences(groupId), 
                                     resolvePropertyReferences(artifactId), 
                                     type, 
