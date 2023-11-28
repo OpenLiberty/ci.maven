@@ -102,7 +102,7 @@ public class DefaultAppDirectoryTest {
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
 
         // The next dependency specified the full GAV plus type `war`. The default location was used.
-        f = new File("liberty/usr/servers/test/lib/global/derbywar-10.15.2.0.war");
+        f = new File("liberty/usr/servers/test/lib/global/derbywar-10.17.1.0.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
    }
 }
