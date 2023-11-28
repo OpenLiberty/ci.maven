@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 public class CheckSharedResourceExistsIT {
     
-    public final String DERBY_RESOURCE = "target/liberty/wlp/usr/shared/resources/derby-10.13.1.1.jar";
+    public final String DERBY_RESOURCE = "target/liberty/wlp/usr/shared/resources/derby-10.17.1.0.jar";
     
     @Test
     public void testDerbyExists() throws Exception {
