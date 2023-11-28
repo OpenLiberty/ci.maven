@@ -12,6 +12,10 @@
     <artifactId>prepare-multiple-features-it</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <bom.group.id>test.user.test.osgi</bom.group.id>
+        <esa.artifact.id>hello-esa-plugin</esa.artifact.id>
+    </properties>
     <build>
         <plugins>
         	<plugin>
@@ -153,7 +157,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>test.user.test.osgi</groupId>
+        <groupId>${bom.group.id}</groupId>
         <artifactId>hello-bom</artifactId>
         <version>1.0</version>
         <type>pom</type>
