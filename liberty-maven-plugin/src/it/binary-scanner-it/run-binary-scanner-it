@@ -1,7 +1,8 @@
 # Manually cd to ci.maven to begin.
 # Run mvn clean install to build the current plugin.
+# Ensure you are running a version of Maven supported by liberty-maven-plugin (e.g. Maven 3.8.6 for plugin 3.9)
 # Edit liberty-maven-plugin/src/it/binary-scanner-it/pom.xml and add the version of
-# binary scanner you expect in <scannerVersion>.
+# binary scanner you expect in <scanner.version>.
 # Edit the loop below to specify the versions of the plugin you want to test:
 #   for i in 3.7 3.7.1 <--change 3.7 to the current version
 # Execute the following command in the current directory ci.maven:
@@ -10,7 +11,11 @@
 # five minutes for each test.
 cd liberty-maven-plugin/
 cp src/it/binary-scanner-it/pom.xml /tmp
-for i in 3.8 3.8.1 3.8.2
+restorePOM () {
+    cp /tmp/pom.xml src/it/binary-scanner-it/pom.xml
+}
+trap restorePOM SIGINT
+for i in 3.9
 do
 echo !!
 echo !! About to test using Liberty Maven Plugin version $i.
@@ -24,4 +29,4 @@ read j
 sed "s/@pom.version@/$i/g" </tmp/pom.xml >src/it/binary-scanner-it/pom.xml
 mvn install verify -Ponline-its -Dinvoker.streamLogs=true -Druntime=ol -DruntimeVersion=23.0.0.1 -Dinvoker.test=binary-scanner-it
 done
-cp /tmp/pom.xml src/it/binary-scanner-it/pom.xml
+restorePOM
