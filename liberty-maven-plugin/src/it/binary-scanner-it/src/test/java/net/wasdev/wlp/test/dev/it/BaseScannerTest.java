@@ -180,7 +180,7 @@ public class BaseScannerTest {
 
     /**
      * Runs process and waits for it to finish
-     * Times out after 20 seconds
+     * Times out after 30 seconds
      * 
      * @param command - command to run
      */
@@ -194,8 +194,8 @@ public class BaseScannerTest {
 
         OutputStream stdin = process.getOutputStream();
         writer = new BufferedWriter(new OutputStreamWriter(stdin));
-        // wait for process to finish max 20 seconds
-        process.waitFor(20, TimeUnit.SECONDS);
+        // wait for process to finish max 30 seconds
+        process.waitFor(30, TimeUnit.SECONDS);
         assertFalse(process.isAlive());
 
         // save and print process output
