@@ -718,14 +718,16 @@ public abstract class BasicSupport extends AbstractLibertySupport {
 
     protected void setContainerEngine(AbstractContainerSupportUtil util) throws PluginExecutionException {
         String LIBERTY_DEV_PODMAN = "liberty.dev.podman";
-        Properties mergedProperties = project.getProperties();
-        mergedProperties.putAll(System.getProperties()); //System/command line properties will take precedence
-        if (!mergedProperties.isEmpty() && mergedProperties.containsKey(LIBERTY_DEV_PODMAN)) {
-            Object isPodman = mergedProperties.get(LIBERTY_DEV_PODMAN);
-            if (isPodman != null) {
-                util.setIsDocker(!(Boolean.parseBoolean(isPodman.toString())));
-                getLog().debug("liberty.dev.podman was set to: " + (Boolean.parseBoolean(isPodman.toString())));
-            }
+        Object podmanPropValue = null;
+        if (System.getProperties().containsKey(LIBERTY_DEV_PODMAN)) {
+            podmanPropValue = System.getProperties().get(LIBERTY_DEV_PODMAN);
+        } else if (project.getProperties().containsKey(LIBERTY_DEV_PODMAN)) {
+            podmanPropValue = project.getProperties().get(LIBERTY_DEV_PODMAN);
+        }
+
+        if (podmanPropValue != null) {
+            util.setIsDocker(!(Boolean.parseBoolean(podmanPropValue.toString())));
+            getLog().debug("liberty.dev.podman was set to: " + (Boolean.parseBoolean(podmanPropValue.toString())));
         }
     }
 }

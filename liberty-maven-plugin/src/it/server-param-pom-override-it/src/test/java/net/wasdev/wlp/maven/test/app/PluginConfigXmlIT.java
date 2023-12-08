@@ -170,10 +170,15 @@ public class PluginConfigXmlIT {
                     assertTrue("-Xmx768m not found on last line", nextLine.equals("-Xmx768m"));
                 } else {
                     if (nextLine.equals("-Xms512m")) {
+                        assertFalse("jvm option found more than once: "+nextLine,myXms512mFound);
                         myXms512mFound = true;
                     } else if (nextLine.equals("-Xmx1024m")) {
+                        assertFalse("jvm option found more than once: "+nextLine,myXmx1024mFound);
                         myXmx1024mFound = true;
+                    } else if (nextLine.equals("-Xmx2056m")) {
+                        fail("jvm option found that should not be present: "+nextLine);
                     } else if (nextLine.equals("-javaagent:/path/to/some/jar.jar")) {
+                        assertFalse("jvm option found more than once: "+nextLine,myArgLineValueFound);
                         myArgLineValueFound = true;
                     } else if (nextLine.equals("@{undefined}")) {
                         myUndefinedVarFound = true;

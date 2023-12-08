@@ -824,7 +824,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                                      break;
                     case BOOTSTRAP:  bootstrapMavenProps.put(suffix, value);
                                      break;
-                    case JVM:        jvmMavenProps.add(value);
+                    case JVM:        if (!jvmMavenProps.contains(value)) { jvmMavenProps.add(value); } // avoid exact duplicates
                                      break;
                     case VAR:        varMavenProps.put(suffix, value);
                                      break;
@@ -952,6 +952,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 combinedJvmOptions = new ArrayList<String> ();
                 // add the maven properties first so that they do not take precedence over the options specified with jvmOptions
                 combinedJvmOptions.addAll(mavenProperties);
+                combinedJvmOptions.removeAll(options); // remove any exact duplicates before adding all the jvmOptions
                 combinedJvmOptions.addAll(options);
             }
         } else {

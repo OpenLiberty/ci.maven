@@ -13,6 +13,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <liberty.jvm.minheap>-Xms512m</liberty.jvm.minheap>
     <app.name>LibertyProject</app.name>
     <!-- tag::ports[] -->
     <testServerHttpPort>9080</testServerHttpPort>
@@ -212,6 +213,9 @@
             <default.https.port>${testServerHttpsPort}</default.https.port>
             <com.ibm.ws.logging.message.format>json</com.ibm.ws.logging.message.format>
           </bootstrapProperties>
+          <jvmOptions>
+            <param>-Xms512m</param>
+         </jvmOptions>
           <!-- ADDITIONAL_CONFIGURATION -->
         </configuration>
       </plugin>
