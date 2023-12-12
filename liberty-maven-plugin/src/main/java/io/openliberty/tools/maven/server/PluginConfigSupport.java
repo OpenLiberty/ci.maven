@@ -137,7 +137,8 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
             if (jvmOptionsResolved == null) {
                 jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
             }
-            configDocument.createElement("jvmOptions", jvmOptionsResolved);
+            List<String> uniqueOptions = getUniqueValues(jvmOptionsResolved);
+            configDocument.createElement("jvmOptions", uniqueOptions);
         } else {
             configFile = findConfigFile("jvm.options", jvmOptionsFile);
             if (configFile != null) {

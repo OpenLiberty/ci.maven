@@ -92,7 +92,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
-    protected List<String> jvmMavenProps = new ArrayList<String>();  
+    protected List<String> jvmMavenPropNames = new ArrayList<String>();  // only used for tracking overriding properties - not included in the generated jvm.options file
+    protected List<String> jvmMavenPropValues = new ArrayList<String>();  
     protected Map<String,String> varMavenProps = new HashMap<String,String>();  
     protected Map<String,String> defaultVarMavenProps = new HashMap<String,String>();  
 
@@ -566,12 +567,12 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 optionsFile.delete();
             }
         }
-        if (jvmOptions != null || !jvmMavenProps.isEmpty()) {
+        if (jvmOptions != null || !jvmMavenPropValues.isEmpty()) {
             if (jvmOptionsPath != null) {
                 getLog().warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
             }
             jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
-            writeJvmOptions(optionsFile, jvmOptionsResolved, jvmMavenProps);
+            writeJvmOptions(optionsFile, jvmOptionsResolved, jvmMavenPropValues);
             jvmOptionsPath = "inlined configuration";
         } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
             if (jvmOptionsPath != null) {
@@ -824,7 +825,14 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                                      break;
                     case BOOTSTRAP:  bootstrapMavenProps.put(suffix, value);
                                      break;
-                    case JVM:        jvmMavenProps.add(value);
+                    case JVM:        if (jvmMavenPropNames.contains(suffix)) {
+                                        int index = jvmMavenPropNames.indexOf(suffix);
+                                        getLog().debug("Remove duplicate property with name: "+suffix+" at position: "+index);
+                                        jvmMavenPropNames.remove(index);
+                                        jvmMavenPropValues.remove(index);
+                                     }
+                                     jvmMavenPropNames.add(suffix);  // need to keep track of names so that a system prop can override a project prop
+                                     jvmMavenPropValues.add(value);
                                      break;
                     case VAR:        varMavenProps.put(suffix, value);
                                      break;
@@ -943,19 +951,42 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
+    // Remove any duplicate entries in the passed in List
+    protected List<String> getUniqueValues(List<String> values) {
+        List<String> uniqueValues = new ArrayList<String> ();
+        if (values == null) {
+            return uniqueValues;
+        }
+        
+        for (String nextValue : values) {
+            // by removing a matching existing value, it ensures there will not be a duplicate and that this current one will appear later in the List
+            if (uniqueValues.contains(nextValue)) {
+                getLog().debug("Remove duplicate value: "+nextValue+" at position: "+uniqueValues.indexOf(nextValue));
+            }
+            uniqueValues.remove(nextValue); // has no effect if the value is not present
+            uniqueValues.add(nextValue);
+        }
+        return uniqueValues;
+    }
+
     // One of the passed in Lists must be not null and not empty
     private void writeJvmOptions(File file, List<String> options, List<String> mavenProperties) throws IOException {
-        if (!mavenProperties.isEmpty()) {
-            if (options == null) {
-                combinedJvmOptions = mavenProperties;
+        List<String> uniqueOptions = getUniqueValues(options);
+        List<String> uniqueMavenProps = getUniqueValues(mavenProperties);
+
+        if (!uniqueMavenProps.isEmpty()) {
+            if (uniqueOptions.isEmpty()) {
+                combinedJvmOptions = uniqueMavenProps;
             } else {
                 combinedJvmOptions = new ArrayList<String> ();
-                // add the maven properties first so that they do not take precedence over the options specified with jvmOptions
-                combinedJvmOptions.addAll(mavenProperties);
-                combinedJvmOptions.addAll(options);
+                // add the maven properties (which consist of both project properties and system properties) first,
+                // so that they do not take precedence over the options specified with jvmOptions config parameter
+                combinedJvmOptions.addAll(uniqueMavenProps);
+                combinedJvmOptions.removeAll(uniqueOptions); // remove any exact duplicates before adding all the jvmOptions
+                combinedJvmOptions.addAll(uniqueOptions);
             }
         } else {
-            combinedJvmOptions = options;
+            combinedJvmOptions = uniqueOptions;
         }
 
         makeParentDirectory(file);
