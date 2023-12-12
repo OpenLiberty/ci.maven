@@ -17,9 +17,11 @@
         <myArgLine>-javaagent:/path/to/some/jar.jar</myArgLine>
         <liberty.jvm.argLine>@{myArgLine}</liberty.jvm.argLine>
         <liberty.jvm.undefined>@{undefined}</liberty.jvm.undefined>
-        <liberty.jvm.minHeap>-Xms512m</liberty.jvm.minHeap>
+        <liberty.jvm.debug>-agentlib:jdwp=transport=dt_socket;server=y;suspend=n;address=7777</liberty.jvm.debug>
+        <liberty.jvm.myprop2>-Dmy.jvm.prop=abc</liberty.jvm.myprop2>
+        <liberty.jvm.minHeap>-Xms1024m</liberty.jvm.minHeap>
         <!-- This maxHeap property should NOT override the one specified below in jvmOptions -->
-        <liberty.jvm.maxHeap>-Xmx1024m</liberty.jvm.maxHeap>
+        <liberty.jvm.maxHeap>-Xmx2056m</liberty.jvm.maxHeap>
         <liberty.bootstrap.location>pom.xml</liberty.bootstrap.location>
         <liberty.env.JAVA_HOME>/opt/ibm/java</liberty.env.JAVA_HOME>
         <liberty.var.someVariable1>someValue1</liberty.var.someVariable1>
@@ -69,7 +71,9 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <jvmOptions>
-                        <param>-Xmx768m</param>
+                        <param>-Xmx1024m</param>
+                        <param>-agentlib:jdwp=transport=dt_socket;server=y;suspend=n;address=7777</param>
+                        <param>-Dmy.jvm.prop2=This is the value</param>
                     </jvmOptions>
                     <bootstrapProperties>
                         <someBootstrapVar>@{myBootstrapArg}</someBootstrapVar>
@@ -104,6 +108,12 @@
                 <plugin>
                     <groupId>io.openliberty.tools</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
+                    <configuration>
+                        <!-- This would be more logical to be specified in a parent pom.xml, but putting here for simplicity for testing. -->
+                        <jvmOptions>
+                            <param>-Dmy.jvm.prop2=This is the value</param>
+                        </jvmOptions>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>stop-server-before-clean</id>
