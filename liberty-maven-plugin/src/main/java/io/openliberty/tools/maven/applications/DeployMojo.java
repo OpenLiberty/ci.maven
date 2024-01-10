@@ -172,6 +172,7 @@ public class DeployMojo extends DeployMojoSupport {
         for (Artifact artifact : artifacts) {
             // skip if not an application type supported by Liberty
             if (!isSupportedType(artifact.getType())) {
+                getLog().debug("Skipping install of dependency "+artifact.getArtifactId()+" with unsupported type: "+artifact.getType());
                 continue;
             }
             // skip assemblyArtifact if specified as a dependency
