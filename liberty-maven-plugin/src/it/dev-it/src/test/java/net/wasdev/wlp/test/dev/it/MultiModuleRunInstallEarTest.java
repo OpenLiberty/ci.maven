@@ -52,8 +52,21 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
    @Test
    public void notOverwriteExistingM2Test() throws Exception {
       // Check that the file was already created (from the run() during setup)
-      File ear = new File(System.getProperty("user.home"), ".m2/repository/io/openliberty/guides/guide-maven-multimodules-ear/1.0-SNAPSHOT/guide-maven-multimodules-ear-1.0-SNAPSHOT.ear");
-      assertTrue(ear.exists());
+      File m2Repo = new File(System.getProperty("user.home"), ".m2/repository");
+      assertTrue("The local .m2 repo does not exist at: "+m2Repo.getAbsolutePath(), m2Repo.exists());
+      File earModule = new File(m2Repo,"io/openliberty/guides/guide-maven-multimodules-ear");
+      if (!earModule.exists()) {
+        // try sleeping a bit in case it is not built yet?
+        Thread.sleep(30000); // 30 secs
+        // look for jar/war modules?
+        File jarModule = new File(m2Repo,"io/openliberty/guides/guide-maven-multimodules-jar");
+        assertTrue("The jar module does not exist in the local .m2 repo at: "+jarModule.getAbsolutePath(), jarModule.exists());
+        File warModule = new File(m2Repo,"io/openliberty/guides/guide-maven-multimodules-war");
+        assertTrue("The war module does not exist in the local .m2 repo at: "+warModule.getAbsolutePath(), warModule.exists());
+      }
+      assertTrue("The ear module does not exist in the local .m2 repo at: "+earModule.getAbsolutePath(), earModule.exists());
+      File ear = new File(earModule, "1.0-SNAPSHOT/guide-maven-multimodules-ear-1.0-SNAPSHOT.ear");
+      assertTrue("The .ear file does not exist at: "+ear.getAbsolutePath(), ear.exists());
       long lastModified = ear.lastModified();
       waitLongEnough();
 
