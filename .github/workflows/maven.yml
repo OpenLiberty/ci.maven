@@ -21,9 +21,14 @@ jobs:
       fail-fast: false
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
-        RUNTIME: [ol]
+        RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [23.0.0.12]
-        java: [21]
+        java: [21, 17, 11, 8]
+        exclude:
+        - java: 8
+          RUNTIME: wlp
+        - java: 11
+          RUNTIME: ol
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Linux
     steps:
     # Checkout repos
@@ -62,60 +67,60 @@ jobs:
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
       if: ${{ matrix.java == '17' || matrix.java == '21'}}
-      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*dev-i*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
-    # # Run tests
-    # - name: Run tests
-    #   run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+    # Run tests
+    - name: Run tests
+      run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
-  # build-windows:
-  #   runs-on: windows-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       # test against latest update of each major Java version, as well as specific updates of LTS versions:
-  #       RUNTIME: [ol, wlp]
-  #       RUNTIME_VERSION: [23.0.0.10]
-  #       java: [21, 17, 11, 8]
-  #       exclude:
-  #       - java: 8
-  #         RUNTIME: ol
-  #       - java: 11
-  #         RUNTIME: wlp
-  #   name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
-  #   steps:
-  #   # Checkout repos
-  #   - name: Checkout ci.maven
-  #     uses: actions/checkout@v3
-  #   - name: Setup Java ${{ matrix.java }}
-  #     uses: actions/setup-java@v3
-  #     with:
-  #       distribution: 'temurin'
-  #       java-version: ${{ matrix.java }}
-  #       cache: 'maven'
-  #   # Move and cloning to C: drive for Windows for more disk space
-  #   - name: Clone ci.ant, ci.common, ci.maven repos to C drive
-  #     run: |
-  #       cp -r D:/a/ci.maven/ci.maven C:/ci.maven
-  #       git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
-  #       git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
-  #   - name: Set up Maven
-  #     uses: stCarolas/setup-maven@v4.5
-  #     with:
-  #       maven-version: 3.9.2
-  #   # Install ci.ant
-  #   - name: Install ci.ant
-  #     working-directory: C:/ci.ant
-  #     run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
-  #   # Install ci.common
-  #   - name: Install ci.common
-  #     working-directory: C:/ci.common
-  #     run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
-  #   # Run tests that require a minimum of Java 17 or later
-  #   - name: Run tests that require a minimum of Java 17 or later
-  #     if: ${{ matrix.java == '17' || matrix.java == '21'}}
-  #     run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
-  #   # Run tests
-  #   - name: Run tests
-  #     working-directory: C:/ci.maven
-  #     run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # test against latest update of each major Java version, as well as specific updates of LTS versions:
+        RUNTIME: [ol, wlp]
+        RUNTIME_VERSION: [23.0.0.12]
+        java: [21, 17, 11, 8]
+        exclude:
+        - java: 8
+          RUNTIME: ol
+        - java: 11
+          RUNTIME: wlp
+    name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
+    steps:
+    # Checkout repos
+    - name: Checkout ci.maven
+      uses: actions/checkout@v3
+    - name: Setup Java ${{ matrix.java }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+        cache: 'maven'
+    # Move and cloning to C: drive for Windows for more disk space
+    - name: Clone ci.ant, ci.common, ci.maven repos to C drive
+      run: |
+        cp -r D:/a/ci.maven/ci.maven C:/ci.maven
+        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common
+        git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.9.2
+    # Install ci.ant
+    - name: Install ci.ant
+      working-directory: C:/ci.ant
+      run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
+    # Install ci.common
+    - name: Install ci.common
+      working-directory: C:/ci.common
+      run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
+    # Run tests that require a minimum of Java 17 or later
+    - name: Run tests that require a minimum of Java 17 or later
+      if: ${{ matrix.java == '17' || matrix.java == '21'}}
+      run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+    # Run tests
+    - name: Run tests
+      working-directory: C:/ci.maven
+      run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
