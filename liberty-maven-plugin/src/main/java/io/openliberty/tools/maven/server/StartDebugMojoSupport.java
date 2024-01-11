@@ -548,7 +548,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         // copy server.xml file to server directory if end-user explicitly set it.
         if (serverXmlFile != null && serverXmlFile.exists()) {
             if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
-                getLog().warn("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
+                getLog().info("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(serverXmlFile);
@@ -563,20 +563,20 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (optionsFile.exists() && jvmOptionsPath == null) {
             // if using pre-existing installation, do not delete file
             if (installType != InstallType.ALREADY_EXISTS) {
-                getLog().warn(optionsFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                getLog().info(optionsFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 optionsFile.delete();
             }
         }
         if (jvmOptions != null || !jvmMavenPropValues.isEmpty()) {
             if (jvmOptionsPath != null) {
-                getLog().warn("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
+                getLog().info("The " + jvmOptionsPath + " file is overwritten by inlined configuration.");
             }
             jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
             writeJvmOptions(optionsFile, jvmOptionsResolved, jvmMavenPropValues);
             jvmOptionsPath = "inlined configuration";
         } else if (jvmOptionsFile != null && jvmOptionsFile.exists()) {
             if (jvmOptionsPath != null) {
-                getLog().warn("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
+                getLog().info("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(jvmOptionsFile);
@@ -591,20 +591,20 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (bootstrapFile.exists() && bootStrapPropertiesPath == null) {
             // if using pre-existing installation, do not delete file
             if (installType != InstallType.ALREADY_EXISTS) {
-                getLog().warn(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
+                getLog().info(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 bootstrapFile.delete();
             }
         } 
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
-                getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
+                getLog().info("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
             }
             bootstrapPropertiesResolved = handleLatePropertyResolution(bootstrapProperties);
             writeBootstrapProperties(bootstrapFile, bootstrapPropertiesResolved, bootstrapMavenProps);
             bootStrapPropertiesPath = "inlined configuration";
         } else if (bootstrapPropertiesFile != null && bootstrapPropertiesFile.exists()) {
             if (bootStrapPropertiesPath != null) {
-                getLog().warn("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
+                getLog().info("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
             }
             Copy copy = (Copy) ant.createTask("copy");
             copy.setFile(bootstrapPropertiesFile);
@@ -626,7 +626,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                     // Do a special case merge but ONLY if there are no other config options present
                     envPropsToWrite = mergeSpecialPropsFromInstallServerEnvIfAbsent(envMavenProps);
                 } else if (serverEnvPath != null) {
-                    getLog().warn("The " + serverEnvPath + " file is overwritten by inlined configuration.");
+                    getLog().info("The " + serverEnvPath + " file is overwritten by inlined configuration.");
                 }
                 writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
@@ -642,7 +642,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         File pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML);
         if (pluginVariableConfig.exists()) {
-            getLog().warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
+            getLog().debug(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!varMavenProps.isEmpty()) {
@@ -651,7 +651,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         pluginVariableConfig = new File(serverDirectory, PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML);
         if (pluginVariableConfig.exists()) {
-            getLog().warn(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
+            getLog().debug(pluginVariableConfig.getCanonicalPath() + " file deleted before processing plugin configuration.");
             pluginVariableConfig.delete();
         }
         if (!defaultVarMavenProps.isEmpty()) {

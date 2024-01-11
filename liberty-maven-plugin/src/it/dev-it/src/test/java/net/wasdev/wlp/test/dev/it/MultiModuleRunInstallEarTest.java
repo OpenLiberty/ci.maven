@@ -51,29 +51,39 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
     */
    @Test
    public void notOverwriteExistingM2Test() throws Exception {
-      // Check that the file was already created (from the run() during setup)
-      File ear = new File(System.getProperty("user.home"), ".m2/repository/io/openliberty/guides/guide-maven-multimodules-ear/1.0-SNAPSHOT/guide-maven-multimodules-ear-1.0-SNAPSHOT.ear");
-      assertTrue(ear.exists());
-      long lastModified = ear.lastModified();
-      waitLongEnough();
+        // Check that the file was already created (from the run() during setup)
+        // Note: The 'run' command does not actually install the app to .m2 since it is using loose app. Sometimes the ear file is already there from
+        // another dev test though that did a 'mvn install'.
+        long newModified = 0;
+        File ear = new File(System.getProperty("user.home"), ".m2/repository/io/openliberty/guides/guide-maven-multimodules-ear/1.0-SNAPSHOT/guide-maven-multimodules-ear-1.0-SNAPSHOT.ear");
+        if (ear.exists()) {
+            long lastModified = ear.lastModified();
+            waitLongEnough();
 
-      // Install the real EAR file through Maven command
-      runMvnInstallEar();
+            // Install the real EAR file through Maven command
+            runMvnInstallEar();
 
-      // Check file is updated
-      long newModified = ear.lastModified();
-      assertNotEquals(lastModified, newModified);
-      waitLongEnough();
+            // Check file is updated
+            newModified = ear.lastModified();
+            assertNotEquals(lastModified, newModified);
 
-      // Cleanup (stop Liberty)
-      cleanUpAfterClass(false);
+        } else {
+            // Install the real EAR file through Maven command
+            runMvnInstallEar();
+            newModified = ear.lastModified();
+        }
+            
+        waitLongEnough();
 
-      // Setup and run Liberty again
-      setUpBeforeClass();
+        // Cleanup (stop Liberty)
+        cleanUpAfterClass(false);
 
-      // Check file is not overwritten by liberty:run
-      long newModified2 = ear.lastModified();
-      assertEquals(newModified2, newModified);
+        // Setup and run Liberty again
+        setUpBeforeClass();
+
+        // Check file is not overwritten by liberty:run
+        long newModified2 = ear.lastModified();
+        assertEquals(newModified2, newModified);
    }
 
    private static void runMvnInstallEar() throws Exception {
