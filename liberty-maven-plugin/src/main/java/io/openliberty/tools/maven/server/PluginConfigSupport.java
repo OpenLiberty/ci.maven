@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2023.
+ * (C) Copyright IBM Corporation 2017, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import io.openliberty.tools.maven.PluginConfigXmlDocument;
 import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.common.CommonLoggerI;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 
@@ -46,6 +47,8 @@ import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
  * 
  */
 public abstract class PluginConfigSupport extends StartDebugMojoSupport {
+
+    protected ServerConfigDocument scd = null;
 
     /**
      * Application directory.
@@ -325,16 +328,14 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     
     protected Set<String> getAppConfigLocationsFromSourceServerXml() {
 
-        ServerConfigDocument scd = null;
-
         File serverXML = new File(serverDirectory, "server.xml");
 
         if (serverXML != null && serverXML.exists()) {
             try {
             Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-            CommonLogger logger = CommonLogger.getInstance(getLog());
+            CommonLogger logger = new CommonLogger(getLog());
             setLog(logger.getLog());
-            scd = ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
+            scd = getServerConfigDocument(logger, serverXML, configDirectory,
                         bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,
                         libertyDirPropertyFiles);
             } catch (Exception e) {
@@ -343,6 +344,15 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
             }
         }
         return scd != null ? scd.getLocations() : new HashSet<String>();
+    }
+
+    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, File configDir, File bootstrapFile,
+            Map<String, String> bootstrapProp, File serverEnvFile, boolean giveConfigDirPrecedence, Map<String, File> libertyDirPropertyFiles) throws IOException {
+        if (scd == null || !scd.getServerXML().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
+            scd = new ServerConfigDocument(log, serverXML, configDir, bootstrapFile, bootstrapProp, serverEnvFile, giveConfigDirPrecedence, libertyDirPropertyFiles);
+        }
+
+        return scd;
     }
 
     protected String getAppsDirectory() {

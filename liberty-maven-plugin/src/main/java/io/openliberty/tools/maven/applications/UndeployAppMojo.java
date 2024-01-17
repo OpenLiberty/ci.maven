@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2023.
+ * (C) Copyright IBM Corporation 2014, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.maven.utils.CommonLogger;
 
 /**
@@ -135,13 +134,13 @@ public class UndeployAppMojo extends DeployMojoSupport {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
             
                 Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-                CommonLogger logger = CommonLogger.getInstance(getLog());
+                CommonLogger logger = new CommonLogger(getLog());
                 setLog(logger.getLog());
-                ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
+                getServerConfigDocument(logger, serverXML, configDirectory,
                 bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                 //appName will be set to a name derived from file if no name can be found.
-                appName = ServerConfigDocument.findNameForLocation(appName);
+                appName = scd.findNameForLocation(appName);
             } catch (Exception e) {
                 getLog().warn(e.getLocalizedMessage());
             } 

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2023.
+ * (C) Copyright IBM Corporation 2019, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,9 @@ import io.openliberty.tools.common.CommonLoggerI;
 
 public class CommonLogger implements CommonLoggerI {
 
-    private static CommonLogger logger = null;
     private Log loggerImpl;
 
-    public static CommonLogger getInstance(Log mojoLogger) {
-        if (logger == null) {
-            logger = new CommonLogger(mojoLogger);
-        } else {
-            logger.setLogger(mojoLogger);
-        }
-
-        return logger;
-    }
-
-    private CommonLogger(Log mojoLogger) {
-        loggerImpl = mojoLogger;
-    }
-
-    private void setLogger(Log mojoLogger) {
+    public CommonLogger(Log mojoLogger) {
         loggerImpl = mojoLogger;
     }
 
