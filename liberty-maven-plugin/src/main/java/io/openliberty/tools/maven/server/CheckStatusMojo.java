@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2023.
+ * (C) Copyright IBM Corporation 2014, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import io.openliberty.tools.ant.ServerTask;
 /**
  * Check a liberty server status
  */
-@Mojo(name = "status")
+@Mojo(name = "status", threadSafe = true)
 public class CheckStatusMojo extends StartDebugMojoSupport {
     
     @Override

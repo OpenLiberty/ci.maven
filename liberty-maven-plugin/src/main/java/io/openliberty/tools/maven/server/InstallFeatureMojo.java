@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2023.
+ * (C) Copyright IBM Corporation 2015, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -39,7 +39,7 @@ import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProper
  * This mojo installs a feature packaged as a Subsystem Archive (esa) to the
  * runtime.
  */
-@Mojo(name = "install-feature")
+@Mojo(name = "install-feature", threadSafe = true)
 public class InstallFeatureMojo extends InstallFeatureSupport {
     
     /**

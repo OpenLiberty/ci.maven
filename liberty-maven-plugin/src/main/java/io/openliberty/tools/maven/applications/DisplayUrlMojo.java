@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2023.
+ * (C) Copyright IBM Corporation 2017, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Display an application URL in the default browser.
  */
-@Mojo(name = "display-url")
+@Mojo(name = "display-url", threadSafe = true)
 public class DisplayUrlMojo extends AbstractMojo {
     
     /**

@@ -44,7 +44,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
  * dependencies with scope compile + system + runtime. 
  * Provided scope transitive dependencies are not included by default (built-in maven behavior).
  */
-@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DeployMojo extends DeployMojoSupport {
     
     @Override

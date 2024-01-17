@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2023.
+ * (C) Copyright IBM Corporation 2017, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import io.openliberty.tools.maven.InstallFeatureSupport;
 /**
  * Compile the JSPs in the src/main/webapp folder.
  */
-@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "compile-jsp", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class CompileJspMojo extends InstallFeatureSupport {
 
     /**

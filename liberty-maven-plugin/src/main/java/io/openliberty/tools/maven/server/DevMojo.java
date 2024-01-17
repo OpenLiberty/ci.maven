@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2023.
+ * (C) Copyright IBM Corporation 2019, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ import io.openliberty.tools.maven.utils.ExecuteMojoUtil;
  * Start a liberty server in dev mode import to set ResolutionScope for TEST as
  * it helps build full transitive dependency classpath
  */
-@Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "dev", requiresDependencyCollection = ResolutionScope.TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class DevMojo extends LooseAppSupport {
 
     private static final String TEST_RUN_ID_PROPERTY_NAME = "liberty.dev.test.run.id";

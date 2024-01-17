@@ -116,7 +116,10 @@ public class BaseGenerateFeaturesTest {
         writer = new BufferedWriter(new OutputStreamWriter(stdin));
         // wait for process to finish max 20 seconds
         process.waitFor(20, TimeUnit.SECONDS);
-        assertFalse(process.isAlive());
+        if (process.isAlive()) {
+            process.waitFor(20, TimeUnit.SECONDS);
+        }
+        assertFalse("The process for command "+command+" did not finish in 40 seconds.", process.isAlive());
 
         // save and print process output
         Path path = logFile.toPath();

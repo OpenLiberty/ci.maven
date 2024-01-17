@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2023.
+ * (C) Copyright IBM Corporation 2021, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -53,7 +53,7 @@ import io.openliberty.tools.maven.ServerFeatureSupport;
  * them in a new featureManager element in a new XML file in the source
  * config/dropins directory.
  */
-@Mojo(name = "generate-features")
+@Mojo(name = "generate-features", threadSafe = true)
 public class GenerateFeaturesMojo extends ServerFeatureSupport {
 
     public static final String FEATURES_FILE_MESSAGE = "The Liberty Maven Plugin has generated Liberty features necessary for your application in "

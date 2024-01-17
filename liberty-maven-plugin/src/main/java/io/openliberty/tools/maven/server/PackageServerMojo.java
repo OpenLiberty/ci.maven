@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2023. 
+ * (C) Copyright IBM Corporation 2014, 2024. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import io.openliberty.tools.ant.ServerTask;
 /**
  * Package a liberty server
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
     private enum PackageFileType {

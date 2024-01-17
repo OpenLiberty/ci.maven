@@ -33,7 +33,7 @@ import io.openliberty.tools.maven.utils.CommonLogger;
  * Undeploy application from liberty server. If no parameters have been defined
  * the mojo will undeploy all applications from the server.
  */
-@Mojo(name = "undeploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "undeploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 
 public class UndeployAppMojo extends DeployMojoSupport {
 

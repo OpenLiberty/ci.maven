@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2015, 2020.
+ * (C) Copyright IBM Corporation 2015, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -34,7 +34,7 @@ import java.lang.StringBuilder;
  * This mojo uninstalls a feature packaged as a Subsystem Archive (esa) from the
  * runtime.
  */
-@Mojo(name = "uninstall-feature")
+@Mojo(name = "uninstall-feature", threadSafe = true)
 
 public class UninstallFeatureMojo extends BasicSupport {
     
