@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2023.
+ * (C) Copyright IBM Corporation 2014, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.apache.maven.project.MavenProject;
 import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
-import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 
 /**
@@ -45,7 +44,7 @@ import io.openliberty.tools.common.plugins.util.DevUtil;
  * dependencies with scope compile + system + runtime. 
  * Provided scope transitive dependencies are not included by default (built-in maven behavior).
  */
-@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DeployMojo extends DeployMojoSupport {
     
     @Override
@@ -304,7 +303,7 @@ public class DeployMojo extends DeployMojoSupport {
     private void cleanupPreviousExecution() {
         if (ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).exists()) {
             ApplicationXmlDocument.getApplicationXmlFile(serverDirectory).delete();
-            ServerConfigDocument.markInstanceStale();
+            scd = null;  // force reinitialization of ServerConfigDocument
         }
     }
 

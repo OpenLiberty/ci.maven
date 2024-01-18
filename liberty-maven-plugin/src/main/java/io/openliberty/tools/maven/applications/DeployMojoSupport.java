@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2023.
+ * (C) Copyright IBM Corporation 2016, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,8 @@ import io.openliberty.tools.maven.utils.SpringBootUtil;
 import io.openliberty.tools.common.plugins.config.ApplicationXmlDocument;
 import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
-import io.openliberty.tools.common.plugins.config.ServerConfigDocument;
 import io.openliberty.tools.common.plugins.util.DevUtil;
-import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
-import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 import io.openliberty.tools.common.plugins.util.OSUtil;
-import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 
 /**
  * Support for installing and deploying applications to a Liberty server.
@@ -317,13 +313,13 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
                 try {
                     Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
-                    CommonLogger logger = CommonLogger.getInstance(getLog());
+                    CommonLogger logger = new CommonLogger(getLog());
                     setLog(logger.getLog());
-                    ServerConfigDocument.getInstance(logger, serverXML, configDirectory,
+                    getServerConfigDocument(logger, serverXML, configDirectory,
                             bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
 
                     //appName will be set to a name derived from appFile if no name can be found.
-                    appName = ServerConfigDocument.findNameForLocation(appFile);
+                    appName = scd.findNameForLocation(appFile);
                 } catch (Exception e) {
                     getLog().warn(e.getLocalizedMessage());
                     getLog().debug(e);

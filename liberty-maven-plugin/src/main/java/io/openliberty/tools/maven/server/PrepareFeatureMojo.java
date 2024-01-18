@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2023.
+ * (C) Copyright IBM Corporation 2021, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,7 +31,7 @@ import io.openliberty.tools.maven.PrepareFeatureSupport;
  * This mojo generates JSON files so user features can be installed
  * from a specified BOM
  */
-@Mojo(name = "prepare-feature")
+@Mojo(name = "prepare-feature", threadSafe = true)
 public class PrepareFeatureMojo extends PrepareFeatureSupport {
 	    
     @Override

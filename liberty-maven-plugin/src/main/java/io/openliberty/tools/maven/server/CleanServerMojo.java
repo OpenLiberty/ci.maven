@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2023.
+ * (C) Copyright IBM Corporation 2016, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import io.openliberty.tools.ant.CleanTask;
 /**
  * Clean the logs, workarea, dropins and apps directories.
  */
-@Mojo(name = "clean")
+@Mojo(name = "clean", threadSafe = true)
 public class CleanServerMojo extends StartDebugMojoSupport {
 
     /**

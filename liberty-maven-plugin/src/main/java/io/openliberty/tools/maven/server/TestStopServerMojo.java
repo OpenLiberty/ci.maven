@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2019.
+ * (C) Copyright IBM Corporation 2017, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Quickly bypass stopping server if server isn't started
  */
-@Mojo(name = "test-stop")
+@Mojo(name = "test-stop", threadSafe = true)
 
 public class TestStopServerMojo extends StopServerMojo {
     

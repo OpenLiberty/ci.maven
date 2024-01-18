@@ -85,7 +85,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     private static final String LATE_PROP_RESOLUTION_SYNTAX = "@\\{(.+?)\\}";
     private static final Pattern LATE_PROP_PATTERN = Pattern.compile(LATE_PROP_RESOLUTION_SYNTAX);
 
-    private static boolean configFilesCopied = false;
+    private boolean configFilesCopied = false;
 
     protected final String PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
     protected final String PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML = "configDropins/defaults/liberty-plugin-variable-config.xml";
@@ -1030,7 +1030,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
-    public static boolean isConfigCopied() {
+    public boolean isConfigCopied() {
         return configFilesCopied;
     }
 
