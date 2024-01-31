@@ -54,6 +54,8 @@ public class ServerConfigPropertiesTest {
     @BeforeClass
     public static void setup() throws Exception {
         factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false); 
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);    
         builder = factory.newDocumentBuilder();
 
         xpathFactory = XPathFactory.newInstance();
