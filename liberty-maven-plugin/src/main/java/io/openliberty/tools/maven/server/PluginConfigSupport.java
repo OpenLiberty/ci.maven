@@ -98,6 +98,20 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         return deployPackages;
     }
 
+    /**
+     * @throws IOException
+     * @throws MojoExecutionException
+     */
+    @Override
+    protected void copyConfigFiles() throws IOException, MojoExecutionException {
+        try {
+            super.copyConfigFiles();
+            exportParametersToXml();
+        } catch (IOException | ParserConfigurationException |  TransformerException e) {
+            throw new MojoExecutionException("Error copying configuration files to Liberty server directory.", e);            
+        }
+    }
+
     /*
      * Export plugin configuration parameters to
      * target/liberty-plugin-config.xml
