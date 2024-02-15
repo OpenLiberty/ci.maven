@@ -130,7 +130,7 @@ public class ServerConfigPropertiesTest {
 
         //Check app name/appsDir resolved correctly during create, deploy, and start
         Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);
-        Assert.assertEquals("appsDirMessage size: " + appDirMatches.size(), 3, appDirMatches.size()); // once for each goal
+        Assert.assertEquals("appsDirMessage size: " + appDirMatches.size(), 3, appDirMatches.size()); // once for each goal - create, deploy and start
         Assert.assertTrue("Did not find app install message in console output", appInstalledMatches.size() == 1);
 
         String appMessage = appInstalledMatches.get(0);

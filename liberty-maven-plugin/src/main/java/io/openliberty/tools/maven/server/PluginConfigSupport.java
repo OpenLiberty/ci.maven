@@ -99,6 +99,8 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     /**
+     * Overriding this method to add the export of the parameters to the xml file. This method will get called for the
+     * following goals: create, deploy, run and dev
      * @throws IOException
      * @throws MojoExecutionException
      */
