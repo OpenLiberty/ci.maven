@@ -82,7 +82,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     @Override
     protected void installServerAssembly() throws MojoExecutionException {
         try {
-            File f = exportParametersToXml();
+            File f = exportParametersToXml(false);
             super.installServerAssembly();
             this.buildContext.refresh(f);
             this.buildContext.refresh(installDirectory);
@@ -119,76 +119,35 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
      * target/liberty-plugin-config.xml
      */
     protected File exportParametersToXml() throws IOException, ParserConfigurationException, TransformerException {
+        return exportParametersToXml(true);
+    }
+
+    /*
+     * Export plugin configuration parameters to
+     * target/liberty-plugin-config.xml
+     */
+    protected File exportParametersToXml(boolean includeServerInfo) throws IOException, ParserConfigurationException, TransformerException {
         PluginConfigXmlDocument configDocument = PluginConfigXmlDocument.newInstance("liberty-plugin-config");
 
-        List<Profile> profiles = project.getActiveProfiles();
-        configDocument.createActiveBuildProfilesElement("activeBuildProfiles", profiles);
-
+        // install related info (common parameters)
         configDocument.createElement("installDirectory", installDirectory);
-        configDocument.createElement("serverDirectory", serverDirectory);
-        configDocument.createElement("userDirectory", userDirectory);
-        configDocument.createElement("serverOutputDirectory", new File(outputDirectory, serverName));
-        configDocument.createElement("serverName", serverName);
-        configDocument.createElement("configDirectory", configDirectory);
-
-        File configFile = findConfigFile("server.xml", serverXmlFile);
-        if (configFile != null) {
-            configDocument.createElement("configFile", configFile);
-        }
-
-        if (combinedBootstrapProperties != null) {
-            configDocument.createElement("bootstrapProperties", combinedBootstrapProperties);
-        } else if (bootstrapProperties != null) {
-            if (bootstrapPropertiesResolved == null) {
-                bootstrapPropertiesResolved = handleLatePropertyResolution(bootstrapProperties);
-            }
-            configDocument.createElement("bootstrapProperties", bootstrapPropertiesResolved);
-        } else {
-            configFile = findConfigFile("bootstrap.properties", bootstrapPropertiesFile);
-            if (configFile != null) {
-                configDocument.createElement("bootstrapPropertiesFile", configFile);
-            }
-        }
-
-        if (combinedJvmOptions != null) {
-            configDocument.createElement("jvmOptions", combinedJvmOptions);
-        } else if (jvmOptions != null) {
-            if (jvmOptionsResolved == null) {
-                jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
-            }
-            List<String> uniqueOptions = getUniqueValues(jvmOptionsResolved);
-            configDocument.createElement("jvmOptions", uniqueOptions);
-        } else {
-            configFile = findConfigFile("jvm.options", jvmOptionsFile);
-            if (configFile != null) {
-                configDocument.createElement("jvmOptionsFile", configFile);
-            }
-        }
-
-        // Only write the serverEnvFile path if it was not overridden by liberty.env.{var} Maven properties.
-        if (envMavenProps.isEmpty()) {
-            configFile = findConfigFile("server.env", serverEnvFile);
-            if (configFile != null) {
-                configDocument.createElement("serverEnv", configFile);
-            }
-        }
-
-        if (isConfigCopied()) {
-            configDocument.createElement("appsDirectory", getAppsDirectory());
-        }
-
-        configDocument.createElement("looseApplication", looseApplication);
-        configDocument.createElement("stripVersion", stripVersion);
-        configDocument.createElement("installAppPackages", getDeployPackages());
-        configDocument.createElement("applicationFilename", getApplicationFilename());
         configDocument.createElement("assemblyArtifact", assemblyArtifact);
         configDocument.createElement("assemblyArchive", assemblyArchive);
         configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
         configDocument.createElement("refresh", refresh);
         configDocument.createElement("install", install);
 
-        configDocument.createElement("installAppsConfigDropins",
-                ApplicationXmlDocument.getApplicationXmlFile(serverDirectory));
+        // even though these are related to the server, they are specified in the common parameters for the install
+        // and are initialized in the BasicSupport.init() method.
+        configDocument.createElement("serverDirectory", serverDirectory);
+        configDocument.createElement("userDirectory", userDirectory);
+        configDocument.createElement("serverOutputDirectory", new File(outputDirectory, serverName));
+        configDocument.createElement("serverName", serverName);
+
+        // project related info
+        List<Profile> profiles = project.getActiveProfiles();
+        configDocument.createActiveBuildProfilesElement("activeBuildProfiles", profiles);
+
         configDocument.createElement("projectType", project.getPackaging());
         if (project.getParent() != null && !project.getParent().getModules().isEmpty()) {
             configDocument.createElement("aggregatorParentId", project.getParent().getArtifactId());
@@ -208,6 +167,67 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
 
         // include warSourceDirectory for liberty-assembly project with source
         configDocument.createElement("warSourceDirectory", getLibertyAssemblyWarSourceDirectory(project));
+
+        if (includeServerInfo) {
+            // include all info related specifically to the server (commmon server parameters)
+             configDocument.createElement("configDirectory", configDirectory);
+
+            File configFile = findConfigFile("server.xml", serverXmlFile);
+            if (configFile != null) {
+                configDocument.createElement("configFile", configFile);
+            }
+
+            if (combinedBootstrapProperties != null) {
+                configDocument.createElement("bootstrapProperties", combinedBootstrapProperties);
+            } else if (bootstrapProperties != null) {
+                if (bootstrapPropertiesResolved == null) {
+                    bootstrapPropertiesResolved = handleLatePropertyResolution(bootstrapProperties);
+                }
+                configDocument.createElement("bootstrapProperties", bootstrapPropertiesResolved);
+            } else {
+                configFile = findConfigFile("bootstrap.properties", bootstrapPropertiesFile);
+                if (configFile != null) {
+                    configDocument.createElement("bootstrapPropertiesFile", configFile);
+                }
+            }
+
+            if (combinedJvmOptions != null) {
+                configDocument.createElement("jvmOptions", combinedJvmOptions);
+            } else if (jvmOptions != null) {
+                if (jvmOptionsResolved == null) {
+                    jvmOptionsResolved = handleLatePropertyResolution(jvmOptions);
+                }
+                List<String> uniqueOptions = getUniqueValues(jvmOptionsResolved);
+                configDocument.createElement("jvmOptions", uniqueOptions);
+            } else {
+                configFile = findConfigFile("jvm.options", jvmOptionsFile);
+                if (configFile != null) {
+                    configDocument.createElement("jvmOptionsFile", configFile);
+                }
+            }
+
+            // Only write the serverEnvFile path if it was not overridden by liberty.env.{var} Maven properties.
+            if (envMavenProps.isEmpty()) {
+                configFile = findConfigFile("server.env", serverEnvFile);
+                if (configFile != null) {
+                    configDocument.createElement("serverEnv", configFile);
+                }
+            }
+
+            // include info related to apps
+            if (isConfigCopied()) {
+                configDocument.createElement("appsDirectory", getAppsDirectory());
+            }
+
+            configDocument.createElement("looseApplication", looseApplication);
+            configDocument.createElement("stripVersion", stripVersion);
+            configDocument.createElement("installAppPackages", getDeployPackages());
+            configDocument.createElement("applicationFilename", getApplicationFilename());
+
+
+            configDocument.createElement("installAppsConfigDropins",
+                    ApplicationXmlDocument.getApplicationXmlFile(serverDirectory));
+        }
 
         // write XML document to file
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
