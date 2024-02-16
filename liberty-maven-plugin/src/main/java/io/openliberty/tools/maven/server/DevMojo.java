@@ -1992,7 +1992,12 @@ public class DevMojo extends LooseAppSupport {
             if (installDirectory != null) {
                 try {
                     File installDirectoryCanonicalFile = installDirectory.getCanonicalFile();
-                    // Quick check to see if a Liberty installation exists at the installDirectory
+                    // Quick check to see if a Liberty installation exists at the installDirectory CLK999
+                    // Do not mark this as a non-new installation if the installDirectory is different than
+                    // the previous one listed in liberty-plugin-config.xml? But the only way it already exists
+                    // and is different is if it is an external installation, which should then be managed outside
+                    // of the plugin goals as far as feature installation goes. So perhaps we leave it be, but
+                    // print a log message to indicate we detected a change in install directory location?
                     File file = new File(installDirectoryCanonicalFile, "lib/ws-launch.jar");
                     if (file.exists()) {
                         this.isNewInstallation = false;

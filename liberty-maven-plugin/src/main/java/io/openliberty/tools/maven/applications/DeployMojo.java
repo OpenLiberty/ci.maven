@@ -72,7 +72,6 @@ public class DeployMojo extends DeployMojoSupport {
 
         // update target server configuration
         copyConfigFiles();
-        exportParametersToXml();
         
         boolean installDependencies = false;
         boolean installProject = false;
