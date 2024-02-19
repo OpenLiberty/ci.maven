@@ -589,11 +589,24 @@ public class DevMojo extends LooseAppSupport {
             return true;
         }
 
+        private static final String LIBERTY_RUNTIME_PROP = "liberty.runtime.";
         private static final String LIBERTY_BOOTSTRAP_PROP = "liberty.bootstrap.";
         private static final String LIBERTY_JVM_PROP = "liberty.jvm.";
         private static final String LIBERTY_ENV_PROP = "liberty.env.";
         private static final String LIBERTY_VAR_PROP = "liberty.var.";
         private static final String LIBERTY_DEFAULT_VAR_PROP = "liberty.defaultVar.";
+
+        private boolean hasInstallationPropChanged(MavenProject project, MavenProject backupProject) {
+            Properties projProp = project.getProperties();
+            Properties backupProjProp = backupProject.getProperties();
+
+            if (!Objects.equals(getPropertiesWithKeyPrefix(projProp, LIBERTY_RUNTIME_PROP),
+                    getPropertiesWithKeyPrefix(backupProjProp, LIBERTY_RUNTIME_PROP))) {
+                return true;
+            }
+
+            return false;
+        }
 
         private boolean hasServerPropertyChanged(MavenProject project, MavenProject backupProject) {
             Properties projProp = project.getProperties();
@@ -646,6 +659,39 @@ public class DevMojo extends LooseAppSupport {
             } else if (!Objects.equals(config.getChild("serverEnvFile"), oldConfig.getChild("serverEnvFile"))) {
                 return true;
             } else if (!Objects.equals(config.getChild("configDirectory"), oldConfig.getChild("configDirectory"))) {
+                return true;
+            }
+            return false;
+        }
+
+        private boolean hasInstallationConfigChanged(Xpp3Dom config, Xpp3Dom oldConfig) {
+            if (!Objects.equals(config.getChild("installDirectory"), oldConfig.getChild("installDirectory"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("runtimeArchive"), oldConfig.getChild("runtimeArchive"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("runtimeArtifact"), oldConfig.getChild("runtimeArtifact"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("assemblyArchive"), oldConfig.getChild("assemblyArchive"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("assemblyArtifact"), oldConfig.getChild("assemblyArtifact"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("libertyRuntimeGroupId"), oldConfig.getChild("libertyRuntimeGroupId"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("libertyRuntimeArtifactId"), oldConfig.getChild("libertyRuntimeArtifactId"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("libertyRuntimeVersion"), oldConfig.getChild("libertyRuntimeVersion"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("serverName"), oldConfig.getChild("serverName"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("userDirectory"), oldConfig.getChild("userDirectory"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("outputDirectory"), oldConfig.getChild("outputDirectory"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("runtimeInstallDirectory"), oldConfig.getChild("runtimeInstallDirectory"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("assemblyInstallDirectory"), oldConfig.getChild("assemblyInstallDirectory"))) {
+                return true;
+            } else if (!Objects.equals(config.getChild("install"), oldConfig.getChild("install"))) {
                 return true;
             }
             return false;
@@ -913,6 +959,7 @@ public class DevMojo extends LooseAppSupport {
             // - liberty.* properties in project properties section
             // - changes in liberty plugin configuration in the build plugin section
             // - project dependencies changes
+            boolean reinstallLiberty = false; // if this gets set to true, need to throw PluginExecutionException so user can run 'clean'
             boolean restartServer = false;
             boolean createServer = false;
             boolean installFeature = false;
@@ -949,6 +996,13 @@ public class DevMojo extends LooseAppSupport {
                 }
 
                 // Monitoring liberty properties in the pom.xml
+                if (hasInstallationPropChanged(project, backupProject)) {
+                    // Note that a change in some config values requires a 'clean' because the install location is the same, but the
+                    // artifact that gets installed would be different. This can happen when using 'libertyRuntime' for example and
+                    // only changing the 'version'. 
+                    reinstallLiberty = true;
+                    getLog().error("A change in Liberty runtime installation configuration requires a 'clean'. Stopping dev mode.");
+                }
                 if (hasServerPropertyChanged(project, backupProject)) {
                     restartServer = true;
                 }
@@ -966,6 +1020,14 @@ public class DevMojo extends LooseAppSupport {
                         createServer = true;
                         if (restartForLibertyMojoConfigChanged(config, oldConfig)) {
                             restartServer = true;
+                        }
+                        if (hasInstallationConfigChanged(config, oldConfig)) {
+                            // Note that a change in some config values requires a 'clean' because the install location is the same, but the
+                            // artifact that gets installed would be different. This can happen when using 'runtimeArtifact' for example and
+                            // only changing the 'version'. 
+                            //throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a 'clean'. After running the 'clean' goal, please run the 'dev' goal again for the change to take effect.");
+                            reinstallLiberty = true;
+                            getLog().error("A change in Liberty runtime installation configuration requires a 'clean'. Stopping dev mode.");
                         }
                     }
                 }
@@ -1054,7 +1116,12 @@ public class DevMojo extends LooseAppSupport {
                     getLog().warn("Change detected in the set of resource directories, since dev mode was first launched. Adding/deleting a resource directory has no change on the set of directories monitored by dev mode.  Changing the watch list will require a dev mode restart");
                 }                
                 
-                if (restartServer) {
+                if (reinstallLiberty) {
+                    project = backupProject;
+                    session.setCurrentProject(backupProject);
+                    util.stopServer();
+                    throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a 'clean'. After running the 'clean' goal, please run the 'dev' goal again for the change to take effect.");
+                } else if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
                     // - install feature
@@ -1077,7 +1144,7 @@ public class DevMojo extends LooseAppSupport {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
                     }
                 }
-                if (!(restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
+                if (!(reinstallLiberty || restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
                     // updated project set in the session
                     getLog().debug("changes in the pom.xml are not monitored by dev mode");
