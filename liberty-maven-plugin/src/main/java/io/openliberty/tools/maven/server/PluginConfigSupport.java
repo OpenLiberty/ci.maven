@@ -51,7 +51,8 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     protected ServerConfigDocument scd = null;
 
     /**
-     * Application directory.
+     * Application directory. Either "apps" or "dropins". This defaults to "apps" when there is 
+     * some application configured in server XML config and "dropins" when there is not.
      */
     @Parameter(property = "appsDirectory")
     protected String appsDirectory;
@@ -69,7 +70,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     protected boolean looseApplication;
 
     /**
-     * Packages to install. One of "all", "dependencies" or "project".
+     * Packages to install. One of "all", "dependencies", "project", or "spring-boot-project".
      */
     @Parameter(property = "deployPackages", defaultValue = "project", alias = "installAppPackages")
     private String deployPackages;
