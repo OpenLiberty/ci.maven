@@ -997,9 +997,7 @@ public class DevMojo extends LooseAppSupport {
 
                 // Monitoring liberty properties in the pom.xml
                 if (hasInstallationPropChanged(project, backupProject)) {
-                    // Note that a change in some config values requires a 'clean' because the install location is the same, but the
-                    // artifact that gets installed would be different. This can happen when using 'libertyRuntime' for example and
-                    // only changing the 'version'. 
+                    // Note that a change in installation config values requires a restart of dev mode. 
                     reinstallLiberty = true;
                     getLog().error("A change in Liberty runtime installation configuration requires a restart of dev mode. Stopping dev mode.");
                 }
@@ -1022,10 +1020,7 @@ public class DevMojo extends LooseAppSupport {
                             restartServer = true;
                         }
                         if (hasInstallationConfigChanged(config, oldConfig)) {
-                            // Note that a change in some config values requires a 'clean' because the install location is the same, but the
-                            // artifact that gets installed would be different. This can happen when using 'runtimeArtifact' for example and
-                            // only changing the 'version'. 
-                            //throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a 'clean'. After running the 'clean' goal, please run the 'dev' goal again for the change to take effect.");
+                            // Note that a change in installation config values requires a restart of dev mode. 
                             reinstallLiberty = true;
                             getLog().error("A change in Liberty runtime installation configuration requires a restart of dev mode. Stopping dev mode.");
                         }
