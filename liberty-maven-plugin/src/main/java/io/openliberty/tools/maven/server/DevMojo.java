@@ -1001,7 +1001,7 @@ public class DevMojo extends LooseAppSupport {
                     // artifact that gets installed would be different. This can happen when using 'libertyRuntime' for example and
                     // only changing the 'version'. 
                     reinstallLiberty = true;
-                    getLog().error("A change in Liberty runtime installation configuration requires a 'clean'. Stopping dev mode.");
+                    getLog().error("A change in Liberty runtime installation configuration requires a restart of dev mode. Stopping dev mode.");
                 }
                 if (hasServerPropertyChanged(project, backupProject)) {
                     restartServer = true;
@@ -1027,7 +1027,7 @@ public class DevMojo extends LooseAppSupport {
                             // only changing the 'version'. 
                             //throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a 'clean'. After running the 'clean' goal, please run the 'dev' goal again for the change to take effect.");
                             reinstallLiberty = true;
-                            getLog().error("A change in Liberty runtime installation configuration requires a 'clean'. Stopping dev mode.");
+                            getLog().error("A change in Liberty runtime installation configuration requires a restart of dev mode. Stopping dev mode.");
                         }
                     }
                 }
@@ -1120,7 +1120,7 @@ public class DevMojo extends LooseAppSupport {
                     project = backupProject;
                     session.setCurrentProject(backupProject);
                     util.stopServer();
-                    throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a 'clean'. After running the 'clean' goal, please run the 'dev' goal again for the change to take effect.");
+                    throw new PluginExecutionException("A change in Liberty runtime installation configuration requires a restart of dev mode. Please run the 'dev' goal again for the change to take effect.");
                 } else if (restartServer) {
                     // - stop Server
                     // - create server or runBoostMojo
