@@ -132,9 +132,11 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
 
         // install related info (common parameters)
         configDocument.createElement("installDirectory", installDirectory);
-        configDocument.createElement("assemblyArtifact", assemblyArtifact);
-        configDocument.createElement("assemblyArchive", assemblyArchive);
-        configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);
+        if (installType != InstallType.ALREADY_EXISTS) {
+            configDocument.createElement("assemblyArtifact", assemblyArtifact);
+            configDocument.createElement("assemblyArchive", assemblyArchive);
+            configDocument.createElement("assemblyInstallDirectory", assemblyInstallDirectory);    
+        }
         configDocument.createElement("refresh", refresh);
         configDocument.createElement("install", install);
 
