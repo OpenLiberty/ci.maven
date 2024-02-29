@@ -168,12 +168,12 @@ public abstract class ServerFeatureSupport extends BasicSupport {
                     + ". Specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
         }
     }
-
+    
     /**
      * Returns whether potentialTopModule is a multi module project that has
      * potentialSubModule as one of its sub-modules.
      */
-    private static boolean isSubModule(MavenProject potentialTopModule, MavenProject potentialSubModule) {
+    protected static boolean isSubModule(MavenProject potentialTopModule, MavenProject potentialSubModule) {
         List<String> multiModules = potentialTopModule.getModules();
         if (multiModules != null) {
             for (String module : multiModules) {

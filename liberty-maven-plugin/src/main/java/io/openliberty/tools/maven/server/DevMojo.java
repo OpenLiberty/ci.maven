@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1277,7 +1278,14 @@ public class DevMojo extends LooseAppSupport {
         List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
-            checkMultiModuleConflicts(graph);
+        	
+        	// In a multi-module build, dev mode will only be run on one project (the farthest downstream) and compile will
+        	// be run on any relative upstream projects. If this current project in the Maven Reactor is not one of those projects, skip it.  
+        	List<MavenProject> devModeProjects = getMultiModuleDevModeProjects(graph);
+        	if (!devModeProjects.contains(project)) {
+        		getLog().info("\nSkipping dev goal.\n");
+        		return;
+        	}
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
 
@@ -1563,6 +1571,89 @@ public class DevMojo extends LooseAppSupport {
 
         doDevMode();
     }
+    
+    protected List<MavenProject> getMultiModuleDevModeProjects(ProjectDependencyGraph graph) throws MojoExecutionException {
+    	getLog().debug("Resolve dev mode projects");
+    	
+        List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
+        Set<MavenProject> conflicts = new LinkedHashSet<MavenProject>(); // keeps the order of items added in
+
+        // A leaf here is a module without any downstream modules depending on it
+        List<MavenProject> leaves = new ArrayList<MavenProject>();
+        for (MavenProject reactorProject : sortedReactorProjects) {
+            if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
+                leaves.add(reactorProject);
+                getLog().debug("Found final downstream project: " + reactorProject.getArtifactId());
+            }
+        }
+        
+        // Remove jar projects since these are not relavent to dev mode
+        List<MavenProject> jarLeaves = new ArrayList<MavenProject>();
+        for (MavenProject leaf : leaves) {
+        	if (leaf.getPackaging().equals("jar")) {
+        		jarLeaves.add(leaf);
+        		getLog().debug("Removing jar project: " + leaf.getArtifactId());
+        	}
+        }
+        leaves.removeAll(jarLeaves);
+        
+        // Remove any projects that are configured to be skipped
+        List<MavenProject> skipLeaves = new ArrayList<MavenProject>();
+        for (MavenProject leaf : leaves) {
+        	
+            // Properties that are set in the pom file
+            Properties props = leaf.getProperties();
+
+            // Properties that are set by user via CLI parameters
+            Properties userProps = session.getUserProperties();
+        	Plugin libertyPlugin = getLibertyPluginForProject(leaf);
+            Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "dev", getLog());
+            
+            boolean skipGoal = DevHelper.getBooleanFlag(config, userProps, props, "skip");
+            
+        	if (skipGoal) {
+        		getLog().debug("Skip configured on project: " + leaf.getArtifactId());
+        		skipLeaves.add(leaf);
+        	}
+        }
+        leaves.removeAll(skipLeaves);
+        
+        // Find any remaining conflicts
+        for (MavenProject leaf1 : leaves) {
+            for (MavenProject leaf2 : leaves) {
+                if (leaf1 != leaf2 && !(isSubModule(leaf2, leaf1) || isSubModule(leaf1, leaf2)) ) {
+                    conflicts.add(leaf1);
+                    conflicts.add(leaf2);
+                }
+            }
+        }
+        
+        if (conflicts.isEmpty() ) {
+        	List<MavenProject> devModeProjects = new ArrayList<MavenProject>();
+        	for (MavenProject leaf : leaves) {
+        		devModeProjects.addAll(graph.getUpstreamProjects(leaf, true));
+        		devModeProjects.add(leaf);
+        	}
+        	
+        	for (MavenProject project : devModeProjects) {
+        		getLog().debug("Dev mode projects list: ");
+        		getLog().debug(project.getArtifactId());
+        	}
+        	return devModeProjects;
+        } else {
+        	
+        	List<String> conflictModuleRelativeDirs = new ArrayList<String>();
+            for (MavenProject conflict : conflicts) {
+                // Make the module path relative to the multi-module project directory
+                conflictModuleRelativeDirs.add(getModuleRelativePath(conflict));
+            }
+            
+            throw new MojoExecutionException("Found multiple independent modules in the Reactor build order: "
+                    + conflictModuleRelativeDirs
+                    + ". Skip a conflicting module in the Liberty configuration or specify the module containing the Liberty configuration that you want to use for the server by including the following parameters in the Maven command: -pl <module-with-liberty-config> -am");
+        }
+    }
+
 
     /**
      * Update map with list of parent poms and their subsequent child poms
