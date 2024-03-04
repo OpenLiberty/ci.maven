@@ -5,6 +5,12 @@ multipleLibertyModules)  pom, ear1+war+jar, ear2+war+jar
 - Main pom: ./pom.xml
 - Tests exist in every module
 
+multipleLibertyModules-skip-conflicts)  pom, ear1+war+jar, ear2+war+jar, jar2
+- Server info in ear1 and ear2 modules
+- Main pom: ./pom.xml
+- Tests exist in every module
+- ear2 has <skip>true</skip> configured in LMP configuration
+
 sample.ejb) pom, ear+war+ejb
 - Based on https://github.com/WASdev/sample.ejb
 

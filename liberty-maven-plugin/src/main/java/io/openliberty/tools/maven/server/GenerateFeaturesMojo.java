@@ -116,7 +116,15 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         List<MavenProject> upstreamProjects = new ArrayList<MavenProject>();
         if (graph != null) {
-            checkMultiModuleConflicts(graph);
+        	
+        	// In a multi-module build, generate-features will only be run on one project (the farthest downstream). 
+        	// If this current project in the Maven Reactor is not that project or any of its upstream projects, skip it.  
+        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph);
+        	if (!relevantProjects.contains(project)) {
+        		getLog().info("\nSkipping module " + project.getArtifactId() + " which is not configured for the generate-features goal.\n");
+        		return;
+        	}
+        	
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 getLog().debug("Downstream projects: " + downstreamProjects);
