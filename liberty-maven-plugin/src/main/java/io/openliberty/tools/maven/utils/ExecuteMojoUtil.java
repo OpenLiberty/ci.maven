@@ -371,9 +371,12 @@ public class ExecuteMojoUtil {
         case "maven-war-plugin:war":
             goalConfig = stripConfigElements(config, WAR_PARAMS);
             break;
+        case "liberty-maven-plugin:dev":
+        	goalConfig = config;
+            break;
         default:
             goalConfig = config;
-            log.info("skip execution goal configuration validation for " + executionGoal);
+            log.debug("skip execution goal configuration validation for " + executionGoal);
             break;
         }
         return goalConfig;

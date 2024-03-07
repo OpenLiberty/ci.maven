@@ -65,7 +65,14 @@ public class RunServerMojo extends PluginConfigSupport {
         boolean hasDownstreamProjects = false;
         ProjectDependencyGraph graph = session.getProjectDependencyGraph();
         if (graph != null) {
-            checkMultiModuleConflicts(graph);
+        	
+        	// In a multi-module build, the run server goal will only be run on one project (the farthest downstream) and compile will
+        	// be run on any relative upstream projects. If this current project in the Maven Reactor is not one of those projects, skip it.  
+        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph);
+        	if (!relevantProjects.contains(project)) {
+        		getLog().info("\nSkipping module " + project.getArtifactId() + " which is not included in this invocation of the run goal.\n");
+        		return;
+        	}
 
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {

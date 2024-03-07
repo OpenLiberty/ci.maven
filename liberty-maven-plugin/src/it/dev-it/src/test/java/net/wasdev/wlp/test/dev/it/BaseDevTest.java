@@ -467,6 +467,11 @@ public class BaseDevTest {
       }
       return false;
    }
+   
+   protected static boolean verifyLogMessageDoesNotExist(String message, int timeout)
+	         throws InterruptedException, FileNotFoundException, IOException {
+      return verifyLogMessageDoesNotExist(message, timeout, logFile);
+   }
 
    protected static boolean verifyLogMessageDoesNotExist(String message, int timeout, File log)
          throws InterruptedException, FileNotFoundException, IOException {
