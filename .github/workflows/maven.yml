@@ -45,11 +45,12 @@ jobs:
       with:
         tool-cache: false
         large-packages: false
-    - name: Checkout ci.common
+    - name: Checkout dshimo ci.common
       uses: actions/checkout@v3
       with:
-        repository: OpenLiberty/ci.common
+        repository: dshimo/ci.common
         path: ci.common
+        ref: varProcessing
     - name: Checkout ci.ant
       uses: actions/checkout@v3
       with:
