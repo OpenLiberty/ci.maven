@@ -88,7 +88,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.32</version>
+            <version>1.8.33-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
