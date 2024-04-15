@@ -1342,7 +1342,11 @@ public class DevMojo extends LooseAppSupport {
         	
         	// In a multi-module build, dev mode will only be run on one project (the farthest downstream) and compile will
         	// be run on any relative upstream projects. If this current project in the Maven Reactor is not one of those projects, skip it.  
-        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph);
+        	boolean skipJars = true;
+        	if("spring-boot-project".equals(getDeployPackages())) {
+        		skipJars = false;
+        	}
+        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph, skipJars);
         	if (!relevantProjects.contains(project)) {
         		getLog().info("\nSkipping module " + project.getArtifactId() + " which is not included in this invocation of dev mode.\n");
         		return;

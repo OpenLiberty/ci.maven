@@ -54,7 +54,7 @@ import io.openliberty.tools.maven.ServerFeatureSupport;
  * config/dropins directory.
  */
 @Mojo(name = "generate-features", threadSafe = true)
-public class GenerateFeaturesMojo extends ServerFeatureSupport {
+public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     public static final String FEATURES_FILE_MESSAGE = "The Liberty Maven Plugin has generated Liberty features necessary for your application in "
             + GENERATED_FEATURES_FILE_PATH;
@@ -119,7 +119,11 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
         	
         	// In a multi-module build, generate-features will only be run on one project (the farthest downstream). 
         	// If this current project in the Maven Reactor is not that project or any of its upstream projects, skip it.  
-        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph);
+        	boolean skipJars = true;
+        	if("spring-boot-project".equals(getDeployPackages())) {
+        		skipJars = false;
+        	}
+        	List<MavenProject> relevantProjects = getRelevantMultiModuleProjects(graph, skipJars);
         	if (!relevantProjects.contains(project)) {
         		getLog().info("\nSkipping module " + project.getArtifactId() + " which is not configured for the generate-features goal.\n");
         		return;
@@ -365,22 +369,6 @@ public class GenerateFeaturesMojo extends ServerFeatureSupport {
                     + ".jar configured in your pom.xml.",
                     e);
         }
-    }
-
-    /*
-     * Return specificFile if it exists; otherwise return the file with the requested fileName from the 
-     * configDirectory, but only if it exists. Null is returned if the file does not exist in either location.
-     */
-    private File findConfigFile(String fileName, File specificFile) {
-        if (specificFile != null && specificFile.exists()) {
-            return specificFile;
-        }
-
-        File f = new File(configDirectory, fileName);
-        if (configDirectory != null && f.exists()) {
-            return f;
-        }
-        return null;
     }
 
     private ServerConfigXmlDocument getServerXmlDocFromConfig(File serverXml) {

@@ -170,7 +170,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      * @return
      * @throws MojoExecutionException
      */
-    protected List<MavenProject> getRelevantMultiModuleProjects(ProjectDependencyGraph graph) throws MojoExecutionException {
+    protected List<MavenProject> getRelevantMultiModuleProjects(ProjectDependencyGraph graph, boolean skipJars) throws MojoExecutionException {
     	getLog().debug("Resolve relevant multi-module projects");
     	
         List<MavenProject> sortedReactorProjects = graph.getSortedProjects();
@@ -181,10 +181,10 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         for (MavenProject reactorProject : sortedReactorProjects) {
             if (graph.getDownstreamProjects(reactorProject, true).isEmpty()) {
             	getLog().debug("Found final downstream project: " + reactorProject.getArtifactId());
-            	
+                
             	if (skipConfigured(reactorProject)) {
             		getLog().debug("Skip configured on project: " + reactorProject.getArtifactId() + " - Ignoring");
-            	} else if (reactorProject.getPackaging().equals("jar")) {
+            	} else if (reactorProject.getPackaging().equals("jar") && skipJars) {
             		getLog().debug(reactorProject.getArtifactId() + " is a jar project - Ignoring");
             	} else {
                     leaves.add(reactorProject);
