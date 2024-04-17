@@ -374,10 +374,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
             Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
             CommonLogger logger = new CommonLogger(getLog());
             setLog(logger.getLog());
-            // scd = getServerConfigDocument(logger, serverXML, configDirectory,
-            //             bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false,
-            //             libertyDirPropertyFiles);
-            scd = getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
+            scd = getServerConfigDocument(logger, libertyDirPropertyFiles);
             } catch (Exception e) {
                 getLog().warn(e.getLocalizedMessage());
                 getLog().debug(e);
@@ -386,6 +383,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         return scd != null ? scd.getLocations() : new HashSet<String>();
     }
 
+    // Deprecated after ci.common 1.8.33
     protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, File configDir, File bootstrapFile,
             Map<String, String> bootstrapProp, File serverEnvFile, boolean giveConfigDirPrecedence, Map<String, File> libertyDirPropertyFiles) throws IOException {
         if (scd == null || !scd.getServerXML().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
@@ -395,12 +393,8 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         return scd;
     }
 
-    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, Map<String, File> libertyDirPropertyFiles) throws IOException {
-        if (scd == null || !scd.getServerXML().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
-            scd = new ServerConfigDocument(log, libertyDirPropertyFiles);
-        }
-
-        return scd;
+    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, Map<String, File> libertyDirPropertyFiles) throws IOException {
+        return new ServerConfigDocument(log, libertyDirPropertyFiles);
     }
 
     protected String getAppsDirectory() {
