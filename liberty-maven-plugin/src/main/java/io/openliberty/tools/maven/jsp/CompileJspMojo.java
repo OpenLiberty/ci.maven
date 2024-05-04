@@ -132,7 +132,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
                     sourceSet = true;
                 }  
             } else if (props.containsKey("maven.compiler.source")) {
-                String value = props.getProperty("maven.compiler.release");
+                String value = props.getProperty("maven.compiler.source");
                 if (value != null) {
                     getLog().debug("compile-jsp using maven.compiler.source value: "+value+" for javaSourceLevel.");
                     compile.setSource(value);
