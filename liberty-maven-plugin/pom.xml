@@ -37,7 +37,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.14</version>
+            <version>1.9.15-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -225,6 +225,7 @@
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -266,6 +267,7 @@
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -306,6 +308,7 @@
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -351,6 +354,7 @@
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>

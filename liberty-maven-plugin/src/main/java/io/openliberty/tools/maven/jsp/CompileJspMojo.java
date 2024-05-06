@@ -18,6 +18,7 @@ package io.openliberty.tools.maven.jsp;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -83,15 +84,28 @@ public class CompileJspMojo extends InstallFeatureSupport {
         // don't delete temporary server dir
         compile.setCleanup(false);
 
+        boolean sourceSet = false;
+
         List<Plugin> plugins = getProject().getBuildPlugins();
         for (Plugin plugin : plugins) {
             if ("org.apache.maven.plugins:maven-compiler-plugin".equals(plugin.getKey())) {
                 Object config = plugin.getConfiguration();
                 if (config instanceof Xpp3Dom) {
                     Xpp3Dom dom = (Xpp3Dom) config;
-                    Xpp3Dom val = dom.getChild("source");
-                    if (val != null) {
-                        compile.setSource(val.getValue());
+                    Xpp3Dom child = dom.getChild("release");
+                    if (child != null && child.getValue() != null) {
+                        String value = child.getValue();
+                        getLog().debug("compile-jsp using maven.compiler.release value: "+value+" for javaSourceLevel.");
+                        compile.setSource(value);
+                        sourceSet = true;    
+                    } else {
+                        child = dom.getChild("source");
+                        if (child != null && child.getValue() != null) {
+                            String value = child.getValue();
+                            getLog().debug("compile-jsp using maven.compiler.source value: "+value+" for javaSourceLevel.");
+                            compile.setSource(value);
+                            sourceSet = true;    
+                        }
                     }
                 }
                 break;
@@ -103,6 +117,26 @@ public class CompileJspMojo extends InstallFeatureSupport {
                     if (val != null) {
                         compile.setSrcdir(new File(val.getValue()));
                     }
+                }
+            }
+        }
+
+        if (!sourceSet) {
+            // look for Maven properties
+            Properties props = getProject().getProperties();
+            if (props.containsKey("maven.compiler.release")) {
+                String value = props.getProperty("maven.compiler.release");
+                if (value != null) {
+                    getLog().debug("compile-jsp using maven.compiler.release value: "+value+" for javaSourceLevel.");
+                    compile.setSource(value);
+                    sourceSet = true;
+                }  
+            } else if (props.containsKey("maven.compiler.source")) {
+                String value = props.getProperty("maven.compiler.source");
+                if (value != null) {
+                    getLog().debug("compile-jsp using maven.compiler.source value: "+value+" for javaSourceLevel.");
+                    compile.setSource(value);
+                    sourceSet = true;
                 }
             }
         }

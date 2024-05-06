@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>compile-jsp-it</artifactId>
+  <artifactId>compile-jsp-source-17-it</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
@@ -28,7 +28,9 @@
   </dependencies>
   
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <build>
@@ -134,8 +136,8 @@
                     <goal>clean</goal>
                 </goals>
                 <configuration>
-                    <cleanDropins>true</cleanDropins>
-                    <cleanApps>true</cleanApps>
+                    <cleanDropins>false</cleanDropins>
+                    <cleanApps>false</cleanApps>
                     <cleanLogs>false</cleanLogs>
                     <cleanWorkarea>false</cleanWorkarea>
                 </configuration>
