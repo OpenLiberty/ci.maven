@@ -98,7 +98,7 @@ The following are the parameters supported by this goal in addition to the [comm
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | hotTests | If set to `true`, run unit and integration tests automatically after every change. The default value is `false`. | No |
-| skipTests | If set to `true`, do not run any tests in dev mode. The default value is `false`. | No |
+| skipTests | If this option is enabled, do not run any tests in dev mode, even when the `Enter` key is pressed or when `hotTests` is set to `true`. The default value is `false`. | No |
 | skipUTs | If set to `true`, skip unit tests. The default value is `false`. If the project packaging type is `ear`, unit tests are always skipped. | No |
 | skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
