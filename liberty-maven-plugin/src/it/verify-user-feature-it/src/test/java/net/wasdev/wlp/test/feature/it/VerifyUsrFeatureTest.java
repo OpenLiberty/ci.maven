@@ -53,7 +53,7 @@ public class VerifyUsrFeatureTest {
     
     @Test
     public void testVerifyAll() throws Exception {
-    	Assume.assumeTrue(System.getProperty("verify").equals("all") && System.getProperty("keyid").equals("0x05534365803788CE"));
+    	Assume.assumeTrue(System.getProperty("verify").equals("all") && System.getProperty("keyid").equals("0x400885CB88B656BB"));
     	String VERIFIED_MESSAGE = "All features were successfully verified.";
     	assertTrue(buildLogCheck(VERIFIED_MESSAGE));
     }
@@ -61,7 +61,7 @@ public class VerifyUsrFeatureTest {
     @Test
     public void testVerifyWarnWrongKeyId() throws Exception {
     	Assume.assumeTrue(System.getProperty("verify").equals("warn") && System.getProperty("keyid").equals("0xWRONGKEYID"));
-    	//CWWKF1514E: The 0X05534365803788CE public key ID does not match the 0xWRONGKEYID provided key ID.
+    	//CWWKF1514E: The 0x400885CB88B656BB public key ID does not match the 0xWRONGKEYID provided key ID.
     	String CWWKF1514E_MESSAGE = "CWWKF1514E";
     	assertTrue(buildLogCheck(CWWKF1514E_MESSAGE));
     }
