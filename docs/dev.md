@@ -97,18 +97,19 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| hotTests | If set to `true`, run unit and integration tests automatically after every change. The default value is `false`. | No |
-| skipTests | If this option is enabled, do not run any tests in dev mode, even when the `Enter` key is pressed or when `hotTests` is set to `true`. The default value is `false`. | No |
-| skipUTs | If set to `true`, skip unit tests. The default value is `false`. If the project packaging type is `ear`, unit tests are always skipped. | No |
-| skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
+| changeOnDemandTestsAction | If set to `true`, change the action for running on demand tests from `Enter` to type `t` and press `Enter`. The default value is `false`. This parameter is introduced in version 3.10.4. | No |
+| compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
 | debugPort | The debug port that you can attach a debugger to. The default value is `7777`. | No |
-| compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
-| serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `90` seconds. | No |
-| verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
-| recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
 | generateFeatures | If set to `true`, when a Java file, server configuration file, or build file is changed, generate features required by the application in the source configuration directory. The default value is `false`. | No |
+| hotTests | If set to `true`, run unit and integration tests automatically after every change. The default value is `false`. | No |
+| recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
+| serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `90` seconds. | No |
 | skipInstallFeature | If set to `true`, the `install-feature` goal will be skipped when `dev` mode is started on an already existing Liberty runtime installation. It will also be skipped when `dev` mode is running and a restart of the server is triggered either directly by the user or by application changes. The `install-feature` goal will be invoked though when `dev` mode is running and a change to the configured features is detected. The default value is `false`. | No |
+| skipITs | If set to `true`, skip integration tests. The default value is `false`.  | No |
+| skipTests | If this option is enabled, do not run any tests in dev mode, even when the on demand test action is entered or when `hotTests` is set to `true`. The default value is `false`. | No |
+| skipUTs | If set to `true`, skip unit tests. The default value is `false`. If the project packaging type is `ear`, unit tests are always skipped. | No |
+| verifyTimeout | Maximum time to wait (in seconds) to verify that the application has started or updated before running integration tests. The value must be an integer greater than or equal to 0. The default value is `30` seconds. | No |
 
 ###### System Properties for Integration Tests
 
@@ -176,7 +177,7 @@ While dev mode is running in container mode, perform the following in the comman
 
 * <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
 * <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* <kbd>Enter</kbd> - run tests on demand, press <kbd>Enter</kbd>.
+* <kbd>t</kbd> or <kbd>Enter</kbd> - If `changeOnDemandTestAction` is set to `true`, type <kbd>t</kbd> and press <kbd>Enter</kbd> to run tests on demand. Otherwise, press <kbd>Enter</kbd>. 
 * <kbd>r</kbd> - rebuild the container image and restart the container, type <kbd>r</kbd> and press <kbd>Enter</kbd>.
 * <kbd>h</kbd> - see the help menu for available actions, type <kbd>h</kbd> and press <kbd>Enter</kbd>.
 * <kbd>q</kbd> - stop the server and quit dev mode, press <kbd>Ctrl</kbd>-<kbd>C</kbd> or type <kbd>q</kbd> and press <kbd>Enter</kbd>.
@@ -265,9 +266,9 @@ These parameters are available in addition to the ones in the `dev` section abov
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
 | container | If set to `true`, run the server in the container specified by the `containerfile` parameter. Setting this to `true` is equivalent to using the `devc` goal. The default value is `false` when the `dev` goal is used, and `true` when the `devc` goal is used. | No |
-| containerRunOpts | Specifies options to add to the `run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `run` to define an environment variable with the name `key` and value `value`. This attribute replaces the deprecated `dockerRunOpts` attribute. | No |
-| containerfile | Location of a Containerfile/Dockerfile to be used by dev mode to build the image for the container that will run your Liberty server. The default value is `Containerfile` or `Dockerfile`. This attribute replaces the deprecated `dockerfile` attribute. | No |
 | containerBuildContext | The container build context directory to be used by dev mode for the `build` command.  The default location is the directory of the Containerfile/Dockerfile. This attribute replaces the deprecated `dockerBuildContext` attribute. | No |
 | containerBuildTimeout | Maximum time to wait (in seconds) for the completion of the container operation to build the image. The value must be an integer greater than 0. The default value is `600` seconds. This attribute replaces the deprecated `dockerBuildTimeout` attribute. | No |
-| skipDefaultPorts | If set to `true`, dev mode will not publish the default container port mappings of `9080:9080` (HTTP) and `9443:9443` (HTTPS). Use this option if you would like to specify alternative local ports to map to the exposed container ports for HTTP and HTTPS using the `containerRunOpts` parameter. | No |
+| containerfile | Location of a Containerfile/Dockerfile to be used by dev mode to build the image for the container that will run your Liberty server. The default value is `Containerfile` or `Dockerfile`. This attribute replaces the deprecated `dockerfile` attribute. | No |
+| containerRunOpts | Specifies options to add to the `run` command when using dev mode to launch your server in a container. For example, `-e key=value` is recognized by `run` to define an environment variable with the name `key` and value `value`. This attribute replaces the deprecated `dockerRunOpts` attribute. | No |
 | keepTempContainerfile | If set to `true`, dev mode will not delete the temporary modified copy of your Containerfile used to build the contianer image. This file is handy in case you need to debug the process of building the container image. The path of the temporary Containerfile can be seen when dev mode displays the container's `build` command. The default value is `false`. This attribute replaces the deprecated `keepTempDockerfile` attribute. | No |
+| skipDefaultPorts | If set to `true`, dev mode will not publish the default container port mappings of `9080:9080` (HTTP) and `9443:9443` (HTTPS). Use this option if you would like to specify alternative local ports to map to the exposed container ports for HTTP and HTTPS using the `containerRunOpts` parameter. | No |
