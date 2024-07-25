@@ -100,6 +100,9 @@ public class DevMojo extends LooseAppSupport {
 
     DevMojoUtil util = null;
 
+    @Parameter(property = "changeOnDemandTestsAction", defaultValue = "false")
+    private boolean changeOnDemandTestsAction;
+
     @Parameter(property = "hotTests", defaultValue = "false")
     private boolean hotTests;
 
@@ -347,7 +350,7 @@ public class DevMojo extends LooseAppSupport {
                 File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
                 Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs) throws IOException, PluginExecutionException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
-                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, hotTests, skipTests,
+                    configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, changeOnDemandTestsAction, hotTests, skipTests,
                     skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
                     containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
