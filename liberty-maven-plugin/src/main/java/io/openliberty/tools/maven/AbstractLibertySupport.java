@@ -604,7 +604,7 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
                 throw new MojoExecutionException("Unable to resolve artifact: " + aetherArtifact.getGroupId() + ":"
                         + aetherArtifact.getArtifactId() + ":" + aetherArtifact.getVersion());
             }
-        } catch (ArtifactResolutionException e) {
+        } catch (ArtifactResolutionException | NullPointerException e) {
             throw new MojoExecutionException("Unable to resolve artifact: " + aetherArtifact.getGroupId() + ":"
                     + aetherArtifact.getArtifactId() + ":" + aetherArtifact.getVersion(), e);
         }
