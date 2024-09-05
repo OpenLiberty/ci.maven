@@ -43,6 +43,7 @@ import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
 import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
 import io.openliberty.tools.maven.ServerFeatureSupport;
 
 /**
@@ -268,7 +269,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             // file that will be written
             Set<String> userDefinedFeatures = optimize ? existingFeatures
                     : servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
-                            generatedFiles);
+                            generatedFiles).getFeatures();
             getLog().debug("User defined features:" + userDefinedFeatures);
             servUtil.setLowerCaseFeatures(true);
             if (userDefinedFeatures != null) {
@@ -331,23 +332,22 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
-        Set<String> existingFeatures = servUtil.getServerFeatures(configDirectory, serverXmlFile,
+        FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile,
                 new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
-        if (existingFeatures == null) {
-            existingFeatures = new HashSet<String>();
-        }
         servUtil.setLowerCaseFeatures(true);
-        return existingFeatures;
+        if (fp == null) {
+            return new HashSet<String>();
+        }
+        return fp.getFeatures();
     }
 
     // returns the features specified in the generated-features.xml file
     private Set<String> getGeneratedFeatures(ServerFeatureUtil servUtil, File generatedFeaturesFile) {
         servUtil.setLowerCaseFeatures(false);
-        Set<String> genFeatSet = new HashSet<String>();
-        servUtil.getServerXmlFeatures(genFeatSet, configDirectory,
+        FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), configDirectory,
                 generatedFeaturesFile, null, null);
         servUtil.setLowerCaseFeatures(true);
-        return genFeatSet;
+        return result.getFeatures();
     }
 
     /**

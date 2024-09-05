@@ -168,7 +168,7 @@ public class CompileJspMojo extends InstallFeatureSupport {
         if(initialize()) {
             Set<String> installedFeatures;
             try {
-                installedFeatures = getSpecifiedFeatures(null);
+                installedFeatures = getSpecifiedFeatures(null).getFeatures();
             } catch (PluginExecutionException e) {
                 throw new MojoExecutionException("Error getting the list of specified features.", e);
             }
