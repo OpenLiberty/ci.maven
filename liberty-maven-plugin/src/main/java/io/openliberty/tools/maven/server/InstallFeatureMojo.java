@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,8 +106,12 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         Collection<Map<String,String>> keyMap = getKeyMap();
         util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
         FeaturesPlatforms fp = getSpecifiedFeatures(containerName);
-        Set<String> featuresToInstall = fp.getFeatures();
-        Set<String> platformsToInstall = fp.getPlatforms();
+        Set<String> featuresToInstall = new HashSet<String>();
+        Set<String> platformsToInstall = new HashSet<String>();
+        if (fp != null) {
+        	featuresToInstall = fp.getFeatures();
+        	platformsToInstall = fp.getPlatforms();
+        }
         if(!pluginListedEsas.isEmpty() && isClosedLiberty) {
         	installFromAnt = true;
         }

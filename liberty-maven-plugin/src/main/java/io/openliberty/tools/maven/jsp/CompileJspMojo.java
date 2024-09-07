@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.jsp;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.ant.jsp.CompileJSPs;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
 import io.openliberty.tools.maven.InstallFeatureSupport;
 
 /**
@@ -166,9 +168,11 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setClasspath(classpathStr);
 
         if(initialize()) {
-            Set<String> installedFeatures;
+            Set<String> installedFeatures = new HashSet<String>();
             try {
-                installedFeatures = getSpecifiedFeatures(null).getFeatures();
+            	FeaturesPlatforms fp = getSpecifiedFeatures(null);
+            	if (fp!=null)
+            		installedFeatures = fp.getFeatures();
             } catch (PluginExecutionException e) {
                 throw new MojoExecutionException("Error getting the list of specified features.", e);
             }

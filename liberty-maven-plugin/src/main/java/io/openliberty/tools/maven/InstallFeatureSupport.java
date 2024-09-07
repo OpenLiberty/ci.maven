@@ -238,7 +238,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
             FeaturesPlatforms getServerResult = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, getLibertyDirectoryPropertyFiles()) : null;
             if (getServerResult != null) {
             	serverFeatures = getServerResult.getFeatures();
-            	serverPlatforms = getServerResult.getFeatures();
+            	serverPlatforms = getServerResult.getPlatforms();
             }
             
             return new FeaturesPlatforms(util.combineToSet(pluginListedFeatures, dependencyFeatures, serverFeatures),serverPlatforms);

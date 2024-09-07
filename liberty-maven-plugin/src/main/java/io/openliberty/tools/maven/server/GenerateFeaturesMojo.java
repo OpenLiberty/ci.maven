@@ -267,9 +267,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             servUtil.setLowerCaseFeatures(false);
             // get set of user defined features so they can be omitted from the generated
             // file that will be written
-            Set<String> userDefinedFeatures = optimize ? existingFeatures
-                    : servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
-                            generatedFiles).getFeatures();
+            FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
+                    generatedFiles);
+            Set<String> userDefinedFeatures = optimize ? existingFeatures : (fp !=null) ? fp.getFeatures(): new HashSet<String>();
             getLog().debug("User defined features:" + userDefinedFeatures);
             servUtil.setLowerCaseFeatures(true);
             if (userDefinedFeatures != null) {
@@ -347,7 +347,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), configDirectory,
                 generatedFeaturesFile, null, null);
         servUtil.setLowerCaseFeatures(true);
-        return result.getFeatures();
+        Set<String> features = new HashSet<String>();
+        if (result != null) {
+        	features = result.getFeatures();
+        }
+        return features;
     }
 
     /**

@@ -363,8 +363,10 @@ public class DevMojo extends LooseAppSupport {
                     serverDirectory);                    
             ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);  
             FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
-            this.existingFeatures = fp.getFeatures();
-            this.existingPlatforms = fp.getPlatforms();
+            if (fp != null) {
+            	this.existingFeatures = fp.getFeatures();
+            	this.existingPlatforms = fp.getPlatforms();
+            }
             this.upstreamMavenProjects = upstreamMavenProjects;
 
             setContainerEngine(this);
@@ -1179,7 +1181,10 @@ public class DevMojo extends LooseAppSupport {
             try {
                 ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
                 FeaturesPlatforms fp = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
-                Set<String> features = fp.getFeatures();
+                Set<String> features = null;
+                if (fp != null) {
+                	features = fp.getFeatures();
+                }
                 if (features != null) {
                     Set<String> featuresCopy = new HashSet<String>(features);
 
@@ -1227,8 +1232,12 @@ public class DevMojo extends LooseAppSupport {
         public void updateExistingFeatures() {
             ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
             FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
-            Set<String> features = fp.getFeatures();
-            Set<String> platforms = fp.getPlatforms();
+            Set<String> features = new HashSet<String>();
+            Set<String> platforms = new HashSet<String>();
+            if (fp != null) {
+            	features = fp.getFeatures();
+            	platforms = fp.getPlatforms();
+            }
             existingFeatures = features;
             existingPlatforms = platforms;
         }
