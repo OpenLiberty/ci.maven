@@ -1,4 +1,0 @@
-//Runs clean in the test project directory
-Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
-System.out.println("Cleaned target dir(s) for " + basedir);
-return true;
