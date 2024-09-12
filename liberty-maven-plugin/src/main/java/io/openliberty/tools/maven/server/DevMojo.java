@@ -72,6 +72,7 @@ import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
 import io.openliberty.tools.common.plugins.util.ProjectModule;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
 import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 import io.openliberty.tools.maven.BasicSupport;
 import io.openliberty.tools.maven.applications.DeployMojoSupport;
@@ -340,6 +341,7 @@ public class DevMojo extends LooseAppSupport {
 
     private class DevMojoUtil extends DevUtil {
         Set<String> existingFeatures;
+        Set<String> existingPlatforms;
         Map<String, File> libertyDirPropertyFiles = new HashMap<String, File>();
         List<MavenProject> upstreamMavenProjects;
 
@@ -359,8 +361,12 @@ public class DevMojo extends LooseAppSupport {
 
             this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
                     serverDirectory);                    
-            ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);           
-            this.existingFeatures = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);  
+            FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            if (fp != null) {
+            	this.existingFeatures = fp.getFeatures();
+            	this.existingPlatforms = fp.getPlatforms();
+            }
             this.upstreamMavenProjects = upstreamMavenProjects;
 
             setContainerEngine(this);
@@ -1174,7 +1180,11 @@ public class DevMojo extends LooseAppSupport {
         public void installFeatures(File configFile, File serverDir, boolean generateFeatures) {
             try {
                 ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
-                Set<String> features = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
+                FeaturesPlatforms fp = servUtil.getServerFeatures(serverDir, libertyDirPropertyFiles);
+                Set<String> features = null;
+                if (fp != null) {
+                	features = fp.getFeatures();
+                }
                 if (features != null) {
                     Set<String> featuresCopy = new HashSet<String>(features);
 
@@ -1221,8 +1231,15 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void updateExistingFeatures() {
             ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);
-            Set<String> features = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
+            Set<String> features = new HashSet<String>();
+            Set<String> platforms = new HashSet<String>();
+            if (fp != null) {
+            	features = fp.getFeatures();
+            	platforms = fp.getPlatforms();
+            }
             existingFeatures = features;
+            existingPlatforms = platforms;
         }
 
         @Override

@@ -1,4 +1,4 @@
-package net.wasdev.wlp.maven.test.servlet.it;
+package net.wasdev.wlp.test.servlet.it;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -125,7 +125,7 @@ public class ServerConfigPropertiesTest {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            s.close();
+        	if (s != null) s.close();
         }
 
         //Check app name/appsDir resolved correctly during create, deploy, and start

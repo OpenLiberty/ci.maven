@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import io.openliberty.tools.maven.InstallFeatureSupport;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil.ProductProperties;
 
 /**
@@ -103,8 +105,13 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         List<String> additionalJsons = getAdditionalJsonList();
         Collection<Map<String,String>> keyMap = getKeyMap();
         util = getInstallFeatureUtil(pluginListedEsas, propertiesList, openLibertyVersion, containerName, additionalJsons, keyMap);
-        Set<String> featuresToInstall = getSpecifiedFeatures(containerName);
-        
+        FeaturesPlatforms fp = getSpecifiedFeatures(containerName);
+        Set<String> featuresToInstall = new HashSet<String>();
+        Set<String> platformsToInstall = new HashSet<String>();
+        if (fp != null) {
+        	featuresToInstall = fp.getFeatures();
+        	platformsToInstall = fp.getPlatforms();
+        }
         if(!pluginListedEsas.isEmpty() && isClosedLiberty) {
         	installFromAnt = true;
         }
@@ -112,7 +119,7 @@ public class InstallFeatureMojo extends InstallFeatureSupport {
         if(installFromAnt) {
             installFeaturesFromAnt(features.getFeatures());
         } else if(util != null) {
-            util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall));
+            util.installFeatures(features.isAcceptLicense(), new ArrayList<String>(featuresToInstall), new ArrayList<String>(platformsToInstall));
         } 
        
     }
