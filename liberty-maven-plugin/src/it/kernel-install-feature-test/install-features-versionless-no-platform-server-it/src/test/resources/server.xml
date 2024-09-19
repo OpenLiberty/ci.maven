@@ -1,0 +1,6 @@
+<server description="default server">
+    <featureManager>    
+        <feature>appSecurityClient-1.0</feature>
+        <feature>servlet</feature>
+    </featureManager>     
+</server>

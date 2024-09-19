@@ -15,8 +15,16 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.feature.it;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,9 +34,14 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+
 import org.junit.Before;
 
 public class BaseInstallFeature {
+	
+	static File logFile;
+	static File logErrorFile;
 
     protected File[] features;
     
@@ -105,5 +118,98 @@ public class BaseInstallFeature {
 
         return false;
     }
+	/**
+	    * Count number of lines that contain the given string
+	    */
+	   protected static int countOccurrences(String str, File file) throws FileNotFoundException, IOException {
+	      int occurrences = 0;
+	      BufferedReader br = new BufferedReader(new FileReader(file));
+	      String line = br.readLine();
+	      try {
+	         while (line != null) {
+	            if (line.contains(str)) {
+	               occurrences++;
+	            }
+	            line = br.readLine();
+	         }
+	      } finally {
+	         br.close();
+	      }
+	      return occurrences;
+	   }
+
+	protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
+	      BufferedReader br = new BufferedReader(new FileReader(file));
+	      String line = br.readLine();
+	      try {
+	         while (line != null) {
+	            if (line.contains(str)) {
+	               return true;
+	            }
+	            line = br.readLine();
+	         }
+	      } finally {
+	         br.close();
+	      }
+	      return false;
+	   }
+
+	protected static boolean verifyLogMessageDoesNotExist(String message, int timeout)
+		         throws InterruptedException, FileNotFoundException, IOException {
+	      return verifyLogMessageDoesNotExist(message, timeout, logFile);
+	   }
+
+	protected static boolean verifyLogMessageDoesNotExist(String message, int timeout, File log)
+	         throws InterruptedException, FileNotFoundException, IOException {
+	      int waited = 0;
+	      int sleep = 10;
+	      while (waited <= timeout) {
+	         Thread.sleep(sleep);
+	         waited += sleep;
+	         if (countOccurrences(message, log) > 0) {
+	            return false;
+	        }
+	      }
+	      return true;
+	   }
+
+	protected static boolean verifyLogMessageExists(String message, int timeout)
+	         throws InterruptedException, FileNotFoundException, IOException {
+	      return verifyLogMessageExists(message, timeout, logFile);
+	   }
+
+	protected static boolean verifyLogMessageExists(String message, int timeout, File log)
+	         throws InterruptedException, FileNotFoundException, IOException {
+	      int waited = 0;
+	      int sleep = 10;
+	      while (waited <= timeout) {
+	         Thread.sleep(sleep);
+	         waited += sleep;
+	         if (readFile(message, log)) {
+	            return true;
+	         }
+	      }
+	      return false;
+	   }
+
+	protected static boolean verifyLogMessageExists(String message, int timeout, File log, int occurrences)
+	         throws InterruptedException, FileNotFoundException, IOException {
+	      int waited = 0;
+	      int sleep = 10;
+	      while (waited <= timeout) {
+	         Thread.sleep(sleep);
+	         waited += sleep;
+	         if (countOccurrences(message, log) == occurrences) {
+	            return true;
+	         }
+	      }
+	      return false;
+	   }
+
+	protected static boolean verifyLogMessageExists(String message, int timeout, int occurrences)
+	         throws InterruptedException, FileNotFoundException, IOException {
+	      return verifyLogMessageExists(message, timeout, logFile, occurrences);
+	   }
+
 
 }
