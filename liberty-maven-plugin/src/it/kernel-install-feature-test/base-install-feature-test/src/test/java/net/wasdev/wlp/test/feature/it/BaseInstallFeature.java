@@ -89,6 +89,7 @@ public class BaseInstallFeature {
         return InstallFeatureUtil.productInfo(installDirectory, "featureInfo");
     }
 
+
     public boolean buildLogCheckForInstalledFeatures(String testname, String msg, Set<String> installedFeatures) throws Exception {
         File buildLog = new File("../../build.log");
         assertTrue(buildLog.exists());        
@@ -128,14 +129,7 @@ public class BaseInstallFeature {
 	         while (line != null) {
 	            if (line.contains(str)) {
 	               occurrences++;
-	            }
-	            line = br.readLine();
-	         }
-	      } finally {
-	         br.close();
-	      }
-	      return occurrences;
-	   }
+
 
 	protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
 	      BufferedReader br = new BufferedReader(new FileReader(file));
