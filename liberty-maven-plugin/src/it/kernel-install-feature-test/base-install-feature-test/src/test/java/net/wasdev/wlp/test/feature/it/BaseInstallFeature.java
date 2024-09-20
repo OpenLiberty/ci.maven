@@ -15,15 +15,17 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.feature.it;
 
-import java.io.BufferedReader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Scanner;
+
+import org.junit.Before;
 
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import java.io.FileInputStream;
@@ -40,10 +42,7 @@ import org.junit.Before;
 
 public class BaseInstallFeature {
 	
-	static File logFile;
-	static File logErrorFile;
-
-    protected File[] features;
+	protected File[] features;
     
     @Before
     public void setUp() throws Exception {

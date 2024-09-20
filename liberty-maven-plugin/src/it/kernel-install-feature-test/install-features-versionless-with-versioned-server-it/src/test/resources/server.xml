@@ -1,0 +1,9 @@
+<server description="default server">
+    <featureManager>    
+        <feature>beanValidation</feature>
+        <feature>servlet-5.0</feature>
+        <feature>jsp</feature>
+        <feature>ejb</feature>
+        <feature>jdbc</feature>
+    </featureManager>     
+</server>

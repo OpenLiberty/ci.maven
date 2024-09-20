@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2018.
+ * (c) Copyright IBM Corporation 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import java.io.File;
 
-public class InstallFeaturesVersionlessServerTest extends BaseInstallFeature {
+public class InstallFeaturesVersionlessBadPlatformServerTest extends BaseInstallFeature {
 
     @Test
     public void testInstalledFeatures() throws Exception {
@@ -32,7 +32,7 @@ public class InstallFeaturesVersionlessServerTest extends BaseInstallFeature {
         assertNotInstalled("couchdb-1.0");
         assertNotInstalled("distributedMap-1.0");
         
-        assertTrue(getLogTail(), verifyLogMessageExists("CWWKF1516E: The platform could not be determined. The following versionless features cannot be installed: [servlet]", 30000));
+        assertTrue(buildLogCheck("CWWKF1515E: The badname platform could not be found."));
     }
 
 }
