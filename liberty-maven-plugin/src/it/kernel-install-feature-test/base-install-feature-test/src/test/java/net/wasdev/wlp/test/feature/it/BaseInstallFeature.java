@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2018.
+ * (c) Copyright IBM Corporation 2018, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,14 @@ package net.wasdev.wlp.test.feature.it;
 import java.io.File;
 import java.io.FilenameFilter;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Scanner;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 
 public class BaseInstallFeature {
@@ -55,7 +61,10 @@ public class BaseInstallFeature {
     protected boolean existsInFeaturesDirectory(String feature) {
         boolean found = false;
         for (File file : features) {
-            if (file.getName().equals("com.ibm.websphere.appserver." + feature + ".mf")) {
+            if ((file.getName().equals("com.ibm.websphere.appserver." + feature + ".mf")) ||
+                (file.getName().equals("io.openliberty.versionless." + feature + ".mf")) ||
+                (file.getName().equals("io.openliberty.jakarta." + feature + ".mf")) ||
+                (file.getName().equals("io.openliberty." + feature + ".mf"))) {
                 found = true;
                 break;
             }
@@ -66,6 +75,35 @@ public class BaseInstallFeature {
     protected String getFeatureInfo() throws Exception {
         File installDirectory = new File("liberty", "wlp");
         return InstallFeatureUtil.productInfo(installDirectory, "featureInfo");
+    }
+
+    public boolean buildLogCheckForInstalledFeatures(String testname, String msg, Set<String> installedFeatures) throws Exception {
+        File buildLog = new File("../../build.log");
+        assertTrue(buildLog.exists());        
+        boolean foundTestName = false;
+
+        try (InputStream buildOutput = new FileInputStream(buildLog); InputStreamReader in = new InputStreamReader(buildOutput); Scanner s = new Scanner(in);) {
+            while (s.hasNextLine()) {
+                String line = s.nextLine();
+                if (foundTestName && line.contains(msg)) {
+                    // check for all features in message
+                    String messageFeatures = line.substring(line.indexOf(":") + 1);
+                    String[] messageFeaturesArray = messageFeatures.trim().split(" ");
+                    assertTrue("The number of installed features ("+messageFeaturesArray.length+") is different than expected number ("+installedFeatures.size()+"). The log message is: "+line,messageFeaturesArray.length == installedFeatures.size());
+                    for (int i=0; i < messageFeaturesArray.length; i++) {
+                        assertTrue("Found unexpected feature "+messageFeaturesArray[i]+" in list of installed features in message in build.log.",installedFeatures.contains(messageFeaturesArray[i].trim()));
+                    }
+                    return true;
+                } else if (line.contains(testname)) {
+                    // process next feature installation message
+                    foundTestName = true;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error checking build.log " + e.getMessage());
+        }
+
+        return false;
     }
 
 }
