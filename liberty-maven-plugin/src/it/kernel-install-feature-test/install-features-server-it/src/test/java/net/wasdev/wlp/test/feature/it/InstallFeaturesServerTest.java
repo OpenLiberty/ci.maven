@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2018.
+ * (c) Copyright IBM Corporation 2018, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package net.wasdev.wlp.test.feature.it;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
 
 public class InstallFeaturesServerTest extends BaseInstallFeature {
 
@@ -31,6 +33,12 @@ public class InstallFeaturesServerTest extends BaseInstallFeature {
         assertNotInstalled("beanValidation-2.0");
         assertNotInstalled("couchdb-1.0");
         assertNotInstalled("distributedMap-1.0");
+
+        Set<String> expectedFeatures = new HashSet<String>();
+        expectedFeatures.add("ssl-1.0");
+        expectedFeatures.add("appSecurityClient-1.0");
+        
+        assertTrue(buildLogCheckForInstalledFeatures("io.openliberty.tools.it:install-features-server-it", "The following features have been installed:", expectedFeatures));
     }
 
 }
