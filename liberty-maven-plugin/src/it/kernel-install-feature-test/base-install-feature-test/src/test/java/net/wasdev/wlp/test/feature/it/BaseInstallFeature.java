@@ -24,21 +24,11 @@ import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.junit.Before;
 
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Scanner;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-
-import org.junit.Before;
 
 public class BaseInstallFeature {
 	
@@ -91,7 +81,8 @@ public class BaseInstallFeature {
 
 
     public boolean buildLogCheckForInstalledFeatures(String testname, String msg, Set<String> installedFeatures) throws Exception {
-        File buildLog = new File("../../build.log");
+        
+        File buildLog = new File("../build.log");
         assertTrue(buildLog.exists());        
         boolean foundTestName = false;
 
@@ -118,91 +109,5 @@ public class BaseInstallFeature {
 
         return false;
     }
-	/**
-	    * Count number of lines that contain the given string
-	    */
-	   protected static int countOccurrences(String str, File file) throws FileNotFoundException, IOException {
-	      int occurrences = 0;
-	      BufferedReader br = new BufferedReader(new FileReader(file));
-	      String line = br.readLine();
-	      try {
-	         while (line != null) {
-	            if (line.contains(str)) {
-	               occurrences++;
-
-
-	protected static boolean readFile(String str, File file) throws FileNotFoundException, IOException {
-	      BufferedReader br = new BufferedReader(new FileReader(file));
-	      String line = br.readLine();
-	      try {
-	         while (line != null) {
-	            if (line.contains(str)) {
-	               return true;
-	            }
-	            line = br.readLine();
-	         }
-	      } finally {
-	         br.close();
-	      }
-	      return false;
-	   }
-
-	protected static boolean verifyLogMessageDoesNotExist(String message, int timeout)
-		         throws InterruptedException, FileNotFoundException, IOException {
-	      return verifyLogMessageDoesNotExist(message, timeout, logFile);
-	   }
-
-	protected static boolean verifyLogMessageDoesNotExist(String message, int timeout, File log)
-	         throws InterruptedException, FileNotFoundException, IOException {
-	      int waited = 0;
-	      int sleep = 10;
-	      while (waited <= timeout) {
-	         Thread.sleep(sleep);
-	         waited += sleep;
-	         if (countOccurrences(message, log) > 0) {
-	            return false;
-	        }
-	      }
-	      return true;
-	   }
-
-	protected static boolean verifyLogMessageExists(String message, int timeout)
-	         throws InterruptedException, FileNotFoundException, IOException {
-	      return verifyLogMessageExists(message, timeout, logFile);
-	   }
-
-	protected static boolean verifyLogMessageExists(String message, int timeout, File log)
-	         throws InterruptedException, FileNotFoundException, IOException {
-	      int waited = 0;
-	      int sleep = 10;
-	      while (waited <= timeout) {
-	         Thread.sleep(sleep);
-	         waited += sleep;
-	         if (readFile(message, log)) {
-	            return true;
-	         }
-	      }
-	      return false;
-	   }
-
-	protected static boolean verifyLogMessageExists(String message, int timeout, File log, int occurrences)
-	         throws InterruptedException, FileNotFoundException, IOException {
-	      int waited = 0;
-	      int sleep = 10;
-	      while (waited <= timeout) {
-	         Thread.sleep(sleep);
-	         waited += sleep;
-	         if (countOccurrences(message, log) == occurrences) {
-	            return true;
-	         }
-	      }
-	      return false;
-	   }
-
-	protected static boolean verifyLogMessageExists(String message, int timeout, int occurrences)
-	         throws InterruptedException, FileNotFoundException, IOException {
-	      return verifyLogMessageExists(message, timeout, logFile, occurrences);
-	   }
-
-
+	
 }

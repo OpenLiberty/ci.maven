@@ -55,18 +55,6 @@
                             </features>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>install-server-features-again</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>install-feature</goal>
-                        </goals>
-                        <configuration>
-                            <features>
-                                <acceptLicense>true</acceptLicense>
-                            </features>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>

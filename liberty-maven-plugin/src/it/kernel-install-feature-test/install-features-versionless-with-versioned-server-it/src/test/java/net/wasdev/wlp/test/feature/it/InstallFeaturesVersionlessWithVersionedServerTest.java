@@ -18,6 +18,8 @@ package net.wasdev.wlp.test.feature.it;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
 
 public class InstallFeaturesVersionlessWithVersionedServerTest extends BaseInstallFeature {
 
@@ -31,9 +33,30 @@ public class InstallFeaturesVersionlessWithVersionedServerTest extends BaseInsta
         assertInstalled("ejb");
         assertInstalled("jdbc");
         assertInstalled("servlet-5.0");
+        
+        Set<String> expectedFeatures = new HashSet<String>();
+        expectedFeatures.add("jdbc");
+        expectedFeatures.add("enterpriseBeansRemote-4.0");
+        expectedFeatures.add("jsp");
+        expectedFeatures.add("connectors-2.0");
+        expectedFeatures.add("enterpriseBeansPersistentTimer-4.0");
+        expectedFeatures.add("enterpriseBeansLite-4.0");
+        expectedFeatures.add("xmlBinding-3.0");
+        expectedFeatures.add("mdb-4.0");
+        expectedFeatures.add("jdbc-4.2");
+        expectedFeatures.add("enterpriseBeans-4.0");
+        expectedFeatures.add("expressionLanguage-4.0");
+        expectedFeatures.add("pages-3.0");
+        expectedFeatures.add("beanValidation-3.0");
+        expectedFeatures.add("beanValidation");
+        expectedFeatures.add("servlet-5.0");
+        expectedFeatures.add("jndi-1.0");
+        expectedFeatures.add("ejb");
+        expectedFeatures.add("enterpriseBeansHome-4.0");
 
-        assertTrue(buildLogCheck("The following features have been installed: jdbc enterpriseBeansRemote-4.0 jsp connectors-2.0 enterpriseBeansPersistentTimer-4.0 enterpriseBeansLite-4.0 xmlBinding-3.0 mdb-4.0 jdbc-4.2 enterpriseBeans-4.0 expressionLanguage-4.0 pages-3.0 servlet-5.0 beanValidation-3.0 beanValidation jndi-1.0 ejb enterpriseBeansHome-4.0"));
+        assertTrue(buildLogCheckForInstalledFeatures("io.openliberty.tools.it:install-features-versionless-with-versioned-server-it", "The following features have been installed:", expectedFeatures));
 
+        
         
         
                
