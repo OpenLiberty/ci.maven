@@ -15,22 +15,24 @@
  *******************************************************************************/
 package net.wasdev.wlp.test.feature.it;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
-import java.io.FilenameFilter;
-import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 
-public class BaseInstallFeature {
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 
-    protected File[] features;
+public class BaseInstallFeature {
+	
+	protected File[] features;
     
     @Before
     public void setUp() throws Exception {
@@ -77,8 +79,13 @@ public class BaseInstallFeature {
         return InstallFeatureUtil.productInfo(installDirectory, "featureInfo");
     }
 
+
     public boolean buildLogCheckForInstalledFeatures(String testname, String msg, Set<String> installedFeatures) throws Exception {
-        File buildLog = new File("../../build.log");
+        
+        File buildLog = new File("../build.log");
+	if (!buildLog.exists()) {
+	    buildLog = new File("../../build.log");
+	}
         assertTrue(buildLog.exists());        
         boolean foundTestName = false;
 
@@ -105,5 +112,5 @@ public class BaseInstallFeature {
 
         return false;
     }
-
+	
 }

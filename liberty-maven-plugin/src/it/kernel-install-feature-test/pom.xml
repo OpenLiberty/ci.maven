@@ -37,6 +37,8 @@
         <module>install-features-pluginlist-it</module>
         <module>install-features-server-already-installed-lowercase-it</module>
         <module>install-features-server-it</module>
+        <module>install-features-versionless-server-it</module>
+        <module>install-features-versionless-with-versioned-server-it</module>
         <module>install-ol-features-no-accept-license-it</module> 
         <module>prepare-feature-it</module>
 		<module>prepare-multiple-features-it</module>
