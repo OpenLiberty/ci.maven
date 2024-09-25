@@ -83,6 +83,9 @@ public class BaseInstallFeature {
     public boolean buildLogCheckForInstalledFeatures(String testname, String msg, Set<String> installedFeatures) throws Exception {
         
         File buildLog = new File("../build.log");
+	if (!buildLog.exists()) {
+	    buildLog = new File("../../build.log");
+	}
         assertTrue(buildLog.exists());        
         boolean foundTestName = false;
 
