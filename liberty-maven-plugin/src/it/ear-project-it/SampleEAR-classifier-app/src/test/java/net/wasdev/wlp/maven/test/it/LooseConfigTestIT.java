@@ -83,7 +83,7 @@ public class LooseConfigTestIT {
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
             assertEquals("Number of <archive/> element ==>", 3, nodes.getLength());
             // test runtime scope dependency to be included in the ?WEB-INF/lib
-            assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/commons-io-2.11.0.jar", 
+            assertEquals("file targetInArchive attribute value", "/WEB-INF/lib/commons-io-2.14.0.jar", 
                     nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue());
         }
     }
