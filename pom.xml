@@ -12,7 +12,7 @@
 
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven</artifactId>
-    <version>3.10.4-SNAPSHOT</version>
+    <version>3.11-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Liberty Tools for Maven</name>
     <description>
@@ -67,7 +67,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

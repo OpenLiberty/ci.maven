@@ -97,7 +97,7 @@ The following are the parameters supported by this goal in addition to the [comm
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| changeOnDemandTestsAction | If set to `true`, change the action for running on demand tests from `Enter` to type `t` and press `Enter`. The default value is `false`. This parameter is introduced in version 3.10.4. | No |
+| changeOnDemandTestsAction | If set to `true`, change the action for running on demand tests from `Enter` to type `t` and press `Enter`. The default value is `false`. This parameter is introduced in version 3.11. | No |
 | compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
 | debugPort | The debug port that you can attach a debugger to. The default value is `7777`. | No |
