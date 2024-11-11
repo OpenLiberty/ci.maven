@@ -131,8 +131,6 @@ public class UndeployAppMojo extends DeployMojoSupport {
         if (getAppsDirectory().equals("apps")) {
 
             try {
-                File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
-            
                 Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                 CommonLogger logger = new CommonLogger(getLog());
                 setLog(logger.getLog());

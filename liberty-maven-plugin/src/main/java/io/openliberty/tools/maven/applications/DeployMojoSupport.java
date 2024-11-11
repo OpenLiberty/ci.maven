@@ -309,8 +309,6 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             String appName = appFile.substring(0, appFile.lastIndexOf('.'));
             if (getAppsDirectory().equals("apps")) {
 
-                File serverXML = new File(serverDirectory, "server.xml");
-
                 try {
                     Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                     CommonLogger logger = new CommonLogger(getLog());
