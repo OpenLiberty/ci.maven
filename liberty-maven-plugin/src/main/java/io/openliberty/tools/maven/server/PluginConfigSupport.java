@@ -384,8 +384,8 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     }
 
     protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, Map<String, File> libertyDirPropertyFiles) throws IOException {
-        if (scd == null || !scd.getServerXML().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
-            scd = new ServerConfigDocument(log, libertyDirPropertyFiles);
+        if (scd == null || !scd.getOriginalServerXMLFile().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
+            scd = new ServerConfigDocument(log, serverXML, libertyDirPropertyFiles);
         }
 
         return scd;
