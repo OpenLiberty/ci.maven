@@ -309,14 +309,13 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
             String appName = appFile.substring(0, appFile.lastIndexOf('.'));
             if (getAppsDirectory().equals("apps")) {
 
-                File serverXML = new File(serverDirectory, "server.xml");
-
                 try {
+                    File serverXML = new File(serverDirectory, "server.xml");
+
                     Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                     CommonLogger logger = new CommonLogger(getLog());
                     setLog(logger.getLog());
-                    getServerConfigDocument(logger, serverXML, configDirectory,
-                            bootstrapPropertiesFile, combinedBootstrapProperties, serverEnvFile, false, libertyDirPropertyFiles);
+                    scd = getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
 
                     //appName will be set to a name derived from appFile if no name can be found.
                     appName = scd.findNameForLocation(appFile);
