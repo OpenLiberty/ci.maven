@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <featureManager>
+    <!-- tag::servlet[] -->
+        <feature>servlet-6.0</feature>
+    <!-- end::servlet[] -->
+    <!-- tag::springboot[] -->
+        <feature>springBoot-3.0</feature>
+    <!-- end::springboot[] -->
+    </featureManager>
+
+    <!-- tag::httpport[] -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080"
+                  httpsPort="9443" />
+    <!-- end::httpport[] -->
+
+    <springBootApplication id="guide-spring-boot"
+                           location="springboot-3-springbootapplication-apps-it-1.0.0.Final.jar"
+                           name="guide-spring-boot" />
+
+    <!-- end::springBootApplication[] -->
+
+</server>

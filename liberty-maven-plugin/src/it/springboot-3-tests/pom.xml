@@ -25,6 +25,7 @@
     <modules>
         <module>springboot-3-appsdirectory-apps-it</module>
         <module>springboot-3-appsdirectory-dropins-it</module>
+        <module>springboot-3-appsdirectory-server-xml-springboot-node-it</module>
     </modules>
 
 </project>

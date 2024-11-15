@@ -20,11 +20,13 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import io.openliberty.tools.maven.utils.CommonLogger;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -114,8 +116,14 @@ public class DeployMojo extends DeployMojoSupport {
         }
 
         File fatArchiveSrc = SpringBootUtil.getSpringBootUberJAR(project, getLog());
-        
-        // Check if the archiveSrc is executable and then invokeSpringUtilCommand. 
+        File serverXML = new File(serverDirectory, "server.xml");
+
+        Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
+        CommonLogger logger = new CommonLogger(getLog());
+        setLog(logger.getLog());
+        getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
+
+        // Check if the archiveSrc is executable and then invokeSpringUtilCommand.
         if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {
             File thinArchiveTarget = getThinArchiveTarget(fatArchiveSrc);
             File libIndexCacheTarget = getLibIndexCacheTarget();
@@ -144,11 +152,16 @@ public class DeployMojo extends DeployMojoSupport {
             appsDir = new File(rootDirectory, appsDirName);        
         } else if ("dropins".equals(appsDirName)) {
             appsDir = new File(rootDirectory, appsDirName+"/spring");         
-        }       
-        archiveTarget = new File(appsDir, "thin-" + archiveSrc.getName());
+        }
+
+        if (scd != null && scd.getSpringBootAppNodeLocation().isPresent()) {
+            archiveTarget = new File(appsDir, scd.getSpringBootAppNodeLocation().get());
+        } else {
+            archiveTarget = new File(appsDir, "thin-" + archiveSrc.getName());
+        }
         return archiveTarget;
     }
-    
+
     private File getLibIndexCacheTarget() {
         // Set shared directory ${installDirectory}/usr/shared/
         File sharedDirectory = new File(userDirectory, "shared");
