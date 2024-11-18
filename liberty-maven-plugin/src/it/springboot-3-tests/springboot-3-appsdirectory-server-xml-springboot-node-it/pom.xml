@@ -134,6 +134,20 @@
 				<version>3.1.2</version>
 				<configuration>
 					<runOrder>alphabetical</runOrder>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+					<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
+					<argLine>-enableassertions</argLine>
+					<workingDirectory>${project.build.directory}</workingDirectory>
+					<includes>
+						<include>**/*IT.java</include>
+					</includes>
+					<systemPropertyVariables>
+						<mavenPluginVersion>@pom.version@</mavenPluginVersion>
+						<runtimeVersion>${runtimeVersion}</runtimeVersion>
+					</systemPropertyVariables>
+					<trimStackTrace>false</trimStackTrace>
 				</configuration>
 				<executions>
 					<execution>

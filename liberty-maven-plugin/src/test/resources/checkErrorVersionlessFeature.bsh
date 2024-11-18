@@ -9,6 +9,9 @@ switch (testname) {
     case "kernel-install-versionless-feature-fail-no-platform-it":
         expectedMessage = "CWWKF1516E: The platform could not be determined. The following versionless features cannot be installed: [servlet]";
          break;
+    case "springboot-3-deploy-multiple-springboot-application-nodes-fail-it":
+         expectedMessage = "Found multiple springBootApplication elements specified in the server configuration. Only one springBootApplication can be configured per Liberty server.";
+         break;
     default:
          return false;
 }
