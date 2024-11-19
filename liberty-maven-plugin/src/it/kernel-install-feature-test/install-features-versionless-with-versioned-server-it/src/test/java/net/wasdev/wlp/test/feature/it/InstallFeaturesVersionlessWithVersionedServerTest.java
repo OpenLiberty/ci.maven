@@ -26,12 +26,14 @@ public class InstallFeaturesVersionlessWithVersionedServerTest extends BaseInsta
     @Test
     public void testInstalledFeatures() throws Exception {
         
-
-        assertInstalled("beanValidation");
-        assertInstalled("jsp");
+        // as of 24.0.0.11 the versionless features no longer get reported as "installed" via productInfo command
+        // check for specific installed versioned features instead
+        assertInstalled("beanValidation-3.0");
+        assertInstalled("pages-3.0");
         assertInstalled("enterpriseBeans-4.0");
-        assertInstalled("ejb");
-        assertInstalled("jdbc");
+        assertInstalled("enterpriseBeansHome-4.0");
+        assertInstalled("enterpriseBeansRemote-4.0");
+        assertInstalled("jdbc-4.2");
         assertInstalled("servlet-5.0");
         
         Set<String> expectedFeatures = new HashSet<String>();
