@@ -24,9 +24,9 @@ public class InstallFeaturesVersionlessServerTest extends BaseInstallFeature {
     @Test
     public void testInstalledFeatures() throws Exception {
         
-
+        // as of 24.0.0.11 the versionless features no longer get reported as "installed" via productInfo command
+        // check for specific installed versioned features instead
         assertInstalled("appSecurityClient-1.0");
-        assertInstalled("servlet");
         assertInstalled("servlet-4.0");
         assertNotInstalled("beanValidation-2.0");
         assertNotInstalled("couchdb-1.0");
