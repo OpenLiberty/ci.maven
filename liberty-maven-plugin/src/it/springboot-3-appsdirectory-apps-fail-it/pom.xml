@@ -89,7 +89,6 @@
 				<!-- Specify configuration, executions for liberty-maven-plugin -->
 				<configuration>
 					<serverName>test</serverName>
-                    <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                     <runtimeArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-jakartaee10</artifactId>
