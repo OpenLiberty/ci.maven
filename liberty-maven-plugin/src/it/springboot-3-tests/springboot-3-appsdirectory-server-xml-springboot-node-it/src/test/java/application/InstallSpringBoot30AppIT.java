@@ -25,8 +25,11 @@ public class InstallSpringBoot30AppIT {
     @Test
     public void testThinApplicationExistsInAppsDirectory() throws Exception {
 
-        File f = new File("target/liberty/wlp/usr/servers/test/apps/thin-springboot-3-appsdirectory-apps-it-1.0.0.Final-exec.jar");
+        File f = new File("target/liberty/wlp/usr/servers/test/apps/guide-spring-boot-0.2.0.jar");
         assertTrue(f.getCanonicalFile() + " doesn't exist. Plugin failed to place the file at right destination.", f.exists());
+        File f2 = new File("target/liberty/wlp/usr/servers/test/configDropins");
+        assertFalse(f2.getCanonicalFile() + " folder should not exist.", f2.exists());
+
     }
 
     @Test

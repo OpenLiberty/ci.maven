@@ -11,7 +11,14 @@
 		the following element, e.g. host="*" -->
 	<httpEndpoint httpPort="9080" httpsPort="9443"
 		id="defaultHttpEndpoint" />
+
+
+	<springBootApplication id="guide-spring-boot"
+						   location="guide-spring-boot-0.1.0.jar"
+						   name="guide-spring-boot" />
+
 	<springBootApplication id="guide-spring-boot"
 						   location="guide-spring-boot-0.2.0.jar"
 						   name="guide-spring-boot" />
+
 </server>

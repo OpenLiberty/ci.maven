@@ -48,9 +48,8 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v3
       with:
-        repository: arunvenmany-ibm/ci.common
+        repository: OpenLiberty/ci.common
         path: ci.common
-        ref: spring-boot-application-node-bug-fix
     - name: Checkout ci.ant
       uses: actions/checkout@v3
       with:
@@ -103,7 +102,7 @@ jobs:
     - name: Clone ci.ant, ci.common, ci.maven repos to C drive
       run: |
         cp -r D:/a/ci.maven/ci.maven C:/ci.maven
-        git clone https://github.com/arunvenmany-ibm/ci.common.git --branch spring-boot-application-node-bug-fix --single-branch C:/ci.common 
+        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common 
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5

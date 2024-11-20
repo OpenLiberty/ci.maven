@@ -1,7 +1,0 @@
-<server description="default server">
-    <featureManager>    
-        <feature>appSecurityClient-1.0</feature>
-        <feature>jaxws</feature>
-        <platform>badname</platform>
-    </featureManager>     
-</server>

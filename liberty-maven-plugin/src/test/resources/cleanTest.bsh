@@ -1,11 +1,11 @@
 //If need to check build.log for error message, call script
 boolean flag = true;
-if (basedir.getName().contains("versionless-feature-fail-")) {
+if (basedir.getName().contains("versionless-feature-fail-") || basedir.getName().contains("springboot-3-appsdirectory-apps-fail-")) {
     String errorScript = new File(basedir, "checkErrorVersionlessFeature.bsh").getAbsolutePath();
     System.out.println("Running post-build script: "+ errorScript);
     flag = source(errorScript);
 }
 //Runs clean in the test project directory
-Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
+//Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
 System.out.println("Cleaned target dir(s) for " + basedir);
 return flag;
