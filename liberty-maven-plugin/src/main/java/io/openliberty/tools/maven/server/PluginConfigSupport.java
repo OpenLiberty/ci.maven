@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -383,9 +384,13 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         return scd != null ? scd.getLocations() : new HashSet<String>();
     }
 
-    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, Map<String, File> libertyDirPropertyFiles) throws IOException {
+    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, Map<String, File> libertyDirPropertyFiles) throws IOException, MojoExecutionException {
         if (scd == null || !scd.getOriginalServerXMLFile().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
-            scd = new ServerConfigDocument(log, serverXML, libertyDirPropertyFiles);
+            try {
+                scd = new ServerConfigDocument(log, serverXML, libertyDirPropertyFiles);
+            } catch (PluginExecutionException e) {
+               throw new MojoExecutionException(e.getMessage());
+            }
         }
 
         return scd;
