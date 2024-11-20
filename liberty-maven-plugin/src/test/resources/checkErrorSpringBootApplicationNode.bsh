@@ -1,0 +1,35 @@
+//Check build.log content for certain tests
+boolean flag = false;
+String testname = basedir.getName();
+String expectedMessage = null;
+switch (testname) {
+    case "springboot-3-appsdirectory-apps-fail-it":
+         expectedMessage = "Found multiple springBootApplication elements specified in the server configuration. Only one springBootApplication can be configured per Liberty server.";
+         break;
+    default:
+         return false;
+}
+File buildlog = new File(basedir,"build.log");
+if (buildlog.exists()) {
+    try {
+        InputStream buildOutput = new FileInputStream(buildlog); 
+        InputStreamReader in = new InputStreamReader(buildOutput); 
+        java.util.Scanner s = new java.util.Scanner(in);
+	    while (s.hasNextLine() && !flag) {
+	        String line = s.nextLine();
+	        if (line.contains(expectedMessage)) {
+	            flag = true;
+                System.out.println("Correct error message found for test "+testname);
+	        }
+	    }
+        s.close();
+        in.close();
+        buildOutput.close();
+	} catch (Exception e) {
+	    System.out.println("Error checking build.log " + e.getMessage());
+	}
+}
+if (!flag) {
+    System.out.println("FAILED: Expected error message ("+expectedMessage+") not found in "+buildlog.getAbsolutePath());
+}
+return flag;
