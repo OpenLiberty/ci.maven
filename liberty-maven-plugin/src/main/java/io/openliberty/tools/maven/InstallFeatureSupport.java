@@ -156,15 +156,16 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         List<String> result = new ArrayList<String>();
         org.apache.maven.model.DependencyManagement dependencyManagement = project.getDependencyManagement();
         if(dependencyManagement == null) {
-        	getLog().debug("Feature-bom is not provided by the user");
+        	getLog().debug("Features-bom is not provided by the user");
         	return null;
         }
         List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
         for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
-            if (("pom").equals(dependencyArtifact.getType())) {
+            if (("pom").equals(dependencyArtifact.getType()) && ("features-bom").equals(dependencyArtifact.getArtifactId())) {
                 String coordinate = String.format("%s:%s:%s",
                         dependencyArtifact.getGroupId(), FEATURES_JSON_ARTIFACT_ID, dependencyArtifact.getVersion());
                 result.add(coordinate);
+                getLog().debug("Features-bom is provided by the user");
                 getLog().info("Additional user feature json coordinate: " + coordinate);
             }
         }
