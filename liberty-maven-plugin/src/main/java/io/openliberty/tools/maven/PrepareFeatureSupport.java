@@ -110,7 +110,7 @@ public abstract class PrepareFeatureSupport extends BasicSupport {
         if (dependencyManagement != null) {
         	List<org.apache.maven.model.Dependency> dependencyManagementArtifacts = dependencyManagement.getDependencies();
             for (org.apache.maven.model.Dependency dependencyArtifact: dependencyManagementArtifacts){
-                if (("pom").equals(dependencyArtifact.getType())) {
+                if (("pom").equals(dependencyArtifact.getType()) && ("features-bom").equals(dependencyArtifact.getArtifactId()) ) {
                 	String coordinate = String.format("%s:%s:%s",
                     		dependencyArtifact.getGroupId(), dependencyArtifact.getArtifactId(), dependencyArtifact.getVersion());
                     result.add(coordinate);
