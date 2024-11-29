@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.openliberty.tools.common.plugins.util.LibertyPropFilesUtility;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -235,7 +237,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
             Set<String> dependencyFeatures = getDependencyFeatures();
             Set<String> serverFeatures = new HashSet<String>();
             Set<String> serverPlatforms = new HashSet<String>();
-            FeaturesPlatforms getServerResult = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, getLibertyDirectoryPropertyFiles()) : null;
+            FeaturesPlatforms getServerResult = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDirectory, userDirectory, serverDirectory)) : null;
             if (getServerResult != null) {
             	serverFeatures = getServerResult.getFeatures();
             	serverPlatforms = getServerResult.getPlatforms();
