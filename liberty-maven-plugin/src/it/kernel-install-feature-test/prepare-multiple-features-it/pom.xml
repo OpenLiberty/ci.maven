@@ -30,25 +30,6 @@
 	                    </goals>
 	
 	                    <configuration>
-			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/hello-bom/1.0</outputDirectory>
-			                <resources>
-			                    <resource>
-			                        <directory>src/test/resources</directory>
-			                        <includes>
-			                            <include>hello-bom-1.0.pom</include>
-			                        </includes>
-			                    </resource>
-			                </resources>
-			            </configuration>
-	                </execution>
-	                <execution>
-	                    <id>copy-resource-two</id>
-	                    <phase>process-test-resources</phase>
-	                    <goals>
-	                        <goal>copy-resources</goal>
-	                    </goals>
-	
-	                    <configuration>
 			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/hello-esa-plugin/1.0</outputDirectory>
 			                <resources>
 			                    <resource>
@@ -61,26 +42,26 @@
 			            </configuration>
 	                </execution>
 					<execution>
-	                    <id>copy-resource-three</id>
+	                    <id>copy-resource-two</id>
 	                    <phase>process-test-resources</phase>
 	                    <goals>
 	                        <goal>copy-resources</goal>
 	                    </goals>
 	
 	                    <configuration>
-			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/SimpleActivator-bom/1.0</outputDirectory>
+			                <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/features-bom/1.0</outputDirectory>
 			                <resources>
 			                    <resource>
 			                        <directory>src/test/resources</directory>
 			                        <includes>
-			                            <include>SimpleActivator-bom-1.0.pom</include>
+			                            <include>features-bom-1.0.pom</include>
 			                        </includes>
 			                    </resource>
 			                </resources>
 			            </configuration>
 	                </execution>
 	                <execution>
-	                    <id>copy-resource-four</id>
+	                    <id>copy-resource-three</id>
 	                    <phase>process-test-resources</phase>
 	                    <goals>
 	                        <goal>copy-resources</goal>
@@ -156,18 +137,12 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>${bom.group.id}</groupId>
-        <artifactId>hello-bom</artifactId>
-        <version>1.0</version>
-        <type>pom</type>
-      </dependency>
-	<dependency>
-        <groupId>test.user.test.osgi</groupId>
-        <artifactId>SimpleActivator-bom</artifactId>
-        <version>1.0</version>
-        <type>pom</type>
-      </dependency>
+		<dependency>
+			<groupId>test.user.test.osgi</groupId>
+			<artifactId>features-bom</artifactId>
+			<version>1.0</version>
+			<type>pom</type>
+		</dependency>
     </dependencies>
   </dependencyManagement>
 </project>

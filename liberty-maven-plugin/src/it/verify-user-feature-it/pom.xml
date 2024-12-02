@@ -41,12 +41,12 @@
                         </goals>
     
                         <configuration>
-                            <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/SimpleActivator-bom/1.0</outputDirectory>
+                            <outputDirectory>${user.home}/.m2/repository/test/user/test/osgi/features-bom/1.0</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/test/resources</directory>
                                     <includes>
-                                        <include>SimpleActivator-bom-1.0.pom</include>
+                                        <include>features-bom-1.0.pom</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -159,7 +159,7 @@
     <dependencies>
         <dependency>
           <groupId>test.user.test.osgi</groupId>
-          <artifactId>SimpleActivator-bom</artifactId>
+          <artifactId>features-bom</artifactId>
           <version>1.0</version>
           <type>pom</type>
         </dependency>
