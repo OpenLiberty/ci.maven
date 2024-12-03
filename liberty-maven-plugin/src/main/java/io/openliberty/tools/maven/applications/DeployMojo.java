@@ -118,10 +118,10 @@ public class DeployMojo extends DeployMojoSupport {
         File fatArchiveSrc = SpringBootUtil.getSpringBootUberJAR(project, getLog());
         File serverXML = new File(serverDirectory, "server.xml");
 
-        Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
+
         CommonLogger logger = new CommonLogger(getLog());
         setLog(logger.getLog());
-        getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
+        getServerConfigDocument(logger, serverXML);
 
         // Check if the archiveSrc is executable and then invokeSpringUtilCommand.
         if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchiveSrc)) {

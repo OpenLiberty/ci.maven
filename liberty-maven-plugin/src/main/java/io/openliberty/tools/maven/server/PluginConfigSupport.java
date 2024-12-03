@@ -372,10 +372,9 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
 
         if (serverXML != null && serverXML.exists()) {
             try {
-            Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
             CommonLogger logger = new CommonLogger(getLog());
             setLog(logger.getLog());
-            scd = getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
+            scd = getServerConfigDocument(logger, serverXML);
             } catch (Exception e) {
                 getLog().warn(e.getLocalizedMessage());
                 getLog().debug(e);
@@ -384,10 +383,10 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         return scd != null ? scd.getLocations() : new HashSet<String>();
     }
 
-    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML, Map<String, File> libertyDirPropertyFiles) throws IOException, MojoExecutionException {
+    protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML) throws IOException, MojoExecutionException {
         if (scd == null || !scd.getOriginalServerXMLFile().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
             try {
-                scd = new ServerConfigDocument(log, serverXML, libertyDirPropertyFiles);
+                scd = new ServerConfigDocument(log, serverXML, installDirectory,userDirectory,serverDirectory);
             } catch (PluginExecutionException e) {
                throw new MojoExecutionException(e.getMessage());
             }

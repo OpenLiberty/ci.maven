@@ -133,10 +133,9 @@ public class UndeployAppMojo extends DeployMojoSupport {
             try {
                 File serverXML = new File(serverDirectory.getCanonicalPath(), "server.xml");
 
-                Map<String, File> libertyDirPropertyFiles = getLibertyDirectoryPropertyFiles();
                 CommonLogger logger = new CommonLogger(getLog());
                 setLog(logger.getLog());
-                scd = getServerConfigDocument(logger, serverXML, libertyDirPropertyFiles);
+                scd = getServerConfigDocument(logger, serverXML);
 
                 //appName will be set to a name derived from file if no name can be found.
                 appName = scd.findNameForLocation(appName);

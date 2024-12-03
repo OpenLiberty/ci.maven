@@ -41,6 +41,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.openliberty.tools.common.plugins.util.LibertyPropFilesUtility;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
@@ -359,8 +361,8 @@ public class DevMojo extends LooseAppSupport {
                     keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
                     pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
 
-            this.libertyDirPropertyFiles = BasicSupport.getLibertyDirectoryPropertyFiles(installDir, userDir,
-                    serverDirectory);                    
+            this.libertyDirPropertyFiles = LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDir, userDir,
+                    serverDirectory);
             ServerFeatureUtil servUtil = getServerFeatureUtil(true, libertyDirPropertyFiles);  
             FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, libertyDirPropertyFiles);
             if (fp != null) {
