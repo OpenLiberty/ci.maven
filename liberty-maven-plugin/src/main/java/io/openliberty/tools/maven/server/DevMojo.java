@@ -1706,18 +1706,23 @@ public class DevMojo extends LooseAppSupport {
         }
 
         String release = getCompilerOption(configuration, "release", "maven.compiler.release", currentProject);
+        String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
+        String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
         if (release != null) {
             getLog().debug("Setting compiler release to " + release);
-            getLog().debug("Compiler options source and target will be ignored");
+            if (source != null) {
+                getLog().debug("Compiler options source will be ignored since release is specified");
+            }
+            if (target != null) {
+                getLog().debug("Compiler options target will be ignored since release is specified");
+            }
             compilerOptions.setRelease(release);
-        }else {
+        } else {
             // add source and target only if release is not set
-            String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
             if (source != null) {
                 getLog().debug("Setting compiler source to " + source);
                 compilerOptions.setSource(source);
             }
-            String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
             if (target != null) {
                 getLog().debug("Setting compiler target to " + target);
                 compilerOptions.setTarget(target);
