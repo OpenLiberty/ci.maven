@@ -1705,22 +1705,28 @@ public class DevMojo extends LooseAppSupport {
             compilerOptions.setShowWarnings(showWarningsBoolean);
         }
 
-        String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
-        if (source != null) {
-            getLog().debug("Setting compiler source to " + source);
-            compilerOptions.setSource(source);
-        }
-
-        String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
-        if (target != null) {
-            getLog().debug("Setting compiler target to " + target);
-            compilerOptions.setTarget(target);
-        }
-
         String release = getCompilerOption(configuration, "release", "maven.compiler.release", currentProject);
+        String source = getCompilerOption(configuration, "source", "maven.compiler.source", currentProject);
+        String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
         if (release != null) {
             getLog().debug("Setting compiler release to " + release);
+            if (source != null) {
+                getLog().debug("Compiler option source will be ignored since release is specified");
+            }
+            if (target != null) {
+                getLog().debug("Compiler option target will be ignored since release is specified");
+            }
             compilerOptions.setRelease(release);
+        } else {
+            // add source and target only if release is not set
+            if (source != null) {
+                getLog().debug("Setting compiler source to " + source);
+                compilerOptions.setSource(source);
+            }
+            if (target != null) {
+                getLog().debug("Setting compiler target to " + target);
+                compilerOptions.setTarget(target);
+            }
         }
 
         String encoding = getCompilerOption(configuration, "encoding", "project.build.sourceEncoding", currentProject);
