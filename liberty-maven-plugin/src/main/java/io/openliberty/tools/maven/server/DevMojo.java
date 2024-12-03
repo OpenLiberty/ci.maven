@@ -1711,10 +1711,10 @@ public class DevMojo extends LooseAppSupport {
         if (release != null) {
             getLog().debug("Setting compiler release to " + release);
             if (source != null) {
-                getLog().debug("Compiler options source will be ignored since release is specified");
+                getLog().debug("Compiler option source will be ignored since release is specified");
             }
             if (target != null) {
-                getLog().debug("Compiler options target will be ignored since release is specified");
+                getLog().debug("Compiler option target will be ignored since release is specified");
             }
             compilerOptions.setRelease(release);
         } else {
