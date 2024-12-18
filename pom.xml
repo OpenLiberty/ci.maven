@@ -12,7 +12,7 @@
 
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven</artifactId>
-    <version>3.11.2</version>
+    <version>3.11.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Liberty Tools for Maven</name>
     <description>
@@ -33,7 +33,7 @@
         <connection>scm:git:git@github.com:OpenLiberty/ci.maven.git</connection>
         <developerConnection>scm:git:git@github.com:OpenLiberty/ci.maven.git</developerConnection>
         <url>git@github.com:OpenLiberty/ci.maven.git</url>
-        <tag>liberty-maven-3.11.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
