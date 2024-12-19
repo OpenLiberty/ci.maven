@@ -352,14 +352,14 @@ public class DevMojo extends LooseAppSupport {
                 List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                 List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
                 File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
-                Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs) throws IOException, PluginExecutionException {
+                Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs, boolean compileMojoError) throws IOException, PluginExecutionException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, changeOnDemandTestsAction, hotTests, skipTests,
                     skipUTs, skipITs, skipInstallFeature, project.getArtifactId(), serverStartTimeout, verifyTimeout, verifyTimeout,
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
                     containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
 
             this.libertyDirPropertyFiles = LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDir, userDir,
                     serverDirectory);
@@ -1342,6 +1342,7 @@ public class DevMojo extends LooseAppSupport {
     }
 
     private void doDevMode() throws MojoExecutionException {
+        boolean compileMojoError = false;
         String mvnVersion = runtime.getMavenVersion();
         getLog().debug("Maven version: " + mvnVersion);
         // Maven 3.8.2 and 3.8.3 contain a bug where compile artifacts are not resolved
@@ -1460,8 +1461,12 @@ public class DevMojo extends LooseAppSupport {
             getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-            runCompileMojoLogWarning();
-            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
+            try {
+                runCompileMojoLogWarningWithException();
+            } catch (MojoExecutionException e) {
+                compileMojoError = true;
+            }
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
             runTestCompileMojoLogWarning();
         }
 
@@ -1614,7 +1619,7 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
@@ -2022,6 +2027,23 @@ public class DevMojo extends LooseAppSupport {
         getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
+    }
+
+    private void runCompileMojoLogWarningWithException() throws MojoExecutionException {
+
+        String goal = "compile";
+
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", project);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        MavenProject tempProject = project;
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+        config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "true")), config);
+        getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
+        getLog().debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
+
+        updateArtifactPathToOutputDirectory(project);
     }
 
     /**
