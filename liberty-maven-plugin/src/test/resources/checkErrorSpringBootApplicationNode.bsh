@@ -6,6 +6,9 @@ switch (testname) {
     case "springboot-3-appsdirectory-apps-fail-it":
          expectedMessage = "Found multiple springBootApplication elements specified in the server configuration. Only one springBootApplication can be configured per Liberty server.";
          break;
+    case "springboot-3-appsdirectory-apps-fail-include-it":
+          expectedMessage = "Found multiple springBootApplication elements specified in the server configuration. Only one springBootApplication can be configured per Liberty server.";
+          break;
     default:
          return false;
 }

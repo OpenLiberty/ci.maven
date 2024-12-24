@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+    <springBootApplication id="guide-spring-boot"
+                           location="guide-spring-boot-0.2.0.jar"
+                           name="guide-spring-boot" />
+</server>
