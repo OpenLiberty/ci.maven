@@ -56,7 +56,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
 
        int generateFeaturesCount = countOccurrences("Running liberty:generate-features", logFile);
-       assertTrue(verifyLogMessageExists("Recompile skipped for dev-sample-proj since earlier compilation is successful", 10000));
+       assertTrue(verifyLogMessageExists("Recompile dev-sample-proj due to an earlier compilation error", 10000));
 
        // modify MicroProfile umbrella dependency in pom.xml
        replaceString("<dependency>\n"
