@@ -311,7 +311,7 @@ public class DevMojo extends LooseAppSupport {
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
-    private boolean compileMojoError = false;
+    private static Map<String,Boolean> compileMojoError;
 
     /**
      * Set the container option.
@@ -493,7 +493,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void stopServer() {
             super.serverFullyStarted.set(false);
-
+            compileMojoError.clear();
             if (container) {
                 // TODO stop the container instead
                 return;
@@ -1356,7 +1356,9 @@ public class DevMojo extends LooseAppSupport {
         if (project.getPackaging().equals("ear")) {
             isEar = true;
         }
-
+        if (compileMojoError == null) {
+            compileMojoError = new HashMap<>();
+        }
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
         List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
@@ -1391,13 +1393,13 @@ public class DevMojo extends LooseAppSupport {
                         runCompileMojoLogWarningWithException("compile");
                     } catch (MojoExecutionException e) {
                         // set init recompile necessary in case any module fail
-                        compileMojoError = true;
+                        compileMojoError.put(project.getName(),Boolean.TRUE);
                     }
                     if(hotTests) {
                         try {
                             runCompileMojoLogWarningWithException("testCompile");
                         } catch (MojoExecutionException e) {
-                            compileMojoError = true;
+                            compileMojoError.put(project.getName(),Boolean.TRUE);
                         }
                     }
                 }
@@ -1473,7 +1475,7 @@ public class DevMojo extends LooseAppSupport {
             try {
                 runCompileMojoLogWarningWithException("testCompile");
             } catch (MojoExecutionException e) {
-                compileMojoError = true;
+                compileMojoError.put(project.getName(),Boolean.TRUE);
             }
         } else if (project.getPackaging().equals("pom")) {
             getLog().debug("Skipping compile/resources on module with pom packaging type");
@@ -1482,13 +1484,13 @@ public class DevMojo extends LooseAppSupport {
             try {
                 runCompileMojoLogWarningWithException("compile");
             } catch (MojoExecutionException e) {
-                compileMojoError = true;
+                compileMojoError.put(project.getName(),Boolean.TRUE);
             }
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
             try {
                 runCompileMojoLogWarningWithException("testCompile");
             } catch (MojoExecutionException e) {
-                compileMojoError = true;
+                compileMojoError.put(project.getName(),Boolean.TRUE);
             }
         }
 
