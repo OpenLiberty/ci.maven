@@ -11,6 +11,6 @@ if (basedir.getName().contains("springboot-3-appsdirectory-apps-fail-")) {
     flag = source(errorScript);
 }
 //Runs clean in the test project directory
-//Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
+Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
 System.out.println("Cleaned target dir(s) for " + basedir);
 return flag;
