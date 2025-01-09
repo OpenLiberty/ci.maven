@@ -311,7 +311,7 @@ public class DevMojo extends LooseAppSupport {
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
-    private static Map<String,Boolean> compileMojoError;
+    private static Map<String,Boolean> compileMojoError = new HashMap<>();
 
     /**
      * Set the container option.
@@ -1355,9 +1355,6 @@ public class DevMojo extends LooseAppSupport {
         boolean isEar = false;
         if (project.getPackaging().equals("ear")) {
             isEar = true;
-        }
-        if (compileMojoError == null) {
-            compileMojoError = new HashMap<>();
         }
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
