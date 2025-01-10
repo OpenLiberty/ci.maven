@@ -7,7 +7,7 @@ switch (testname) {
             expectedMessage = "Found multiple springBootApplication elements specified in the server configuration file";
             break;
     case "springboot-3-appsdirectory-apps-fail-include-it":
-            expectedMessage = "Found multiple springBootApplication elements are specified in multiple server configuration files";
+            expectedMessage = "Found multiple springBootApplication elements specified in the server configuration in files";
             break;
     default:
          return false;
