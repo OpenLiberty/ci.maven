@@ -4,8 +4,11 @@ String testname = basedir.getName();
 String expectedMessage = null;
 switch (testname) {
     case "springboot-3-appsdirectory-apps-fail-it":
-         expectedMessage = "Found multiple springBootApplication elements specified in the server configuration. Only one springBootApplication can be configured per Liberty server.";
-         break;
+            expectedMessage = "Found multiple springBootApplication elements specified in the server configuration file";
+            break;
+    case "springboot-3-appsdirectory-apps-fail-include-it":
+            expectedMessage = "Found multiple springBootApplication elements specified in the server configuration in files";
+            break;
     default:
          return false;
 }
