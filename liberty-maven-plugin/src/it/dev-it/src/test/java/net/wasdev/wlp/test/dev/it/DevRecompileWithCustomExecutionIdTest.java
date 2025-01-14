@@ -36,7 +36,7 @@ public class DevRecompileWithCustomExecutionIdTest extends BaseDevTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass(null, "../resources/basic-dev-project-with-execution-id", false, false, null, null);
+        setUpBeforeClass(null, "../resources/basic-dev-project-with-execution-id", true, false, null, null);
     }
 
     @AfterClass
@@ -62,5 +62,6 @@ public class DevRecompileWithCustomExecutionIdTest extends BaseDevTest {
 
         //java-compile is the custom execution id
         assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#java-compile", 120000));
+        assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
     }
 }
