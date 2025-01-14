@@ -60,7 +60,8 @@ public class DevRecompileWithDefaultExecutionIdTest extends BaseDevTest {
 
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
-      // Check that the server has started
+      // Check that the correct execution id is picked up
+      // in this case, we are not passing any execution id in pom.xml, hence default execution id will be taken up
       assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#default-compile", 120000));
    }
 }
