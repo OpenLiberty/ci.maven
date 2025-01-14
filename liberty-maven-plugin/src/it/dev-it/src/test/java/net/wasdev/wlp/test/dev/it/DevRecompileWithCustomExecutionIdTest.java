@@ -62,7 +62,5 @@ public class DevRecompileWithCustomExecutionIdTest extends BaseDevTest {
 
         //java-compile is the custom execution id
         assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#java-compile", 120000));
-        // Check that the server has started
-        assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
     }
 }

@@ -36,7 +36,7 @@ public class DevRecompileWithDefaultExecutionIdTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-dev-project", false, false, null, null);
+      setUpBeforeClass(null, "../resources/basic-dev-project-with-default-execution-id", false, false, null, null);
    }
 
    @AfterClass
@@ -61,6 +61,6 @@ public class DevRecompileWithDefaultExecutionIdTest extends BaseDevTest {
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
       // Check that the server has started
-      assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
+      assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#default-compile", 120000));
    }
 }
