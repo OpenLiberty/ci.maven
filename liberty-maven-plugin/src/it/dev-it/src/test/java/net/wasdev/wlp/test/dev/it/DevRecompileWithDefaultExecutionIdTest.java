@@ -37,12 +37,12 @@ public class DevRecompileWithDefaultExecutionIdTest extends BaseDevTest {
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
       setUpBeforeClass(null, "../resources/basic-dev-project-with-default-execution-id", false, false, null, null);
-      startProcess(null, true, "mvn compile liberty:", true);
+      startProcess(null, false, "mvn compile liberty:", false);
    }
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass(true);
+      BaseDevTest.cleanUpAfterClass(false, false);
    }
 
    @Test
