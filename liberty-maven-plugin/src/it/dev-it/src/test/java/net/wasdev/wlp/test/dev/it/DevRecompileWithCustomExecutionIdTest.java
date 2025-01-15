@@ -36,7 +36,7 @@ public class DevRecompileWithCustomExecutionIdTest extends BaseDevTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass(null, "../resources/basic-dev-project-with-execution-id", true, false, null, null);
+        setUpBeforeClassWithoutTemp(null, "../resources/basic-dev-project-with-execution-id", true, false, null, null);
         startProcess(null, true, "mvn compile liberty:", true);
     }
 
