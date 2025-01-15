@@ -272,7 +272,7 @@ public class ExecuteMojoUtil {
         int numExec = 0;
 
         List<PluginExecution> executions = plugin.getExecutions()
-                .stream().sorted(Comparator.comparing(PluginExecution::getPriority)).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(PluginExecution::getPriority).reversed()).collect(Collectors.toList());
         if (!executions.isEmpty()) {
             for (PluginExecution e : executions) {
                 if (e.getGoals() != null && e.getGoals().contains(goal)) {
