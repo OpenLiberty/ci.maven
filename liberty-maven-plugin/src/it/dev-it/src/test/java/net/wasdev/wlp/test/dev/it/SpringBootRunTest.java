@@ -52,24 +52,10 @@ public class SpringBootRunTest extends BaseDevTest {
     */
    @Test
    public void validateRunExecutionNotSkipped() throws Exception {
-	   String mavenPluginCommand = "mvn package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run";
-
-       StringBuilder command = new StringBuilder(mavenPluginCommand);
-       ProcessBuilder builder = buildProcess(command.toString());
-
-       builder.redirectOutput(logFile);
-       builder.redirectError(logFile);
-       process = builder.start();
-       assertTrue(process.isAlive());
-
-       OutputStream stdin = process.getOutputStream();
-
-       writer = new BufferedWriter(new OutputStreamWriter(stdin));
-	      
 	   // Make sure we are not skipping the project
-	   assertTrue(getLogTail(), verifyLogMessageDoesNotExist("Skipping module springboot-project which is not included in this invocation of the run goal", 30000));
+	   assertTrue(verifyLogMessageDoesNotExist("Skipping module springboot-project which is not included in this invocation of the run goal", 30000));
    
 	   // Check that the server has started
-       assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
+       assertTrue(verifyLogMessageExists("CWWKF0011I", 120000));
    }
 }
