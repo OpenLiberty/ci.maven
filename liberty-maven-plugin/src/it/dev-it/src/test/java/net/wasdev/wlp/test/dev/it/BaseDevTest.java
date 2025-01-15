@@ -151,58 +151,6 @@ public class BaseDevTest {
       }
    }
 
-   /**
-    * Setup and optionally start dev/run
-    *
-    * @param params Params for the dev/run goal
-    * @param projectRoot The Maven project root
-    * @param isDevMode Use dev if true, use run if false.  Ignored if startProcessDuringSetup is false.
-    * @param startProcessDuringSetup If this method should start the actual dev/run process
-    * @param libertyConfigModule For multi module project, the module where Liberty configuration is located
-    * @param pomModule For multi module project, the module where the pom is located.  If null, use the project root.
-    * @throws IOException
-    * @throws InterruptedException
-    * @throws FileNotFoundException
-    */
-   protected static void setUpBeforeClassWithoutTemp(String params, String projectRoot, boolean isDevMode, boolean startProcessDuringSetup, String libertyConfigModule, String pomModule) throws IOException, InterruptedException, FileNotFoundException {
-      customLibertyModule = libertyConfigModule;
-      customPomModule = pomModule;
-
-      basicDevProj = new File(projectRoot);
-
-      tempProj = basicDevProj;
-      assertTrue("temp directory does not exist", tempProj.exists());
-
-      assertTrue(projectRoot+" directory does not exist", basicDevProj.exists());
-
-      assertTrue("temp directory does not contain expected copied files from "+projectRoot, tempProj.listFiles().length > 0);
-
-      // in case cleanup was not successful, try to delete the various log files so we can proceed
-      logFile = new File(basicDevProj, "logFile.txt");
-      if (logFile.exists()) {
-         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
-      }
-      assertTrue("log file already existed: "+logFile.getCanonicalPath(), logFile.createNewFile());
-      logErrorFile = new File(basicDevProj, "logErrorFile.txt");
-      if (logErrorFile.exists()) {
-         assertTrue("Could not delete logError file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
-      }
-      assertTrue("logError file already existed: "+logErrorFile.getCanonicalPath(), logErrorFile.createNewFile());
-
-      if (customPomModule == null) {
-         pom = new File(tempProj, "pom.xml");
-      } else {
-         pom = new File(new File(tempProj, customPomModule), "pom.xml");
-      }
-      assertTrue(pom.getCanonicalPath()+" file does not exist", pom.exists());
-
-      replaceVersion();
-
-      if (startProcessDuringSetup) {
-         startProcess(params, isDevMode);
-      }
-   }
-
    protected static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
       startProcess(params, isDevMode, "mvn liberty:");
    }

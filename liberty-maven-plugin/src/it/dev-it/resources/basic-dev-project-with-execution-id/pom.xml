@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev-it-tests</groupId>
-  <artifactId>dev-sample-proj</artifactId>
+  <artifactId>basic-dev-project-with-execution-id</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
 

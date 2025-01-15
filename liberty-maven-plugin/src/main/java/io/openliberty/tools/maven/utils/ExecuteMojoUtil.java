@@ -22,9 +22,11 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -269,8 +271,9 @@ public class ExecuteMojoUtil {
         String execId = "default";
         int numExec = 0;
 
-        List<PluginExecution> executions = plugin.getExecutions();
-        if (executions != null) {
+        List<PluginExecution> executions = plugin.getExecutions()
+                .stream().sorted(Comparator.comparing(PluginExecution::getPriority)).collect(Collectors.toList());
+        if (!executions.isEmpty()) {
             for (PluginExecution e : executions) {
                 if (e.getGoals() != null && e.getGoals().contains(goal)) {
                     if (numExec == 0) {
@@ -289,10 +292,10 @@ public class ExecuteMojoUtil {
             config = (Xpp3Dom) plugin.getConfiguration();
         }
         if (numExec > 1) {
-            log.warn(plugin.getArtifactId() + ":" + goal 
+            log.warn(plugin.getArtifactId() + ":" + goal
                     + " goal has multiple execution configurations (default to \"" + execId + "\" execution)");
         }
-        
+
         if (config == null) {
             config = configuration();
         } else {
