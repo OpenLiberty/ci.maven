@@ -34,6 +34,7 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @Test
    public void autoTestsInvocationTest() throws Exception {
+      assertTrue(verifyLogMessageExists("Recompile skipped for dev-sample-proj since earlier compilation is successful", 20000));
       assertTrue(verifyLogMessageExists("Tests will run automatically", 20000));
    
       testModifyJavaFile();
