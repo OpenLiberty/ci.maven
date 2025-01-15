@@ -36,20 +36,20 @@ public class DevRecompileWithDefaultExecutionIdTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-dev-project-with-default-execution-id", false, false, null, null);
-      startProcess(null, false, "mvn compile liberty:", false);
+      setUpBeforeClass(null, "../resources/basic-dev-project-with-default-execution-id", true, false, null, null);
+      startProcess(null, true, "mvn compile liberty:", true);
    }
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass(false, false);
+      BaseDevTest.cleanUpAfterClass(true, true);
    }
 
    @Test
    public void validateRunExecutionNotSkipped() throws Exception {
-      assertTrue(verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
       // Check that the correct execution id is picked up
       // in this case, we are not passing any execution id in pom.xml, hence default execution id will be taken up
-      assertTrue(verifyLogMessageExists("Running maven-compiler-plugin:compile#default-compile", 120000));
+      assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#default-compile", 120000));
+      assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
    }
 }

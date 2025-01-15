@@ -58,7 +58,9 @@
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/*DevRecompileWithCustomExecutionIdTest.java</include>
+                        <include>**/*DevRecompileWithDefaultExecutionIdTest.java</include>
+                        <include>**/*DevTest.java</include>
                     </includes>
                     <systemPropertyVariables>
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>

@@ -36,19 +36,19 @@ public class DevRecompileWithCustomExecutionIdTest extends BaseDevTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass(null, "../resources/basic-dev-project-with-execution-id", false, false, null, null);
-        startProcess(null, false, "mvn compile liberty:", false);
+        setUpBeforeClass(null, "../resources/basic-dev-project-with-execution-id", true, false, null, null);
+        startProcess(null, true, "mvn compile liberty:", true);
     }
 
     @AfterClass
     public static void cleanUpAfterClass() throws Exception {
-        BaseDevTest.cleanUpAfterClass(false, false);
+        BaseDevTest.cleanUpAfterClass(true, true);
     }
 
     @Test
     public void validateRunExecutionNotSkipped() throws Exception {
         //java-compile is the custom execution id
-        assertTrue(verifyLogMessageExists("Running maven-compiler-plugin:compile#java-compile", 120000));
-        assertTrue(verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
+        assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#java-compile", 120000));
+        assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 120000));
     }
 }
