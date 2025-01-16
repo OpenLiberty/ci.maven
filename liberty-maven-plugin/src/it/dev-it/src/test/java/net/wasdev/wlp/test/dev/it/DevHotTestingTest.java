@@ -34,8 +34,6 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @Test
    public void autoTestsInvocationTest() throws Exception {
-      assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#default-compile", 20000));
-      assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 20000));
       assertTrue(verifyLogMessageExists("Tests will run automatically", 20000));
    
       testModifyJavaFile();

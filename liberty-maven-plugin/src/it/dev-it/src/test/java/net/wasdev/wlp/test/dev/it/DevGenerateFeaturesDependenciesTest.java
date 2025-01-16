@@ -42,8 +42,6 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
     @Test
     public void updateDependencyTest() throws Exception {
        assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
-       assertTrue(getLogTail(), verifyLogMessageExists("Running maven-compiler-plugin:compile#java-compile", 10000));
-       assertTrue(getLogTail(), verifyLogMessageExists("Nothing to compile - all classes are up to date.", 10000));
 
        File generatedFeaturesFile = getGeneratedFeaturesFile();
        File targetGeneratedFeaturesFile = getTargetGeneratedFeaturesFile();

@@ -152,7 +152,7 @@ public class BaseDevTest {
    }
 
    protected static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
-      startProcess(params, isDevMode, "mvn compile liberty:");
+      startProcess(params, isDevMode, "mvn liberty:");
    }
 
    protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand) throws IOException, InterruptedException, FileNotFoundException {
