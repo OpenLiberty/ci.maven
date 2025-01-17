@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2024.
+ * (C) Copyright IBM Corporation 2019, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2019,6 +2019,7 @@ public class DevMojo extends LooseAppSupport {
         MavenProject tempProject = mavenProject;
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "false")), config);
+        goal = goal + "#" + getExecutionId(goal, plugin);
         getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));

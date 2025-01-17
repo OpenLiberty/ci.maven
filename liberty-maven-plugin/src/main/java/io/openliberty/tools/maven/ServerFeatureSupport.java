@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2024.
+ * (C) Copyright IBM Corporation 2021, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,17 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -343,5 +346,26 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
+    }
+
+    /**
+     * Get Plugin execution id from current project build configuration
+     * @param goal
+     * @param plugin
+     * @return
+     */
+    protected String getExecutionId(String goal, Plugin plugin) {
+        // by default, each goal will have default execution, it will be named as default-{goal_name}
+        // if user has specified execution id in <executions> for a plugin, plugin execution list will have multiple entries
+        // if multiple entries are present, default execution id will have lowest priority(-1)
+        // due to this, we are taking pluginExecution will maximum priority
+        Optional<PluginExecution> currentExecution = plugin.getExecutions().stream()
+                .filter(pluginExecution -> pluginExecution.getGoals().stream().anyMatch(goal1 -> goal1.equals(goal)))
+                .max(Comparator.comparing(PluginExecution::getPriority));
+        if (currentExecution.isPresent()) {
+            return currentExecution.get().getId();
+        } else {
+            return "default-" + goal;
+        }
     }
 }
