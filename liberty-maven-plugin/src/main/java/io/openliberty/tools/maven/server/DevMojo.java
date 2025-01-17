@@ -2058,6 +2058,7 @@ public class DevMojo extends LooseAppSupport {
         MavenProject tempProject = project;
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
         config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "true")), config);
+        goal = goal + "#" + getExecutionId(goal, plugin);
         getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));

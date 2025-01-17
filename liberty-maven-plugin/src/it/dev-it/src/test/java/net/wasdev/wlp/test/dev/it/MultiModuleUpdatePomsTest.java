@@ -47,17 +47,18 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       // Wait until the last module (ear) finishes compiling during dev mode startup
       // TODO: this can be removed if dev mode does not recompile after first starting up
       verifyLogMessageExists("guide-maven-multimodules-ear tests compilation was successful", 10000);
-      // verify that generated-features.xml file exists
-      File newFeatureFile = getGeneratedFeaturesFile("ear");
-      assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
-      long newFeatureFileLastModified = newFeatureFile.lastModified();
-      waitLongEnough();
 
       int jarSourceCount = countOccurrences("guide-maven-multimodules-jar source compilation was successful.", logFile);
       int jarTestsCount = countOccurrences("guide-maven-multimodules-jar tests compilation was successful.", logFile);
       int warSourceCount = countOccurrences("guide-maven-multimodules-war source compilation was successful.", logFile);
       int warTestsCount = countOccurrences("guide-maven-multimodules-war tests compilation was successful.", logFile);
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
+
+      // verify that generated-features.xml file exists
+      File newFeatureFile = getGeneratedFeaturesFile("ear");
+      assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
+      long newFeatureFileLastModified = newFeatureFile.lastModified();
+      waitLongEnough();
 
       touchFileTwice("jar/pom.xml");
 
