@@ -59,7 +59,7 @@ jobs:
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.9.2
+        maven-version: 3.9.9
     # Install dependencies
     - name: Install ci.ant and ci.common
       run: |
@@ -108,7 +108,7 @@ jobs:
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.9.2
+        maven-version: 3.9.9
     # Install ci.ant
     - name: Install ci.ant
       working-directory: C:/ci.ant
