@@ -311,6 +311,7 @@ public class DevMojo extends LooseAppSupport {
     
     private boolean isExplodedLooseWarApp = false;
     private boolean isNewInstallation = true;
+    private static Map<String,Boolean> compileMojoError = new HashMap<>();
 
     /**
      * Set the container option.
@@ -359,7 +360,7 @@ public class DevMojo extends LooseAppSupport {
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
                     containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs);
+                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
 
             this.libertyDirPropertyFiles = LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDir, userDir,
                     serverDirectory);
@@ -492,7 +493,7 @@ public class DevMojo extends LooseAppSupport {
         @Override
         public void stopServer() {
             super.serverFullyStarted.set(false);
-
+            compileMojoError.clear();
             if (container) {
                 // TODO stop the container instead
                 return;
@@ -1355,7 +1356,6 @@ public class DevMojo extends LooseAppSupport {
         if (project.getPackaging().equals("ear")) {
             isEar = true;
         }
-
         // If there are downstream projects (e.g. other modules depend on this module in the Maven Reactor build order),
         // then skip dev mode on this module but only run compile.
         List<MavenProject> upstreamMavenProjects = new ArrayList<MavenProject>();
@@ -1386,7 +1386,19 @@ public class DevMojo extends LooseAppSupport {
                     getLog().debug("Skipping compile/resources on module with pom packaging type");
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-                    runCompileMojoLogWarning();
+                    try {
+                        runCompileMojoLogWarningWithException("compile");
+                    } catch (MojoExecutionException e) {
+                        // set init recompile necessary in case any module fail
+                        compileMojoError.put(project.getName(),Boolean.TRUE);
+                    }
+                    if(hotTests) {
+                        try {
+                            runCompileMojoLogWarningWithException("testCompile");
+                        } catch (MojoExecutionException e) {
+                            compileMojoError.put(project.getName(),Boolean.TRUE);
+                        }
+                    }
                 }
                 return;
             } else {
@@ -1456,13 +1468,27 @@ public class DevMojo extends LooseAppSupport {
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            // for test classes in ear
+            try {
+                runCompileMojoLogWarningWithException("testCompile");
+            } catch (MojoExecutionException e) {
+                compileMojoError.put(project.getName(),Boolean.TRUE);
+            }
         } else if (project.getPackaging().equals("pom")) {
             getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-            runCompileMojoLogWarning();
-            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");    
-            runTestCompileMojoLogWarning();
+            try {
+                runCompileMojoLogWarningWithException("compile");
+            } catch (MojoExecutionException e) {
+                compileMojoError.put(project.getName(),Boolean.TRUE);
+            }
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+            try {
+                runCompileMojoLogWarningWithException("testCompile");
+            } catch (MojoExecutionException e) {
+                compileMojoError.put(project.getName(),Boolean.TRUE);
+            }
         }
 
         sourceDirectory = new File(sourceDirectoryString.trim());
@@ -2023,6 +2049,21 @@ public class DevMojo extends LooseAppSupport {
         getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
         getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
+    }
+
+    private void runCompileMojoLogWarningWithException(String goal) throws MojoExecutionException {
+        Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", project);
+        MavenSession tempSession = session.clone();
+        tempSession.setCurrentProject(project);
+        MavenProject tempProject = project;
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+        config = Xpp3Dom.mergeXpp3Dom(configuration(element(name("failOnError"), "true")), config);
+        goal = goal + "#" + getExecutionId(goal, plugin);
+        getLog().info("Running maven-compiler-plugin:" + goal + " on " + tempProject.getFile());
+        getLog().debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config, executionEnvironment(tempProject, tempSession, pluginManager));
+
+        updateArtifactPathToOutputDirectory(project);
     }
 
     /**
