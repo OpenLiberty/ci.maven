@@ -309,12 +309,18 @@ public class LooseEarApplication extends LooseApplication {
         }
     }
 
+    public Boolean isEarSkinnyModules() {
+        String skinnyModules = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
+                "maven-ear-plugin", "skinnyModules");
+        return "true".equals(skinnyModules);
+    }
+
     public void addWarManifestFile(Element parent, Artifact artifact, MavenProject proj) throws Exception {
         // the ear plug-in modify the skinnyWar module manifest file in
         // ${project.build.directory}/temp
         File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(artifact) + "/META-INF");
         if (newMf.exists()) { //use new META-INF dir if it exists
-            if (isEarSkinnyWars()) {
+            if (isEarSkinnyWars() || isEarSkinnyModules()) {
                 config.addDir(parent, newMf, "/META-INF");
             } else {
                 File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");

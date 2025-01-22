@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021, 2023.
+ * (c) Copyright IBM Corporation 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,16 +38,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MultipleLibertyModulesTest extends BaseMultiModuleTest {
+public class MultipleLibertyModulesSkinnyModulesTest extends BaseMultiModuleTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpMultiModule("multipleLibertyModules", null /* this param is not used in this scenario */, null);
+      setUpMultiModule("multipleLibertyModules", "ear-skinny-modules", null);
    }
 
    @Test
-   public void multipleLibertyModulesTest() throws Exception {
-      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev";
+   public void multipleLibertyModulesPlTest() throws Exception {
+      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear-skinny-modules -am -DhotTests=true";
 
       StringBuilder command = new StringBuilder(mavenPluginCommand);
       ProcessBuilder builder = buildProcess(command.toString());
@@ -61,24 +61,10 @@ public class MultipleLibertyModulesTest extends BaseMultiModuleTest {
 
       writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
-      assertTrue(getLogTail(), verifyLogMessageExists("Found multiple independent modules in the Reactor build order: [ear1, ear2, ear-skinny-modules]", 30000));
-
+      assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
+      assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 60000));
+      // making sure all integration tests are success. Integration tests contain verification of loose app ear xml file contents
+      assertTrue(verifyLogMessageExists("Integration tests for guide-maven-multimodules-ear-skinny-modules finished", 60000));
    }
-
-   @AfterClass
-   public static void cleanUpAfterClass() throws Exception {
-      process.waitFor(10, TimeUnit.SECONDS);
-      int exitValue = process.exitValue();
-      assertTrue("Process exit value is expected to be zero or one, actual value: "+exitValue, exitValue == 0 || exitValue == 1);
-
-      if (tempProj != null && tempProj.exists()) {
-         FileUtils.deleteDirectory(tempProj);
-      }
-
-      if (logFile != null && logFile.exists()) {
-         assertTrue("log file was not successfully deleted: "+logFile.getCanonicalPath(), logFile.delete());
-      }
-   }
-
 }
 
