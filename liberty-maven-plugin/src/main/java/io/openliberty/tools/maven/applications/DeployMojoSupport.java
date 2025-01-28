@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2024.
+ * (C) Copyright IBM Corporation 2016, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                     case "rar":
                         Element rarArchive = looseEar.addRarModule(dependencyProject, artifact);
                         // rar dependencies should be removed in case of skinny modules
-                        if (Boolean.TRUE.equals(looseEar.isEarSkinnyModules())) {
+                        if (looseEar.isEarSkinnyModules()) {
                             addSkinnyArtifactLib(rarArchive, dependencyProject, looseEar);
                         }else {
                             addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");

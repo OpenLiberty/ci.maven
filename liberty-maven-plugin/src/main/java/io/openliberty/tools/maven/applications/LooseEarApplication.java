@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2023.
+ * (C) Copyright IBM Corporation 2017, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -302,11 +302,7 @@ public class LooseEarApplication extends LooseApplication {
     public Boolean isEarSkinnyWars() {
         String skinnyWars = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
                 "maven-ear-plugin", "skinnyWars");
-        if (skinnyWars != null && "true".equals(skinnyWars)) {
-            return true;
-        } else {
-            return false;
-        }
+        return "true".equals(skinnyWars);
     }
 
     public Boolean isEarSkinnyModules() {
