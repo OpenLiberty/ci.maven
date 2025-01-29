@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2024.
+ * (C) Copyright IBM Corporation 2016, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -266,17 +265,22 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
                     case "war":
                         Element warArchive = looseEar.addWarModule(dependencyProject, artifact,
                                         getWarSourceDirectory(dependencyProject));
-                        if (looseEar.isEarSkinnyWars()) {
+                        if (looseEar.isEarSkinnyWars() || looseEar.isEarSkinnyModules()) {
                             // add embedded lib only if they are not a compile dependency in the ear
                             // project.
-                            addSkinnyWarLib(warArchive, dependencyProject, looseEar);
+                            addSkinnyArtifactLib(warArchive, dependencyProject, looseEar);
                         } else {
                             addEmbeddedLib(warArchive, dependencyProject, looseEar, "/WEB-INF/lib/");
                         }
                         break;
                     case "rar":
                         Element rarArchive = looseEar.addRarModule(dependencyProject, artifact);
-                        addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
+                        // rar dependencies should be removed in case of skinny modules
+                        if (looseEar.isEarSkinnyModules()) {
+                            addSkinnyArtifactLib(rarArchive, dependencyProject, looseEar);
+                        }else {
+                            addEmbeddedLib(rarArchive, dependencyProject, looseEar, "/");
+                        }
                         break;
                     default:
                         // use the artifact from local .m2 repo
@@ -344,9 +348,17 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         }
     }
 
-    private void addSkinnyWarLib(Element parent, MavenProject warProject, LooseEarApplication looseEar) throws MojoExecutionException, IOException {
-        Set<Artifact> artifacts = warProject.getArtifacts();
-        getLog().debug("Number of compile dependencies for " + warProject.getArtifactId() + " : " + artifacts.size());
+    /**
+     * used for war and rar to add jar files to lib folder
+     * @param parent
+     * @param artifactProject
+     * @param looseEar
+     * @throws MojoExecutionException
+     * @throws IOException
+     */
+    private void addSkinnyArtifactLib(Element parent, MavenProject artifactProject, LooseEarApplication looseEar) throws MojoExecutionException, IOException {
+        Set<Artifact> artifacts = artifactProject.getArtifacts();
+        getLog().debug("Number of compile dependencies for " + artifactProject.getArtifactId() + " : " + artifacts.size());
 
         for (Artifact artifact : artifacts) {
             // skip the embedded library if it is included in the lib directory of the ear

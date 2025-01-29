@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2023.
+ * (C) Copyright IBM Corporation 2017, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -302,11 +302,13 @@ public class LooseEarApplication extends LooseApplication {
     public Boolean isEarSkinnyWars() {
         String skinnyWars = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
                 "maven-ear-plugin", "skinnyWars");
-        if (skinnyWars != null && "true".equals(skinnyWars)) {
-            return true;
-        } else {
-            return false;
-        }
+        return "true".equals(skinnyWars);
+    }
+
+    public Boolean isEarSkinnyModules() {
+        String skinnyModules = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
+                "maven-ear-plugin", "skinnyModules");
+        return "true".equals(skinnyModules);
     }
 
     public void addWarManifestFile(Element parent, Artifact artifact, MavenProject proj) throws Exception {
@@ -314,7 +316,7 @@ public class LooseEarApplication extends LooseApplication {
         // ${project.build.directory}/temp
         File newMf = new File(project.getBuild().getDirectory() + "/temp/" + getModuleUri(artifact) + "/META-INF");
         if (newMf.exists()) { //use new META-INF dir if it exists
-            if (isEarSkinnyWars()) {
+            if (isEarSkinnyWars() || isEarSkinnyModules()) {
                 config.addDir(parent, newMf, "/META-INF");
             } else {
                 File manifestFile = MavenProjectUtil.getManifestFile(proj, "maven-war-plugin");
