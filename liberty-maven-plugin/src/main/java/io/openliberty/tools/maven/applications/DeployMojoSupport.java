@@ -45,6 +45,7 @@ import io.openliberty.tools.common.plugins.config.LooseApplication;
 import io.openliberty.tools.common.plugins.config.LooseConfigData;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.OSUtil;
+import io.openliberty.tools.common.plugins.util.ServerStatusUtil;
 
 /**
  * Support for installing and deploying applications to a Liberty server.
@@ -301,11 +302,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
     }
 
     private boolean shouldValidateAppStart() throws MojoExecutionException {
-        try {
-            return new File(serverDirectory.getCanonicalPath()  + "/workarea/.sRunning").exists();
-        } catch (IOException ioe) {
-            throw new MojoExecutionException("Could not get the server directory to determine the state of the server.");
-        }
+        return ServerStatusUtil.isServerRunning(installDirectory, outputDirectory, serverName);
     }
 
     protected void verifyAppStarted(String appFile) throws MojoExecutionException {
