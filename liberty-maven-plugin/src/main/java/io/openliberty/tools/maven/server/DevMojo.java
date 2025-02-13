@@ -1639,7 +1639,7 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(outputDirectory,serverName));
+                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
