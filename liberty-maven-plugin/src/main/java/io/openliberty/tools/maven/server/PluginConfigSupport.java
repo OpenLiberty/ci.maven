@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2024.
+ * (C) Copyright IBM Corporation 2017, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -386,7 +386,7 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
     protected ServerConfigDocument getServerConfigDocument(CommonLoggerI log, File serverXML) throws IOException, MojoExecutionException {
         if (scd == null || !scd.getOriginalServerXMLFile().getCanonicalPath().equals(serverXML.getCanonicalPath())) {
             try {
-                scd = new ServerConfigDocument(log, serverXML, installDirectory,userDirectory,serverDirectory);
+                scd = new ServerConfigDocument(log, serverXML, installDirectory,userDirectory,serverDirectory, new File(outputDirectory, serverName));
             } catch (PluginExecutionException e) {
                throw new MojoExecutionException(e.getMessage());
             }

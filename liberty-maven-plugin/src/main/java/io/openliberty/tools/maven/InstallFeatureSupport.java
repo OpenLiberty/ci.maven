@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020, 2023.
+ * (C) Copyright IBM Corporation 2020, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,7 +238,7 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
             Set<String> dependencyFeatures = getDependencyFeatures();
             Set<String> serverFeatures = new HashSet<String>();
             Set<String> serverPlatforms = new HashSet<String>();
-            FeaturesPlatforms getServerResult = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDirectory, userDirectory, serverDirectory)) : null;
+            FeaturesPlatforms getServerResult = serverDirectory.exists() ? util.getServerFeatures(serverDirectory, LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDirectory, userDirectory, serverDirectory, new File(outputDirectory, serverName))) : null;
             if (getServerResult != null) {
             	serverFeatures = getServerResult.getFeatures();
             	serverPlatforms = getServerResult.getPlatforms();
