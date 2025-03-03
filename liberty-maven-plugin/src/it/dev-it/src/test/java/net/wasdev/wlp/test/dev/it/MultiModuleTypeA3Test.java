@@ -46,6 +46,9 @@ public class MultiModuleTypeA3Test extends BaseMultiModuleTest {
            File targetEarClass = new File(tempProj,
                            "ear/target/test-classes/it/io/openliberty/guides/multimodules/ConverterAppIT.class");
            assertFalse(targetEarClass.exists());
+           assertTrue(verifyLogMessageExists(
+               "Recompile guide-maven-multimodules-ear due to an earlier compilation error",
+               20000));
 
            // add a dependency to parent pom and check that it resolves compile errors in
            // child modules
