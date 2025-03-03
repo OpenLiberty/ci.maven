@@ -178,7 +178,6 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     protected void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
         Plugin plugin = getPlugin(groupId, artifactId);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
-        goal = goal + "#" + getExecutionId(goal, plugin);
         getLog().info("Running " + artifactId + ":" + goal);
         getLog().debug("configuration:\n" + config);
         executeMojo(plugin, goal(goal), config,
