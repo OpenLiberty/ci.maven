@@ -1467,12 +1467,6 @@ public class DevMojo extends LooseAppSupport {
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-            // for test classes in ear
-            try {
-                runCompileMojoLogWarningWithException("testCompile");
-            } catch (MojoExecutionException e) {
-                compileMojoError.put(project.getName(),Boolean.TRUE);
-            }
         } else if (project.getPackaging().equals("pom")) {
             getLog().debug("Skipping compile/resources on module with pom packaging type");
         } else {
