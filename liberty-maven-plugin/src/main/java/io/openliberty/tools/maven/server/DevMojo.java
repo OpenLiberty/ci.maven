@@ -1464,14 +1464,31 @@ public class DevMojo extends LooseAppSupport {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1, true));
 
+        sourceDirectory = new File(sourceDirectoryString.trim());
+        testSourceDirectory = new File(testSourceDirectoryString.trim());
+
+        ArrayList<File> javaFiles = new ArrayList<File>();
+        listFiles(sourceDirectory, javaFiles, "java");
+
+        ArrayList<File> javaTestFiles = new ArrayList<File>();
+        listFiles(testSourceDirectory, javaTestFiles, "java");
+
+        getLog().debug("Source directory: " + sourceDirectory);
+        getLog().debug("Output directory: " + outputDirectory);
+        getLog().debug("Test Source directory: " + testSourceDirectory);
+        getLog().debug("Test Output directory: " + testOutputDirectory);
+
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
-            // for test classes in ear
-            try {
-                runCompileMojoLogWarningWithException("testCompile");
-            } catch (MojoExecutionException e) {
-                compileMojoError.put(project.getName(),Boolean.TRUE);
+            if(!javaTestFiles.isEmpty()) {
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+                // for test classes in ear
+                try {
+                    runCompileMojoLogWarningWithException("testCompile");
+                } catch (MojoExecutionException e) {
+                    compileMojoError.put(project.getName(), Boolean.TRUE);
+                }
             }
         } else if (project.getPackaging().equals("pom")) {
             getLog().debug("Skipping compile/resources on module with pom packaging type");
@@ -1482,27 +1499,17 @@ public class DevMojo extends LooseAppSupport {
             } catch (MojoExecutionException e) {
                 compileMojoError.put(project.getName(),Boolean.TRUE);
             }
-            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
-            try {
-                runCompileMojoLogWarningWithException("testCompile");
-            } catch (MojoExecutionException e) {
-                compileMojoError.put(project.getName(),Boolean.TRUE);
+            if(!javaTestFiles.isEmpty()) {
+                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
+                try {
+                    runCompileMojoLogWarningWithException("testCompile");
+                } catch (MojoExecutionException e) {
+                    compileMojoError.put(project.getName(), Boolean.TRUE);
+                }
             }
         }
 
-        sourceDirectory = new File(sourceDirectoryString.trim());
-        testSourceDirectory = new File(testSourceDirectoryString.trim());
 
-        ArrayList<File> javaFiles = new ArrayList<File>();
-        listFiles(sourceDirectory, javaFiles, ".java");
-
-        ArrayList<File> javaTestFiles = new ArrayList<File>();
-        listFiles(testSourceDirectory, javaTestFiles, ".java");
-
-        getLog().debug("Source directory: " + sourceDirectory);
-        getLog().debug("Output directory: " + outputDirectory);
-        getLog().debug("Test Source directory: " + testSourceDirectory);
-        getLog().debug("Test Output directory: " + testOutputDirectory);
 
         if (isUsingBoost()) {
             getLog().info("Running boost:package");
