@@ -1481,8 +1481,8 @@ public class DevMojo extends LooseAppSupport {
         if (isEar) {
             runMojo("org.apache.maven.plugins", "maven-ear-plugin", "generate-application-xml");
             runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
             if(!javaTestFiles.isEmpty()) {
-                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 // for test classes in ear
                 try {
                     runCompileMojoLogWarningWithException("testCompile");
@@ -1499,8 +1499,8 @@ public class DevMojo extends LooseAppSupport {
             } catch (MojoExecutionException e) {
                 compileMojoError.put(project.getName(),Boolean.TRUE);
             }
+            runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
             if(!javaTestFiles.isEmpty()) {
-                runMojo("org.apache.maven.plugins", "maven-resources-plugin", "testResources");
                 try {
                     runCompileMojoLogWarningWithException("testCompile");
                 } catch (MojoExecutionException e) {
