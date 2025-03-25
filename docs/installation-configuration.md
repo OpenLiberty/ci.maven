@@ -39,7 +39,7 @@ Example for using the `runtimeArtifact` parameter:
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile8</artifactId>
-            <version>22.0.0.3</version>
+            <version>25.0.0.3</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
@@ -119,7 +119,7 @@ The `runtimeArtifact` configuration is very flexible. It includes the use of pro
 * Use the one specified in `runtimeArtifact`.
 * Use the version from a matching `dependency`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
 * Use the version from a matching `dependencyManagement`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
-* Default to the latest available using a range like `[22.0.0.3,)`.
+* Default to the latest available using a range like `[24.0.0.3,)`.
 
 ##### Example
 
@@ -131,7 +131,7 @@ Example "resolving" the `runtimeArtifact` version from matching `dependencyManag
       <dependency>
         <groupId>io.openliberty</groupId>
         <artifactId>openliberty-runtime</artifactId>
-        <version>22.0.0.2</version>
+        <version>25.0.0.3</version>
         <type>zip</type>
       </dependency>
     </dependencies>

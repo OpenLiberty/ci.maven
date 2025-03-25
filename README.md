@@ -109,7 +109,7 @@ Example using the `runtimeArtifact` parameter to install a WebSphere Liberty run
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile8</artifactId>
-            <version>23.0.0.9</version>
+            <version>24.0.0.9</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
