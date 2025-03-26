@@ -119,7 +119,7 @@ The `runtimeArtifact` configuration is very flexible. It includes the use of pro
 * Use the one specified in `runtimeArtifact`.
 * Use the version from a matching `dependency`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
 * Use the version from a matching `dependencyManagement`, if found, for the calculated `groupId:artifactId` from steps 1 and 2.
-* Default to the latest available using a range like `[24.0.0.3,)`.
+* Default to the latest available using a range like `[25.0.0.3,)`.
 
 ##### Example
 
