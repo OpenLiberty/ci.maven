@@ -281,8 +281,8 @@ public abstract class BasicSupport extends AbstractLibertySupport {
                 Artifact artifact = getResolvedArtifact(assemblyArtifact);
 
                 if (artifact == null) {
-                    initLog.debug("Defaulting runtimeArtifact version to '[22.0.0.3,)'");
-                    assemblyArtifact.setVersion("[22.0.0.3,)");
+                    initLog.debug("Defaulting runtimeArtifact version to '[25.0.0.3,)'");
+                    assemblyArtifact.setVersion("[25.0.0.3,)");
                     artifact = createArtifact(assemblyArtifact);
                 }
                 
