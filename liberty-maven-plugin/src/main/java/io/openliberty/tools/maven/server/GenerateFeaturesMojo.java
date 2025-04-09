@@ -75,10 +75,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
     @Override
     protected void init() throws MojoExecutionException {
-        // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
-        // setup as generate features does not require the server to be set up install
-        // dir, wlp dir, outputdir, etc.
-        this.skipServerConfigSetup = true;
+        // @see io.openliberty.tools.maven.BasicSupport#init()
+        // do not skip server config setup as generate features requires
+        // the server to be set up: install dir, wlp dir, outputdir, etc.
 
         super.init();
     }
@@ -182,10 +181,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // get existing server features from source directory
         ServerFeatureUtil servUtil = getServerFeatureUtil(true, null);
 
-        Set<String> generatedFiles = new HashSet<String>();
-        generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
-
-        Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
+        Set<String> existingFeatures = getServerFeatures(servUtil);
         Set<String> nonCustomFeatures = new HashSet<String>(); // binary scanner only handles actual Liberty features
         for (String feature : existingFeatures) { // custom features are "usr:feature-1.0" or "myExt:feature-2.0"
             if (!feature.contains(":")) nonCustomFeatures.add(feature);
@@ -214,8 +210,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
         } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
-            Set<String> userFeatures = (optimize) ? existingFeatures :
-                getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
+            Set<String> userFeatures = (optimize) ? existingFeatures : getServerFeatures(servUtil);
             Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
             if (modifiedSet.containsAll(userFeatures)) {
                 // none of the user features were modified, only features which were generated earlier.
@@ -262,8 +257,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             servUtil.setLowerCaseFeatures(false);
             // get set of user defined features so they can be omitted from the generated
             // file that will be written
-            FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
-                    generatedFiles);
+            FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(), null);
             Set<String> userDefinedFeatures = optimize ? existingFeatures : (fp !=null) ? fp.getFeatures(): new HashSet<String>();
             getLog().debug("User defined features:" + userDefinedFeatures);
             servUtil.setLowerCaseFeatures(true);
@@ -273,10 +267,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
-        File newServerXmlSrc = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
+        File generatedXmlSrc = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
         try {
             if (missingLibertyFeatures.size() > 0) {
-                Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, newServerXmlSrc);
+                Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlSrc);
                 if (!missingLibertyFeatures.equals(existingGeneratedFeatures)) {
                     // Create special XML file to contain generated features.
                     ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
@@ -289,21 +283,21 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     }
                     // Generate log message before writing file as the file change event kicks off other dev mode actions
                     getLog().info("Generated the following features: " + missingLibertyFeatures);
-                    configDocument.writeXMLDocument(newServerXmlSrc);
-                    getLog().debug("Created file " + newServerXmlSrc);
+                    configDocument.writeXMLDocument(generatedXmlSrc);
+                    getLog().debug("Created file " + generatedXmlSrc);
                 } else {
                     getLog().info("Regenerated the following features: " + missingLibertyFeatures);
                 }
             } else {
                 getLog().info("No additional features were generated.");
-                if (newServerXmlSrc.exists()) {
+                if (generatedXmlSrc.exists()) {
                     // generated-features.xml exists but no additional features were generated
                     // create empty features list with comment
                     ServerConfigXmlDocument configDocument = ServerConfigXmlDocument.newInstance();
                     configDocument.createComment(HEADER);
                     Element featureManagerElem = configDocument.createFeatureManager();
                     configDocument.createComment(featureManagerElem, NO_NEW_FEATURES_COMMENT);
-                    configDocument.writeXMLDocument(newServerXmlSrc);
+                    configDocument.writeXMLDocument(generatedXmlSrc);
                 }
             }
         } catch (ParserConfigurationException | TransformerException | IOException e) {
@@ -316,13 +310,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
     }
 
-    // Get the features from the server config and optionally exclude the specified config files from the search.
-    private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+    // Get the features from the server config
+    private Set<String> getServerFeatures(ServerFeatureUtil servUtil) {
         servUtil.setLowerCaseFeatures(false);
-        // if optimizing, ignore generated files when passing in existing features to
-        // binary scanner
         FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile,
-                new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
+                new HashMap<String, File>(), null);
         servUtil.setLowerCaseFeatures(true);
         if (fp == null) {
             return new HashSet<String>();
@@ -330,10 +322,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         return fp.getFeatures();
     }
 
-    // returns the features specified in the generated-features.xml file
+    // returns the features specified in the generated-features.xml file in the server directory
     private Set<String> getGeneratedFeatures(ServerFeatureUtil servUtil, File generatedFeaturesFile) {
         servUtil.setLowerCaseFeatures(false);
-        FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), configDirectory,
+        FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), serverDirectory,
                 generatedFeaturesFile, null, null);
         servUtil.setLowerCaseFeatures(true);
         Set<String> features = new HashSet<String>();
