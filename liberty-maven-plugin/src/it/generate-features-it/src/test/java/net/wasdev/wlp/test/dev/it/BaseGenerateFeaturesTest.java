@@ -67,7 +67,7 @@ public class BaseGenerateFeaturesTest {
     static File serverXmlFile;
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
-    static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_PATH = "/target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
