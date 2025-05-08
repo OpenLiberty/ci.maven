@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2024.
+ * (C) Copyright IBM Corporation 2021, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -83,11 +83,15 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
         // setup as generate features does not require the server to be set up install
         // dir, wlp dir, outputdir, etc.
-        this.skipServerConfigSetup = true;
+        // TODO: When using the generateToSrc option make use of this variable.
+        //this.skipServerConfigSetup = true;
 
         super.init();
+        // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
+        checkServerHomeExists();
+        checkServerDirectoryExists();
     }
-    
+
     @Override
     public void execute() throws MojoExecutionException {
         init();
