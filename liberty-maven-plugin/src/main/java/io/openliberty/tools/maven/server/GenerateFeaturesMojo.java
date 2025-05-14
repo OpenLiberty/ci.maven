@@ -73,6 +73,13 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     @Parameter(property = "optimize", defaultValue = "true")
     private boolean optimize;
 
+    /**
+     * If generateToSrc is true, then create the file containing new features in the src directory
+     * Otherwise, place the file in the target directory where the Liberty server is defined.
+     */
+    @Parameter(property = "generateToSrc", defaultValue = "false")
+    private boolean generateToSrc;
+
     @Override
     protected void init() throws MojoExecutionException {
         // @see io.openliberty.tools.maven.BasicSupport#init()
@@ -273,7 +280,12 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
-        File generatedXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+        File generatedXmlFile;
+        if (generateToSrc) {
+            generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
+        } else {
+            generatedXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+        }
         try {
             if (missingLibertyFeatures.size() > 0) {
                 Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlFile);
