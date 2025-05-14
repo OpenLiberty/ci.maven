@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,18 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(newFeatureFile.exists());
         features = readFeatures(newFeatureFile);
         assertEquals(0, features.size());
+    }
+
+    @Test
+    public void generateToSrcTest() throws Exception {
+        newFeatureFile.delete(); // delete file if it exists but do not assert
+        assertFalse(newFeatureFileSrc.exists());
+        runCompileAndGenerateFeaturesToSrc();
+
+        // verify that the generated features file was created
+        // Assume the contents are correct based on prior testing
+        assertTrue(formatOutput(processOutput), newFeatureFileSrc.exists());
+        assertTrue(newFeatureFileSrc.delete());
     }
 
     @Test
