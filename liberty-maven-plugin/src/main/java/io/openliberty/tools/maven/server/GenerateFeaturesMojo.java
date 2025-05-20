@@ -61,6 +61,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     public static final String NO_CLASSES_DIR_WARNING = "Could not find classes directory to generate features against. Liberty features will not be generated. "
             + "Ensure your project has first been compiled.";
 
+    // The executable file used to scan binaries for the Liberty features they use.
     private File binaryScanner;
 
     @Parameter(property = "classFiles")
@@ -79,6 +80,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      */
     @Parameter(property = "generateToSrc", defaultValue = "false")
     private boolean generateToSrc;
+    /**
+     * Generating features is performed relative to a certain server. We only generate features
+     * that are missing from a server config. By default we generate features that are missing
+     * from the server directory in the Liberty directory. If generateToSrc is specified then
+     * we generate features which are missing from the Liberty config specified in the src directory
+     * (src/main/liberty/config). We will select one server config as the subject of this operation.
+     */
+    private File subjectServerDir;
 
     @Override
     protected void init() throws MojoExecutionException {
@@ -157,6 +166,13 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 // skip this module
                 return;
             }
+        }
+
+        // The config dir is in the src directory. Otherwise generate for the target dir.
+        if (generateToSrc) {
+            subjectServerDir = configDirectory;
+        } else {
+            subjectServerDir = serverDirectory;
         }
 
         binaryScanner = getBinaryScannerJarFromRepository();
@@ -269,7 +285,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             servUtil.setLowerCaseFeatures(false);
             // get set of user defined features so they can be omitted from the generated
             // file that will be written
-            FeaturesPlatforms fp = servUtil.getServerFeatures(configDirectory, serverXmlFile, new HashMap<String, File>(),
+            FeaturesPlatforms fp = servUtil.getServerFeatures(subjectServerDir, serverXmlFile, new HashMap<String, File>(),
                     generatedFiles);
             Set<String> userDefinedFeatures = optimize ? existingFeatures : (fp !=null) ? fp.getFeatures(): new HashSet<String>();
             getLog().debug("User defined features:" + userDefinedFeatures);
@@ -333,7 +349,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
-        FeaturesPlatforms fp = servUtil.getServerFeatures(serverDirectory, serverXmlFile,
+        FeaturesPlatforms fp = servUtil.getServerFeatures(subjectServerDir, serverXmlFile,
                 new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
         servUtil.setLowerCaseFeatures(true);
         if (fp == null) {
@@ -345,7 +361,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     // returns the features specified in the generated-features.xml file in the server directory
     private Set<String> getGeneratedFeatures(ServerFeatureUtil servUtil, File generatedFeaturesFile) {
         servUtil.setLowerCaseFeatures(false);
-        FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), serverDirectory,
+        FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), subjectServerDir,
                 generatedFeaturesFile, null, null);
         servUtil.setLowerCaseFeatures(true);
         Set<String> features = new HashSet<String>();
