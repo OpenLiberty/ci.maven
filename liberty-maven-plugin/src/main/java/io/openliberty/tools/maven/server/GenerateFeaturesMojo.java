@@ -297,12 +297,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
         getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
-        File generatedXmlFile;
-        if (generateToSrc) {
-            generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
-        } else {
-            generatedXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
-        }
+        // generate the new features into an xml file in the correct context directory
+        File generatedXmlFile = new File(generationContextDir, GENERATED_FEATURES_FILE_PATH);
         try {
             if (missingLibertyFeatures.size() > 0) {
                 Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlFile);
