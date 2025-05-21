@@ -288,11 +288,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                         configDocument.createFeature(missing);
                     }
                     // Generate log message before writing file as the file change event kicks off other dev mode actions
-                    getLog().info("Generated the following features: " + missingLibertyFeatures);
+                    getLog().info("Generated the features " + missingLibertyFeatures + " in the file " + newServerXmlSrc.getAbsolutePath());
                     configDocument.writeXMLDocument(newServerXmlSrc);
                     getLog().debug("Created file " + newServerXmlSrc);
                 } else {
-                    getLog().info("Regenerated the following features: " + missingLibertyFeatures);
+                    getLog().info("Generated the features " + missingLibertyFeatures + " and confirmed they exist in the file: " + newServerXmlSrc.getAbsolutePath());
                 }
             } else {
                 getLog().info("No additional features were generated.");
