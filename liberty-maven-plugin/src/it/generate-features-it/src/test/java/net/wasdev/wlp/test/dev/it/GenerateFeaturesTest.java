@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,14 +53,18 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     @Test
     public void basicTest() throws Exception {
         runCompileAndGenerateFeatures();
-        // verify that the target directory was created
+        executeBasicTests(newFeatureFile, "");
+    }
+
+    private void executeBasicTests(File featureFile, String options) {
+        // verify that the target directory was created by compile goal
         assertTrue(targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(formatOutput(processOutput), newFeatureFile.exists());
+        assertTrue(formatOutput(processOutput), featureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
-        Set<String> features = readFeatures(newFeatureFile);
+        Set<String> features = readFeatures(featureFile);
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
         assertEquals(expectedFeatures.size(), features.size());
         assertEquals(expectedFeatures, features);
@@ -72,17 +76,27 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                         "</featureManager>\n",
                 serverXmlFile);
 
-        runGenerateFeaturesGoal();
+        runGenerateFeaturesGoal(options);
         // no additional features should be generated
-        assertTrue(newFeatureFile.exists());
-        features = readFeatures(newFeatureFile);
+        assertTrue(featureFile.exists());
+        features = readFeatures(featureFile);
         assertEquals(0, features.size());
+    }
+
+    @Test
+    public void generateToSrcTest() throws Exception {
+        newFeatureFile.delete(); // delete file if it exists but do not assert
+        assertFalse(newFeatureFileSrc.exists()); // assuming no other test creates this file
+        runCompileAndGenerateFeaturesToSrc();
+
+        executeBasicTests(newFeatureFileSrc, "-DgenerateToSrc=true");
+        assertTrue(newFeatureFileSrc.delete()); // clean up the generated file
     }
 
     @Test
     public void noClassFiles() throws Exception {
         // do not compile before running generate-features
-        runGenerateFeaturesGoal();
+        runGenerateFeaturesGoal("");
 
         // verify that generated features file was not created
         assertFalse(newFeatureFile.exists());

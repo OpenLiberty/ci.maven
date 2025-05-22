@@ -40,6 +40,7 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
         assertTrue(pom.exists());
         replaceVersion(new File(tempProj, "pom")); // "pom" module is liberty configuration module
         newFeatureFile = new File(tempProj, "pom" + GENERATED_FEATURES_FILE_PATH);
+        newFeatureFileSrc = new File(tempProj, "pom" + GENERATED_FEATURES_FILE_PATH_SRC);
         serverXmlFile = new File(tempProj, "pom/src/main/liberty/config/server.xml");
         targetDir = new File(tempProj, "war/target");
         runProcess("install");
