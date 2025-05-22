@@ -96,7 +96,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     @Test
     public void noClassFiles() throws Exception {
         // do not compile before running generate-features
-        runGenerateFeaturesGoal();
+        runGenerateFeaturesGoal("");
 
         // verify that generated features file was not created
         assertFalse(newFeatureFile.exists());
