@@ -233,8 +233,12 @@ public class BaseGenerateFeaturesTest {
         runProcess("compile liberty:generate-features -DgenerateToSrc=true");
     }
 
-    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess("liberty:generate-features");
+    protected void runGenerateFeaturesGoal(String options) throws IOException, InterruptedException {
+        String parameters = "liberty:generate-features ";
+        if (options != null) {
+            parameters += options;
+        }
+        runProcess(parameters);
     }
 
     // Format the output to help debug test failures.
