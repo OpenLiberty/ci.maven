@@ -355,7 +355,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         return fp.getFeatures();
     }
 
-    // returns the features specified in the generated-features.xml file in the server directory
+    // returns the features specified in the generated-features.xml file in the generation context directory
     private Set<String> getGeneratedFeatures(ServerFeatureUtil servUtil, File generatedFeaturesFile) {
         servUtil.setLowerCaseFeatures(false);
         FeaturesPlatforms result = servUtil.getServerXmlFeatures(new FeaturesPlatforms(), generationContextDir,
