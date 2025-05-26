@@ -78,11 +78,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // @see io.openliberty.tools.maven.BasicSupport#init() skip server config
         // setup as generate features does not require the server to be set up install
         // dir, wlp dir, outputdir, etc.
-        this.skipServerConfigSetup = true;
+        // TODO: When using the generateToSrc option make use of this variable.
+        //this.skipServerConfigSetup = true;
 
         super.init();
+        // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
+        if (!serverDirectory.exists()) {
+            throw new MojoExecutionException("The 'generate-features' goal requires a Liberty server, but the server configuration was not found at " + serverDirectory.getPath() + ". To resolve this issue, please run the 'liberty:create' goal first to create a server.");
+        }
     }
-    
+
     @Override
     public void execute() throws MojoExecutionException {
         init();
