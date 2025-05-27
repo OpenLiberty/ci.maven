@@ -80,6 +80,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      */
     @Parameter(property = "generateToSrc", defaultValue = "false")
     private boolean generateToSrc;
+
+    /**
+     * The internalDirName parameter is for internal use only. It is not for users. 
+     * The parameter specifies a directory to use for generate features. It contains the configuration
+     * files necessary to identify the configured features and it is the place to store the 
+     * generated features file. The mojo will ignore the configDir and the serverDir normally used.
+     */
+    @Parameter(property = "internalDirName", defaultValue = "")
+    private String internalDirName = null;
+
     /**
      * Generating features is performed relative to a certain server. We only generate features
      * that are missing from a server config. By default we generate features that are missing
@@ -88,7 +98,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * config specified in the src directory src/main/liberty/config.
      * We will select one server config as the context of this operation.
      */
-    private File generationContextDir;
+    private File generationContextDir = null;
 
     @Override
     protected void init() throws MojoExecutionException {
@@ -172,8 +182,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             }
         }
 
-        // The config dir is in the src directory. Otherwise generate for the target/liberty dir.
-        generationContextDir = generateToSrc ? configDirectory : serverDirectory;
+        if (internalDirName != null && !internalDirName.isEmpty()) {
+            File internalDir = new File(internalDirName);
+            if (internalDir.exists()) {
+                generationContextDir = internalDir;
+            }
+        }
+        if (generationContextDir == null) {
+            // The config dir is in the src directory. Otherwise generate for the target/liberty dir.
+            generationContextDir = generateToSrc ? configDirectory : serverDirectory;
+        }
 
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
