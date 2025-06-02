@@ -1522,6 +1522,11 @@ public class DevMojo extends LooseAppSupport {
             getLog().info("Running boost:package");
             runBoostMojo("package");
         } else {
+            // If generate features to serverDir then create server first.
+            // If generate features is false it does not matter whether create runs here or below.
+            if (!generateToSrc) {
+                runLibertyMojoCreate();
+            }
             if (generateFeatures) {
                 // generate features on startup - provide all classes and only user specified
                 // features to binary scanner
@@ -1550,7 +1555,9 @@ public class DevMojo extends LooseAppSupport {
                     }
                 }
             }
-            runLibertyMojoCreate();
+            if (generateToSrc) {
+                runLibertyMojoCreate();
+            }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
             // installed.
