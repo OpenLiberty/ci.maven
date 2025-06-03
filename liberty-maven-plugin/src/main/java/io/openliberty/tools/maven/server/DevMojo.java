@@ -1531,6 +1531,8 @@ public class DevMojo extends LooseAppSupport {
                     runLibertyMojoCreate();
                     generateFeaturesOnStartup();
                 }
+            } else {
+                runLibertyMojoCreate();
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
