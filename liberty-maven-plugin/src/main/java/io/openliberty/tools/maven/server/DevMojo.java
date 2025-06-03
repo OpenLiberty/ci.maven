@@ -1522,41 +1522,15 @@ public class DevMojo extends LooseAppSupport {
             getLog().info("Running boost:package");
             runBoostMojo("package");
         } else {
-            // If generate features to serverDir then create server first.
-            // If generate features is false it does not matter whether create runs here or below.
-            if (!generateToSrc) {
-                runLibertyMojoCreate();
-            }
+            // If generate features to server directory then create server first.
             if (generateFeatures) {
-                // generate features on startup - provide all classes and only user specified
-                // features to binary scanner
-                try {
-                    String generatedFileCanonicalPath;
-                    try {
-                        generatedFileCanonicalPath = new File(configDirectory,
-                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
-                    } catch (IOException e) {
-                        generatedFileCanonicalPath = new File(configDirectory,
-                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
-                    }
-                    getLog().warn(
-                            "The source configuration directory will be modified. Features will automatically be generated in a new file: "
-                                    + generatedFileCanonicalPath);
-                    runLibertyMojoGenerateFeatures(null, true);
-                } catch (MojoExecutionException e) {
-                    if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
-                        // PluginExecutionException indicates that the binary scanner jar could not be found
-                        getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
-                        generateFeatures = false;
-                    } else {
-                        throw new MojoExecutionException(e.getMessage()
-                        + " To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
-                        e);
-                    }
+                if (generateToSrc) {
+                    generateFeaturesOnStartup();
+                    runLibertyMojoCreate();
+                } else {
+                    runLibertyMojoCreate();
+                    generateFeaturesOnStartup();
                 }
-            }
-            if (generateToSrc) {
-                runLibertyMojoCreate();
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
@@ -1690,6 +1664,35 @@ public class DevMojo extends LooseAppSupport {
                 getLog().info(e.getMessage());
             }
             return; // enter shutdown hook
+        }
+    }
+
+    private void generateFeaturesOnStartup() throws MojoExecutionException {
+        // generate features on startup - provide all classes and only user specified
+        // features to binary scanner
+        try {
+            String generatedFileCanonicalPath;
+            try {
+                generatedFileCanonicalPath = new File(configDirectory,
+                        BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+            } catch (IOException e) {
+                generatedFileCanonicalPath = new File(configDirectory,
+                        BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
+            }
+            getLog().warn(
+                    "The source configuration directory will be modified. Features will automatically be generated in a new file: "
+                            + generatedFileCanonicalPath);
+            runLibertyMojoGenerateFeatures(null, true);
+        } catch (MojoExecutionException e) {
+            if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
+                // PluginExecutionException indicates that the binary scanner jar could not be found
+                getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                generateFeatures = false;
+            } else {
+                throw new MojoExecutionException(e.getMessage()
+                + " To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                e);
+            }
         }
     }
 
