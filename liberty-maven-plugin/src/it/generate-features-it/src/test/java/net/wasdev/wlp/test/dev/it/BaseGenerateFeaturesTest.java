@@ -63,11 +63,13 @@ public class BaseGenerateFeaturesTest {
     static File targetDir;
     static String processOutput = "";
     static File newFeatureFile;
+    static File newFeatureFileSrc;
     static File pom;
     static File serverXmlFile;
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
     static final String GENERATED_FEATURES_FILE_PATH = "/target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_PATH_SRC = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
@@ -81,6 +83,7 @@ public class BaseGenerateFeaturesTest {
         assertTrue(logFile.createNewFile());
 
         newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
+        newFeatureFileSrc = new File(tempProj, GENERATED_FEATURES_FILE_PATH_SRC);
         pom = new File(tempProj, "pom.xml");
         assertTrue(pom.exists());
         replaceVersion(tempProj);
@@ -226,8 +229,16 @@ public class BaseGenerateFeaturesTest {
         runProcess("compile liberty:generate-features");
     }
 
-    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess("liberty:generate-features");
+    protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
+        runProcess("compile liberty:generate-features -DgenerateToSrc=true");
+    }
+
+    protected void runGenerateFeaturesGoal(String options) throws IOException, InterruptedException {
+        String parameters = "liberty:generate-features ";
+        if (options != null) {
+            parameters += options;
+        }
+        runProcess(parameters);
     }
 
     // Format the output to help debug test failures.
