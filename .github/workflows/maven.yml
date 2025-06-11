@@ -101,7 +101,6 @@ jobs:
     # Move and cloning to C: drive for Windows for more disk space
     - name: Clone ci.ant, ci.common, ci.maven repos to C drive
       run: |
-        cp -r D:/a/ci.maven/ci.maven C:/ci.maven
         git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common 
         git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
     - name: Set up Maven
@@ -118,9 +117,10 @@ jobs:
       run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
+      working-directory: C:/a/ci.maven/ci.maven
       if: ${{ matrix.java == '17' || matrix.java == '21'}}
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
-      working-directory: C:/ci.maven
+      working-directory: C:/a/ci.maven/ci.maven
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
