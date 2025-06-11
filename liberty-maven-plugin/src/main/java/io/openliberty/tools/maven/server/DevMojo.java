@@ -135,8 +135,15 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
-     @Parameter(property = "generateFeatures", defaultValue = "false")
-     private boolean generateFeatures;
+    @Parameter(property = "generateFeatures", defaultValue = "false")
+    private boolean generateFeatures;
+
+    /**
+     * If generateToSrc is true, then create the file containing new features in the src directory
+     * Otherwise, place the file in the target directory where the Liberty server is defined.
+     */
+    @Parameter(property = "generateToSrc", defaultValue = "false")
+    private boolean generateToSrc;
 
     /**
      * Whether to recompile dependencies. Defaults to false for single module
@@ -351,7 +358,7 @@ public class DevMojo extends LooseAppSupport {
                            File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                            List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                            List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                           File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
+                           File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean generateToSrc, boolean skipInstallFeature,
                            Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs, File serverOutputDirectory) throws IOException, PluginExecutionException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, changeOnDemandTestsAction, hotTests, skipTests,
@@ -359,7 +366,7 @@ public class DevMojo extends LooseAppSupport {
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
                     containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
+                    pom, parentPoms, generateFeatures, generateToSrc, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
 
             this.libertyDirPropertyFiles = LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDir, userDir,
                     serverDirectory, serverOutputDirectory);
@@ -1646,7 +1653,7 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
+                    generateFeatures, generateToSrc, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
