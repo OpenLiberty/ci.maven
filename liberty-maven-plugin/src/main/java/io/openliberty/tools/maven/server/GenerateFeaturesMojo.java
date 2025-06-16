@@ -85,7 +85,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * The internalDevMode parameter is for internal use only. It is not for users.
      * The parameter is only used when generateToSrc is false meaning we generate to serverDir.
      * When the parameter is true we will write the generated features file to the temp directory.
-     * This is required because the features must all be installed before writing to server Dir in devmode.
+     * This is required because the features must all be installed before writing to serverDir in devmode.
      */
     @Parameter(property = "internalDevMode", defaultValue = "false")
     private boolean internalDevMode;
