@@ -1153,7 +1153,7 @@ public class DevMojo extends LooseAppSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
-                                generateFeaturesSuccess);
+                            generateFeaturesSuccess);
                         runLibertyMojoDeploy();
                     }
                     if (installFeature) {
