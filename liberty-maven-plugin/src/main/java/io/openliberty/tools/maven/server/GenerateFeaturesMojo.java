@@ -311,7 +311,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         File generatedXmlFile;
         if (internalDevMode) {
             // create a temp dir in the target directory for the generated-features.xml in dev mode
-            // The ServerConfigXmlDocument will create the directories if needed.
+            // The ServerConfigXmlDocument class will create the directories if needed.
             generatedXmlFile = new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_PATH);
         } else {
             generatedXmlFile = new File(generationContextDir, GENERATED_FEATURES_FILE_PATH);
