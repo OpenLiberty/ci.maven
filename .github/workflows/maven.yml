@@ -98,29 +98,30 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
         cache: 'maven'
-    # Move and cloning to C: drive for Windows for more disk space
-    - name: Clone ci.ant, ci.common, ci.maven repos to C drive
+    # Clone to same github workspace used for ci.maven checkout
+    - name: Clone ci.ant and ci.common repos to github.workspace
       run: |
-        git clone https://github.com/OpenLiberty/ci.common.git C:/ci.common 
-        git clone https://github.com/OpenLiberty/ci.ant.git C:/ci.ant
+        echo ${{github.workspace}}
+        git clone https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common 
+        git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
         maven-version: 3.9.9
     # Install ci.ant
     - name: Install ci.ant
-      working-directory: C:/ci.ant
+      working-directory: ${{github.workspace}}/ci.ant
       run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Install ci.common
     - name: Install ci.common
-      working-directory: C:/ci.common
+      working-directory: ${{github.workspace}}/ci.common
       run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
-      working-directory: C:/a/ci.maven/ci.maven
+      working-directory: ${{github.workspace}}
       if: ${{ matrix.java == '17' || matrix.java == '21'}}
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
-      working-directory: C:/a/ci.maven/ci.maven
+      working-directory: ${{github.workspace}}
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
