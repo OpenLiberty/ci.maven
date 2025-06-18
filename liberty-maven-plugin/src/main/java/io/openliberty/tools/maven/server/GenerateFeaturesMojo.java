@@ -191,7 +191,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("--- Generate Features values ---");
         getLog().debug("Binary scanner jar: " + binaryScanner.getName());
         getLog().debug("optimize generate features: " + optimize);
-        getLog().debug("generate to src or target: " + generationContextDir);
+        getLog().debug("called by dev mode internalDevMode: " + internalDevMode);
+        getLog().debug("generate to src or target: " + (internalDevMode ? GENERATED_FEATURES_TEMP_PATH : generationContextDir));
         if (classFiles != null && !classFiles.isEmpty()) {
             getLog().debug("Generate features for the following class files: " + classFiles.toString());
         }
@@ -332,7 +333,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     // Generate log message before writing file as the file change event kicks off other dev mode actions
                     getLog().info("Generated the following features: " + missingLibertyFeatures);
                     configDocument.writeXMLDocument(generatedXmlFile);
-                    getLog().debug("Created file " + generatedXmlFile);
+                    getLog().debug("Created file " + generatedXmlFile.getAbsolutePath());
                 } else {
                     getLog().info("Regenerated the following features: " + missingLibertyFeatures);
                 }
