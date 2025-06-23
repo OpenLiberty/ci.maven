@@ -192,7 +192,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("Binary scanner jar: " + binaryScanner.getName());
         getLog().debug("optimize generate features: " + optimize);
         getLog().debug("called by dev mode internalDevMode: " + internalDevMode);
-        getLog().debug("generate to src or target: " + (internalDevMode ? GENERATED_FEATURES_TEMP_PATH : generationContextDir));
+        getLog().debug("generate to src or target: " + (internalDevMode ? GENERATED_FEATURES_TEMP_PATH : generationContextDir.getAbsolutePath()));
         if (classFiles != null && !classFiles.isEmpty()) {
             getLog().debug("Generate features for the following class files: " + classFiles.toString());
         }
