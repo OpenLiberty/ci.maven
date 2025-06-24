@@ -1523,9 +1523,7 @@ public class DevMojo extends LooseAppSupport {
             runBoostMojo("package");
         } else {
             if (generateFeatures) {
-                // generate features on startup - provide all classes and only user specified
-                // features to binary scanner
-                try {
+                if (generateToSrc) {
                     String generatedFileCanonicalPath;
                     try {
                         generatedFileCanonicalPath = new File(configDirectory,
@@ -1537,6 +1535,10 @@ public class DevMojo extends LooseAppSupport {
                     getLog().warn(
                             "The source configuration directory will be modified. Features will automatically be generated in a new file: "
                                     + generatedFileCanonicalPath);
+                }
+                // generate features on startup - provide all classes and only user specified
+                // features to binary scanner
+                try {
                     runLibertyMojoGenerateFeatures(null, true);
                 } catch (MojoExecutionException e) {
                     if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
