@@ -54,9 +54,12 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     }
 
     @Override
-    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
+    protected void runGenerateFeaturesGoal(String options) throws IOException, InterruptedException {
+        if (options == null) {
+            options = "";
+        }
         runProcess("io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion")
-                + ":generate-features");
+                + ":generate-features " + options);
     }
 
     @Override
