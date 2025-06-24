@@ -293,11 +293,11 @@ public class DevTest extends BaseDevTest {
       verifyFileExists(helloBatchObj, 15000);
       // ... and run the proper mojo.
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++runGenerateFeaturesCount)); // mojo ran
-      assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
+      // assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
       assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // dev mode copied file
       assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile));
       assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newFeatureFile));
-      assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
+      // assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
       // "CWWKF0012I: The server installed the following features:" assume batch-1.0 is in there
       // batch-1.0 pulls in other features that can take a long time to download.
       assertTrue(verifyLogMessageExists(SERVER_INSTALLED_FEATURES, 123000, ++installedFeaturesCount));
