@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,8 @@ public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
       int earTestsCount = countOccurrences("guide-maven-multimodules-ear tests compilation was successful.", logFile);
 
       // verify that generated-features.xml file exists
-      File newFeatureFile = getGeneratedFeaturesFile("ear");
+      // File newFeatureFile = getGeneratedFeaturesFile("ear");
+      File newFeatureFile = getTargetGeneratedFeaturesFile("ear");
       assertTrue(getLogTail(), verifyFileExists(newFeatureFile, 1000));
       long newFeatureFileLastModified = newFeatureFile.lastModified();
       waitLongEnough();
