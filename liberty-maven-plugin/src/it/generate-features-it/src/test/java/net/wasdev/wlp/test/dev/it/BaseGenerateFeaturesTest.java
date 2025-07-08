@@ -226,19 +226,16 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("compile liberty:generate-features");
+        runProcess("clean compile liberty:create liberty:generate-features");
     }
 
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
-        runProcess("compile liberty:generate-features -DgenerateToSrc=true");
+        // do not create liberty when generating to src
+        runProcess("clean compile liberty:generate-features -DgenerateToSrc=true");
     }
 
-    protected void runGenerateFeaturesGoal(String options) throws IOException, InterruptedException {
-        String parameters = "liberty:generate-features ";
-        if (options != null) {
-            parameters += options;
-        }
-        runProcess(parameters);
+    protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
+        runProcess("liberty:generate-features");
     }
 
     // Format the output to help debug test failures.
