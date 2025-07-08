@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,14 +49,20 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("compile io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion")
-                + ":generate-features");
+        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
+        runProcess("clean compile " + lmp + ":create " + lmp + ":generate-features");
+    }
+
+    @Override
+    protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
+        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
+        runProcess("clean compile " + lmp + ":generate-features -DgenerateToSrc=true");
     }
 
     @Override
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
         runProcess("io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion")
-                + ":generate-features");
+                + ":generate-features ");
     }
 
     @Override
