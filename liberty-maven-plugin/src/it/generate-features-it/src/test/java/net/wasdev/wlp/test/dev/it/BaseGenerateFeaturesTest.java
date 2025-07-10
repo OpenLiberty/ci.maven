@@ -68,6 +68,7 @@ public class BaseGenerateFeaturesTest {
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
     static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String SERVER_MISSING_MESSAGE = "The 'generate-features' goal requires an existing Liberty server";
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
