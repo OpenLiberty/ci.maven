@@ -22,7 +22,7 @@ The Liberty Maven plugin supports install and operational control of Liberty run
 ## Build
 
 As of version 3.9 of the plugin, you must use Maven 3.8.6 or later to build the Liberty Maven plugin.
-We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/maven-wrapper-plugin/index.html) script, so you do not need to download maven yourself if you are not using it yet. 
+We conveniently provide the [maven-wrapper](https://maven.apache.org/wrapper/maven-wrapper-plugin/index.html) script, so you do not need to download Maven yourself if you are not using it yet. 
 
 * `./mvnw install` : builds the plugin, skipping all tests
 * `./mvnw install -Poffline-its -DlibertyInstallDir=<liberty_install_directory>` : builds the plugin and runs the integration tests by providing an existing installation.
@@ -55,7 +55,7 @@ To enable Liberty Maven Plugin in your project add the following to your `pom.xm
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.9</version>
+                <version>3.11.4</version>
                 <!-- Specify configuration, executions for liberty-maven-plugin -->
                 ...
             </plugin>
@@ -104,12 +104,12 @@ Example using the `runtimeArtifact` parameter to install a WebSphere Liberty run
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
-    <version>3.9</version>
+    <version>3.11.4</version>
     <configuration>
         <runtimeArtifact>
             <groupId>com.ibm.websphere.appserver.runtime</groupId>
             <artifactId>wlp-webProfile8</artifactId>
-            <version>24.0.0.9</version>
+            <version>25.0.0.6</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
@@ -124,12 +124,12 @@ Example using the `runtimeArtifact` parameter to install an Open Liberty beta ru
 <plugin>
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven-plugin</artifactId>
-    <version>3.9</version>
+    <version>3.11.4</version>
     <configuration>
         <runtimeArtifact>
             <groupId>io.openliberty.beta</groupId>
             <artifactId>openliberty-runtime</artifactId>
-            <version>23.0.0.10-beta</version>
+            <version>25.0.0.7-beta</version>
             <type>zip</type>
         </runtimeArtifact>
     </configuration>
@@ -238,7 +238,7 @@ Example:
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.9</version>
+                <version>3.11.4</version>
                 <extensions>true</extensions>
                 <configuration>
                     <installDirectory>/opt/ibm/wlp</installDirectory>
