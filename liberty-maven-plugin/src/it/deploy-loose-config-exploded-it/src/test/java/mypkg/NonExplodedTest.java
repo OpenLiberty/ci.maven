@@ -77,9 +77,9 @@ public class NonExplodedTest {
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
             
             // validate:
-            //    <file sourceOnDisk="../.m2\repository\org\apache\commons\commons-lang3\3.0\commons-lang3-3.0.jar" 
-            //       targetInArchive="/WEB-INF/lib/commons-lang3-3.0.jar"/>
-            String commonsLangBaseName = "commons-lang3-3.0.jar";
+            //    <file sourceOnDisk="../.m2\repository\org\apache\commons\commons-lang3\3.18.0\commons-lang3-3.18.0.jar" 
+            //       targetInArchive="/WEB-INF/lib/commons-lang3-3.18.0.jar"/>
+            String commonsLangBaseName = "commons-lang3-3.18.0.jar";
             boolean foundCommonsLangJar = false;
             for (int i = 0; i < nodes.getLength() && !foundCommonsLangJar; i++) {
                 Node node = nodes.item(i);
