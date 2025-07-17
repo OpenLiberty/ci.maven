@@ -72,15 +72,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      */
     @Parameter(property = "generateToSrc", defaultValue = "false")
     private boolean generateToSrc;
-    /**
-     * Generating features is performed relative to a certain server. We only generate features
-     * that are missing from a server config. By default we generate features that are missing
-     * from the server directory in target/liberty/wlp/usr/servers/<server name>.
-     * If generateToSrc is specified then we generate features which are missing from the Liberty
-     * config specified in the src directory src/main/liberty/config.
-     * We will select one server config as the context of this operation.
-     */
-    private File generationContextDir;
 
     @Override
     protected void init() throws MojoExecutionException {
@@ -178,7 +169,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     // Get the features from the server config and optionally exclude the specified config files from the search.
-    private Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
+    private Set<String> getServerFeatures(ServerFeatureUtil servUtil, File generationContextDir, Set<String> generatedFiles, boolean excludeGenerated) {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
         // binary scanner
@@ -384,8 +375,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             return GenerateFeaturesMojo.this.getServerFeatureUtil(suppress, files);
         }
         @Override
-        public Set<String> getServerFeatures(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated) {
-            return GenerateFeaturesMojo.this.getServerFeatures(servUtil, generatedFiles, excludeGenerated);
+        public Set<String> getServerFeatures(ServerFeatureUtil servUtil, File generationContextDir, Set<String> generatedFiles, boolean excludeGenerated) {
+            return GenerateFeaturesMojo.this.getServerFeatures(servUtil, generationContextDir, generatedFiles, excludeGenerated);
         }
         @Override
         public Set<String> getClassesDirectories(List projects) throws GenerateFeaturesException {
