@@ -16,7 +16,7 @@
   </properties>
   <repositories>
     <!-- Sonatype repo needed to get the binary scanner jar for liberty:generate-features -->
-    <repository>
+    <!-- <repository>
         <id>oss-sonatype</id>
         <name>oss-sonatype</name>
         <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
@@ -26,7 +26,7 @@
         <releases>
             <enabled>false</enabled>
         </releases>
-    </repository>
+    </repository> -->
   </repositories>
   <dependencies>
     <dependency>

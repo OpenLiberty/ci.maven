@@ -18,7 +18,7 @@
     </properties>
     <repositories>
         <!-- Sonatype repository used to get the latest binary scanner jar -->
-        <repository>
+        <!-- <repository>
             <id>oss-sonatype</id>
             <name>oss-sonatype</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
@@ -28,7 +28,7 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository>
+        </repository> -->
     </repositories>
 
     <dependencies>

@@ -18,10 +18,10 @@
     </properties>
 
     <repositories>
-        <repository>
+        <!-- <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
+        </repository> -->
     </repositories>
 
     <dependencies>
