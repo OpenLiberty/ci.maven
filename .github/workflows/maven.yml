@@ -48,8 +48,7 @@ jobs:
     - name: Checkout ci.common
       uses: actions/checkout@v3
       with:
-        repository: cherylking/ci.common
-        ref: updateBinaryScannerDep
+        repository: OpenLiberty/ci.common
         path: ci.common
     - name: Checkout ci.ant
       uses: actions/checkout@v3
@@ -103,7 +102,7 @@ jobs:
     - name: Clone ci.ant and ci.common repos to github.workspace
       run: |
         echo ${{github.workspace}}
-        git clone https://github.com/cherylking/ci.common.git --branch updateBinaryScannerDep --single-branch ${{github.workspace}}/ci.common 
+        git clone https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common 
         git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
