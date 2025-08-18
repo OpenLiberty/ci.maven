@@ -73,9 +73,9 @@ If you are using a snapshot version of Liberty Maven Plugin then you will also n
     <pluginRepositories>
         <!-- Configure Sonatype OSS Maven snapshots repository -->
         <pluginRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <id>central-portal-snapshots</id>
+            <name>Central Portal Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>

@@ -13,6 +13,7 @@
     <packaging>maven-plugin</packaging>
     <name>liberty-maven-plugin</name>
     <description>Liberty Maven Plugin : Install, Start/Stop, Package, Create Server, Deploy/Undeploy applications</description>
+    <url>https://github.com/OpenLiberty/ci.maven</url>
 
     <prerequisites>
         <maven>${maven.version}</maven>
@@ -21,9 +22,9 @@
     <repositories>
         <!-- Configure Sonatype OSS Maven snapshots repository -->
         <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <id>central-portal-snapshots</id>
+            <name>Central Portal Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -37,7 +38,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.16</version>
+            <version>1.9.17-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -88,7 +89,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.38</version>
+            <version>1.8.39-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -231,6 +232,7 @@
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                     <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-jakarta-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -273,6 +275,7 @@
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                     <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-jakarta-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -314,6 +317,7 @@
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-jakarta-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>
@@ -360,6 +364,7 @@
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
                                     <pomExclude>compile-jsp-source-17-it/pom.xml</pomExclude>
+                                    <pomExclude>compile-jsp-source-17-jakarta-it/pom.xml</pomExclude>
                                 </pomExcludes>
                             </configuration>
                         </plugin>

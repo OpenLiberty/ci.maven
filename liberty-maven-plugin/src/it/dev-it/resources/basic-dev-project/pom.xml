@@ -25,9 +25,9 @@
   <repositories>
       <!-- Sonatype repository used to get the latest binary scanner jar -->
       <repository>
-          <id>oss-sonatype</id>
-          <name>oss-sonatype</name>
-          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <id>oss-sonatype</id>
+        <name>oss-sonatype</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
           <snapshots>
               <enabled>true</enabled>
           </snapshots>

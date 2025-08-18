@@ -30,14 +30,6 @@
     <description>Liberty Maven Plugin Parent</description>
     <url>https://github.com/OpenLiberty/ci.maven</url>
     
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>https://raw.github.com/OpenLiberty/ci.maven/main/LICENSE</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
     <build>
         <pluginManagement>
             <plugins>
