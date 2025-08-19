@@ -14,20 +14,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-  <repositories>
-    <!-- Sonatype repo needed to get the binary scanner jar for liberty:generate-features -->
-    <repository>
-        <id>oss-sonatype</id>
-        <name>oss-sonatype</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-    </repository>
-  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>org.eclipse.microprofile</groupId>
