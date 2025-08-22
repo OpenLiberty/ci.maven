@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven</artifactId>
-        <version>3.11.5</version>
+        <version>3.11.6-SNAPSHOT</version>
     </parent>
     
     <artifactId>liberty-maven-app-parent</artifactId>
@@ -36,7 +36,7 @@
                 <plugin>
                     <groupId>io.openliberty.tools</groupId>
                     <artifactId>liberty-maven-plugin</artifactId>
-                    <version>3.11.5</version>
+                    <version>3.11.6-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>stop-before-clean</id>
