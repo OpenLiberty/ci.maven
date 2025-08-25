@@ -139,6 +139,24 @@ If on Linux, it is recommended that you copy the entire `configDropins/overrides
 COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides /config/configDropins/overrides
 ```
 
+##### Specify Liberty configuration with Maven properties
+
+If you are using `liberty.var.{var}` or `liberty.defaultVar.{var}`, then the server configuration file named `liberty-plugin-variable-config.xml` is generated in the configDropins/overrides folder or configDropins/defaults folder of the target server respectively.
+To ensure your application runs correctly inside a container, you need to copy this generated liberty-plugin-variable-config.xml file into your container image. 
+
+You can do this by adding one of the following lines to your Dockerfile or Containerfile, depending on which type of variable you used.
+To copy the file from the overrides folder:
+
+```dockerfile
+COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/liberty-plugin-variable-config.xml /config/configDropins/overrides/liberty-plugin-variable-config.xml
+```
+To copy the file from the defaults folder:
+
+```dockerfile
+COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/defaults/liberty-plugin-variable-config.xml /config/configDropins/defaults/liberty-plugin-variable-config.xml
+```
+
+Remember, you only need to include the command that matches your configuration.
 ###### Prerequisites
 
 You need to install Podman or the Docker runtime (Docker Desktop on macOS or Windows, or Docker on Linux) locally to use this Maven goal. If using Podman, version 4.4.4 or higher is required. If using Docker, the installed Docker Client and Engine versions must be 18.03.0 or higher.
