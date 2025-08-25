@@ -103,7 +103,7 @@ jobs:
     - name: Clone ci.ant and ci.common repos to github.workspace
       run: |
         echo ${{github.workspace}}
-        git clone https://github.com/arunvenmany-ibm/ci.common.git --branch variable_resolution_fix --single-branch ${{github.workspace}}/ci.common 
+        git clone https://github.com/arunvenmany-ibm/ci.common.git --branch https_port_parse_issue_fix --single-branch ${{github.workspace}}/ci.common 
         git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
