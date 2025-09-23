@@ -165,8 +165,9 @@ Remember, you only need to include the command that matches your configuration.
 
 ###### Prerequisites
 
-You need to install Podman or the Docker runtime (Docker Desktop on macOS or Windows, or Docker on Linux) locally to use this Maven goal. If using Podman, version 4.4.4 or higher is required. If using Docker, the installed Docker Client and Engine versions must be 18.03.0 or higher.
+You need to install Podman or the Docker runtime (Docker Desktop on macOS or Windows, or Docker on Linux) locally to use this Maven goal. When using Podman, you'll need version 4.4.4 or higher, and the Maven plugin requires version 3.9 or higher. If using Docker, the installed Docker Client and Engine versions must be 18.03.0 or higher.
 
+If using podman, ensure that maven plugin [3.9](https://github.com/OpenLiberty/ci.maven/releases/tag/liberty-maven-3.9) or above is used.
 ###### Containerfile/Dockerfile
 
 Your project must have a Containerfile or Dockerfile to use dev mode in container mode. An example of container configuration is shown in [Building an application image](https://github.com/openliberty/ci.docker/#building-an-application-image). The parent image must be one of the [Open Liberty container images](https://github.com/openliberty/ci.docker/#container-images), or an image using Linux with Open Liberty configured with the same paths as the Open Liberty container images. The container config file must copy the application .war file and the server configuration files that the application requires into the container.
