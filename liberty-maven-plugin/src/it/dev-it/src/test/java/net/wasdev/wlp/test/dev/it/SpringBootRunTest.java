@@ -41,7 +41,7 @@ public class SpringBootRunTest extends BaseDevTest {
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-     BaseDevTest.cleanUpAfterClass(false);
+      BaseDevTest.cleanUpAfterClass(false);
    }
 
    /**

@@ -108,6 +108,7 @@ public class RunServerMojo extends PluginConfigSupport {
 
         if (!looseApplication) {
             try {
+                // no need to repackage war/jar if deploy package is specified as spring-boot-project
                 if(getDeployPackages().equals("spring-boot-project")){
                     getLog().info("Skipping project repackaging as deploy package is configured as spring-boot-project");
                 }else {
