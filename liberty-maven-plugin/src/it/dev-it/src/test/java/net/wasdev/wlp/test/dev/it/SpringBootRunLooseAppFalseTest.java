@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2022.
+ * (c) Copyright IBM Corporation 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,9 @@ public class SpringBootRunLooseAppFalseTest extends BaseDevTest {
    }
 
    /**
-    * As part of the multi-module validation, the run goal is skipped on projects with a "jar" packaging type.
-    * There is an exception for Spring Boot projects. This test will validate that the spring boot project is not skipped
+    * The liberty:run mojo, as an "all-in-one" goal, assumes it needs to do a package step if "loose" is disabled (set to false), and so it calls the war:war goal.
+    * This wrongly replaces the SpringBoot-repackaged WAR with a plain WAR, leading to this error.
+    * A fix is added to skip repackaging into jar/war if "spring-boot-project" is specified as deployPackage
     * 
     * @throws Exception
     */
@@ -66,7 +67,7 @@ public class SpringBootRunLooseAppFalseTest extends BaseDevTest {
 
        writer = new BufferedWriter(new OutputStreamWriter(stdin));
 	      
-	   // Make sure we are not skipping the project
+	   // Make sure we are skipping the repackaging for the project
 	   assertTrue(getLogTail(), verifyLogMessageExists("Skipping project repackaging as deploy package is configured as spring-boot-project", 30000));
 
        // Check that the springboot application has started
