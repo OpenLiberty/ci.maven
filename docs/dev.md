@@ -165,7 +165,7 @@ Remember, you only need to include the command that matches your configuration.
 
 ###### Prerequisites
 
-You need to install Podman or the Docker runtime (Docker Desktop on macOS or Windows, or Docker on Linux) locally to use this Maven goal. If using Podman, version 4.4.4 or higher is required. If using Docker, the installed Docker Client and Engine versions must be 18.03.0 or higher.
+You need to install Podman or the Docker runtime (Docker Desktop on macOS or Windows, or Docker on Linux) locally to use this Maven goal. When using Podman, you'll need version 4.4.4 or higher, and the Maven plugin requires version [3.9](https://github.com/OpenLiberty/ci.maven/releases/tag/liberty-maven-3.9) or higher. If using Docker, the installed Docker Client and Engine versions must be 18.03.0 or higher.
 
 ###### Containerfile/Dockerfile
 
