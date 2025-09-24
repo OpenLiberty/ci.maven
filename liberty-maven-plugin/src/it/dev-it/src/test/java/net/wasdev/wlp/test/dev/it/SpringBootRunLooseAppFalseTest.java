@@ -32,16 +32,16 @@ import org.junit.Ignore;
 import org.junit.Test;
 import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
 
-public class SpringBootRunTest extends BaseDevTest {
+public class SpringBootRunLooseAppFalseTest extends BaseDevTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/springboot-project", false, false, null, null);
+      setUpBeforeClass(null, "../resources/springboot-package-project", false, false, null, null);
    }
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-     // BaseDevTest.cleanUpAfterClass(false);
+      BaseDevTest.cleanUpAfterClass(false);
    }
 
    /**
@@ -52,7 +52,7 @@ public class SpringBootRunTest extends BaseDevTest {
     */
    @Test
    public void validateRunExecutionNotSkipped() throws Exception {
-	   String mavenPluginCommand = "mvn package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run";
+	   String mavenPluginCommand = "mvn package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run  -DlooseApplication=false  -DdeployPackages=spring-boot-project";
 
        StringBuilder command = new StringBuilder(mavenPluginCommand);
        ProcessBuilder builder = buildProcess(command.toString());
@@ -67,9 +67,11 @@ public class SpringBootRunTest extends BaseDevTest {
        writer = new BufferedWriter(new OutputStreamWriter(stdin));
 	      
 	   // Make sure we are not skipping the project
-	   assertTrue(getLogTail(), verifyLogMessageDoesNotExist("Skipping module springboot-project which is not included in this invocation of the run goal", 30000));
-   
+	   assertTrue(getLogTail(), verifyLogMessageExists("Skipping project repackaging as deploy package is configured as spring-boot-project", 30000));
+
+       // Check that the springboot application has started
+       assertTrue(getLogTail(), verifyLogMessageExists("CWWKZ0001I", 120000));
 	   // Check that the server has started
-       assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 120000));
+       assertTrue(getLogTail(), verifyLogMessageExists("CWWKF0011I", 10000));
    }
 }

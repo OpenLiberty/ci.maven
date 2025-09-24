@@ -108,22 +108,26 @@ public class RunServerMojo extends PluginConfigSupport {
 
         if (!looseApplication) {
             try {
-                switch (projectPackaging) {
-                    case "war":
-                        runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
-                        break;
-                    case "ear":
-                        runMojo("org.apache.maven.plugins", "maven-ear-plugin", "ear");
-                        break;
-                    case "ejb":
-                        runMojo("org.apache.maven.plugins", "maven-ejb-plugin", "ejb");
-                        break;
-                    case "bundle":
-                        runMojo("org.apache.felix", "maven-bundle-plugin", "bundle");
-                        break;
-                    case "jar":
-                        runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
-                        break;
+                if(getDeployPackages().equals("spring-boot-project")){
+                    getLog().info("Skipping project repackaging as deploy package is configured as spring-boot-project");
+                }else {
+                    switch (projectPackaging) {
+                        case "war":
+                            runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
+                            break;
+                        case "ear":
+                            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "ear");
+                            break;
+                        case "ejb":
+                            runMojo("org.apache.maven.plugins", "maven-ejb-plugin", "ejb");
+                            break;
+                        case "bundle":
+                            runMojo("org.apache.felix", "maven-bundle-plugin", "bundle");
+                            break;
+                        case "jar":
+                            runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
+                            break;
+                    }
                 }
             } catch (MojoExecutionException e) {
                 if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
