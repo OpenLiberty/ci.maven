@@ -107,11 +107,11 @@ public class RunServerMojo extends PluginConfigSupport {
         }
 
         if (!looseApplication) {
-            try {
-                // no need to repackage war/jar if deploy package is specified as spring-boot-project
-                if(getDeployPackages().equals("spring-boot-project")){
-                    getLog().info("Skipping project repackaging as deploy package is configured as spring-boot-project");
-                }else {
+            // no need to repackage war/jar if deploy package is specified as spring-boot-project
+            if (getDeployPackages().equals("spring-boot-project")) {
+                getLog().info("Skipping project repackaging as deploy package is configured as spring-boot-project");
+            } else {
+                try {
                     switch (projectPackaging) {
                         case "war":
                             runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
@@ -129,16 +129,16 @@ public class RunServerMojo extends PluginConfigSupport {
                             runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
                             break;
                     }
-                }
-            } catch (MojoExecutionException e) {
-                if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
-                    // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
-                    getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
-                    throw e;
+
+                } catch (MojoExecutionException e) {
+                    if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
+                        // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
+                        getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
+                        throw e;
+                    }
                 }
             }
         }
-
         // Return if Liberty should not be run on this module
         if (hasDownstreamProjects) {
             return;

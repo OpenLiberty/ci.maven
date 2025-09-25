@@ -74,7 +74,7 @@ public class SpringBootUtil {
         File fatArchive = getSpringBootUberJARLocation(project, log);
 
         if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
-            log.info("Found Spring Boot Uber Archive: " + fatArchive.getAbsolutePath());
+            log.info("Found Spring Boot Uber JAR or WAR: " + fatArchive.getAbsolutePath());
             return fatArchive;
         }
 
