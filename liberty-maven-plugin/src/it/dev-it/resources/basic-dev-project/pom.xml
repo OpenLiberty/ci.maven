@@ -202,6 +202,8 @@
             <param>-Xms512m</param>
          </jvmOptions>
           <!-- ADDITIONAL_CONFIGURATION -->
+            <debug>true</debug>
+            <debugPort>7077</debugPort>
         </configuration>
       </plugin>
       <!-- Plugin to run functional tests -->

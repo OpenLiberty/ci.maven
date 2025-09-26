@@ -123,6 +123,8 @@
             <default.https.port>${testServerHttpsPort}</default.https.port>
             <com.ibm.ws.logging.message.format>json</com.ibm.ws.logging.message.format>
           </bootstrapProperties>
+          <libertyDebug>true</libertyDebug>
+          <libertyDebugPort>8077</libertyDebugPort>
         </configuration>
       </plugin>
       <!-- Plugin to run functional tests -->

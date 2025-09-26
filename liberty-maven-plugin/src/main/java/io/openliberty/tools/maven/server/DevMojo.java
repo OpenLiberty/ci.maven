@@ -126,10 +126,10 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "skipInstallFeature", defaultValue = "false")
     protected boolean skipInstallFeature;
  
-    @Parameter(property = "debug", defaultValue = "true")
+    @Parameter(property = "debug", defaultValue = "true", alias = "debug")
     private boolean libertyDebug;
 
-    @Parameter(property = "debugPort", defaultValue = "7777")
+    @Parameter(property = "debugPort", defaultValue = "7777", alias = "debugPort")
     private int libertyDebugPort;
 
     @Parameter(property = "container", defaultValue = "false")
