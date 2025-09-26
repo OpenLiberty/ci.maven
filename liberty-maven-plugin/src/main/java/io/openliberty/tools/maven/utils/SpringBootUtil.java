@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018, 2023.
+ * (C) Copyright IBM Corporation 2018, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,14 +74,14 @@ public class SpringBootUtil {
         File fatArchive = getSpringBootUberJARLocation(project, log);
 
         if (io.openliberty.tools.common.plugins.util.SpringBootUtil.isSpringBootUberJar(fatArchive)) {
-            log.info("Found Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
+            log.info("Found Spring Boot Uber JAR or WAR: " + fatArchive.getAbsolutePath());
             return fatArchive;
         }
 
         if (fatArchive.exists()) {
-            log.warn("The file at the following location is not a Spring Boot Uber JAR: " + fatArchive.getAbsolutePath());
+            log.warn("The file at the following location is not a Spring Boot Uber JAR or WAR: " + fatArchive.getAbsolutePath());
         } else {
-            log.warn("Spring Boot Uber JAR was not found in expected location: " + fatArchive.getAbsolutePath());
+            log.warn("Spring Boot Uber JAR or WAR was not found in expected location: " + fatArchive.getAbsolutePath());
         }
         return null;
     }

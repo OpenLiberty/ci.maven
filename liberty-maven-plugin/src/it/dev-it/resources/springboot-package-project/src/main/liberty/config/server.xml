@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <featureManager>
+    <!-- tag::servlet[] -->
+
+        <feature>servlet-4.0</feature>
+    <!-- end::servlet[] -->
+    <!-- tag::springboot[] -->
+        <feature>springBoot-2.0</feature>
+    <!-- end::springboot[] -->
+    </featureManager>
+
+    <!-- tag::httpport[] -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080"
+                  httpsPort="9443" />
+    <!-- end::httpport[] -->
+
+    <!-- tag::springBootApplication[] -->
+    <springBootApplication id="guide-spring-boot" 
+                           location="thin-guide-spring-boot-0.1.0.jar"
+                           name="guide-spring-boot" />
+    <!-- end::springBootApplication[] -->
+
+</server>

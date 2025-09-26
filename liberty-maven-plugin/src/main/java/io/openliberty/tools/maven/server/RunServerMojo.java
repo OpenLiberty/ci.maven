@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2024.
+ * (C) Copyright IBM Corporation 2014, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,33 +107,38 @@ public class RunServerMojo extends PluginConfigSupport {
         }
 
         if (!looseApplication) {
-            try {
-                switch (projectPackaging) {
-                    case "war":
-                        runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
-                        break;
-                    case "ear":
-                        runMojo("org.apache.maven.plugins", "maven-ear-plugin", "ear");
-                        break;
-                    case "ejb":
-                        runMojo("org.apache.maven.plugins", "maven-ejb-plugin", "ejb");
-                        break;
-                    case "bundle":
-                        runMojo("org.apache.felix", "maven-bundle-plugin", "bundle");
-                        break;
-                    case "jar":
-                        runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
-                        break;
-                }
-            } catch (MojoExecutionException e) {
-                if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
-                    // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
-                    getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
-                    throw e;
+            // no need to repackage war/jar if deploy package is specified as spring-boot-project
+            if ("spring-boot-project".equals(getDeployPackages())) {
+                getLog().info("Skipping project repackaging as deploy package is configured as spring-boot-project");
+            } else {
+                try {
+                    switch (projectPackaging) {
+                        case "war":
+                            runMojo("org.apache.maven.plugins", "maven-war-plugin", "war");
+                            break;
+                        case "ear":
+                            runMojo("org.apache.maven.plugins", "maven-ear-plugin", "ear");
+                            break;
+                        case "ejb":
+                            runMojo("org.apache.maven.plugins", "maven-ejb-plugin", "ejb");
+                            break;
+                        case "bundle":
+                            runMojo("org.apache.felix", "maven-bundle-plugin", "bundle");
+                            break;
+                        case "jar":
+                            runMojo("org.apache.maven.plugins", "maven-jar-plugin", "jar");
+                            break;
+                    }
+
+                } catch (MojoExecutionException e) {
+                    if (graph != null && !graph.getUpstreamProjects(project, true).isEmpty()) {
+                        // this module is a non-loose app, so warn that any upstream modules must also be set to non-loose
+                        getLog().warn("The looseApplication parameter was set to false for the module with artifactId " + project.getArtifactId() + ". Ensure that all modules use the same value for the looseApplication parameter by including -DlooseApplication=false in the Maven command for your multi module project.");
+                        throw e;
+                    }
                 }
             }
         }
-
         // Return if Liberty should not be run on this module
         if (hasDownstreamProjects) {
             return;
