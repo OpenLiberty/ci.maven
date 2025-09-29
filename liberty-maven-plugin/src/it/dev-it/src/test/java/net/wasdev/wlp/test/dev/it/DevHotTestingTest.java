@@ -34,6 +34,8 @@ public class DevHotTestingTest extends BaseDevTest {
 
    @Test
    public void autoTestsInvocationTest() throws Exception {
+      //debugPort set as 7077
+      assertTrue(verifyLogMessageExists("Listening for transport dt_socket at address: 7077", 20000) || verifyLogMessageExists("The debug port 7077 is not available.",20000));
       assertTrue(verifyLogMessageExists("Recompile skipped for dev-sample-proj since earlier compilation is successful", 20000));
       assertTrue(verifyLogMessageExists("Tests will run automatically", 20000));
    

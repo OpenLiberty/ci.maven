@@ -41,6 +41,8 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
     @Test
     public void updateDependencyTest() throws Exception {
+       //debugPort set as 8077
+       assertTrue(verifyLogMessageExists("Listening for transport dt_socket at address: 8077", 20000) || verifyLogMessageExists("The debug port 8077 is not available.",20000));
        assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
        File generatedFeaturesFile = getGeneratedFeaturesFile();
