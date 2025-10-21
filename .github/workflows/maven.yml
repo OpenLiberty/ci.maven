@@ -97,14 +97,24 @@ jobs:
         RUNTIME_VERSION: [ 25.0.0.9,25.0.0.10 ]
         java: [ 25, 21, 17, 11, 8 ]
         exclude:
-          - java: [ 8,17 ]
+          - java: 8
             RUNTIME: wlp
-          - java: [ 11,21 ]
+          - java: 17
+            RUNTIME: wlp
+          - java: 11
+            RUNTIME: ol
+          - java: 21
             RUNTIME: ol
           - RUNTIME_VERSION: 25.0.0.9
             java: 25
           - RUNTIME_VERSION: 25.0.0.10
-            java: [ 21, 17, 11, 8 ]
+            java: 21
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 17
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 11
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 8
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
     steps:
     # Checkout repos
