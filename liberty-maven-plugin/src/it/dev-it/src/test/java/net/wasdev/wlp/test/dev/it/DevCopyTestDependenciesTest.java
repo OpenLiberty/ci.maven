@@ -35,10 +35,10 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
       setUpBeforeClass(null, "../resources/basic-dev-project", true, false, null, null);
 
       String additionalDependencies = "<dependency> <groupId>${pg.group.id}</groupId> <artifactId>${pg.artifact.id}</artifactId> <version>${pg.version}</version> <scope>${pg.scope}</scope> </dependency>";
-      replaceString("<!-- ADDITIONAL_DEPENDENCIES -->", additionalDependencies, pom);
+      replaceStringLiteral("<!-- ADDITIONAL_DEPENDENCIES -->", additionalDependencies, pom);
 
       String additionalConfiguration = "<copyDependencies> <dependency> <groupId>${pg.group.id}</groupId> <artifactId>postgresql</artifactId> </dependency> </copyDependencies>";
-      replaceString("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
+      replaceStringLiteral("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
 
       // add new parameter in first argument to skip install features on restart
       // in this case, it should not skip install feature because Liberty was not previously installed
