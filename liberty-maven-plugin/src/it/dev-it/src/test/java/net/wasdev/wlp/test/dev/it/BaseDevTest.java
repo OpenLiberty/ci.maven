@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.io.FileUtils;
