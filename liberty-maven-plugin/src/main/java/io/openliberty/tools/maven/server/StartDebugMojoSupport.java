@@ -313,7 +313,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (copyDependencies != null) {
             List<Dependency> deps = copyDependencies.getDependencies();
             boolean defaultStripVersion = copyDependencies.isStripVersion();
+
             String defaultLocation = copyDependencies.getLocation();
+            defaultLocation = resolvePropertyReferences(defaultLocation);
+
             File dftLocationFile = new File(defaultLocation);
 
             if (!dftLocationFile.isAbsolute()) {
@@ -346,6 +349,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             for (DependencyGroup depGroup : depGroups) {
                 String overrideLocation = depGroup.getLocation();
                 if (overrideLocation != null) {
+                    overrideLocation = resolvePropertyReferences(overrideLocation);
                     getLog().debug("copyDependencies to location: "+ overrideLocation);
                 } else {
                     getLog().debug("copyDependencies to location: "+dftLocationPath);
