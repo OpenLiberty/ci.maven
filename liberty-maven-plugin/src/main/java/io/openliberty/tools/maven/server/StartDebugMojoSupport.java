@@ -335,6 +335,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             }
 
             for (Dependency dep : deps) {
+                // Resolve property references in dependency coordinates
+                resolveDependencyPropertyReferences(dep);
+
                 copyDependencies(dep, null, dftLocationPath, defaultStripVersion);                
             }
 
@@ -354,6 +357,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 }
                 List<Dependency> groupDeps = depGroup.getDependencies();
                 for (Dependency dep : groupDeps) {
+                    // Resolve property references in dependency coordinates
+                    resolveDependencyPropertyReferences(dep);
+
                     copyDependencies(dep, overrideLocation, dftLocationPath, stripVersion);                
                 }
             }
