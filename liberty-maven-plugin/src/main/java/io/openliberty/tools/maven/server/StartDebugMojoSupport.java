@@ -421,6 +421,24 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
+    private void resolveDependencyPropertyReferences(Dependency dep) {
+        if (dep.getGroupId() != null) {
+            dep.setGroupId(resolvePropertyReferences(dep.getGroupId()));
+        }
+        if (dep.getArtifactId() != null) {
+            dep.setArtifactId(resolvePropertyReferences(dep.getArtifactId()));
+        }
+        if (dep.getVersion() != null) {
+            dep.setVersion(resolvePropertyReferences(dep.getVersion()));
+        }
+        if (dep.getType() != null) {
+            dep.setType(resolvePropertyReferences(dep.getType()));
+        }
+        if (dep.getClassifier() != null) {
+            dep.setClassifier(resolvePropertyReferences(dep.getClassifier()));
+        }
+    }
+
     /**
      * @throws IOException
      * @throws MojoExecutionException
