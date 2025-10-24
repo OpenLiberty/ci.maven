@@ -37,7 +37,7 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
       String additionalDependencies = "<dependency> <groupId>${pg.group.id}</groupId> <artifactId>${pg.artifact.id}</artifactId> <version>${pg.version}</version> <scope>${pg.scope}</scope> </dependency>";
       replaceStringLiteral("<!-- ADDITIONAL_DEPENDENCIES -->", additionalDependencies, pom);
 
-      String additionalConfiguration = "<copyDependencies> <dependency> <groupId>${pg.group.id}</groupId> <artifactId>postgresql</artifactId> </dependency> </copyDependencies>";
+      String additionalConfiguration = "<copyDependencies> <dependency> <groupId>${pg.group.id}</groupId> <artifactId>${pg.artifact.id}</artifactId> </dependency> </copyDependencies>";
       replaceStringLiteral("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
 
       // add new parameter in first argument to skip install features on restart
@@ -84,5 +84,5 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
                 assertTrue("-Xms512m not found on last line", nextLine.equals("-Xms512m"));
             }
         }
-    }    
+    }
 }
