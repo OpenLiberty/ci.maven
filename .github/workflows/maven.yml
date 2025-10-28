@@ -22,13 +22,27 @@ jobs:
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
-        RUNTIME_VERSION: [25.0.0.6]
-        java: [21, 17, 11, 8]
+        RUNTIME_VERSION: [25.0.0.9,25.0.0.10]
+        java: [25, 21, 17, 11, 8]
         exclude:
         - java: 8
           RUNTIME: wlp
+        - java: 17
+          RUNTIME: wlp
         - java: 11
           RUNTIME: ol
+        - java: 21
+          RUNTIME: ol
+        - RUNTIME_VERSION: 25.0.0.9
+          java: 25
+        - RUNTIME_VERSION: 25.0.0.10
+          java: 21
+        - RUNTIME_VERSION: 25.0.0.10
+          java: 17
+        - RUNTIME_VERSION: 25.0.0.10
+          java: 11
+        - RUNTIME_VERSION: 25.0.0.10
+          java: 8
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Linux
     steps:
     # Checkout repos
@@ -66,7 +80,7 @@ jobs:
         ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
-      if: ${{ matrix.java == '17' || matrix.java == '21'}}
+      if: ${{ matrix.java != '8' && matrix.java != '11'}}
       run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
@@ -80,13 +94,27 @@ jobs:
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
-        RUNTIME_VERSION: [25.0.0.6]
-        java: [21, 17, 11, 8]
+        RUNTIME_VERSION: [ 25.0.0.9,25.0.0.10 ]
+        java: [ 25, 21, 17, 11, 8 ]
         exclude:
-        - java: 8
-          RUNTIME: ol
-        - java: 11
-          RUNTIME: wlp
+          - java: 8
+            RUNTIME: wlp
+          - java: 17
+            RUNTIME: wlp
+          - java: 11
+            RUNTIME: ol
+          - java: 21
+            RUNTIME: ol
+          - RUNTIME_VERSION: 25.0.0.9
+            java: 25
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 21
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 17
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 11
+          - RUNTIME_VERSION: 25.0.0.10
+            java: 8
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
     steps:
     # Checkout repos
@@ -119,7 +147,7 @@ jobs:
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
       working-directory: ${{github.workspace}}
-      if: ${{ matrix.java == '17' || matrix.java == '21'}}
+      if: ${{ matrix.java != '8' && matrix.java != '11'}}
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
