@@ -20,6 +20,13 @@
     <testServerHttpsPort>9443</testServerHttpsPort>
     <!-- end::ports[] -->
     <packaging.type>usr</packaging.type>
+
+    <!-- Variables for test dependencies  -->
+    <pg.group.id>org.postgresql</pg.group.id>
+    <pg.artifact.id>postgresql</pg.artifact.id>
+    <pg.version>42.1.1</pg.version>
+    <pg.scope>test</pg.scope>
+    <custom.dir.location>customDirLocation</custom.dir.location>
   </properties>
 
   <dependencyManagement>

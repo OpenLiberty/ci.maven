@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.io.FileUtils;
@@ -421,14 +422,41 @@ public class BaseDevTest {
       replaceString("RUNTIME_VERSION", runtimeVersion, pom);
    }
 
-   protected static void replaceString(String str, String replacement, File file) throws IOException {
-      Path path = file.toPath();
-      Charset charset = StandardCharsets.UTF_8;
-      String content = new String(Files.readAllBytes(path), charset);
+    /**
+     * Replaces all occurrences of a regex pattern in a file.
+     *
+     * @param str the regex pattern to search for
+     * @param replacement the replacement string (supports regex syntax like $1 for backreferences)
+     * @param file the file to modify
+     * @throws IOException if the file cannot be read or written
+     */
+    protected static void replaceString(String str, String replacement, File file) throws IOException {
+        Path path = file.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
 
-      content = content.replaceAll(str, replacement);
-      Files.write(path, content.getBytes(charset));
-   }
+        content = content.replaceAll(str, replacement);
+        Files.write(path, content.getBytes(charset));
+    }
+
+    /**
+     * Replaces all occurrences of a regex pattern in a file with a literal string.
+     * The replacement string is treated literally - special characters like $ and \ are escaped
+     * and not interpreted as regex syntax.
+     *
+     * @param str the regex pattern to search for
+     * @param replacement the literal replacement string (special characters are treated as plain text)
+     * @param file the file to modify
+     * @throws IOException if the file cannot be read or written
+     */
+    protected static void replaceStringLiteral(String str, String replacement, File file) throws IOException {
+        Path path = file.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
+
+        content = content.replaceAll(str, Matcher.quoteReplacement(replacement));
+        Files.write(path, content.getBytes(charset));
+    }
 
    protected static boolean verifyLogMessageExists(String message, int timeout)
          throws InterruptedException, FileNotFoundException, IOException {

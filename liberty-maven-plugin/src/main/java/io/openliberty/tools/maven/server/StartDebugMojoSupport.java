@@ -313,7 +313,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         if (copyDependencies != null) {
             List<Dependency> deps = copyDependencies.getDependencies();
             boolean defaultStripVersion = copyDependencies.isStripVersion();
+
             String defaultLocation = copyDependencies.getLocation();
+            defaultLocation = resolvePropertyReferences(defaultLocation);
+
             File dftLocationFile = new File(defaultLocation);
 
             if (!dftLocationFile.isAbsolute()) {
@@ -335,6 +338,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             }
 
             for (Dependency dep : deps) {
+                // Resolve property references in dependency coordinates
+                resolveDependencyPropertyReferences(dep);
+
                 copyDependencies(dep, null, dftLocationPath, defaultStripVersion);                
             }
 
@@ -343,6 +349,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             for (DependencyGroup depGroup : depGroups) {
                 String overrideLocation = depGroup.getLocation();
                 if (overrideLocation != null) {
+                    overrideLocation = resolvePropertyReferences(overrideLocation);
                     getLog().debug("copyDependencies to location: "+ overrideLocation);
                 } else {
                     getLog().debug("copyDependencies to location: "+dftLocationPath);
@@ -354,6 +361,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 }
                 List<Dependency> groupDeps = depGroup.getDependencies();
                 for (Dependency dep : groupDeps) {
+                    // Resolve property references in dependency coordinates
+                    resolveDependencyPropertyReferences(dep);
+
                     copyDependencies(dep, overrideLocation, dftLocationPath, stripVersion);                
                 }
             }
@@ -418,6 +428,24 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
                 getLog().info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
             }
+        }
+    }
+
+    private void resolveDependencyPropertyReferences(Dependency dep) {
+        if (dep.getGroupId() != null) {
+            dep.setGroupId(resolvePropertyReferences(dep.getGroupId()));
+        }
+        if (dep.getArtifactId() != null) {
+            dep.setArtifactId(resolvePropertyReferences(dep.getArtifactId()));
+        }
+        if (dep.getVersion() != null) {
+            dep.setVersion(resolvePropertyReferences(dep.getVersion()));
+        }
+        if (dep.getType() != null) {
+            dep.setType(resolvePropertyReferences(dep.getType()));
+        }
+        if (dep.getClassifier() != null) {
+            dep.setClassifier(resolvePropertyReferences(dep.getClassifier()));
         }
     }
 
