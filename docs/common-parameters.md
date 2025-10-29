@@ -23,8 +23,6 @@ Parameters shared by all goals.
 
 The following parameter names from version 2.x are still supported for backward compatibility, but the new parameter names listed above should be used:
 
-While running `mvn liberty:help -Ddetail=true -Dgoal=<goal>` or using IDE auto-completion, you may see internal field names like `assemblyArchive`, `assemblyArtifact`, or `assemblyInstallDirectory`. These are internal implementation names. In your `pom.xml`, use the parameter names documented in the table above (`runtimeArchive`, `runtimeArtifact`, `runtimeInstallDirectory`).
-
 | 2.x Parameter Name       | 3.0+ Parameter Name     |
 |--------------------------|-------------------------|
 | assemblyArchive          | runtimeArchive          |
