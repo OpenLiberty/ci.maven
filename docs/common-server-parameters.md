@@ -4,15 +4,26 @@ Additional parameters shared by all server-based goals.
 
 | Parameter | Description | Required |
 | --------  | ----------- | -------  |
-| serverXmlFile | Location of a server configuration file to be used by the instance. This replaces the `configFile` parameter which is still supported for backwards compatibility.| No |
+| serverXmlFile | Location of a server configuration file to be used by the instance.| No |
 | configDirectory | Location of a server configuration directory to be used by the instance. Configuration files and folder structure will be copied to the target server. Files specified by other common server parameters will take precedence over files located in the configDirectory. The default value is `${basedir}/src/main/liberty/config`.| No |
 | copyDependencies | Copies the specified dependencies to the specified locations. Multiple `dependency` parameters and `dependencyGroup` parameters can be added to the `copyDependencies` configuration. The `location` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default location, which is the `lib/global` folder of the target server. The `stripVersion` parameter can be added to the `copyDependencies` or `dependencyGroup` configuration to override the default `stripVersion` value, which is `false`. | No |
 | bootstrapProperties | List of bootstrap properties for the server instance. The backslashes will be converted to forward slashes. `bootstrapProperties` will take precedence over `bootstrapPropertiesFile`.| No |
 | bootstrapPropertiesFile | Location of a bootstrap properties file to be used by the instance.| No |
 | jvmOptions | List of JVM options for the server instance. `jvmOptions` will take precedence over `jvmOptionsFile`.| No |
 | jvmOptionsFile | Location of a JVM options file to be used by the instance.| No |
-| serverEnvFile | Location of a server environment file to be used by the instance. This replaces the `serverEnv` parameter which is still supported for backwards compatibility.| No |
+| serverEnvFile | Location of a server environment file to be used by the instance.| No |
 | mergeServerEnv | Merge the server environment properties from all specified sources with the default generated `server.env` file in the target server. Conflicts are resolved with the same precedence as the replacement policy when this attribute is set to `false`. The `liberty.env.{var}` Maven properties are highest precedence, followed by the `serverEnvFile` attribute, then the `server.env` file located in the `configDirectory`, and finally the default generated `server.env` file in the target server. The default value is `false`. | No |
+
+#### Backward Compatibility
+
+The following parameter names from version 2.x are still supported for backward compatibility, but the new parameter names listed above should be used:
+
+| 2.x Parameter Name       | 3.0+ Parameter Name     |
+| ------------------------ | ----------------------- |
+| configFile | serverXmlFile |
+| serverEnv | serverEnvFile |
+
+See the [version 3.0 migration guide](version_3.0_differences.md) for more information about parameter name changes.
 
 #### Copying dependencies with liberty-maven-plugin
 
