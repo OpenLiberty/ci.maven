@@ -5,7 +5,7 @@
 
     <groupId>io.openliberty.tools</groupId>
     <artifactId>liberty-maven</artifactId>
-    <version>3.11.6-SNAPSHOT</version>
+    <version>99.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Liberty Tools for Maven</name>
     <description>
@@ -54,10 +54,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.version>3.8.6</maven.version>
-        <maven.plugin.tools.version>3.9.0</maven.plugin.tools.version>
+        <maven.plugin.tools.version>3.15.2</maven.plugin.tools.version>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     </properties>
 
@@ -72,17 +72,17 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>1.23</version>
+                    <version>1.26</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.14.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.9.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -156,7 +156,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.8.0</version>
+                        <version>0.9.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>maven-central-releases</publishingServerId>
@@ -179,7 +179,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.11.2</version>
+                        <version>3.12.0</version>
                         <configuration>
                             <bottom><![CDATA[Copyright &#169; {currentYear} the original author or authors.]]></bottom>
                             <failOnError>false</failOnError>
