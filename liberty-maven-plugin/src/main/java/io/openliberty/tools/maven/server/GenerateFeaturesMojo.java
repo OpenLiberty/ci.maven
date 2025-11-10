@@ -80,6 +80,16 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      */
     @Parameter(property = "generateToSrc", defaultValue = "false")
     private boolean generateToSrc;
+
+    /**
+     * The internalDevMode parameter is for internal use only. It is not for users.
+     * The parameter is only used when generateToSrc is false meaning we generate to serverDir.
+     * When the parameter is true we will write the generated features file to the temp directory.
+     * This is required because the features must all be installed before writing to server Dir in devmode.
+     */
+    @Parameter(property = "internalDevMode", defaultValue = "false")
+    private boolean internalDevMode;
+
     /**
      * Generating features is performed relative to a certain server. We only generate features
      * that are missing from a server config. By default we generate features that are missing
@@ -298,7 +308,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
         // generate the new features into an xml file in the correct context directory
-        File generatedXmlFile = new File(generationContextDir, GENERATED_FEATURES_FILE_PATH);
+        File generatedXmlFile;
+        if (internalDevMode) {
+            // create a temp dir in the target directory for the generated-features.xml in dev mode
+            // The ServerConfigXmlDocument will create the directories if needed.
+            generatedXmlFile = new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_PATH);
+        } else {
+            generatedXmlFile = new File(generationContextDir, GENERATED_FEATURES_FILE_PATH);
+        }
         try {
             if (missingLibertyFeatures.size() > 0) {
                 Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlFile);
