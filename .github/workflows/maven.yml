@@ -23,7 +23,7 @@ jobs:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [25.0.0.9,25.0.0.10]
-        java: [25, 21, 17, 11, 8]
+        java: [25, 21, 17]
         exclude:
         - java: 8
           RUNTIME: wlp
@@ -95,7 +95,7 @@ jobs:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [ 25.0.0.9,25.0.0.10 ]
-        java: [ 25, 21, 17, 11, 8 ]
+        java: [ 25, 21, 17 ]
         exclude:
           - java: 8
             RUNTIME: wlp
