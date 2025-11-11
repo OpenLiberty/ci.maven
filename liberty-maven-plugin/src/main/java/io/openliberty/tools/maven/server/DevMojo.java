@@ -135,7 +135,7 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
-    @Parameter(property = "generateFeatures", defaultValue = "false")
+    @Parameter(property = "generateFeatures", defaultValue = "true")
     private boolean generateFeatures;
 
     /**
