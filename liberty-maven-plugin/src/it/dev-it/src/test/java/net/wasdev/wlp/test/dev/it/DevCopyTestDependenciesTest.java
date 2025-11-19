@@ -34,11 +34,11 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
    public static void setUpBeforeClass() throws Exception {
       setUpBeforeClass(null, "../resources/basic-dev-project", true, false, null, null);
 
-      String additionalDependencies = "<dependency> <groupId>org.postgresql</groupId> <artifactId>postgresql</artifactId> <version>42.1.1</version> <scope>test</scope> </dependency>";
-      replaceString("<!-- ADDITIONAL_DEPENDENCIES -->", additionalDependencies, pom);
+      String additionalDependencies = "<dependency> <groupId>${pg.group.id}</groupId> <artifactId>${pg.artifact.id}</artifactId> <version>${pg.version}</version> <scope>${pg.scope}</scope> </dependency>";
+      replaceStringLiteral("<!-- ADDITIONAL_DEPENDENCIES -->", additionalDependencies, pom);
 
-      String additionalConfiguration = "<copyDependencies> <dependency> <groupId>org.postgresql</groupId> <artifactId>postgresql</artifactId> </dependency> </copyDependencies>";
-      replaceString("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
+      String additionalConfiguration = "<copyDependencies> <dependency> <groupId>${pg.group.id}</groupId> <artifactId>${pg.artifact.id}</artifactId> </dependency> </copyDependencies>";
+      replaceStringLiteral("<!-- ADDITIONAL_CONFIGURATION -->", additionalConfiguration, pom);
 
       // add new parameter in first argument to skip install features on restart
       // in this case, it should not skip install feature because Liberty was not previously installed
@@ -84,5 +84,5 @@ public class DevCopyTestDependenciesTest extends BaseDevTest {
                 assertTrue("-Xms512m not found on last line", nextLine.equals("-Xms512m"));
             }
         }
-    }    
+    }
 }
