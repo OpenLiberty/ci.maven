@@ -84,6 +84,10 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
         cache: 'maven'
+    - name: Verify JAVA_HOME and Installed JDKs
+      run: |
+        echo "Primary JAVA_HOME is set to: $JAVA_HOME"
+        java -version
     - name: Free disk space ubuntu
       uses: jlumbroso/free-disk-space@main
       with:
@@ -186,6 +190,10 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
         cache: 'maven'
+    - name: Verify JAVA_HOME and Installed JDKs
+      run: |
+        echo "Primary JAVA_HOME is set to: $JAVA_HOME"
+        java -version
     # Clone to same github workspace used for ci.maven checkout
     - name: Clone ci.ant and ci.common repos to github.workspace
       run: |
