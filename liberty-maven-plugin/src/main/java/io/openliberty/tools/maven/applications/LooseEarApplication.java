@@ -334,7 +334,8 @@ public class LooseEarApplication extends LooseApplication {
         Set<Artifact> deps = project.getArtifacts();
         for (Artifact dep : deps) {
             if (("compile".equals(artifact.getScope()) || "runtime".equals(artifact.getScope()))
-                    && "jar".equals(dep.getType()) && artifact.getGroupId().equals(dep.getGroupId())
+                    && ("jar".equals(artifact.getType()) || "jar".equals(artifact.getArtifactHandler().getExtension())) 
+                    && artifact.getGroupId().equals(dep.getGroupId())
                     && artifact.getArtifactId().equals(dep.getArtifactId())
                     && artifact.getVersion().equals(dep.getVersion())) {
                 return true;
