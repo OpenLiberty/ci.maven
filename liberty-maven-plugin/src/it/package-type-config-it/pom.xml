@@ -63,6 +63,7 @@
                     <appsDirectory>apps</appsDirectory>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>
+                    <libertyRuntimeVersion>${runtimeVersion}</libertyRuntimeVersion>
                 </configuration>
                 <executions>
                     <execution>

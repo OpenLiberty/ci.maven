@@ -17,6 +17,7 @@ jobs:
 # UNIX BUILDS
   build-unix:
     runs-on: ubuntu-latest
+    timeout-minutes: 130
     strategy:
       fail-fast: false
       matrix:
@@ -75,20 +76,24 @@ jobs:
         maven-version: 3.9.9
     # Install dependencies
     - name: Install ci.ant and ci.common
+      timeout-minutes: 15
       run: |
         ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
         ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
       if: ${{ matrix.java != '8' && matrix.java != '11'}}
+      timeout-minutes: 20
       run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
+      timeout-minutes: 90
       run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 170
     strategy:
       fail-fast: false
       matrix:
@@ -139,17 +144,21 @@ jobs:
     # Install ci.ant
     - name: Install ci.ant
       working-directory: ${{github.workspace}}/ci.ant
+      timeout-minutes: 15
       run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Install ci.common
     - name: Install ci.common
       working-directory: ${{github.workspace}}/ci.common
+      timeout-minutes: 15
       run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
     # Run tests that require a minimum of Java 17 or later
     - name: Run tests that require a minimum of Java 17 or later
       working-directory: ${{github.workspace}}
       if: ${{ matrix.java != '8' && matrix.java != '11'}}
+      timeout-minutes: 45
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
     # Run tests
     - name: Run tests
       working-directory: ${{github.workspace}}
+      timeout-minutes: 90
       run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
