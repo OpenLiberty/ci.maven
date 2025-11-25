@@ -73,25 +73,27 @@ public class ConverterAppIT {
 
             expression = "/archive/archive";
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-            assertEquals( 4, nodes.getLength(),"Number of <archive/> elements expected 4 including jar, war, war2, rar");
+            assertEquals(5, nodes.getLength(),"Number of <archive/> elements expected 4 including jar, ejb, war, war2, rar");
             assertEquals( "/lib/io.openliberty.guides-guide-maven-multimodules-jar-1.0-SNAPSHOT.jar",
                     nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with jar path");
+            assertEquals( "/io.openliberty.guides-guide-maven-multimodules-ejb-1.0-SNAPSHOT.jar",
+                nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with ejb path");
             assertEquals("/guide-maven-multimodules-war-1.0-SNAPSHOT.war",
-                    nodes.item(1).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with war path");
+                    nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with war path");
 
             assertEquals("/guide-maven-multimodules-war2-1.0-SNAPSHOT.war",
-                    nodes.item(2).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with war2 path");
+                    nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with war2 path");
 
             assertEquals("/io.openliberty.guides-guide-maven-multimodules-rar-1.0-SNAPSHOT.rar",
-                    nodes.item(3).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with rar path");
+                    nodes.item(4).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with rar path");
 
             expression = "/archive/archive/dir";
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-            assertEquals( 4, nodes.getLength(),"Number of <dir/> element expected 4");
+            assertEquals(5, nodes.getLength(),"Number of <dir/> element expected 5");
 
             expression = "/archive/archive/file";
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-            assertEquals(5, nodes.getLength(),"Number of <file/> element expected 5 including all manifest.mf and library jars");
+            assertEquals(6, nodes.getLength(),"Number of <file/> element expected 6 including all manifest.mf and library jars");
             expression = "/archive/archive/archive";
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
             assertEquals(0, nodes.getLength(),"Number of <archive/> element inside any other <archive/> is expected to be zero, since we are using skinnymodules");
