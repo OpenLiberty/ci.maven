@@ -96,9 +96,6 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     protected Map<String,String> bootstrapPropertiesResolved = null; // original collection is bootstrapProperties
     protected List<String> jvmOptionsResolved = null; // original collection is jvmOptions
 
-    @Component
-    protected BuildPluginManager pluginManager;
-
     /* 
      * Define a set of dependencies to copy to the target Liberty server.
      */
@@ -175,14 +172,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         return serverTask;
     }
     
-    protected void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
-        Plugin plugin = getPlugin(groupId, artifactId);
-        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
-        getLog().info("Running " + artifactId + ":" + goal);
-        getLog().debug("configuration:\n" + config);
-        executeMojo(plugin, goal(goal), config,
-                executionEnvironment(project, session, pluginManager));
-    }
+
     
     /**
      * Run the maven-war-plugin's exploded goal. This method should only be 
@@ -229,17 +219,6 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     	} else {
     		return true;
     	}
-    }
-
-    /**
-     * Given the groupId and artifactId get the corresponding plugin
-     * 
-     * @param groupId
-     * @param artifactId
-     * @return Plugin
-     */
-    protected Plugin getPlugin(String groupId, String artifactId) {
-       return getPluginForProject(groupId, artifactId, project);
     }
 
     protected Plugin getLibertyPlugin() {

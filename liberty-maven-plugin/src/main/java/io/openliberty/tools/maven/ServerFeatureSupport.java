@@ -16,12 +16,16 @@
 package io.openliberty.tools.maven;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -35,10 +39,15 @@ import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.PluginManagement;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
@@ -57,6 +66,26 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      */
     @Parameter( defaultValue = "${plugin}", readonly = true )
     private PluginDescriptor plugin;
+
+    @Parameter
+    protected Map<String, String> jdkToolchain;
+
+    /**
+     * The Maven BuildPluginManager component.
+     */
+    @Component
+    protected BuildPluginManager pluginManager;
+
+    /**
+     * The toolchain manager
+     */
+    @Component
+    protected ToolchainManager toolchainManager;
+
+    @Component
+    protected MojoExecution mojoExecution;
+
+    protected Toolchain toolchain;
 
     protected class ServerFeatureMojoUtil extends ServerFeatureUtil {
 
@@ -114,7 +143,11 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             return getLog().isDebugEnabled();
         }
     }
-
+    @Override
+    protected void init() throws MojoExecutionException {
+        super.init();
+        initToolchain();
+    }
     private void createNewServerFeatureUtil() {
         servUtil = new ServerFeatureMojoUtil();
     }
@@ -346,5 +379,130 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
+    }
+
+    /**
+     * Initialize the toolchain by calling the toolchain goal.
+     * If useToolchainJdk is set to true, this method will also set the toolchain variable.
+     *
+     * @throws MojoExecutionException If an exception occurred while running toolchain goal
+     */
+    protected void initToolchain() throws MojoExecutionException {
+        // Skip if toolchain support is not enabled
+        if (jdkToolchain == null  || toolchainManager == null) {
+            return;
+        }
+        List<Toolchain> tcs = toolchainManager.getToolchains(session, "jdk", jdkToolchain);
+        if (tcs != null && !tcs.isEmpty()) {
+            this.toolchain = tcs.get(0);
+            return;
+        }
+
+        try {
+            // Try to run the toolchain plugin if pluginManager is available
+            runMojo("org.apache.maven.plugins", "maven-toolchains-plugin", "toolchain");
+        } catch (Exception e) {
+            getLog().debug("Failed to run toolchain plugin, falling back to direct toolchain manager", e);
+        }
+
+        // Try to get from build context first (this is the preferred method)
+        this.toolchain = toolchainManager.getToolchainFromBuildContext("jdk", session);
+        if (this.toolchain != null) {
+            getLog().info("Using toolchain from build context: " + this.toolchain);
+        } else {
+            // Fall back to getting all toolchains if build context doesn't have one
+            List<Toolchain> toolchains = toolchainManager.getToolchains(session, "jdk", null);
+
+            if (toolchains != null && !toolchains.isEmpty()) {
+                // Get the last toolchain in the list (most recently defined)
+                this.toolchain = toolchains.get(toolchains.size() - 1);
+                if (this.toolchain != null) {
+                    getLog().info("Using toolchain from available toolchains: " + this.toolchain);
+                }
+            } else {
+                getLog().warn("Toolchain requested but none available");
+            }
+        }
+    }
+
+    /**
+     * Configure the server to use the toolchain JDK if available.
+     *
+     * @param toolchain The toolchain to configure the server for
+     * @throws IOException If an exception occurred while configuring the server
+     */
+    protected void configureServerForToolchain(Toolchain toolchain) throws IOException {
+        // Get JDK home from toolchain
+        String jdkHome = getJdkHomeFromToolchain(toolchain);
+
+        if (jdkHome == null) {
+            getLog().warn("Could not determine JDK home from toolchain");
+            return;
+        }
+
+        // Also update server.env file to set JAVA_HOME
+        File serverEnvFile = new File(serverDirectory, "server.env");
+        List<String> serverEnvLines = new ArrayList<>();
+
+        // If file exists, read existing content
+        if (serverEnvFile.exists()) {
+            serverEnvLines = Files.readAllLines(serverEnvFile.toPath());
+        }
+
+        // Add or update JAVA_HOME
+        boolean javaHomeSet = false;
+        for (String serverEnvLine : serverEnvLines) {
+            if (serverEnvLine.startsWith("JAVA_HOME=")) {
+                //serverEnvLines.set(i, "JAVA_HOME=" + jdkHome);
+                javaHomeSet = true;
+                getLog().warn("JAVA_HOME is already configured. Using JAVA_HOME for goal "+ mojoExecution.getGoal());
+                break;
+            }
+        }
+
+        if (!javaHomeSet) {
+            serverEnvLines.add("JAVA_HOME=" + jdkHome);
+            // Write updated content back
+            Files.write(serverEnvFile.toPath(), serverEnvLines);
+            getLog().info("Configured Liberty server to use toolchain JDK: " + jdkHome+ " for goal "+ mojoExecution.getGoal());
+        }
+    }
+
+    /**
+     * Get JDK home directory from toolchain
+     *
+     * @param toolchain The toolchain to get JDK home from
+     * @return The JDK home directory path, or null if it could not be determined
+     */
+    protected String getJdkHomeFromToolchain(Toolchain toolchain) {
+        String jdkHome = toolchain.findTool("java");
+        if (jdkHome != null) {
+            File javaFile = new File(jdkHome);
+            File binDir = javaFile.getParentFile();
+            if (binDir != null) {
+                return binDir.getParent();
+            }
+        }
+        return null;
+    }
+
+    protected void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
+        Plugin plugin = getPlugin(groupId, artifactId);
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+        getLog().info("Running " + artifactId + ":" + goal);
+        getLog().debug("configuration:\n" + config);
+        executeMojo(plugin, goal(goal), config,
+                executionEnvironment(project, session, pluginManager));
+    }
+
+    /**
+     * Given the groupId and artifactId get the corresponding plugin
+     *
+     * @param groupId
+     * @param artifactId
+     * @return Plugin
+     */
+    protected Plugin getPlugin(String groupId, String artifactId) {
+        return getPluginForProject(groupId, artifactId, project);
     }
 }
