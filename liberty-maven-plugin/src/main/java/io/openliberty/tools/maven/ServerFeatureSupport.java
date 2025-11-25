@@ -432,6 +432,9 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      * @throws IOException If an exception occurred while configuring the server
      */
     protected void configureServerForToolchain(Toolchain toolchain) throws IOException {
+        if (toolchain == null) {
+            return;
+        }
         // Get JDK home from toolchain
         String jdkHome = getJdkHomeFromToolchain(toolchain);
 
