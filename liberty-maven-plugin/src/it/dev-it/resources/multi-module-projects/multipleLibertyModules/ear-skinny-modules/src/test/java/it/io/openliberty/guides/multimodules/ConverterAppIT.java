@@ -73,7 +73,7 @@ public class ConverterAppIT {
 
             expression = "/archive/archive";
             nodes = (NodeList) xPath.compile(expression).evaluate(inputDoc, XPathConstants.NODESET);
-            assertEquals(5, nodes.getLength(),"Number of <archive/> elements expected 4 including jar, ejb, war, war2, rar");
+            assertEquals(5, nodes.getLength(),"Number of <archive/> elements expected 5 including jar, ejb, war, war2, rar");
             assertEquals( "/lib/io.openliberty.guides-guide-maven-multimodules-jar-1.0-SNAPSHOT.jar",
                     nodes.item(0).getAttributes().getNamedItem("targetInArchive").getNodeValue(),"archive targetInArchive attribute value expected with jar path");
             assertEquals( "/io.openliberty.guides-guide-maven-multimodules-ejb-1.0-SNAPSHOT.jar",
