@@ -193,7 +193,7 @@
         <version>SUB_VERSION</version>
         <configuration>
            <jdkToolchain>
-               <version>1.8</version>
+               <version>8</version>
            </jdkToolchain>
           <assemblyArtifact>
             <groupId>io.openliberty</groupId>
