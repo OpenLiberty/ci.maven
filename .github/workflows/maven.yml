@@ -208,6 +208,7 @@ jobs:
           echo "Primary JAVA_HOME is set to: $JAVA_HOME"
           java -version
       - name: Verify ~/.m2/toolchains.xml content
+        shell: bash
         run: |
           echo "Checking for toolchains.xml in: $HOME/.m2/"
           ls -l $HOME/.m2/toolchains.xml 2> /dev/null || echo "File does not exist or permission denied."
