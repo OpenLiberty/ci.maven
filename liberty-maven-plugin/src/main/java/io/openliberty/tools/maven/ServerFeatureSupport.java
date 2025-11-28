@@ -26,18 +26,16 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecution;
@@ -389,39 +387,15 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      */
     protected void initToolchain() throws MojoExecutionException {
         // Skip if toolchain support is not enabled
-        if (jdkToolchain == null  || toolchainManager == null) {
+        if (jdkToolchain == null || toolchainManager == null) {
             return;
         }
         List<Toolchain> tcs = toolchainManager.getToolchains(session, "jdk", jdkToolchain);
         if (tcs != null && !tcs.isEmpty()) {
             this.toolchain = tcs.get(0);
-            return;
-        }
-
-        try {
-            // Try to run the toolchain plugin if pluginManager is available
-            runMojo("org.apache.maven.plugins", "maven-toolchains-plugin", "toolchain");
-        } catch (Exception e) {
-            getLog().debug("Failed to run toolchain plugin, falling back to direct toolchain manager", e);
-        }
-
-        // Try to get from build context first (this is the preferred method)
-        this.toolchain = toolchainManager.getToolchainFromBuildContext("jdk", session);
-        if (this.toolchain != null) {
-            getLog().info("Using toolchain from build context: " + this.toolchain);
+            getLog().info(MessageFormat.format(messages.getString("info.toolchain.initialized"), this.toolchain));
         } else {
-            // Fall back to getting all toolchains if build context doesn't have one
-            List<Toolchain> toolchains = toolchainManager.getToolchains(session, "jdk", null);
-
-            if (toolchains != null && !toolchains.isEmpty()) {
-                // Get the last toolchain in the list (most recently defined)
-                this.toolchain = toolchains.get(toolchains.size() - 1);
-                if (this.toolchain != null) {
-                    getLog().info("Using toolchain from available toolchains: " + this.toolchain);
-                }
-            } else {
-                getLog().warn("Toolchain requested but none available");
-            }
+            getLog().warn(MessageFormat.format(messages.getString("warn.toolchain.not.available"), jdkToolchain));
         }
     }
 
@@ -456,7 +430,6 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         boolean javaHomeSet = false;
         for (String serverEnvLine : serverEnvLines) {
             if (serverEnvLine.startsWith("JAVA_HOME=")) {
-                //serverEnvLines.set(i, "JAVA_HOME=" + jdkHome);
                 javaHomeSet = true;
                 getLog().warn("JAVA_HOME is already configured. Using JAVA_HOME for goal "+ mojoExecution.getGoal());
                 break;
@@ -467,7 +440,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             serverEnvLines.add("JAVA_HOME=" + jdkHome);
             // Write updated content back
             Files.write(serverEnvFile.toPath(), serverEnvLines);
-            getLog().info("Configured Liberty server to use toolchain JDK: " + jdkHome+ " for goal "+ mojoExecution.getGoal());
+            getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
         }
     }
 
