@@ -36,9 +36,8 @@ public class ToolchainCreateServerTest extends BaseToolchainTest {
    @Test
    public void createServerTest() throws Exception {
       tagLog("##createServerTest start");
-      // check that features have been generated
-      assertTrue(verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
-      assertTrue(verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
 
       tagLog("##createServerTest end");
    }

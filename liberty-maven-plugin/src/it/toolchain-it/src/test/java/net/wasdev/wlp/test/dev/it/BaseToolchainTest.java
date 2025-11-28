@@ -135,8 +135,8 @@ public class BaseToolchainTest {
          for (int i = reversedLines.size() - 1; i >=0; i--) {
             result.append(reversedLines.get(i) + "\n");
          }
-         return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" + 
-            "===================== START =======================\n" + 
+         return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" +
+            "===================== START =======================\n" +
             result.toString() +
             "====================== END ========================\n";
       } finally {
@@ -168,7 +168,6 @@ public class BaseToolchainTest {
 
    protected static boolean readFile(String str, File file) throws IOException {
       BufferedReader br = new BufferedReader(new FileReader(file));
-      System.out.println("File is "+file.getAbsolutePath());
       String line = br.readLine();
       try {
          while (line != null) {

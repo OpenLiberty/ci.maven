@@ -80,7 +80,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
     @Component
     protected ToolchainManager toolchainManager;
 
-    @Component
+    @Parameter(defaultValue = "${mojoExecution}", readonly = true)
     protected MojoExecution mojoExecution;
 
     protected Toolchain toolchain;

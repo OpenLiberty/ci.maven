@@ -94,6 +94,17 @@ jobs:
         with:
           tool-cache: false
           large-packages: false
+      - name: Verify ~/.m2/toolchains.xml content
+        run: |
+            echo "Checking for toolchains.xml in: $HOME/.m2/"
+            ls -l $HOME/.m2/toolchains.xml 2> /dev/null || echo "File does not exist or permission denied."
+            echo "--- toolchains.xml content ---"
+            if [ -f $HOME/.m2/toolchains.xml ]; then
+              cat $HOME/.m2/toolchains.xml
+            else
+              echo "Cannot display content: $HOME/.m2/toolchains.xml not found."
+            fi
+            echo "----------------------------"
       - name: Checkout ci.common
         uses: actions/checkout@v3
         with:
@@ -196,6 +207,17 @@ jobs:
         run: |
           echo "Primary JAVA_HOME is set to: $JAVA_HOME"
           java -version
+      - name: Verify ~/.m2/toolchains.xml content
+        run: |
+          echo "Checking for toolchains.xml in: $HOME/.m2/"
+          ls -l $HOME/.m2/toolchains.xml 2> /dev/null || echo "File does not exist or permission denied."
+          echo "--- toolchains.xml content ---"
+          if [ -f $HOME/.m2/toolchains.xml ]; then
+            cat $HOME/.m2/toolchains.xml
+          else
+            echo "Cannot display content: $HOME/.m2/toolchains.xml not found."
+          fi
+          echo "----------------------------"
       # Clone to same github workspace used for ci.maven checkout
       - name: Clone ci.ant and ci.common repos to github.workspace
         run: |
