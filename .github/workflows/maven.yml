@@ -17,6 +17,7 @@ jobs:
 # UNIX BUILDS
   build-unix:
     runs-on: ubuntu-latest
+    timeout-minutes: 130
     strategy:
       fail-fast: false
       matrix:
@@ -123,6 +124,7 @@ jobs:
 # WINDOWS BUILD
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 170
     strategy:
       fail-fast: false
       matrix:
