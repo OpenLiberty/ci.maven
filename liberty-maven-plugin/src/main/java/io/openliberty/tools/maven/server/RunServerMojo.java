@@ -147,7 +147,7 @@ public class RunServerMojo extends PluginConfigSupport {
         runLibertyMojoCreate();
         runLibertyMojoInstallFeature(null, null, null);
         runLibertyMojoDeploy(false);
-
+        configureServerForToolchain(toolchain);
         ServerTask serverTask = initializeJava();
         try {
             copyConfigFiles();

@@ -95,11 +95,7 @@ public class CreateServerMojo extends PluginConfigSupport {
             serverTask.execute();
             getLog().info(MessageFormat.format(messages.getString("info.server.create.created"), serverName, serverDirectory.getAbsolutePath()));
         }
-        try {
-            configureServerForToolchain(toolchain);
-        } catch (IOException e) {
-            getLog().error(" Unable to confgiure server.env for toolchain "+ toolchain);
-        }
+
         // copy files _after_ we create the server
         try {
             copyConfigFiles();

@@ -405,7 +405,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      * @param toolchain The toolchain to configure the server for
      * @throws IOException If an exception occurred while configuring the server
      */
-    protected void configureServerForToolchain(Toolchain toolchain) throws IOException {
+    protected void configureServerForToolchain(Toolchain toolchain){
         if (toolchain == null) {
             return;
         }
@@ -423,7 +423,11 @@ public abstract class ServerFeatureSupport extends BasicSupport {
 
         // If file exists, read existing content
         if (serverEnvFile.exists()) {
-            serverEnvLines = Files.readAllLines(serverEnvFile.toPath());
+            try {
+                serverEnvLines = Files.readAllLines(serverEnvFile.toPath());
+            } catch (IOException e) {
+                getLog().warn("Error while reading server.env "+ serverEnvFile.toPath());
+            }
         }
 
         // Add or update JAVA_HOME
@@ -431,7 +435,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         for (String serverEnvLine : serverEnvLines) {
             if (serverEnvLine.startsWith("JAVA_HOME=")) {
                 javaHomeSet = true;
-                getLog().warn("JAVA_HOME is already configured. Using JAVA_HOME for goal "+ mojoExecution.getGoal());
+                getLog().warn(MessageFormat.format(messages.getString("warn.server.env.java.home.configured"), mojoExecution.getGoal()));
                 break;
             }
         }
@@ -439,8 +443,13 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         if (!javaHomeSet) {
             serverEnvLines.add("JAVA_HOME=" + jdkHome);
             // Write updated content back
-            Files.write(serverEnvFile.toPath(), serverEnvLines);
-            getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
+            try {
+                Files.write(serverEnvFile.toPath(), serverEnvLines);
+                getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
+            } catch (IOException e) {
+                getLog().warn("Error while writing JAVA_HOME to server.env. JDK toolchain is not honored. Error message is "+ e.getMessage());
+            }
+
         }
     }
 

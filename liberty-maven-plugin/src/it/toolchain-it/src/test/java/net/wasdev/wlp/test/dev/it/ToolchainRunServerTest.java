@@ -21,11 +21,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ToolchainCreateServerTest extends BaseToolchainTest {
+public class ToolchainRunServerTest extends BaseToolchainTest {
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-toolchain-project", null, null, "create");
+      setUpBeforeClass(null, "../resources/basic-toolchain-project", null, null, "run");
    }
 
    @AfterClass
@@ -34,11 +34,11 @@ public class ToolchainCreateServerTest extends BaseToolchainTest {
    }
 
    @Test
-   public void createServerTest() throws Exception {
-      tagLog("##createServerTest start");
+   public void runServerTest() throws Exception {
+      tagLog("##runServerTest start");
       assertTrue(getLogTail(), verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "run"), 10000));
 
-      tagLog("##createServerTest end");
+      tagLog("##runServerTest end");
    }
 }
