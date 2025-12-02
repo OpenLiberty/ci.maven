@@ -17,6 +17,8 @@ package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,17 +36,21 @@ public class ToolchainRunServerForJava8AndIncompatiblePagesFeatureTest extends B
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-     BaseToolchainTest.cleanUpAfterClass(false, false);
+   //  BaseToolchainTest.cleanUpAfterClass(false, false);
    }
 
    @Test
    public void runServerTest() throws Exception {
       tagLog("##runServerTestWithJava8Pages3 start");
       assertTrue(getLogTail(), verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "run"), 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(JAVA_11_SE_REQUIRED_FOR_FEATURE, "pages-3.1"), 10000));
-
+      if(SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_11)) {
+         assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
+         assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "run"), 10000));
+         assertTrue(getLogTail(), verifyLogMessageExists(String.format(JAVA_11_SE_REQUIRED_FOR_FEATURE, "pages-3.1"), 10000));
+      }else {
+         // throws compilation error since jakartaee10 is not supported in java 1.8
+         assertTrue(getLogTail(), verifyLogMessageExists("bad class file:", 10000));
+      }
       tagLog("##runServerTestWithJava8Pages3 end");
    }
 }

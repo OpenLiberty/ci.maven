@@ -157,7 +157,7 @@ public class BaseToolchainTest {
                 if (isDevMode) {
                     writer.write("exit\n"); // trigger dev mode to shut down
                 } else {
-                    process.destroy(); // stop run
+                    process.destroyForcibly(); // stop run
                     String os = System.getProperty("os.name");
                     if (os != null && os.toLowerCase().startsWith("windows")) {
                         // wait for some time in windows
