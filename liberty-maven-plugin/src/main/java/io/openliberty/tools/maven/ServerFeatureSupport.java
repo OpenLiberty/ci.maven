@@ -26,6 +26,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -84,6 +85,8 @@ public abstract class ServerFeatureSupport extends BasicSupport {
     protected MojoExecution mojoExecution;
 
     protected Toolchain toolchain;
+
+    private boolean toolchainConfigured = false;
 
     protected class ServerFeatureMojoUtil extends ServerFeatureUtil {
 
@@ -417,40 +420,56 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             return;
         }
 
+        if (session.getUserProperties() != null && session.getUserProperties().containsKey("toolchainConfigured")) {
+            getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
+            return;
+        }
         // Also update server.env file to set JAVA_HOME
         File serverEnvFile = new File(serverDirectory, "server.env");
         List<String> serverEnvLines = new ArrayList<>();
-
         // If file exists, read existing content
         if (serverEnvFile.exists()) {
             try {
                 serverEnvLines = Files.readAllLines(serverEnvFile.toPath());
             } catch (IOException e) {
-                getLog().warn("Error while reading server.env "+ serverEnvFile.toPath());
+                getLog().warn("Error reading server.env "+ serverEnvFile.toPath());
             }
         }
-
         // Add or update JAVA_HOME
+        boolean javaHomeSet = isJavaHomeSet(serverEnvLines);
+        if (javaHomeSet) {
+            getLog().warn(MessageFormat.format(messages.getString("warn.server.env.java.home.configured"), mojoExecution.getGoal()));
+        } else {
+            serverEnvLines.add("JAVA_HOME=" + jdkHome);
+            // Write updated content back
+            try {
+                Files.write(serverEnvFile.toPath(), serverEnvLines, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
+                // setting variable to identify toolchain is set from <jdkToolchain> for the current session
+                session.getUserProperties().put("toolchainConfigured", true);
+            } catch (IOException e) {
+                // ignore error in case of create, as we are not expecting server.env when server is being created
+                if (!mojoExecution.getGoal().equals("create")) {
+                    getLog().warn("Error writing JAVA_HOME to server.env. JDK toolchain is not honored. Exception is", e);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param serverEnvLines lines from server.env
+     * @return true or false
+     */
+    private static boolean isJavaHomeSet(List<String> serverEnvLines) {
         boolean javaHomeSet = false;
         for (String serverEnvLine : serverEnvLines) {
             if (serverEnvLine.startsWith("JAVA_HOME=")) {
                 javaHomeSet = true;
-                getLog().warn(MessageFormat.format(messages.getString("warn.server.env.java.home.configured"), mojoExecution.getGoal()));
                 break;
             }
         }
-
-        if (!javaHomeSet) {
-            serverEnvLines.add("JAVA_HOME=" + jdkHome);
-            // Write updated content back
-            try {
-                Files.write(serverEnvFile.toPath(), serverEnvLines);
-                getLog().info(MessageFormat.format(messages.getString("info.toolchain.configured"), mojoExecution.getGoal(), jdkHome));
-            } catch (IOException e) {
-                getLog().warn("Error while writing JAVA_HOME to server.env. JDK toolchain is not honored. Error message is "+ e.getMessage());
-            }
-
-        }
+        return javaHomeSet;
     }
 
     /**

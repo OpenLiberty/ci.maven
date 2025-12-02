@@ -44,170 +44,177 @@ import org.junit.runner.Description;
 
 public class BaseToolchainTest {
 
-   static String customLibertyModule;
-   static String customPomModule;
-   static File tempProj;
-   static File basicDevProj;
-   static File logFile;
-   static File logErrorFile;
-   static File targetDir;
-   static File pom;
-   static BufferedWriter writer;
-   static Process process;
-   static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
-   static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
-   protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal) throws IOException, InterruptedException, FileNotFoundException {
-      customLibertyModule = libertyConfigModule;
-      customPomModule = pomModule;
+    static String customLibertyModule;
+    static String customPomModule;
+    static File tempProj;
+    static File basicDevProj;
+    static File logFile;
+    static File logErrorFile;
+    static File targetDir;
+    static File pom;
+    static BufferedWriter writer;
+    static Process process;
+    static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
+    static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
 
-      basicDevProj = new File(projectRoot);
+    protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal) throws IOException, InterruptedException, FileNotFoundException {
+        customLibertyModule = libertyConfigModule;
+        customPomModule = pomModule;
 
-      tempProj = Files.createTempDirectory("temp").toFile();
-      assertTrue("temp directory does not exist", tempProj.exists());
+        basicDevProj = new File(projectRoot);
 
-      assertTrue(projectRoot+" directory does not exist", basicDevProj.exists());
+        tempProj = Files.createTempDirectory("temp").toFile();
+        assertTrue("temp directory does not exist", tempProj.exists());
 
-      FileUtils.copyDirectory(basicDevProj, tempProj);
-      assertTrue("temp directory does not contain expected copied files from "+projectRoot, Objects.requireNonNull(tempProj.listFiles()).length > 0);
+        assertTrue(projectRoot + " directory does not exist", basicDevProj.exists());
 
-      // in case cleanup was not successful, try to delete the various log files so we can proceed
-      logFile = new File(basicDevProj, "logFile.txt");
-      if (logFile.exists()) {
-         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
-      }
-      assertTrue("log file already existed: "+logFile.getCanonicalPath(), logFile.createNewFile());
-      logErrorFile = new File(basicDevProj, "logErrorFile.txt");
-      if (logErrorFile.exists()) {
-          assertTrue("Could not delete logError file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
-       }
-      assertTrue("logError file already existed: "+logErrorFile.getCanonicalPath(), logErrorFile.createNewFile());
+        FileUtils.copyDirectory(basicDevProj, tempProj);
+        assertTrue("temp directory does not contain expected copied files from " + projectRoot, Objects.requireNonNull(tempProj.listFiles()).length > 0);
 
-      if (customPomModule == null) {
-         pom = new File(tempProj, "pom.xml");
-      } else {
-         pom = new File(new File(tempProj, customPomModule), "pom.xml");
-      }
-      assertTrue(pom.getCanonicalPath()+" file does not exist", pom.exists());
+        // in case cleanup was not successful, try to delete the various log files so we can proceed
+        logFile = new File(basicDevProj, "logFile.txt");
+        if (logFile.exists()) {
+            assertTrue("Could not delete log file: " + logFile.getCanonicalPath(), logFile.delete());
+        }
+        assertTrue("log file already existed: " + logFile.getCanonicalPath(), logFile.createNewFile());
+        logErrorFile = new File(basicDevProj, "logErrorFile.txt");
+        if (logErrorFile.exists()) {
+            assertTrue("Could not delete logError file: " + logErrorFile.getCanonicalPath(), logErrorFile.delete());
+        }
+        assertTrue("logError file already existed: " + logErrorFile.getCanonicalPath(), logErrorFile.createNewFile());
 
-      replaceVersion();
-      startProcess(params, "mvn liberty:", goal);
-   }
+        if (customPomModule == null) {
+            pom = new File(tempProj, "pom.xml");
+        } else {
+            pom = new File(new File(tempProj, customPomModule), "pom.xml");
+        }
+        assertTrue(pom.getCanonicalPath() + " file does not exist", pom.exists());
 
-   protected static void startProcess(String params, String mavenPluginCommand, String goal) throws IOException, InterruptedException, FileNotFoundException {
-      StringBuilder command = new StringBuilder(mavenPluginCommand + goal);
-      if (params != null) {
-         command.append(" " + params);
-      }
-      ProcessBuilder builder = buildProcess(command.toString());
+        replaceVersion();
+        startProcess(params, "mvn liberty:", goal);
+    }
 
-      builder.redirectOutput(logFile);
-      builder.redirectError(logErrorFile);
-      if (customPomModule != null) {
-         builder.directory(new File(tempProj, customPomModule));
-      }
-      process = builder.start();
-      assertTrue("process is not alive", process.isAlive());
+    protected static void startProcess(String params, String mavenPluginCommand, String goal) throws IOException, InterruptedException, FileNotFoundException {
+        StringBuilder command = new StringBuilder(mavenPluginCommand + goal);
+        if (params != null) {
+            command.append(" " + params);
+        }
+        ProcessBuilder builder = buildProcess(command.toString());
 
-      OutputStream stdin = process.getOutputStream();
+        builder.redirectOutput(logFile);
+        builder.redirectError(logErrorFile);
+        if (customPomModule != null) {
+            builder.directory(new File(tempProj, customPomModule));
+        }
+        process = builder.start();
+        assertTrue("process is not alive", process.isAlive());
 
-      writer = new BufferedWriter(new OutputStreamWriter(stdin));
-   }
+        OutputStream stdin = process.getOutputStream();
 
-   protected static String getLogTail() throws IOException {
-      return getLogTail(logFile);
-   }
+        writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    }
 
-   protected static String getLogTail(File log) throws IOException {
-      int numLines = 100;
-      ReversedLinesFileReader object = null;
-      try {
-         object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
-         List<String> reversedLines = new ArrayList<String>();
+    protected static String getLogTail() throws IOException {
+        return getLogTail(logFile);
+    }
 
-         for (int i = 0; i < numLines; i++) {
-            String line = object.readLine();
-            if (line == null) {
-               break;
+    protected static String getLogTail(File log) throws IOException {
+        int numLines = 100;
+        ReversedLinesFileReader object = null;
+        try {
+            object = new ReversedLinesFileReader(log, StandardCharsets.UTF_8);
+            List<String> reversedLines = new ArrayList<String>();
+
+            for (int i = 0; i < numLines; i++) {
+                String line = object.readLine();
+                if (line == null) {
+                    break;
+                }
+                reversedLines.add(line);
             }
-            reversedLines.add(line);
-         }
-         StringBuilder result = new StringBuilder();
-         for (int i = reversedLines.size() - 1; i >=0; i--) {
-            result.append(reversedLines.get(i) + "\n");
-         }
-         return "Last "+numLines+" lines of log at "+log.getAbsolutePath()+":\n" +
-            "===================== START =======================\n" +
-            result.toString() +
-            "====================== END ========================\n";
-      } finally {
-         if (object != null) {
-            object.close();
-         }
-      }
-   }
-
-   protected static void cleanUpAfterClass() throws Exception {
-
-      if (writer != null) {
-         try {
-            writer.close();
-         } catch (IOException ignored) {
-         }
-         process.waitFor(120, TimeUnit.SECONDS);
-      }
-      if (tempProj != null && tempProj.exists()) {
-         FileUtils.deleteDirectory(tempProj);
-      }
-      if (logFile != null && logFile.exists()) {
-         assertTrue("Could not delete log file: "+logFile.getCanonicalPath(), logFile.delete());
-      }
-      if (logErrorFile != null && logErrorFile.exists()) {
-         assertTrue("Could not delete logError file: "+logErrorFile.getCanonicalPath(), logErrorFile.delete());
-      }
-   }
-
-   protected static boolean readFile(String str, File file) throws IOException {
-      BufferedReader br = new BufferedReader(new FileReader(file));
-      String line = br.readLine();
-      try {
-         while (line != null) {
-            if (line.contains(str)) {
-               return true;
+            StringBuilder result = new StringBuilder();
+            for (int i = reversedLines.size() - 1; i >= 0; i--) {
+                result.append(reversedLines.get(i) + "\n");
             }
-            line = br.readLine();
-         }
-      } finally {
-         br.close();
-      }
-      return false;
-   }
+            return "Last " + numLines + " lines of log at " + log.getAbsolutePath() + ":\n" +
+                    "===================== START =======================\n" +
+                    result.toString() +
+                    "====================== END ========================\n";
+        } finally {
+            if (object != null) {
+                object.close();
+            }
+        }
+    }
 
-   protected static ProcessBuilder buildProcess(String processCommand) {
-      ProcessBuilder builder = new ProcessBuilder();
-      builder.directory(tempProj);
+    protected static void stopProcess() throws Exception {
+        process.destroy();
+    }
 
-      String os = System.getProperty("os.name");
-      if (os != null && os.toLowerCase().startsWith("windows")) {
-         builder.command("CMD", "/C", processCommand);
-      } else {
-         builder.command("bash", "-c", processCommand);
-      }
-      return builder;
-   }
+    protected static void cleanUpAfterClass() throws Exception {
 
-   private static void replaceVersion() throws IOException {
-      String pluginVersion = System.getProperty("mavenPluginVersion");
-      replaceString("SUB_VERSION", pluginVersion, pom);
-      String runtimeVersion = System.getProperty("runtimeVersion");
-      replaceString("RUNTIME_VERSION", runtimeVersion, pom);
-   }
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (IOException ignored) {
+            }
+            if (process.isAlive()) {
+                process.waitFor(60, TimeUnit.SECONDS);
+            }
+        }
+        if (tempProj != null && tempProj.exists()) {
+            FileUtils.deleteDirectory(tempProj);
+        }
+        if (logFile != null && logFile.exists()) {
+            assertTrue("Could not delete log file: " + logFile.getCanonicalPath(), logFile.delete());
+        }
+        if (logErrorFile != null && logErrorFile.exists()) {
+            assertTrue("Could not delete logError file: " + logErrorFile.getCanonicalPath(), logErrorFile.delete());
+        }
+    }
+
+    protected static boolean readFile(String str, File file) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = br.readLine();
+        try {
+            while (line != null) {
+                if (line.contains(str)) {
+                    return true;
+                }
+                line = br.readLine();
+            }
+        } finally {
+            br.close();
+        }
+        return false;
+    }
+
+    protected static ProcessBuilder buildProcess(String processCommand) {
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.directory(tempProj);
+
+        String os = System.getProperty("os.name");
+        if (os != null && os.toLowerCase().startsWith("windows")) {
+            builder.command("CMD", "/C", processCommand);
+        } else {
+            builder.command("bash", "-c", processCommand);
+        }
+        return builder;
+    }
+
+    private static void replaceVersion() throws IOException {
+        String pluginVersion = System.getProperty("mavenPluginVersion");
+        replaceString("SUB_VERSION", pluginVersion, pom);
+        String runtimeVersion = System.getProperty("runtimeVersion");
+        replaceString("RUNTIME_VERSION", runtimeVersion, pom);
+    }
 
     /**
      * Replaces all occurrences of a regex pattern in a file.
      *
-     * @param str the regex pattern to search for
+     * @param str         the regex pattern to search for
      * @param replacement the replacement string (supports regex syntax like $1 for backreferences)
-     * @param file the file to modify
+     * @param file        the file to modify
      * @throws IOException if the file cannot be read or written
      */
     protected static void replaceString(String str, String replacement, File file) throws IOException {
@@ -219,30 +226,30 @@ public class BaseToolchainTest {
         Files.write(path, content.getBytes(charset));
     }
 
-   protected static boolean verifyLogMessageExists(String message, int timeout)
-         throws InterruptedException, IOException {
-      return verifyLogMessageExists(message, timeout, logFile);
-   }
+    protected static boolean verifyLogMessageExists(String message, int timeout)
+            throws InterruptedException, IOException {
+        return verifyLogMessageExists(message, timeout, logFile);
+    }
 
-   protected static boolean verifyLogMessageExists(String message, int timeout, File log)
-         throws InterruptedException, IOException {
-      int waited = 0;
-      int sleep = 10;
-      while (waited <= timeout) {
-         Thread.sleep(sleep);
-         waited += sleep;
-         if (readFile(message, log)) {
-            return true;
-         }
-      }
-      return false;
-   }
+    protected static boolean verifyLogMessageExists(String message, int timeout, File log)
+            throws InterruptedException, IOException {
+        int waited = 0;
+        int sleep = 10;
+        while (waited <= timeout) {
+            Thread.sleep(sleep);
+            waited += sleep;
+            if (readFile(message, log)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
-   protected static void tagLog(String line) throws Exception {
-      writer.write(line + "\n");
-      writer.flush();
-   }
+    protected static void tagLog(String line) throws Exception {
+        writer.write(line + "\n");
+        writer.flush();
+    }
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -250,7 +257,8 @@ public class BaseToolchainTest {
         protected void failed(Throwable thr, Description description) {
             try {
                 System.out.println("Failure log in " + logFile + ", tail of contents = " + getLogTail(logFile));
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
         }
     };
 }
