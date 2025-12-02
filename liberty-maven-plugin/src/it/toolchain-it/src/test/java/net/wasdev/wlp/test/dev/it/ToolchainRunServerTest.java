@@ -30,8 +30,7 @@ public class ToolchainRunServerTest extends BaseToolchainTest {
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseToolchainTest.cleanUpAfterClass();
-      BaseToolchainTest.stopProcess();
+      BaseToolchainTest.cleanUpAfterClass(false,false);
    }
 
    @Test

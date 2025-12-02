@@ -147,21 +147,42 @@ public class BaseToolchainTest {
         }
     }
 
-    protected static void stopProcess() throws Exception {
-        process.destroy();
-    }
-
-    protected static void cleanUpAfterClass() throws Exception {
-
+    private static void stopProcess(boolean isDevMode, boolean checkForShutdownMessage) throws IOException, InterruptedException, FileNotFoundException, IllegalThreadStateException {
+        // shut down dev mode
         if (writer != null) {
+            int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
+
             try {
-                writer.close();
-            } catch (IOException ignored) {
+                if(isDevMode) {
+                    writer.write("exit\n"); // trigger dev mode to shut down
+                } else {
+                    process.destroy(); // stop run
+                }
+                writer.flush();
+
+            } catch (IOException e) {
+            } finally {
+                try {
+                    writer.close();
+                } catch (IOException io) {
+                }
             }
-            if (process.isAlive()) {
-                process.waitFor(60, TimeUnit.SECONDS);
+
+            try {
+                process.waitFor(120, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+            }
+
+            // test that the server has shut down
+            if (checkForShutdownMessage) {
+                assertTrue(getLogTail(), verifyLogMessageExists("CWWKE0036I", 20000, logFile, ++serverStoppedOccurrences));
             }
         }
+    }
+
+    protected static void cleanUpAfterClass(boolean isDevMode, boolean checkForShutdownMessage) throws Exception {
+
+        stopProcess(isDevMode, checkForShutdownMessage);
         if (tempProj != null && tempProj.exists()) {
             FileUtils.deleteDirectory(tempProj);
         }
@@ -245,10 +266,42 @@ public class BaseToolchainTest {
         return false;
     }
 
-
+    protected static boolean verifyLogMessageExists(String message, int timeout, File log, int occurrences)
+            throws InterruptedException, FileNotFoundException, IOException {
+        int waited = 0;
+        int sleep = 10;
+        while (waited <= timeout) {
+            Thread.sleep(sleep);
+            waited += sleep;
+            if (countOccurrences(message, log) == occurrences) {
+                return true;
+            }
+        }
+        return false;
+    }
     protected static void tagLog(String line) throws Exception {
         writer.write(line + "\n");
         writer.flush();
+    }
+
+    /**
+     * Count number of lines that contain the given string
+     */
+    protected static int countOccurrences(String str, File file) throws IOException {
+        int occurrences = 0;
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = br.readLine();
+        try {
+            while (line != null) {
+                if (line.contains(str)) {
+                    occurrences++;
+                }
+                line = br.readLine();
+            }
+        } finally {
+            br.close();
+        }
+        return occurrences;
     }
 
     @Rule
