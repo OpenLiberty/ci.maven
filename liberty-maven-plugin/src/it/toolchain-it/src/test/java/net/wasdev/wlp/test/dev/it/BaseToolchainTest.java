@@ -56,6 +56,7 @@ public class BaseToolchainTest {
     static Process process;
     static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
     static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
+    static final String JAVA_11_SE_REQUIRED_FOR_FEATURE = "CWWKF0032E: The %s feature requires a minimum Java runtime environment version of JavaSE 11";
 
     protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal) throws IOException, InterruptedException, FileNotFoundException {
         customLibertyModule = libertyConfigModule;
@@ -153,24 +154,30 @@ public class BaseToolchainTest {
             int serverStoppedOccurrences = countOccurrences("CWWKE0036I", logFile);
 
             try {
-                if(isDevMode) {
+                if (isDevMode) {
                     writer.write("exit\n"); // trigger dev mode to shut down
                 } else {
                     process.destroy(); // stop run
+                    String os = System.getProperty("os.name");
+                    if (os != null && os.toLowerCase().startsWith("windows")) {
+                        // wait for some time in windows
+                        Thread.sleep(30000);
+                    }
                 }
                 writer.flush();
 
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             } finally {
                 try {
                     writer.close();
-                } catch (IOException io) {
+                } catch (IOException ignored) {
                 }
             }
-
             try {
-                process.waitFor(120, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
+                if (process.isAlive()) {
+                    process.waitFor(120, TimeUnit.SECONDS);
+                }
+            } catch (InterruptedException ignored) {
             }
 
             // test that the server has shut down
@@ -279,6 +286,7 @@ public class BaseToolchainTest {
         }
         return false;
     }
+
     protected static void tagLog(String line) throws Exception {
         writer.write(line + "\n");
         writer.flush();

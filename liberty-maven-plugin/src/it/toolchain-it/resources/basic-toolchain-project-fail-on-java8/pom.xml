@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>toolchain-it-tests</groupId>
+  <artifactId>toolchain-sample-proj-java8</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>ISO_8859_1</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <liberty.jvm.minheap>-Xms512m</liberty.jvm.minheap>
+    <app.name>LibertyProject</app.name>
+    <!-- tag::ports[] -->
+    <testServerHttpPort>9080</testServerHttpPort>
+    <testServerHttpsPort>9443</testServerHttpsPort>
+    <!-- end::ports[] -->
+  </properties>
+
+  <dependencyManagement>
+
+  </dependencyManagement>
+  <dependencies>
+    <!-- Provided dependencies -->
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>10.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.microprofile</groupId>
+      <artifactId>microprofile</artifactId>
+      <version>7.0</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <packagingExcludes>pom.xml</packagingExcludes>
+        </configuration>
+      </plugin>
+      <!-- Plugin to run unit tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <id>default-test</id>
+            <configuration>
+              <excludes>
+                <exclude>**/it/**</exclude>
+              </excludes>
+              <reportsDirectory>${project.build.directory}/test-reports/unit</reportsDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Enable liberty-maven plugin -->
+      <plugin>
+        <groupId>io.openliberty.tools</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <version>SUB_VERSION</version>
+        <configuration>
+           <jdkToolchain>
+               <version>8</version>
+           </jdkToolchain>
+          <assemblyArtifact>
+            <groupId>io.openliberty</groupId>
+            <artifactId>openliberty-kernel</artifactId>
+            <version>RUNTIME_VERSION</version>
+            <type>zip</type>
+          </assemblyArtifact>
+          <packageName>${app.name}</packageName>
+          <bootstrapProperties>
+            <default.http.port>${testServerHttpPort}</default.http.port>
+            <default.https.port>${testServerHttpsPort}</default.https.port>
+            <com.ibm.ws.logging.message.format>json</com.ibm.ws.logging.message.format>
+          </bootstrapProperties>
+          <jvmOptions>
+            <param>-Xms512m</param>
+         </jvmOptions>
+          <!-- ADDITIONAL_CONFIGURATION -->
+            <debug>true</debug>
+            <debugPort>7077</debugPort>
+        </configuration>
+      </plugin>
+      <!-- Plugin to run functional tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <phase>integration-test</phase>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/it/**/*.java</include>
+              </includes>
+              <!-- tag::system-props[] -->
+              <systemPropertyVariables>
+                <liberty.test.port>${testServerHttpPort}</liberty.test.port>
+              </systemPropertyVariables>
+              <!-- end::system-props[] -->
+            </configuration>
+          </execution>
+          <execution>
+            <id>verify-results</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <summaryFile>${project.build.directory}/test-reports/it/failsafe-summary.xml</summaryFile>
+          <reportsDirectory>${project.build.directory}/test-reports/it</reportsDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
