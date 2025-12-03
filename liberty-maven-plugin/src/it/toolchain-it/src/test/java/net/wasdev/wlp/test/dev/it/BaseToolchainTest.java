@@ -22,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -92,18 +91,22 @@ public class BaseToolchainTest {
         assertTrue(pom.getCanonicalPath() + " file does not exist", pom.exists());
 
         replaceVersion();
-        startProcess(params, "mvn liberty:", goal);
+        startProcess(params, "mvn liberty:", goal, logFile, logErrorFile);
     }
 
-    protected static void startProcess(String params, String mavenPluginCommand, String goal) throws IOException, InterruptedException, FileNotFoundException {
+    protected static void startProcess(String params, String mavenPluginCommand, String goal, File logFile, File logErrorFile) throws IOException {
         StringBuilder command = new StringBuilder(mavenPluginCommand + goal);
         if (params != null) {
             command.append(" " + params);
         }
         ProcessBuilder builder = buildProcess(command.toString());
 
-        builder.redirectOutput(logFile);
-        builder.redirectError(logErrorFile);
+        if (logFile != null) {
+            builder.redirectOutput(logFile);
+        }
+        if (logErrorFile != null) {
+            builder.redirectError(logErrorFile);
+        }
         if (customPomModule != null) {
             builder.directory(new File(tempProj, customPomModule));
         }
@@ -156,9 +159,6 @@ public class BaseToolchainTest {
             try {
                 if (isDevMode) {
                     writer.write("exit\n"); // trigger dev mode to shut down
-                } else {
-                    process.destroyForcibly(); // stop run
-                    process.waitFor();
                 }
                 writer.flush();
 
@@ -181,13 +181,32 @@ public class BaseToolchainTest {
                 assertTrue(getLogTail(), verifyLogMessageExists("CWWKE0036I", 20000, logFile, ++serverStoppedOccurrences));
             }
         }
+
+        destroyProcess();
+    }
+
+    private static void destroyProcess() throws InterruptedException {
+        // 1. Attempt Graceful Shutdown (similar to destroy() or SIGTERM)
+        process.destroy();
+        // 2. Wait for a short timeout to see if it shuts down gracefully
+        boolean terminated = process.waitFor(5, TimeUnit.SECONDS);
+
+        if (!terminated && process.isAlive()) {
+            // 3. If still alive after timeout, kill it forcibly (SIGKILL)
+            process.destroyForcibly();
+            process.waitFor(); // Wait for the forceful kill to complete
+        }
     }
 
     protected static void cleanUpAfterClass(boolean isDevMode, boolean checkForShutdownMessage) throws Exception {
 
         stopProcess(isDevMode, checkForShutdownMessage);
+        //calling stop liberty for making sure run/dev is stopped
+        startProcess(null, "mvn liberty:", "stop", new File(basicDevProj, "logFileStop.txt"),  new File(basicDevProj, "logFileStopError.txt"));
+        process.waitFor(10,TimeUnit.SECONDS);
+        destroyProcess();
         if (tempProj != null && tempProj.exists()) {
-            FileUtils.deleteDirectory(tempProj);
+            deleteDirectory(tempProj);
         }
         if (logFile != null && logFile.exists()) {
             assertTrue("Could not delete log file: " + logFile.getCanonicalPath(), logFile.delete());
@@ -195,6 +214,24 @@ public class BaseToolchainTest {
         if (logErrorFile != null && logErrorFile.exists()) {
             assertTrue("Could not delete logError file: " + logErrorFile.getCanonicalPath(), logErrorFile.delete());
         }
+    }
+
+    private static void deleteDirectory(File tempProj) throws IOException {
+
+        for (int i = 0; i < 6; i++) {
+            try {
+                FileUtils.deleteDirectory(tempProj);
+                return; // Success, exit method
+            } catch (IOException e) {
+                try {
+                    Thread.sleep(5000); // Wait for 5 seconds
+                } catch (InterruptedException ignore) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        // Final attempt failed, re-throw the exception
+        throw new IOException("Failed to delete directory " + tempProj.getAbsolutePath() + " after multiple retries.");
     }
 
     protected static boolean readFile(String str, File file) throws IOException {
@@ -270,7 +307,7 @@ public class BaseToolchainTest {
     }
 
     protected static boolean verifyLogMessageExists(String message, int timeout, File log, int occurrences)
-            throws InterruptedException, FileNotFoundException, IOException {
+            throws InterruptedException, IOException {
         int waited = 0;
         int sleep = 10;
         while (waited <= timeout) {
