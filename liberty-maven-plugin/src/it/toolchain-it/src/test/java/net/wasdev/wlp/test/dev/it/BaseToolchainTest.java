@@ -158,11 +158,7 @@ public class BaseToolchainTest {
                     writer.write("exit\n"); // trigger dev mode to shut down
                 } else {
                     process.destroyForcibly(); // stop run
-                    String os = System.getProperty("os.name");
-                    if (os != null && os.toLowerCase().startsWith("windows")) {
-                        // wait for some time in windows
-                        Thread.sleep(30000);
-                    }
+                    process.waitFor();
                 }
                 writer.flush();
 
