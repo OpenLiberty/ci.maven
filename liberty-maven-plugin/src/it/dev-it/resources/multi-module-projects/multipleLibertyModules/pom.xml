@@ -13,6 +13,7 @@
 
     <modules>
         <module>jar</module>
+        <module>ejb</module>
         <module>war</module>
         <module>war2</module>
         <module>ear1</module>
