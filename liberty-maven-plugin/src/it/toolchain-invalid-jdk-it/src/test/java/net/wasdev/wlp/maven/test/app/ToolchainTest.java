@@ -30,7 +30,7 @@ public class ToolchainTest {
     public final String CONFIG_XML = "liberty-plugin-config.xml";
     public final String LOG_LOCATION = "liberty/usr/servers/test/logs/messages.log";
     static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
-
+    static final String INVALID_TOOLCHAIN_CONFIGURED = "CWWKM4100W: Toolchain requested but not available for requirement";
 
     @Test
     public void testConfigPropFileExist() throws Exception {
@@ -41,19 +41,15 @@ public class ToolchainTest {
     
     @Test
     public void testApplicationFileExist() throws Exception {
-        File f = new File("liberty/usr/servers/test/apps/toolchain-start-status-it.war");
+        File f = new File("liberty/usr/servers/test/apps/toolchain-invalid-jdk-it.war");
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
 
         f = new File(LOG_LOCATION);
         Assert.assertTrue(f.getCanonicalFile() + " doesn't exist", f.exists());
-        // should contain java.version = 11 since <jdkToolChain> is defined as Java 11
-        Assert.assertTrue("Did not find toolchain version in messages.log", logContainsMessage(f, "java.version = 11"));
         File buildLog = new File("../build.log");
         Assert.assertTrue(buildLog.exists());
 
-        Assert.assertTrue("Did not find toolchain honored message for create goal in build.log", logContainsMessage(buildLog, String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create")));
-        Assert.assertTrue("Did not find toolchain honored message for start goal in build.log", logContainsMessage(buildLog, String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "start")));
-        Assert.assertTrue("Did not find toolchain honored message for status goal in build.log", logContainsMessage(buildLog, String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "status")));
+        Assert.assertTrue("Did not find toolchain not honored warning message in build.log", logContainsMessage(buildLog, INVALID_TOOLCHAIN_CONFIGURED));
     }
 
     private boolean logContainsMessage( File logFile, String message) throws FileNotFoundException {

@@ -312,7 +312,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
-                                    <pomExclude>toolchain-it/pom.xml</pomExclude>
+                                    <pomExclude>toolchain-run-it/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
@@ -353,7 +353,7 @@
                             <configuration>
                                 <pomExcludes>
                                     <pomExclude>dev-it/pom.xml</pomExclude>
-                                    <pomExclude>toolchain-it/pom.xml</pomExclude>
+                                    <pomExclude>toolchain-run-it/pom.xml</pomExclude>
                                     <pomExclude>dev-container-it/pom.xml</pomExclude>
                                     <pomExclude>basic-it/pom.xml</pomExclude>
                                     <pomExclude>assembly-it/pom.xml</pomExclude>
