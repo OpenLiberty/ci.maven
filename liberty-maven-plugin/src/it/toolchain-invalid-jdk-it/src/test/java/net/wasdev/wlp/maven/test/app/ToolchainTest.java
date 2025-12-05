@@ -29,8 +29,8 @@ public class ToolchainTest {
 
     public final String CONFIG_XML = "liberty-plugin-config.xml";
     public final String LOG_LOCATION = "liberty/usr/servers/test/logs/messages.log";
-    static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
-    static final String INVALID_TOOLCHAIN_CONFIGURED = "CWWKM4100W: Toolchain requested but not available for requirement";
+    static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: The %s goal is using the configured toolchain JDK located at";
+    static final String INVALID_TOOLCHAIN_CONFIGURED = "CWWKM4100W: Toolchain requested but not available for JDK requirement";
 
     @Test
     public void testConfigPropFileExist() throws Exception {

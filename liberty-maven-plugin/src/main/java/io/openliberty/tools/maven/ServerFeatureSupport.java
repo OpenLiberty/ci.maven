@@ -378,7 +378,11 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      */
     protected void initToolchain() throws MojoExecutionException {
         // Skip if toolchain support is not enabled
-        if (jdkToolchain == null || toolchainManager == null) {
+        if (jdkToolchain == null) {
+            return;
+        }
+        if (toolchainManager == null) {
+            getLog().warn("ToolchainManager is null. Falling back to system default JDK.");
             return;
         }
         List<Toolchain> tcs = toolchainManager.getToolchains(session, "jdk", jdkToolchain);

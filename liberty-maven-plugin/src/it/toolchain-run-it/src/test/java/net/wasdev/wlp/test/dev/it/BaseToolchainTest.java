@@ -54,7 +54,7 @@ public class BaseToolchainTest {
     static BufferedWriter writer;
     static Process process;
     static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
-    static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: %s goal is using Toolchain JDK in located at";
+    static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: The %s goal is using the configured toolchain JDK located at";
     static final String JAVA_11_SE_REQUIRED_FOR_FEATURE = "CWWKF0032E: The %s feature requires a minimum Java runtime environment version of JavaSE 11";
 
     protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal) throws IOException, InterruptedException, FileNotFoundException {
