@@ -419,17 +419,23 @@ public abstract class ServerFeatureSupport extends BasicSupport {
 
     /**
      * Get JDK home directory from toolchain
+     * 1. The java executable is found at: [JAVA_HOME]/bin/java
+     * 2. The code starts by finding the full path to java (e.g., /path/to/jdk/bin/java).
+     * 3. It calls getParentFile() once to get the bin directory (e.g., /path/to/jdk/bin).
+     * 4. It calls getParent() again on the bin directory to get the root directory (e.g., /path/to/jdk), which is the JAVA_HOME.
      *
      * @param toolchain The toolchain to get JDK home from
      * @return The JDK home directory path, or null if it could not be determined
      */
     protected String getJdkHomeFromToolchain(Toolchain toolchain) {
-        String jdkHome = toolchain.findTool("java");
-        if (jdkHome != null) {
-            File javaFile = new File(jdkHome);
+        String javaBinFileLocation = toolchain.findTool("java");
+        if (javaBinFileLocation != null) {
+            File javaFile = new File(javaBinFileLocation);
             File binDir = javaFile.getParentFile();
             if (binDir != null) {
                 return binDir.getParent();
+            }else {
+                getLog().warn("bin directory not found for "+ javaBinFileLocation);
             }
         }
         return null;
