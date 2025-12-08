@@ -1,0 +1,7 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+        
+    <webApplication id="toolchain-start-status-it" location="toolchain-start-status-it.war" name="toolchain-start-status-it"/>
+</server>

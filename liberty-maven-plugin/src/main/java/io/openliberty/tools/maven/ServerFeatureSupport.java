@@ -22,23 +22,25 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.PluginManagement;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
@@ -57,6 +59,20 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      */
     @Parameter( defaultValue = "${plugin}", readonly = true )
     private PluginDescriptor plugin;
+
+    @Parameter
+    protected Map<String, String> jdkToolchain;
+
+    /**
+     * The toolchain manager
+     */
+    @Component
+    protected ToolchainManager toolchainManager;
+
+    @Parameter(defaultValue = "${mojoExecution}", readonly = true)
+    protected MojoExecution mojoExecution;
+
+    protected Toolchain toolchain;
 
     protected class ServerFeatureMojoUtil extends ServerFeatureUtil {
 
@@ -113,6 +129,12 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         public boolean isDebugEnabled() {
             return getLog().isDebugEnabled();
         }
+    }
+
+    @Override
+    protected void init() throws MojoExecutionException {
+        super.init();
+        initToolchain();
     }
 
     private void createNewServerFeatureUtil() {
@@ -346,5 +368,76 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             plugin = plugin(groupId(groupId), artifactId(artifactId), version("RELEASE"));
         }
         return plugin;
+    }
+
+    /**
+     * Initialize the toolchain by calling the toolchain goal.
+     * If useToolchainJdk is set to true, this method will also set the toolchain variable.
+     *
+     * @throws MojoExecutionException If an exception occurred while running toolchain goal
+     */
+    protected void initToolchain() throws MojoExecutionException {
+        // Skip if toolchain support is not enabled
+        if (jdkToolchain == null) {
+            return;
+        }
+        if (toolchainManager == null) {
+            getLog().warn("ToolchainManager is null. Falling back to system default JDK.");
+            return;
+        }
+        List<Toolchain> tcs = toolchainManager.getToolchains(session, "jdk", jdkToolchain);
+        if (tcs != null && !tcs.isEmpty()) {
+            this.toolchain = tcs.get(0);
+            getLog().info(MessageFormat.format(messages.getString("info.toolchain.initialized"), this.toolchain));
+        } else {
+            getLog().warn(MessageFormat.format(messages.getString("warn.toolchain.not.available"), jdkToolchain));
+        }
+    }
+
+    /**
+     *
+     * @param serverEnvLines lines from server.env
+     * @param jvmOptionsLines lines from jvm.options
+     * @return true or false
+     */
+    protected static boolean isJavaHomeSet(List<String> serverEnvLines, List<String> jvmOptionsLines) {
+        boolean javaHomeSet = false;
+        for (String serverEnvLine : serverEnvLines) {
+            if (serverEnvLine.startsWith("JAVA_HOME=")) {
+                javaHomeSet = true;
+                break;
+            }
+        }
+        for (String serverEnvLine : jvmOptionsLines) {
+            if (serverEnvLine.contains("JAVA_HOME=")) {
+                javaHomeSet = true;
+                break;
+            }
+        }
+        return javaHomeSet;
+    }
+
+    /**
+     * Get JDK home directory from toolchain
+     * 1. The java executable is found at: [JAVA_HOME]/bin/java
+     * 2. The code starts by finding the full path to java (e.g., /path/to/jdk/bin/java).
+     * 3. It calls getParentFile() once to get the bin directory (e.g., /path/to/jdk/bin).
+     * 4. It calls getParent() again on the bin directory to get the root directory (e.g., /path/to/jdk), which is the JAVA_HOME.
+     *
+     * @param toolchain The toolchain to get JDK home from
+     * @return The JDK home directory path, or null if it could not be determined
+     */
+    protected String getJdkHomeFromToolchain(Toolchain toolchain) {
+        String javaBinFileLocation = toolchain.findTool("java");
+        if (javaBinFileLocation != null) {
+            File javaFile = new File(javaBinFileLocation);
+            File binDir = javaFile.getParentFile();
+            if (binDir != null) {
+                return binDir.getParent();
+            }else {
+                getLog().warn("bin directory not found for "+ javaBinFileLocation);
+            }
+        }
+        return null;
     }
 }

@@ -206,7 +206,7 @@ public class ExecuteMojoUtil {
             "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
             "assemblyInstallDirectory", "refresh", "skip", "serverXmlFile", "configDirectory", 
-            "serverEnvFile", "mergeServerEnv"
+            "serverEnvFile", "mergeServerEnv","jdkToolchain"
     // executeMojo can not use alias parameters:
     // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory" "configFile" "serverEnv"
     ));
