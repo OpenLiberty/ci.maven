@@ -21,12 +21,28 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ToolchainRunServerTest extends BaseToolchainTest {
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-toolchain-project", null, null, "run", ()->{});
-   }
+public class ToolchainRunServerWithServerEnvJdkTest extends BaseToolchainTest {
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        setUpBeforeClass(null, "../resources/basic-toolchain-project", null, null, "run",
+                () -> {
+                    String javaHome = System.getenv("JAVA_HOME");
+                    try {
+                        File libertyConfigDir = Paths.get(tempProj.getPath(), "src", "main", "liberty", "config").toAbsolutePath().toFile();
+                        String content="JAVA_HOME=" + javaHome;
+                        Files.write(new File(libertyConfigDir, "server.env").toPath(), content.getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
@@ -38,7 +54,7 @@ public class ToolchainRunServerTest extends BaseToolchainTest {
       tagLog("##runServerTest start");
       assertTrue(getLogTail(), verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
       assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "run"), 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists(String.format(JAVA_HOME_CONFIGURED, "run"), 10000));
 
       tagLog("##runServerTest end");
    }

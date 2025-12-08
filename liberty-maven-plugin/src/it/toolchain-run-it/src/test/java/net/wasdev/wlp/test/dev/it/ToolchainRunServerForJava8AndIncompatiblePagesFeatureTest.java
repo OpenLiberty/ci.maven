@@ -31,7 +31,7 @@ public class ToolchainRunServerForJava8AndIncompatiblePagesFeatureTest extends B
 
    @BeforeClass
    public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-toolchain-project-fail-on-java8", null, null, "run");
+      setUpBeforeClass(null, "../resources/basic-toolchain-project-fail-on-java8", null, null, "run", ()->{});
    }
 
    @AfterClass

@@ -56,8 +56,9 @@ public class BaseToolchainTest {
     static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
     static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: The %s goal is using the configured toolchain JDK located at";
     static final String JAVA_11_SE_REQUIRED_FOR_FEATURE = "CWWKF0032E: The %s feature requires a minimum Java runtime environment version of JavaSE 11";
+    static final String JAVA_HOME_CONFIGURED="CWWKM4101W: The toolchain JDK configuration for goal %s is not honored because the JAVA_HOME property is specified in the server.env or jvm.options file.";
 
-    protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal) throws IOException, InterruptedException, FileNotFoundException {
+    protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal, Runnable customActionBeforeProcessStart) throws IOException {
         customLibertyModule = libertyConfigModule;
         customPomModule = pomModule;
 
@@ -91,6 +92,8 @@ public class BaseToolchainTest {
         assertTrue(pom.getCanonicalPath() + " file does not exist", pom.exists());
 
         replaceVersion();
+        // if you want some custom action to be executed
+        customActionBeforeProcessStart.run();
         startProcess(params, "mvn liberty:", goal, logFile, logErrorFile);
     }
 
