@@ -66,6 +66,9 @@
         <version>@pom.version@</version>
         <extensions>true</extensions>
         <configuration>
+          <jdkToolchain>
+              <version>11</version>
+          </jdkToolchain>
           <stripVersion>true</stripVersion>
           <serverName>test</serverName>
           <serverXmlFile>src/test/resources/server.xml</serverXmlFile>

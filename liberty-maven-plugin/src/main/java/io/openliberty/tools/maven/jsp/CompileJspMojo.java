@@ -83,7 +83,8 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setDestdir(new File(getProject().getBuild().getOutputDirectory()));
         compile.setTempdir(new File(getProject().getBuild().getDirectory()));
         compile.setTimeout(timeout);
-
+        // put toolchain jdk into environment variables
+        compile.setEnvironmentVariables(getToolchainEnvVar());
         // don't delete temporary server dir
         compile.setCleanup(false);
 

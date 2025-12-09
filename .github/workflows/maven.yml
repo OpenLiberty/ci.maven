@@ -113,8 +113,9 @@ jobs:
       - name: Checkout ci.ant
         uses: actions/checkout@v3
         with:
-          repository: OpenLiberty/ci.ant
+          repository: arunvenmany/ci.ant
           path: ci.ant
+          ref: compile_jsp_change
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.5
         with:
@@ -227,7 +228,7 @@ jobs:
         run: |
           echo ${{github.workspace}}
           git clone https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common 
-          git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
+          git clone https://github.com/arunvenmany/ci.ant.git ${{github.workspace}}/ci.ant --branch compile_jsp_change
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.5
         with:
