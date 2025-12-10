@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
@@ -173,93 +173,11 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         serverTask.setServerName(serverName);
         serverTask.setUserDir(userDirectory);
         serverTask.setOutputDir(outputDirectory);
-        configureToolchainEnvVar(serverTask);
+        Map<String, String> envVars = getToolchainEnvVar();
+        if(ObjectUtils.isNotEmpty(envVars)) {
+            serverTask.setEnvironmentVariables(envVars);
+        }
         return serverTask;
-    }
-    /**
-     * @param serverTask
-     */
-    private void configureToolchainEnvVar(ServerTask serverTask) {
-
-        if (toolchain == null) {
-            return;
-        }
-        String jdkHome = getJdkHomeFromToolchain(toolchain);
-        if (jdkHome == null) {
-            getLog().warn("Could not determine JDK home from toolchain. Toolchain will not be honored");
-            return;
-        }
-
-        // 1. Read existing config files
-        List<String> serverEnvLines = readConfigFileLines(getServerEnvFile());
-        List<String> jvmOptionsLines = readConfigFileLines(new File(serverDirectory, "jvm.options"));
-
-        // 2. Check for existing JAVA_HOME configuration
-        // if user has configured JAVA_HOME in server.env or jvm.options, this will get higher precedence over toolchain JDK
-        // hence a warning will be issued
-        if (isJavaHomeSet(serverEnvLines, jvmOptionsLines)) {
-            getLog().warn(MessageFormat.format(
-                    messages.getString("warn.server.env.java.home.configured"),
-                    mojoExecution.getGoal()
-            ));
-        } else {
-            // 3. Apply toolchain configuration
-            applyToolchainToTask(serverTask, jdkHome);
-        }
-    }
-
-    /**
-     * Determines the primary server.env file to read.
-     * Checks serverEnvFile first, then a default location in serverDirectory.
-     *
-     * @return The File object for the server.env, or null if neither exists or is specified.
-     */
-    private File getServerEnvFile() {
-        if (serverEnvFile != null && serverEnvFile.exists()) {
-            return serverEnvFile;
-        }
-        File defaultServerEnv = new File(serverDirectory, "server.env");
-        if (defaultServerEnv.exists()) {
-            return defaultServerEnv;
-        }
-        return null;
-    }
-
-    /**
-     * Reads all lines from a configuration file, handling null/non-existent files
-     * and I/O exceptions gracefully.
-     *
-     * @param configFile The file to read.
-     * @return A list of strings, each representing a line in the file. Returns an empty list on failure.
-     */
-    private List<String> readConfigFileLines(File configFile) {
-        if (configFile == null || !configFile.exists()) {
-            return Collections.emptyList();
-        }
-        Path configPath = configFile.toPath();
-        try {
-            return Files.readAllLines(configPath);
-        } catch (IOException e) {
-            getLog().warn("Error reading config file: " + configPath);
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * Applies the toolchain's JDK home to the ServerTask's environment variables.
-     *
-     * @param serverTask The task to modify.
-     * @param jdkHome    The resolved JDK home path.
-     */
-    private void applyToolchainToTask(ServerTask serverTask, String jdkHome) {
-        getLog().info(MessageFormat.format(
-                messages.getString("info.toolchain.configured"),
-                mojoExecution.getGoal(),
-                jdkHome
-        ));
-        Map<String, String> envVars = new HashMap<>();
-        envVars.put("JAVA_HOME", jdkHome);
-        serverTask.setEnvironmentVariables(envVars);
     }
 
     protected void runMojo(String groupId, String artifactId, String goal) throws MojoExecutionException {
