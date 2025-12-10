@@ -20,10 +20,13 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -84,7 +87,10 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setTempdir(new File(getProject().getBuild().getDirectory()));
         compile.setTimeout(timeout);
         // put toolchain jdk into environment variables
-        compile.setEnvironmentVariables(getToolchainEnvVar());
+        Map<String, String> envVars = getToolchainEnvVar();
+        if(ObjectUtils.isNotEmpty(envVars)) {
+            compile.setEnvironmentVariables(envVars);
+        }
         // don't delete temporary server dir
         compile.setCleanup(false);
 

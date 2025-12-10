@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
@@ -172,7 +173,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         serverTask.setServerName(serverName);
         serverTask.setUserDir(userDirectory);
         serverTask.setOutputDir(outputDirectory);
-        serverTask.setEnvironmentVariables(getToolchainEnvVar());
+        Map<String, String> envVars = getToolchainEnvVar();
+        if(ObjectUtils.isNotEmpty(envVars)) {
+            serverTask.setEnvironmentVariables(envVars);
+        }
         return serverTask;
     }
 
