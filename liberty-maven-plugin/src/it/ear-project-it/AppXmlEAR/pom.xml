@@ -62,6 +62,9 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>@pom.version@</version>
                 <configuration>
+                    <jdkToolchain>
+                        <version>11</version>
+                    </jdkToolchain>
                     <stripVersion>true</stripVersion>
                     <assemblyArtifact>
                         <groupId>${runtimeGroupId}</groupId>
