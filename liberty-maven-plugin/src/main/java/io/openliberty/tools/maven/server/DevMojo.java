@@ -786,7 +786,8 @@ public class DevMojo extends LooseAppSupport {
                             util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
                                 generateFeaturesSuccess);
                             if (!generateToSrc) {
-                                util.copyTempFeatureFileToServer(serverDirectory); // finalize the generate-features operation
+                                // TODO: do we really need to copy this file here or is it copied by the file watcher after we register the generation temp dir?
+                                util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
                             }
                         }
                         runLibertyMojoDeploy();
@@ -1160,9 +1161,10 @@ public class DevMojo extends LooseAppSupport {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
                     }
                 }
+                // TODO: do we really need to copy this file here or is it copied by the file watcher after we register the generation temp dir?
                 // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
                 if (generateFeaturesSuccess && !generateToSrc) {
-                    util.copyTempFeatureFileToServer(serverDirectory); // finalize the generate-features operation
+                    util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
                 }
                 if (!(reinstallLiberty || restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
