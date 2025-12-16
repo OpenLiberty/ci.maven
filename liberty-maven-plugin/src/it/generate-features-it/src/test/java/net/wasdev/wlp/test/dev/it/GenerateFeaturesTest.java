@@ -85,11 +85,13 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
         // no additional features should be generated
         if (generateToSrc) {
+            // In src dir the generated file is preserved and contains no new features
             runCompileAndGenerateFeaturesToSrc();
             assertTrue(featureFile.exists());
             features = readFeatures(featureFile);
             assertEquals(formatOutput(processOutput), 0, features.size());
         } else {
+            // the server dir is in target directory and a mvn clean is performed so it has been removed
             runCompileAndGenerateFeatures();
             assertFalse(featureFile.exists()); // after clean no feature file is created
         }
