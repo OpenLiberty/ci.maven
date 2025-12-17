@@ -87,8 +87,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * When the parameter is true we will write the generated features file to the temp directory.
      * This is required because the features must all be installed before writing to serverDir in devmode.
      */
-    @Parameter(property = "internalDevMode", defaultValue = "false")
-    private boolean internalDevMode;
+    @Parameter(property = "useDevModeTempDir", defaultValue = "false")
+    private boolean useDevModeTempDir;
 
     /**
      * Generating features is performed relative to a certain server. We only generate features
