@@ -194,7 +194,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         // The config dir is in the src directory. Otherwise generate for the target/liberty dir.
         generationContextDir = generateToSrc ? configDirectory : serverDirectory;
         // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
-        generationOutputDir = internalDevMode ? new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_DIR) : generationContextDir;
+        generationOutputDir = useDevModeTempDir ? new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_DIR) : generationContextDir;
 
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
