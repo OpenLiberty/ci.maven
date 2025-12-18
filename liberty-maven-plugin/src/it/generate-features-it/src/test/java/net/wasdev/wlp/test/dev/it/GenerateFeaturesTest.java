@@ -118,6 +118,18 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     }
 
     @Test
+    public void noServer() throws Exception {
+        // do not create the server before running generate-features
+        runGenerateFeaturesGoal();
+
+        // verify that generated features file was not created
+        assertFalse(newFeatureFile.exists());
+
+        // verify server not found warning message
+        assertTrue(processOutput.contains(SERVER_MISSING_MESSAGE));
+    }
+
+    @Test
     public void customFeaturesTest() throws Exception {
         // complete the setup of the test
         replaceString("<!--replaceable-->",

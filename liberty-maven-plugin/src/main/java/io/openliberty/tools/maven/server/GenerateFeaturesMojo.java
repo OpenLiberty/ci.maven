@@ -120,8 +120,12 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
 
         super.init();
+        // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
+        if (!generateToSrc && !serverDirectory.exists()) {
+            throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
+        }
     }
-    
+
     @Override
     public void execute() throws MojoExecutionException {
         init();
