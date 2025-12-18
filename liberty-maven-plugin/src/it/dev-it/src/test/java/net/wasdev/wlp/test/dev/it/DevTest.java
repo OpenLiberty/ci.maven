@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2022.
+ * (c) Copyright IBM Corporation 2019, 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ public class DevTest extends BaseDevTest {
       int runGenerateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
       int installedFeaturesCount = countOccurrences(SERVER_INSTALLED_FEATURES, logFile);
 
-      File newFeatureFile = getGeneratedFeaturesFile();
+      // File newFeatureFile = getGeneratedFeaturesFile();
       File newTargetFeatureFile = getTargetGeneratedFeaturesFile();
       File serverXmlFile = new File(tempProj, "/src/main/liberty/config/server.xml");
       assertTrue(serverXmlFile.exists());
@@ -293,11 +293,11 @@ public class DevTest extends BaseDevTest {
       verifyFileExists(helloBatchObj, 15000);
       // ... and run the proper mojo.
       assertTrue(verifyLogMessageExists(RUNNING_GENERATE_FEATURES, 10000, ++runGenerateFeaturesCount)); // mojo ran
-      assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
+      // assertTrue(verifyFileExists(newFeatureFile, 5000)); // mojo created file
       assertTrue(verifyFileExists(newTargetFeatureFile, 5000)); // dev mode copied file
-      assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile));
-      assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newFeatureFile));
-      assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
+      assertTrue(verifyLogMessageExists("batch-1.0", 10000, newTargetFeatureFile));
+      assertTrue(verifyLogMessageExists(NEW_FILE_INFO_MESSAGE, 10000, newTargetFeatureFile));
+      // assertTrue(verifyLogMessageExists(SERVER_XML_COMMENT, 10000, serverXmlFile));
       // "CWWKF0012I: The server installed the following features:" assume batch-1.0 is in there
       // batch-1.0 pulls in other features that can take a long time to download.
       assertTrue(verifyLogMessageExists(SERVER_INSTALLED_FEATURES, 123000, ++installedFeaturesCount));
@@ -345,7 +345,7 @@ public class DevTest extends BaseDevTest {
       writer.write("o\n"); // on optimize regenerate
       writer.flush();
       assertTrue(verifyLogMessageExists(GENERATE_FEATURES, 10000, logFile, ++generateFeaturesCount));
-      assertTrue(verifyLogMessageExists("batch-1.0", 10000, newFeatureFile, 0)); // exist 0 times
+      assertTrue(verifyLogMessageExists("batch-1.0", 10000, newTargetFeatureFile, 0)); // exist 0 times
       // Check for server response to newly generated feature list.
       assertTrue(verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 10000, serverUpdateCount+1));
       // Need to ensure server finished updating before the next test starts.
