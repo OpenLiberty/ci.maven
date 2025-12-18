@@ -783,7 +783,7 @@ public class DevMojo extends LooseAppSupport {
                                 util.getJavaSourceClassPaths().clear();
                             }
                             // install new generated features, will not trigger install-feature if the feature list has not changed
-                            util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
+                            util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null,
                                 generateFeaturesSuccess);
                             if (!generateToSrc) {
                                 // TODO: do we really need to copy this file here or is it copied by the file watcher after we register the generation temp dir?
@@ -1153,7 +1153,7 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
+                        util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null,
                             generateFeaturesSuccess);
                         runLibertyMojoDeploy();
                     }
