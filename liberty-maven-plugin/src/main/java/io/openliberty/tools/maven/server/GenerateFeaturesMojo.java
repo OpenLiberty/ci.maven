@@ -82,13 +82,13 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private boolean generateToSrc;
 
     /**
-     * The internalDevMode parameter is for internal use only. It is not for users.
+     * The useDevModeTempDir parameter is for internal use only. It is not for users.
      * The parameter is only used when generateToSrc is false meaning we generate to serverDir.
      * When the parameter is true we will write the generated features file to the temp directory.
-     * This is required because the features must all be installed before writing to server Dir in devmode.
+     * This is required because the features must all be installed before writing to serverDir in devmode.
      */
-    @Parameter(property = "internalDevMode", defaultValue = "false")
-    private boolean internalDevMode;
+    @Parameter(property = "useDevModeTempDir", defaultValue = "false")
+    private boolean useDevModeTempDir;
 
     /**
      * Generating features is performed relative to a certain server. We only generate features
@@ -99,6 +99,15 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * We will select one server config as the context of this operation.
      */
     private File generationContextDir;
+
+    /**
+     * Liberty features are generated in the context of a certain server and they are stored in
+     * an XML file in the configDir, the serverDir or a temporary directory. When using dev
+     * mode we must write to the tempDir and call install-features before we can use the
+     * features in the running server. When not using dev mode we can just write the features
+     * to the configDir or serverDir as indicated by the generateToSrc option.
+     */
+    private File generationOutputDir;
 
     @Override
     protected void init() throws MojoExecutionException {
@@ -184,6 +193,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
         // The config dir is in the src directory. Otherwise generate for the target/liberty dir.
         generationContextDir = generateToSrc ? configDirectory : serverDirectory;
+        // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
+        generationOutputDir = useDevModeTempDir ? new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_DIR) : generationContextDir;
 
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
@@ -191,7 +202,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("--- Generate Features values ---");
         getLog().debug("Binary scanner jar: " + binaryScanner.getName());
         getLog().debug("optimize generate features: " + optimize);
-        getLog().debug("generate to src or target: " + generationContextDir);
+        getLog().debug("called by dev mode, useDevModeTempDir: " + useDevModeTempDir);
+        getLog().debug("generate to directory: " + generationOutputDir.getAbsolutePath());
         if (classFiles != null && !classFiles.isEmpty()) {
             getLog().debug("Generate features for the following class files: " + classFiles.toString());
         }
@@ -308,14 +320,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
 
         // generate the new features into an xml file in the correct context directory
-        File generatedXmlFile;
-        if (internalDevMode) {
-            // create a temp dir in the target directory for the generated-features.xml in dev mode
-            // The ServerConfigXmlDocument will create the directories if needed.
-            generatedXmlFile = new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_PATH);
-        } else {
-            generatedXmlFile = new File(generationContextDir, GENERATED_FEATURES_FILE_PATH);
-        }
+        // The ServerConfigXmlDocument class will create the directories if needed.
+        File generatedXmlFile = new File(generationOutputDir, GENERATED_FEATURES_FILE_PATH);
         try {
             if (missingLibertyFeatures.size() > 0) {
                 Set<String> existingGeneratedFeatures = getGeneratedFeatures(servUtil, generatedXmlFile);
@@ -332,7 +338,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                     // Generate log message before writing file as the file change event kicks off other dev mode actions
                     getLog().info("Generated the following features: " + missingLibertyFeatures);
                     configDocument.writeXMLDocument(generatedXmlFile);
-                    getLog().debug("Created file " + generatedXmlFile);
+                    getLog().debug("Created file " + generatedXmlFile.getAbsolutePath());
                 } else {
                     getLog().info("Regenerated the following features: " + missingLibertyFeatures);
                 }
