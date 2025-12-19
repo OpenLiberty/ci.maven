@@ -176,8 +176,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         if (openLibertyVersion != null &&
                 VersionUtility.compareArtifactVersion(openLibertyVersion,
                         MIN_SUPPORTED_VERSION_WITH_ARCHIVE_OPTION_POSIX_FORMAT, true) >= 0) {
-            getLog().info("Setting custom archive command option " + "--archive=" + packageFile.toString());
-            serverTask.setCustomArchiveOption("--archive=" + packageFile.toString());
+            serverTask.setUsePosixRules(true);
         }
 
         serverTask.setServerRoot(serverRoot);

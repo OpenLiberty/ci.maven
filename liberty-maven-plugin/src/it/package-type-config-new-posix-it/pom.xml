@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>package-type-config-older-liberty-it</artifactId>
+    <artifactId>package-type-config-new-posix-it</artifactId>
     <packaging>war</packaging>
 
     <properties>
@@ -63,8 +63,8 @@
                     <appsDirectory>apps</appsDirectory>
                     <stripVersion>true</stripVersion>
                     <packageName>${project.artifactId}</packageName>
-                    <!--hard coding liberty version for testing package fix is working for older versions as well-->
-                    <libertyRuntimeVersion>25.0.0.9</libertyRuntimeVersion>
+                    <!--hard coding liberty version for testing package fix is working-->
+                    <libertyRuntimeVersion>25.0.0.12</libertyRuntimeVersion>
                 </configuration>
                 <executions>
                     <execution>

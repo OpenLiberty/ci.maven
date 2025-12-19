@@ -29,7 +29,7 @@ import org.junit.Test;
  */
 public class PackageTypeTarGzTest {
     
-    private String projectBuildName = "package-type-config-older-liberty-it.tar.gz";
+    private String projectBuildName = "package-type-config-new-posix-it.tar.gz";
     
     @Test
     public void testPackageFileTarGzExists() {

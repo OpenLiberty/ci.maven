@@ -35,7 +35,7 @@ import org.junit.Test;
  */
 public class PackageTypeRunnableJarTest {
     
-    private String projectBuildName = "package-type-config-older-liberty-it.jar";
+    private String projectBuildName = "package-type-config-new-posix-it.jar";
     
     @Test
     public void testPackageFileRunnableJarExists() {

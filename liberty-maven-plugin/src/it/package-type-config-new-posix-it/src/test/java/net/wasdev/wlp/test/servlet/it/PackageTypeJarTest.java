@@ -35,7 +35,7 @@ import org.junit.Test;
  */
 public class PackageTypeJarTest {
     
-    private String projectBuildName = "package-directory-with space/package-type-config-older-liberty-it.jar";
+    private String projectBuildName = "package-directory-with space/package-type-config-new-posix-it.jar";
     
     @Test
     public void testPackageFileJarExists() {

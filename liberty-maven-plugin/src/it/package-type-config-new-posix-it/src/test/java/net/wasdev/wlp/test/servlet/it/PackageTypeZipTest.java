@@ -36,7 +36,7 @@ import org.junit.Test;
  */
 public class PackageTypeZipTest {
     
-    private String projectBuildName = "package-type-config-older-liberty-it.zip";
+    private String projectBuildName = "package-type-config-new-posix-it.zip";
     
     @Test
     public void testPackageFileZipExists() {
