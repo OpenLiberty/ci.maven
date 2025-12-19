@@ -297,7 +297,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
         config.addChild(element(name("optimize"), Boolean.toString(optimize)).toDom());
-        config.addChild(element(name("internalDevMode"), Boolean.toString(useTmpDir)).toDom());
+        config.addChild(element(name("useDevModeTempDir"), Boolean.toString(useTmpDir)).toDom());
         runLibertyMojo("generate-features", config);
     }
 
