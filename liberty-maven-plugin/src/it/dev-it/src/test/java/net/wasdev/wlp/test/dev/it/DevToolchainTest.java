@@ -19,7 +19,7 @@ public class DevToolchainTest extends BaseDevTest {
 
             startProcess(null, true, "mvn -X liberty:");
 
-            assertTrue(verifyLogMessageExists("Maven compiler plugin is not configured with a jdkToolchain. Using liberty-maven-plugin jdkToolchain configuration for Java compiler options.", 120000));
+            assertTrue(verifyLogMessageExists("Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.", 120000));
             assertTrue(verifyLogMessageExists("Setting compiler source to toolchain JDK version 11", 120000));
         } finally {
             cleanUpAfterClass();
@@ -33,7 +33,7 @@ public class DevToolchainTest extends BaseDevTest {
             startProcess(null, true, "mvn -X liberty:");
 
             assertTrue(verifyLogMessageDoesNotExist(
-                    "Maven compiler plugin is not configured with a jdkToolchain. Using liberty-maven-plugin jdkToolchain configuration for Java compiler options.",
+                    "Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.",
                     120000));
             assertTrue(verifyLogMessageDoesNotExist(
                     "Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain configuration",
@@ -112,7 +112,7 @@ public class DevToolchainTest extends BaseDevTest {
 
             startProcess(null, true, "mvn -X liberty:");
 
-            assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the Maven Compiler Plugin jdkToolchain configuration (version 8). The project-level Maven Compiler Plugin toolchain configuration will be used for compilation.", 120000));
+            assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the Maven Compiler Plugin jdkToolchain configuration (version 8). The Liberty Maven Plugin jdkToolchain configuration will be used for compilation.", 120000));
         } finally {
             cleanUpAfterClass();
         }

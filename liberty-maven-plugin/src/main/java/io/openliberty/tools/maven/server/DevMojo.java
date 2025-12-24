@@ -1754,6 +1754,7 @@ public class DevMojo extends LooseAppSupport {
         // Fetch the toolchain version configured for the project
         String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
         if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
+            // Fetch the toolchain version configured for the maven-compiler-plugin
             String compilerJdkToolchainVersion = null;
             if (configuration != null) {
                 Xpp3Dom compilerJdkToolchain = configuration.getChild("jdkToolchain");
@@ -1765,18 +1766,19 @@ public class DevMojo extends LooseAppSupport {
                 }
             }
 
+            // Log which toolchain version is being used for maven-compiler-plugin
             if (compilerJdkToolchainVersion == null) {
                 getLog().debug("Maven compiler plugin is not configured with a jdkToolchain. "
-                        + "Using liberty-maven-plugin jdkToolchain configuration for Java compiler options.");
+                        + "Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.");
             } else {
                 if (jdkToolchainVersion.equals(compilerJdkToolchainVersion)) {
-                    getLog().info("Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain "
+                    getLog().debug("Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain "
                             + "configuration: version " + jdkToolchainVersion + ".");
                 } else {
                     getLog().debug("Liberty Maven Plugin jdkToolchain configuration (version " + jdkToolchainVersion
                             + ") does not match the Maven Compiler Plugin jdkToolchain configuration "
                             + "(version " + compilerJdkToolchainVersion
-                            + "). The project-level Maven Compiler Plugin toolchain configuration will be used for compilation.");
+                            + "). The Liberty Maven Plugin jdkToolchain configuration will be used for compilation.");
                 }
             }
         }
