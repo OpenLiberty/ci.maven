@@ -1587,6 +1587,9 @@ public class DevMojo extends LooseAppSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
+        // Validate and log test toolchain configurations during dev mode startup
+        validateTestToolchainConfiguration(project);
+
         // collect upstream projects
         List<ProjectModule> upstreamProjects = new ArrayList<ProjectModule>();
         if (!upstreamMavenProjects.isEmpty()) {
@@ -1735,6 +1738,25 @@ public class DevMojo extends LooseAppSupport {
         }
     }
 
+    /**
+     * Validates and logs toolchain configuration for test plugins (surefire/failsafe)
+     * during dev mode startup. This method compares the Liberty Maven Plugin jdkToolchain 
+     * configuration with the test plugin's jdkToolchain configuration and logs informational 
+     * messages based on the comparison.
+     * 
+     * @param currentProject The current Maven Project
+     */
+    private void validateTestToolchainConfiguration(MavenProject currentProject) {
+        // Fetch the toolchain version configured for the project
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
+            // Validate surefire plugin configuration
+            validateTestToolchainOptions(currentProject, "maven-surefire-plugin");
+            // Validate failsafe plugin configuration
+            validateTestToolchainOptions(currentProject, "maven-failsafe-plugin");
+        }
+    }
+
     private JavaCompilerOptions getMavenCompilerOptions(MavenProject currentProject) {
         Plugin plugin = getPluginForProject("org.apache.maven.plugins", "maven-compiler-plugin", currentProject);
         Xpp3Dom configuration = ExecuteMojoUtil.getPluginGoalConfig(plugin, "compile", getLog());
@@ -1823,6 +1845,50 @@ public class DevMojo extends LooseAppSupport {
         }
 
         return compilerOptions;
+    }
+
+    /**
+     * Validates and logs toolchain configuration for test plugins (surefire/failsafe).
+     * 
+     * @param currentProject The current Maven Project
+     * @param testArtifactId The test plugin artifact ID ("maven-surefire-plugin" or "maven-failsafe-plugin")
+     */
+    private void validateTestToolchainOptions(MavenProject currentProject, String testArtifactId) {
+        // Fetch the toolchain version configured for the project
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
+            // Fetch the toolchain version configured for the test plugin
+            Plugin testPlugin = getPluginForProject("org.apache.maven.plugins", testArtifactId, currentProject);
+            Xpp3Dom testConfig = ExecuteMojoUtil.getPluginGoalConfig(testPlugin, 
+                testArtifactId.equals("maven-surefire-plugin") ? "test" : "integration-test", getLog());
+            
+            String testJdkToolchainVersion = null;
+            if (testConfig != null) {
+                Xpp3Dom testJdkToolchain = testConfig.getChild("jdkToolchain");
+                if (testJdkToolchain != null) {
+                    Xpp3Dom versionChild = testJdkToolchain.getChild("version");
+                    if (versionChild != null) {
+                        testJdkToolchainVersion = StringUtils.trimToNull(versionChild.getValue());
+                    }
+                }
+            }
+
+            // Log which toolchain version is being used for test plugin
+            if (testJdkToolchainVersion == null) {
+                getLog().debug(testArtifactId + " is not configured with a jdkToolchain. "
+                        + "Using Liberty Maven Plugin jdkToolchain configuration for test execution.");
+            } else {
+                if (jdkToolchainVersion.equals(testJdkToolchainVersion)) {
+                    getLog().debug("Liberty Maven Plugin jdkToolchain configuration matches the " + testArtifactId + " "
+                            + "jdkToolchain configuration: version " + jdkToolchainVersion + ".");
+                } else {
+                    getLog().debug("Liberty Maven Plugin jdkToolchain configuration (version " + jdkToolchainVersion
+                            + ") does not match the " + testArtifactId + " jdkToolchain configuration "
+                            + "(version " + testJdkToolchainVersion
+                            + "). The Liberty Maven Plugin jdkToolchain configuration will be used for test execution.");
+                }
+            }
+        }
     }
 
     /**
