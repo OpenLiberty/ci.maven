@@ -426,6 +426,14 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
+        protected boolean recompileJava(Collection<File> javaFilesChanged, Set<String> artifactPaths, ThreadPoolExecutor executor, boolean tests, File outputDirectory, File testOutputDirectory, String projectName, File projectBuildFile, JavaCompilerOptions projectCompilerOptions, boolean forceSkipUTs, boolean skipRunningTests) throws PluginExecutionException {
+            if (projectCompilerOptions != null && projectCompilerOptions.getOptions() != null) {
+                getLog().info("Recompiling with compiler options: " + projectCompilerOptions.getOptions());
+            }
+            return super.recompileJava(javaFilesChanged, artifactPaths, executor, tests, outputDirectory, testOutputDirectory, projectName, projectBuildFile, projectCompilerOptions, forceSkipUTs, skipRunningTests);
+        }
+
+        @Override
         public void libertyCreate() throws PluginExecutionException {
             try {
                 if (isUsingBoost()) {
@@ -1768,14 +1776,14 @@ public class DevMojo extends LooseAppSupport {
 
             // Log which toolchain version is being used for maven-compiler-plugin
             if (compilerJdkToolchainVersion == null) {
-                getLog().debug("Maven compiler plugin is not configured with a jdkToolchain. "
+                getLog().info("Maven compiler plugin is not configured with a jdkToolchain. "
                         + "Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.");
             } else {
                 if (jdkToolchainVersion.equals(compilerJdkToolchainVersion)) {
-                    getLog().debug("Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain "
+                    getLog().info("Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain "
                             + "configuration: version " + jdkToolchainVersion + ".");
                 } else {
-                    getLog().debug("Liberty Maven Plugin jdkToolchain configuration (version " + jdkToolchainVersion
+                    getLog().warn("Liberty Maven Plugin jdkToolchain configuration (version " + jdkToolchainVersion
                             + ") does not match the Maven Compiler Plugin jdkToolchain configuration "
                             + "(version " + compilerJdkToolchainVersion
                             + "). The Liberty Maven Plugin jdkToolchain configuration will be used for compilation.");
@@ -1785,7 +1793,7 @@ public class DevMojo extends LooseAppSupport {
 
         if (release != null) {
             if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
-                getLog().debug("Setting compiler release to toolchain JDK version " + jdkToolchainVersion);
+                getLog().info("Setting compiler release to toolchain JDK version " + jdkToolchainVersion);
             } else {
                 getLog().debug("Setting compiler release to " + release);
             }
@@ -1800,7 +1808,7 @@ public class DevMojo extends LooseAppSupport {
             // add source and target only if release is not set
             if (source != null) {
                 if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
-                    getLog().debug("Setting compiler source to toolchain JDK version " + jdkToolchainVersion);
+                    getLog().info("Setting compiler source to toolchain JDK version " + jdkToolchainVersion);
                 } else {
                     getLog().debug("Setting compiler source to " + source);
                 }
@@ -1808,7 +1816,7 @@ public class DevMojo extends LooseAppSupport {
             }
             if (target != null) {
                 if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
-                    getLog().debug("Setting compiler target to toolchain JDK version " + jdkToolchainVersion);
+                    getLog().info("Setting compiler target to toolchain JDK version " + jdkToolchainVersion);
                 } else {
                     getLog().debug("Setting compiler target to " + target);
                 }
