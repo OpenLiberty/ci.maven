@@ -42,8 +42,6 @@ import io.openliberty.tools.ant.ServerTask;
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class PackageServerMojo extends StartDebugMojoSupport {
 
-    public static final String MIN_SUPPORTED_VERSION_WITH_ARCHIVE_OPTION_POSIX_FORMAT = "25.0.0.11";
-
     private enum PackageFileType {
         JAR("jar"),
         TAR("tar"),
@@ -171,13 +169,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         serverTask.setInclude(include);
         serverTask.setOs(os);
 
-        List<InstallFeatureUtil.ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
-        String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
-        if (openLibertyVersion != null &&
-                VersionUtility.compareArtifactVersion(openLibertyVersion,
-                        MIN_SUPPORTED_VERSION_WITH_ARCHIVE_OPTION_POSIX_FORMAT, true) >= 0) {
-            serverTask.setUsePosixRules(true);
-        }
+        checkAndEnablePosixRules(serverTask);
 
         serverTask.setServerRoot(serverRoot);
         getLog().info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));

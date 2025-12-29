@@ -46,6 +46,9 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.VersionUtility;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -82,6 +85,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
     protected final String PLUGIN_VARIABLE_CONFIG_OVERRIDES_XML = "configDropins/overrides/liberty-plugin-variable-config.xml";
     protected final String PLUGIN_VARIABLE_CONFIG_DEFAULTS_XML = "configDropins/defaults/liberty-plugin-variable-config.xml";
+    protected static final String MIN_SUPPORTED_VERSION_WITH_ARCHIVE_OPTION_POSIX_FORMAT = "25.0.0.11";
 
     protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();  
     protected Map<String,String> envMavenProps = new HashMap<String,String>();  
@@ -1102,5 +1106,20 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     
         artifactToUpdate.setFile(outputDir.toFile());
+    }
+
+    /**
+     *
+     * @param serverTask
+     * @throws PluginExecutionException
+     */
+    protected void checkAndEnablePosixRules(ServerTask serverTask) throws PluginExecutionException {
+        List<InstallFeatureUtil.ProductProperties> propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+        String openLibertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+        if (openLibertyVersion != null &&
+                VersionUtility.compareArtifactVersion(openLibertyVersion,
+                        MIN_SUPPORTED_VERSION_WITH_ARCHIVE_OPTION_POSIX_FORMAT, true) >= 0) {
+            serverTask.setUsePosixRules(true);
+        }
     }
 }
