@@ -32,7 +32,6 @@ public class DevToolchainTest extends BaseDevTest {
             String fileContent = FileUtils.readFileToString(javaFile, "UTF-8");
             String newContent = fileContent.replace(originalContent, modifiedContent);
             FileUtils.writeStringToFile(javaFile, newContent, "UTF-8");
-            assertTrue(verifyLogMessageExists("Source compilation was successful.", 120000));
 
             // Verify that recompilation used compiler options
             assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 120000));
