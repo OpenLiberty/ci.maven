@@ -15,9 +15,9 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                    "   <version>11</version>\n" +
+                                                    "</jdkToolchain>\n" +
+                                                    "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             startProcess(null, true, "mvn liberty:");
@@ -68,26 +68,26 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                "   <version>11</version>\n" +
+                                                "</jdkToolchain>\n" +
+                                                "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             String pluginsEndMarker = "</plugins>";
-            String compilerPluginReplacement = "<plugin>\n" +
-                    "        <groupId>org.apache.maven.plugins</groupId>\n" +
-                    "        <artifactId>maven-compiler-plugin</artifactId>\n" +
-                    "        <version>3.11.0</version>\n" +
-                    "        <configuration>\n" +
-                    "          <jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <release>11</release>\n" +
-                    "          <source>11</source>\n" +
-                    "          <target>11</target>\n" +
-                    "        </configuration>\n" +
-                    "      </plugin>\n" +
-                    "      </plugins>";
+            String compilerPluginReplacement = "    <plugin>\n" +
+                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
+                                                "       <artifactId>maven-compiler-plugin</artifactId>\n" +
+                                                "       <version>3.11.0</version>\n" +
+                                                "       <configuration>\n" +
+                                                "           <jdkToolchain>\n" +
+                                                "               <version>11</version>\n" +
+                                                "           </jdkToolchain>\n" +
+                                                "           <release>11</release>\n" +
+                                                "           <source>11</source>\n" +
+                                                "           <target>11</target>\n" +
+                                                "       </configuration>\n" +
+                                                "   </plugin>\n" +
+                                                "</plugins>";
             replaceString(pluginsEndMarker, compilerPluginReplacement, pom);
 
             startProcess(null, true, "mvn liberty:");
@@ -104,26 +104,26 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                "   <version>11</version>\n" +
+                                                "</jdkToolchain>\n" +
+                                                "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             String pluginsEndMarker = "</plugins>";
-            String compilerPluginReplacement = "<plugin>\n" +
-                    "        <groupId>org.apache.maven.plugins</groupId>\n" +
-                    "        <artifactId>maven-compiler-plugin</artifactId>\n" +
-                    "        <version>3.11.0</version>\n" +
-                    "        <configuration>\n" +
-                    "          <jdkToolchain>\n" +
-                    "            <version>8</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <release>8</release>\n" +
-                    "          <source>8</source>\n" +
-                    "          <target>8</target>\n" +
-                    "        </configuration>\n" +
-                    "      </plugin>\n" +
-                    "      </plugins>";
+            String compilerPluginReplacement = "    <plugin>\n" +
+                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
+                                                "       <artifactId>maven-compiler-plugin</artifactId>\n" +
+                                                "       <version>3.11.0</version>\n" +
+                                                "       <configuration>\n" +
+                                                "           <jdkToolchain>\n" +
+                                                "               <version>8</version>\n" +
+                                                "           </jdkToolchain>\n" +
+                                                "           <release>8</release>\n" +
+                                                "           <source>8</source>\n" +
+                                                "           <target>8</target>\n" +
+                                                "       </configuration>\n" +
+                                                "       </plugin>\n" +
+                                                "   </plugins>";
             replaceString(pluginsEndMarker, compilerPluginReplacement, pom);
 
             startProcess(null, true, "mvn liberty:");
@@ -140,9 +140,9 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                "   <version>11</version>\n" +
+                                                "</jdkToolchain>\n" +
+                                                "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             startProcess(null, true, "mvn -X liberty:");
@@ -159,23 +159,23 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                "   <version>11</version>\n" +
+                                                "</jdkToolchain>\n" +
+                                                "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             String pluginsEndMarker = "</plugins>";
-            String surefirePluginReplacement = "<plugin>\n" +
-                    "        <groupId>org.apache.maven.plugins</groupId>\n" +
-                    "        <artifactId>maven-surefire-plugin</artifactId>\n" +
-                    "        <version>3.0.0</version>\n" +
-                    "        <configuration>\n" +
-                    "          <jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "        </configuration>\n" +
-                    "      </plugin>\n" +
-                    "      </plugins>";
+            String surefirePluginReplacement = "    <plugin>\n" +
+                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
+                                                "       <artifactId>maven-surefire-plugin</artifactId>\n" +
+                                                "       <version>3.0.0</version>\n" +
+                                                "       <configuration>\n" +
+                                                "           <jdkToolchain>\n" +
+                                                "               <version>11</version>\n" +
+                                                "           </jdkToolchain>\n" +
+                                                "       </configuration>\n" +
+                                                "   </plugin>\n" +
+                                                "</plugins>";
             replaceString(pluginsEndMarker, surefirePluginReplacement, pom);
 
             startProcess(null, true, "mvn -X liberty:");
@@ -192,23 +192,23 @@ public class DevToolchainTest extends BaseDevTest {
         try {
             String additionalConfigMarker = "<!-- ADDITIONAL_CONFIGURATION -->";
             String additionalConfigReplacement = "<jdkToolchain>\n" +
-                    "            <version>11</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "          <!-- ADDITIONAL_CONFIGURATION -->";
+                                                    "   <version>11</version>\n" +
+                                                    "</jdkToolchain>\n" +
+                                                    "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
             String pluginsEndMarker = "</plugins>";
-            String surefirePluginReplacement = "<plugin>\n" +
-                    "        <groupId>org.apache.maven.plugins</groupId>\n" +
-                    "        <artifactId>maven-surefire-plugin</artifactId>\n" +
-                    "        <version>3.0.0</version>\n" +
-                    "        <configuration>\n" +
-                    "          <jdkToolchain>\n" +
-                    "            <version>8</version>\n" +
-                    "          </jdkToolchain>\n" +
-                    "        </configuration>\n" +
-                    "      </plugin>\n" +
-                    "      </plugins>";
+            String surefirePluginReplacement = "    <plugin>\n" +
+                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
+                                                "       <artifactId>maven-surefire-plugin</artifactId>\n" +
+                                                "       <version>3.0.0</version>\n" +
+                                                "       <configuration>\n" +
+                                                "           <jdkToolchain>\n" +
+                                                "               <version>8</version>\n" +
+                                                "           </jdkToolchain>\n" +
+                                                "       </configuration>\n" +
+                                                "   </plugin>\n" +
+                                                "</plugins>";
             replaceString(pluginsEndMarker, surefirePluginReplacement, pom);
 
             startProcess(null, true, "mvn -X liberty:");
