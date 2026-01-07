@@ -76,6 +76,9 @@
 
 				<!-- Specify configuration, executions for liberty-maven-plugin -->
 				<configuration>
+					<jdkToolchain>
+						<version>11</version>
+					</jdkToolchain>
 					<serverName>test</serverName>
                                         <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
                             		<runtimeArtifact>

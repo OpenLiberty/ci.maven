@@ -21,7 +21,7 @@
 
     <repositories>
         <!-- Configure Sonatype OSS Maven snapshots repository when using snapshots -->
-        <!-- <repository>
+        <repository>
             <id>central-portal-snapshots</id>
             <name>Central Portal Snapshots</name>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -31,14 +31,14 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository> -->
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>liberty-ant-tasks</artifactId>
-            <version>1.9.17</version>
+            <version>1.9.18-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

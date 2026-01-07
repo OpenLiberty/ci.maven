@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2014, 2024. 
+ * (C) Copyright IBM Corporation 2014, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumSet;
 
+import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
+import io.openliberty.tools.common.plugins.util.VersionUtility;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -61,7 +64,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
 
         public static PackageFileType getPackageFileType(String input) {
             return lookup.get(input);
-        } 
+        }
 
         public String getValue() {
             return this.value;
@@ -103,19 +106,19 @@ public class PackageServerMojo extends StartDebugMojoSupport {
 
 
     /**
-     * Os supported. Specifies the operating systems that you want the packaged server to support. 
-     *     Supply a comma-separated list. The default value is any, indicating that the server is to 
-     *     be deployable to any operating system supported by the source. To specify that an operating 
-     *     system is not to be supported, prefix it with a minus sign ("-"). For a list of operating system 
-     *     values, refer to the OSGi Alliance web site at the following URL: 
-     *     http://www.osgi.org/Specifications/Reference#os. 
-     *     This option applies only to the package operation, and can be used only with the 
-     *     --include=minify option. If you exclude an operating system, you cannot later include it if you 
+     * Os supported. Specifies the operating systems that you want the packaged server to support.
+     *     Supply a comma-separated list. The default value is any, indicating that the server is to
+     *     be deployable to any operating system supported by the source. To specify that an operating
+     *     system is not to be supported, prefix it with a minus sign ("-"). For a list of operating system
+     *     values, refer to the OSGi Alliance web site at the following URL:
+     *     http://www.osgi.org/Specifications/Reference#os.
+     *     This option applies only to the package operation, and can be used only with the
+     *     --include=minify option. If you exclude an operating system, you cannot later include it if you
      *     repeat the minify operation on the archive.
      */
     @Parameter(property = "os")
     private String os;
-    
+
     @Parameter
     private boolean attach;
 
@@ -124,7 +127,7 @@ public class PackageServerMojo extends StartDebugMojoSupport {
      */
     @Parameter(property = "skipLibertyPackage", defaultValue = "false")
     protected boolean skipLibertyPackage = false;
-       
+
     @Override
     public void execute() throws MojoExecutionException {
         init();
@@ -141,12 +144,12 @@ public class PackageServerMojo extends StartDebugMojoSupport {
 
         try {
             doPackage();
-        } catch (IOException e) {
+        } catch (IOException | PluginExecutionException e) {
             throw new MojoExecutionException("Error packaging the Liberty server.", e);
         }
     }
 
-    private void doPackage() throws MojoExecutionException, IOException {
+    private void doPackage() throws MojoExecutionException, IOException, PluginExecutionException {
         if (isInstall) {
             installServerAssembly();
         } else {
@@ -165,6 +168,9 @@ public class PackageServerMojo extends StartDebugMojoSupport {
         serverTask.setArchive(packageFile);
         serverTask.setInclude(include);
         serverTask.setOs(os);
+
+        checkAndEnablePosixRules(serverTask);
+
         serverTask.setServerRoot(serverRoot);
         getLog().info(MessageFormat.format(messages.getString("info.server.package.file.location"), packageFile.getCanonicalPath()));
         serverTask.execute();
