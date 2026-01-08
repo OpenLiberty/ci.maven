@@ -97,6 +97,7 @@ public class DevMojo extends LooseAppSupport {
     private static final String MICROSHED_HTTP_PORT = "microshed_http_port";
     private static final String MICROSHED_HTTPS_PORT = "microshed_https_port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
+    private static final String TOOLCHAIN_VERSION_KEY = "version";
     private static final String GEN_FEAT_LIBERTY_DEP_WARNING = "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
             + "Automatic generation of features does not support Liberty ESA feature dependencies. "
             + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.";
@@ -1763,14 +1764,14 @@ public class DevMojo extends LooseAppSupport {
         String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
 
         // Fetch the toolchain version configured for the project
-        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
         if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
             // Fetch the toolchain version configured for the maven-compiler-plugin
             String compilerJdkToolchainVersion = null;
             if (configuration != null) {
                 Xpp3Dom compilerJdkToolchain = configuration.getChild("jdkToolchain");
                 if (compilerJdkToolchain != null) {
-                    Xpp3Dom versionChild = compilerJdkToolchain.getChild("version");
+                    Xpp3Dom versionChild = compilerJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
                     if (versionChild != null) {
                         compilerJdkToolchainVersion = StringUtils.trimToNull(versionChild.getValue());
                     }
@@ -1841,7 +1842,7 @@ public class DevMojo extends LooseAppSupport {
      */
     private void logTestToolchainConfiguration(MavenProject currentProject) {
         // If no Liberty-level toolchain is configured, there is nothing to log for tests
-        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
         if (StringUtils.isEmpty(jdkToolchainVersion)) {
             return;
         }
@@ -1883,7 +1884,7 @@ public class DevMojo extends LooseAppSupport {
      * @param testConfig     The test plugin configuration to update
      */
     private void validateTestToolchainOptions(String testArtifactId, Xpp3Dom testConfig) {
-        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
         if (StringUtils.isEmpty(jdkToolchainVersion) || testConfig == null) {
             return;
         }
@@ -1891,7 +1892,7 @@ public class DevMojo extends LooseAppSupport {
         String testJdkToolchainVersion = null;
         Xpp3Dom testJdkToolchain = testConfig.getChild("jdkToolchain");
         if (testJdkToolchain != null) {
-            Xpp3Dom versionChild = testJdkToolchain.getChild("version");
+            Xpp3Dom versionChild = testJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
             if (versionChild != null) {
                 testJdkToolchainVersion = StringUtils.trimToNull(versionChild.getValue());
             }
@@ -1915,9 +1916,9 @@ public class DevMojo extends LooseAppSupport {
             testJdkToolchain = new Xpp3Dom("jdkToolchain");
             testConfig.addChild(testJdkToolchain);
         }
-        Xpp3Dom versionChild = testJdkToolchain.getChild("version");
+        Xpp3Dom versionChild = testJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
         if (versionChild == null) {
-            versionChild = new Xpp3Dom("version");
+            versionChild = new Xpp3Dom(TOOLCHAIN_VERSION_KEY);
             testJdkToolchain.addChild(versionChild);
         }
         versionChild.setValue(jdkToolchainVersion);
