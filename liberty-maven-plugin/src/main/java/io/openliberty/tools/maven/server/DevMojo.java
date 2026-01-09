@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2025.
+ * (C) Copyright IBM Corporation 2019, 2025, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ public class DevMojo extends LooseAppSupport {
     private static final String MICROSHED_HTTP_PORT = "microshed_http_port";
     private static final String MICROSHED_HTTPS_PORT = "microshed_https_port";
     private static final String WLP_USER_DIR_PROPERTY_NAME = "wlp.user.dir";
+    private static final String TOOLCHAIN_VERSION_KEY = "version";
     private static final String GEN_FEAT_LIBERTY_DEP_WARNING = "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
             + "Automatic generation of features does not support Liberty ESA feature dependencies. "
             + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.";
@@ -1595,6 +1596,9 @@ public class DevMojo extends LooseAppSupport {
 
         JavaCompilerOptions compilerOptions = getMavenCompilerOptions(project);
 
+        // Log test toolchain configuration for surefire/failsafe at dev mode startup
+        logTestToolchainConfiguration(project);
+
         // collect upstream projects
         List<ProjectModule> upstreamProjects = new ArrayList<ProjectModule>();
         if (!upstreamMavenProjects.isEmpty()) {
@@ -1760,14 +1764,14 @@ public class DevMojo extends LooseAppSupport {
         String target = getCompilerOption(configuration, "target", "maven.compiler.target", currentProject);
 
         // Fetch the toolchain version configured for the project
-        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get("version") : null;
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
         if (StringUtils.isNotEmpty(jdkToolchainVersion)) {
             // Fetch the toolchain version configured for the maven-compiler-plugin
             String compilerJdkToolchainVersion = null;
             if (configuration != null) {
                 Xpp3Dom compilerJdkToolchain = configuration.getChild("jdkToolchain");
                 if (compilerJdkToolchain != null) {
-                    Xpp3Dom versionChild = compilerJdkToolchain.getChild("version");
+                    Xpp3Dom versionChild = compilerJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
                     if (versionChild != null) {
                         compilerJdkToolchainVersion = StringUtils.trimToNull(versionChild.getValue());
                     }
@@ -1831,6 +1835,93 @@ public class DevMojo extends LooseAppSupport {
         }
 
         return compilerOptions;
+    }
+
+    /**
+     * Logs the toolchain configuration for test plugins (surefire/failsafe) at dev mode startup.
+     */
+    private void logTestToolchainConfiguration(MavenProject currentProject) {
+        // If no Liberty-level toolchain is configured, there is nothing to log for tests
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
+        if (StringUtils.isEmpty(jdkToolchainVersion)) {
+            return;
+        }
+
+        // Resolve and log configuration for maven-surefire-plugin:test
+        try {
+            Plugin surefirePlugin = getPluginForProject("org.apache.maven.plugins", "maven-surefire-plugin",
+                    currentProject);
+            if (surefirePlugin != null) {
+                Xpp3Dom surefireConfig = ExecuteMojoUtil.getPluginGoalConfig(surefirePlugin, "test", getLog());
+                validateTestToolchainOptions("maven-surefire-plugin", surefireConfig);
+            }
+        } catch (Exception e) {
+            getLog().debug("Unable to resolve maven-surefire-plugin configuration for logging test toolchain: "
+                    + e.getMessage());
+            getLog().debug(e);
+        }
+
+        // Resolve and log configuration for maven-failsafe-plugin:integration-test
+        try {
+            Plugin failsafePlugin = getPluginForProject("org.apache.maven.plugins", "maven-failsafe-plugin",
+                    currentProject);
+            if (failsafePlugin != null) {
+                Xpp3Dom failsafeConfig = ExecuteMojoUtil.getPluginGoalConfig(failsafePlugin, "integration-test",
+                        getLog());
+                validateTestToolchainOptions("maven-failsafe-plugin", failsafeConfig);
+            }
+        } catch (Exception e) {
+            getLog().debug("Unable to resolve maven-failsafe-plugin configuration for logging test toolchain: "
+                    + e.getMessage());
+            getLog().debug(e);
+        }
+    }
+
+    /**
+     * Validates and logs toolchain configuration for test plugins (surefire/failsafe).
+     * 
+     * @param testArtifactId The test plugin artifact ID ("maven-surefire-plugin" or "maven-failsafe-plugin")
+     * @param testConfig     The test plugin configuration to update
+     */
+    private void validateTestToolchainOptions(String testArtifactId, Xpp3Dom testConfig) {
+        String jdkToolchainVersion = jdkToolchain != null ? jdkToolchain.get(TOOLCHAIN_VERSION_KEY) : null;
+        if (StringUtils.isEmpty(jdkToolchainVersion) || testConfig == null) {
+            return;
+        }
+
+        String testJdkToolchainVersion = null;
+        Xpp3Dom testJdkToolchain = testConfig.getChild("jdkToolchain");
+        if (testJdkToolchain != null) {
+            Xpp3Dom versionChild = testJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
+            if (versionChild != null) {
+                testJdkToolchainVersion = StringUtils.trimToNull(versionChild.getValue());
+            }
+        }
+
+        if (testJdkToolchainVersion == null) {
+            getLog().info(testArtifactId + " is not configured with a jdkToolchain. "
+                    + "Using Liberty Maven Plugin jdkToolchain configuration for test execution.");
+        } else if (jdkToolchainVersion.equals(testJdkToolchainVersion)) {
+            getLog().info("Liberty Maven Plugin jdkToolchain configuration matches the " + testArtifactId + " "
+                    + "jdkToolchain configuration: version " + jdkToolchainVersion + ".");
+            return;
+        } else {
+            getLog().warn("Liberty Maven Plugin jdkToolchain configuration (version " + jdkToolchainVersion
+                    + ") does not match the " + testArtifactId + " jdkToolchain configuration "
+                    + "(version " + testJdkToolchainVersion
+                    + "). The Liberty Maven Plugin jdkToolchain configuration will be used for test execution.");
+        }
+
+        if (testJdkToolchain == null) {
+            testJdkToolchain = new Xpp3Dom("jdkToolchain");
+            testConfig.addChild(testJdkToolchain);
+        }
+        Xpp3Dom versionChild = testJdkToolchain.getChild(TOOLCHAIN_VERSION_KEY);
+        if (versionChild == null) {
+            versionChild = new Xpp3Dom(TOOLCHAIN_VERSION_KEY);
+            testJdkToolchain.addChild(versionChild);
+        }
+        versionChild.setValue(jdkToolchainVersion);
     }
 
     /**
@@ -1898,6 +1989,10 @@ public class DevMojo extends LooseAppSupport {
             throws MojoExecutionException {
         Plugin plugin = getPluginForProject(groupId, artifactId, project);
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(plugin, goal, getLog());
+
+        if (goal.equals("test") || goal.equals("integration-test")) {
+            validateTestToolchainOptions(artifactId, config);
+        }
 
         // check if this is a project module or main module
         if (util.isMultiModuleProject()) {
