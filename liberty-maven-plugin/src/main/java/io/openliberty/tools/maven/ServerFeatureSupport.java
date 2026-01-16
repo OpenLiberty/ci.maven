@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2025.
+ * (C) Copyright IBM Corporation 2021, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -475,8 +475,8 @@ public abstract class ServerFeatureSupport extends BasicSupport {
                 break;
             }
         }
-        for (String serverEnvLine : jvmOptionsLines) {
-            if (serverEnvLine.contains("JAVA_HOME=")) {
+        for (String jvmOptionLine : jvmOptionsLines) {
+            if (jvmOptionLine.contains("JAVA_HOME=") || jvmOptionLine.contains("-Djava.home=")) {
                 javaHomeSet = true;
                 break;
             }
@@ -536,7 +536,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         }
         // 1. Read existing config files
         List<String> serverEnvLines = readConfigFileLines(getServerEnvFile());
-        List<String> jvmOptionsLines = readConfigFileLines(new File(configDirectory, "jvm.options"));
+        List<String> jvmOptionsLines = readConfigFileLines(findConfigFile("jvm.options", jvmOptionsFile));
 
         // 2. Check for existing JAVA_HOME configuration
         // if user has configured JAVA_HOME in server.env or jvm.options, this will get higher precedence over toolchain JDK
@@ -667,5 +667,22 @@ public abstract class ServerFeatureSupport extends BasicSupport {
                 }
             }
         }
+    }
+
+
+    /*
+     * Return specificFile if it exists; otherwise return the file with the requested fileName from the
+     * configDirectory, but only if it exists. Null is returned if the file does not exist in either location.
+     */
+    protected File findConfigFile(String fileName, File specificFile) {
+        if (specificFile != null && specificFile.exists()) {
+            return specificFile;
+        }
+
+        File f = new File(configDirectory, fileName);
+        if (configDirectory != null && f.exists()) {
+            return f;
+        }
+        return null;
     }
 }
