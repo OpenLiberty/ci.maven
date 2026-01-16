@@ -27,12 +27,15 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Plugin;
@@ -56,8 +59,68 @@ public abstract class ServerFeatureSupport extends BasicSupport {
     private static final String LIBERTY_MAVEN_PLUGIN_GROUP_ID = "io.openliberty.tools";
     private static final String LIBERTY_MAVEN_PLUGIN_ARTIFACT_ID = "liberty-maven-plugin";
 
+    private static final String LIBERTY_CONFIG_MAVEN_PROPS = "(^liberty\\.(env|jvm|bootstrap|var|defaultVar)\\.).+";
+    private static final Pattern pattern = Pattern.compile(LIBERTY_CONFIG_MAVEN_PROPS);
+    private static final String LATE_PROP_RESOLUTION_SYNTAX = "@\\{(.+?)\\}";
+    private static final Pattern LATE_PROP_PATTERN = Pattern.compile(LATE_PROP_RESOLUTION_SYNTAX);
+
     private ServerFeatureUtil servUtil;
-    
+
+    protected Map<String,String> bootstrapMavenProps = new HashMap<String,String>();
+    protected Map<String,String> envMavenProps = new HashMap<String,String>();
+    protected List<String> jvmMavenPropNames = new ArrayList<String>();  // only used for tracking overriding properties - not included in the generated jvm.options file
+    protected List<String> jvmMavenPropValues = new ArrayList<String>();
+    protected Map<String,String> varMavenProps = new HashMap<String,String>();
+    protected Map<String,String> defaultVarMavenProps = new HashMap<String,String>();
+
+    /**
+     * Location of jvm.options file.
+     */
+    @Parameter(property = "jvmOptionsFile")
+    protected File jvmOptionsFile;
+
+    @Parameter
+    protected List<String> jvmOptions;
+
+    protected enum PropertyType {
+        BOOTSTRAP("liberty.bootstrap."),
+        ENV("liberty.env."),
+        JVM("liberty.jvm."),
+        VAR("liberty.var."),
+        DEFAULTVAR("liberty.defaultVar.");
+
+        private final String prefix;
+
+        private PropertyType(final String prefix) {
+            this.prefix = prefix;
+        }
+
+        private static final Map<String, PropertyType> lookup = new HashMap<String, PropertyType>();
+
+        static {
+            for (PropertyType s : EnumSet.allOf(PropertyType.class)) {
+                lookup.put(s.prefix, s);
+            }
+        }
+
+        public static PropertyType getPropertyType(String propertyName) {
+            // get a matcher object from pattern
+            Matcher matcher = pattern.matcher(propertyName);
+
+            // check whether Regex string is found in propertyName or not
+            if (matcher.find()) {
+                // strip off the end of the property name to get the prefix
+                String prefix = matcher.group(1);
+                return lookup.get(prefix);
+            }
+            return null;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+    }
     /**
      * The current plugin's descriptor. This is auto-filled by Maven 3.
      */
@@ -458,10 +521,22 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             getLog().warn("Could not determine JDK home from toolchain. Toolchain will not be honored");
             return Collections.emptyMap();
         }
-
+        if (jvmMavenPropNames.isEmpty() || envMavenProps.isEmpty()) {
+            // run once to make sure project properties are loaded
+            loadLibertyConfigFromProperties();
+        }
+        if(envMavenProps.containsKey("JAVA_HOME") || envMavenProps.containsKey("java.home") ||
+                jvmMavenPropValues.stream()
+                        .anyMatch(v->v.contains("-DJAVA_HOME=") || v.contains("-Djava.home="))){
+            getLog().warn(MessageFormat.format(
+                    messages.getString("warn.project.properties.java.home.configured"),
+                    mojoExecution.getGoal()
+            ));
+            return Collections.emptyMap();
+        }
         // 1. Read existing config files
         List<String> serverEnvLines = readConfigFileLines(getServerEnvFile());
-        List<String> jvmOptionsLines = readConfigFileLines(new File(serverDirectory, "jvm.options"));
+        List<String> jvmOptionsLines = readConfigFileLines(new File(configDirectory, "jvm.options"));
 
         // 2. Check for existing JAVA_HOME configuration
         // if user has configured JAVA_HOME in server.env or jvm.options, this will get higher precedence over toolchain JDK
@@ -530,5 +605,67 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         Map<String, String> envVars = new HashMap<>();
         envVars.put("JAVA_HOME", jdkHome);
         return envVars;
+    }
+
+    protected void loadLibertyConfigFromProperties() {
+        loadLibertyConfigFromProperties(project.getProperties());
+        loadLibertyConfigFromProperties(System.getProperties());
+    }
+
+    // Search the value parameter for any properties referenced with @{xxx} syntax and replace those with their property value if defined.
+    protected String resolveLatePropertyReferences(String value) {
+        String returnValue = value;
+
+        if (value != null) {
+            Matcher m = LATE_PROP_PATTERN.matcher(value);
+            while (m.find()) {
+                String varName = m.group(1);
+                if (project.getProperties().containsKey(varName)) {
+                    String replacementValue = project.getProperties().getProperty(varName);
+                    if (replacementValue != null) {
+                        returnValue = returnValue.replace("@{"+varName+"}", replacementValue);
+                        getLog().debug("Replaced Liberty configuration property value @{"+varName+"} with value "+replacementValue);
+                    }
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    protected void loadLibertyConfigFromProperties(Properties props) {
+        Set<Map.Entry<Object, Object>> entries = props.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            String key = (String) entry.getKey();
+            PropertyType propType = PropertyType.getPropertyType(key);
+
+            if (propType != null) {
+                String suffix = key.substring(propType.getPrefix().length());
+                String value = (String) entry.getValue();
+                // Check the value for late property resolution with @{xxx} syntax.
+                value = resolveLatePropertyReferences(value);
+
+                getLog().debug("Processing Liberty configuration from property with key "+key+" and value "+value);
+                switch (propType) {
+                    case ENV:        envMavenProps.put(suffix, value);
+                        break;
+                    case BOOTSTRAP:  bootstrapMavenProps.put(suffix, value);
+                        break;
+                    case JVM:        if (jvmMavenPropNames.contains(suffix)) {
+                        int index = jvmMavenPropNames.indexOf(suffix);
+                        getLog().debug("Remove duplicate property with name: "+suffix+" at position: "+index);
+                        jvmMavenPropNames.remove(index);
+                        jvmMavenPropValues.remove(index);
+                    }
+                        jvmMavenPropNames.add(suffix);  // need to keep track of names so that a system prop can override a project prop
+                        jvmMavenPropValues.add(value);
+                        break;
+                    case VAR:        varMavenProps.put(suffix, value);
+                        break;
+                    case DEFAULTVAR: defaultVarMavenProps.put(suffix, value);
+                        break;
+                }
+            }
+        }
     }
 }
