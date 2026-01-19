@@ -57,6 +57,7 @@ public class BaseToolchainTest {
     static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: The %s goal is using the configured toolchain JDK located at";
     static final String JAVA_11_SE_REQUIRED_FOR_FEATURE = "CWWKF0032E: The %s feature requires a minimum Java runtime environment version of JavaSE 11";
     static final String JAVA_HOME_CONFIGURED="CWWKM4101W: The toolchain JDK configuration for goal %s is not honored because the JAVA_HOME property is specified in the server.env or jvm.options file.";
+    static final String JAVA_HOME_CONFIGURED_IN_PROPERTY="CWWKM4101W: The toolchain JDK configuration for goal %s is not honored because the JAVA_HOME property is specified in project properties.";
 
     protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal, Runnable customActionBeforeProcessStart) throws IOException {
         customLibertyModule = libertyConfigModule;
