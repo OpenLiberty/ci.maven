@@ -76,7 +76,7 @@ When `jdkToolchain` is configured, the Liberty Maven Plugin uses Maven's toolcha
 - If a matching toolchain is found, the plugin uses that toolchain to determine a `JAVA_HOME` and runs Liberty server commands using that `JAVA_HOME`.
 - If no matching toolchain is found (or `jdkHome` is not available), the plugin logs a warning and runs using the same JDK that is used to run Maven.
 
-If `JAVA_HOME` is already set in `server.env` or `jvm.options`, that configuration takes precedence. In that case, the plugin logs a warning and does not apply the toolchain.
+If `JAVA_HOME` is already set in `server.env` or `jvm.options`, or is provided through Maven project properties (for example, `liberty.env.JAVA_HOME` or `jvmOptions` properties), that configuration takes precedence. In that case, the plugin logs a warning and does not apply the toolchain.
 
 
 ###### Dev mode
@@ -107,9 +107,9 @@ Dev mode (`liberty:dev`) uses the configured `jdkToolchain` in two places:
 
   Liberty Maven Plugin logs a warning and runs using the same JDK that is used to run Maven.
 
-- **`JAVA_HOME` set in `server.env` or `jvm.options`**
+- **`JAVA_HOME` set for the server (`server.env`, `jvm.options`, or Maven project properties)**
 
-  `JAVA_HOME` takes precedence over the toolchain. Liberty Maven Plugin logs a warning and does not apply the toolchain.
+  `JAVA_HOME` configured for the server takes precedence over the toolchain. This includes values set directly in `server.env` or `jvm.options`, as well as values provided through Maven project properties that generate those files (for example, `liberty.env.JAVA_HOME` or `jvmOptions` properties). In these cases, Liberty Maven Plugin logs a warning and does not apply the toolchain.
 
 - **Dev mode compilation**
 
@@ -136,7 +136,8 @@ Configured toolchain JDK 11 for Liberty Maven Plugin, but added only JDK 17 in t
 **If you see a warning that toolchain is not honored because JAVA_HOME is configured:**
 
 - Check `server.env` and `jvm.options` for `JAVA_HOME`.
-- Remove `JAVA_HOME` if you want the toolchain JDK to be used.
+- Check your Maven project properties for values that set `JAVA_HOME`, such as `liberty.env.JAVA_HOME` or `jvmOptions` properties.
+- Remove or adjust these settings if you want the toolchain JDK to be used.
 
 **Example - JAVA_HOME specified in server.env**
 
