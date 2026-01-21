@@ -53,7 +53,7 @@ public class ToolchainRunServerWithServerEnvJdkTest extends BaseToolchainTest {
    public void runServerTest() throws Exception {
       tagLog("##runServerTest start");
       assertTrue(getLogTail(), verifyLogMessageExists(TOOLCHAIN_INITIALIZED, 10000));
-      assertTrue(getLogTail(), verifyLogMessageExists(String.format(TOOLCHAIN_CONFIGURED_FOR_GOAL, "create"), 10000));
+      assertTrue(getLogTail(), verifyLogMessageExists(String.format(JAVA_HOME_CONFIGURED, "create"), 10000));
       assertTrue(getLogTail(), verifyLogMessageExists(String.format(JAVA_HOME_CONFIGURED, "run"), 10000));
 
       tagLog("##runServerTest end");

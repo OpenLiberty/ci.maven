@@ -476,7 +476,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             }
         }
         for (String jvmOptionLine : jvmOptionsLines) {
-            if (jvmOptionLine.contains("JAVA_HOME=") || jvmOptionLine.contains("-Djava.home=")) {
+            if (jvmOptionLine.contains("-DJAVA_HOME=") || jvmOptionLine.contains("-Djava.home=")) {
                 javaHomeSet = true;
                 break;
             }
@@ -525,6 +525,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             // run once to make sure project properties are loaded
             loadLibertyConfigFromProperties();
         }
+        //check whether server.env properties or server.jvmOptions properties contain java home
         if(envMavenProps.containsKey("JAVA_HOME") || envMavenProps.containsKey("java.home") ||
                 jvmMavenPropValues.stream()
                         .anyMatch(v->v.contains("-DJAVA_HOME=") || v.contains("-Djava.home="))){
@@ -536,6 +537,13 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         }
         // 1. Read existing config files
         List<String> serverEnvLines = readConfigFileLines(getServerEnvFile());
+        if (mergeServerEnv && serverEnvFile != null && serverEnvFile.exists() && configDirectory.exists()) {
+                File configDirServerEnv = new File(configDirectory, "server.env");
+                if (configDirServerEnv.exists()) {
+                    serverEnvLines.addAll(readConfigFileLines(configDirServerEnv));
+                }
+            }
+
         List<String> jvmOptionsLines = readConfigFileLines(findConfigFile("jvm.options", jvmOptionsFile));
 
         // 2. Check for existing JAVA_HOME configuration
@@ -563,7 +571,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         if (serverEnvFile != null && serverEnvFile.exists()) {
             return serverEnvFile;
         }
-        File defaultServerEnv = new File(serverDirectory, "server.env");
+        File defaultServerEnv = new File(configDirectory, "server.env");
         if (defaultServerEnv.exists()) {
             return defaultServerEnv;
         }
