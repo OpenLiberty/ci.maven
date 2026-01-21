@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2021, 2025
+ * (C) Copyright IBM Corporation 2021, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -82,13 +82,28 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private boolean generateToSrc;
 
     /**
-     * The useDevModeTempDir parameter is for internal use only. It is not for users.
+     * The useTempDirAsOutput parameter is for internal use only. It is not for users.
      * The parameter is only used when generateToSrc is false meaning we generate to serverDir.
-     * When the parameter is true we will write the generated features file to the temp directory.
-     * This is required because the features must all be installed before writing to serverDir in devmode.
+     * It is needed in dev mode because the server is running and we need to ensure the features
+     * that are generated are installed before we update a running server.
+     * When the parameter is true we will write the generated features file to the special generate-features
+     * temp directory.
      */
-    @Parameter(property = "useDevModeTempDir", defaultValue = "false")
-    private boolean useDevModeTempDir;
+    @Parameter(property = "useTempDirAsOutput", defaultValue = "false")
+    private boolean useTempDirAsOutput;
+
+    /**
+     * The useTempDirAsContext parameter is for internal use only. It is not for users.
+     * It is needed in dev mode when the user updates a server config file which might affect
+     * the features that will be generated. In such a case we will required the caller to copy the
+     * serverDir configuration files into the special generate-features temp directory and augment it
+     * with the file changed by the user. We do not do this all the time because of the performance
+     * cost of copying all the files.
+     * When the parameter is true we will use the generate-features temp directory as the context for
+     * feature generation.
+     */
+    @Parameter(property = "useTempDirAsContext", defaultValue = "false")
+    private boolean useTempDirAsContext;
 
     /**
      * Generating features is performed relative to a certain server. We only generate features
@@ -195,10 +210,15 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             }
         }
 
-        // The config dir is in the src directory. Otherwise generate for the target/liberty dir.
-        generationContextDir = generateToSrc ? configDirectory : serverDirectory;
+        if (useTempDirAsContext) {
+            // When this parameter is true it is required that the caller has copied the config into this dir.
+            generationContextDir = getGeneratedFeaturesTempDir();
+        } else {
+            // The config dir is the one in the src directory. Otherwise generate for the target/liberty/wlp dir.
+            generationContextDir = generateToSrc ? configDirectory : serverDirectory;
+        }
         // When using dev mode we always generate to a temporary directory so we can call install before writing to server dir.
-        generationOutputDir = useDevModeTempDir ? new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_DIR) : generationContextDir;
+        generationOutputDir = useTempDirAsOutput ? getGeneratedFeaturesTempDir() : generationContextDir;
 
         binaryScanner = getBinaryScannerJarFromRepository();
         BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScanner);
@@ -206,8 +226,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("--- Generate Features values ---");
         getLog().debug("Binary scanner jar: " + binaryScanner.getName());
         getLog().debug("optimize generate features: " + optimize);
-        getLog().debug("called by dev mode, useDevModeTempDir: " + useDevModeTempDir);
+        getLog().debug("called by dev mode, useTempDirAsOutput: " + useTempDirAsOutput);
+        getLog().debug("called by dev mode, useTempDirAsContext: " + useTempDirAsContext);
         getLog().debug("generate to directory: " + generationOutputDir.getAbsolutePath());
+
         if (classFiles != null && !classFiles.isEmpty()) {
             getLog().debug("Generate features for the following class files: " + classFiles.toString());
         }
@@ -393,6 +415,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         	features = result.getFeatures();
         }
         return features;
+    }
+
+    // returns the hidden directory we use for generate-features special purposes
+    private File getGeneratedFeaturesTempDir() {
+        return new File(project.getBuild().getDirectory(), GENERATED_FEATURES_TEMP_DIR);
     }
 
     /**
