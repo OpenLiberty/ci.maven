@@ -116,9 +116,25 @@ Dev mode (`liberty:dev`) uses the configured `jdkToolchain` in two places:
 
   If a Liberty toolchain version is configured, dev mode aligns compiler options to that version. The Liberty toolchain has higher precedence, so if the Maven Compiler Plugin specifies a different Java version, the plugin logs a warning and falls back to the Liberty toolchain JDK.
 
+  **Example - Dev mode compilation using a different Maven Compiler Plugin toolchain version**
+
+  Configured toolchain JDK 11 for Liberty Maven Plugin, but `maven-compiler-plugin` is set to use JDK 17:
+
+  ```
+  [WARNING] Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the Maven Compiler Plugin jdkToolchain configuration (version 17). The Liberty Maven Plugin jdkToolchain configuration will be used for compilation.
+  ```
+
 - **Dev mode tests (Surefire/Failsafe)**
 
   If a Liberty toolchain version is configured, dev mode uses that version for Surefire/Failsafe toolchain settings. The Liberty toolchain has higher precedence, so if the Surefire/Failsafe Plugin specifies a different Java version, the plugin logs a warning and falls back to the Liberty toolchain JDK.
+
+  **Example - Dev mode tests using a different Surefire toolchain version**
+
+  Configured toolchain JDK 11 for Liberty Maven Plugin, but `maven-surefire-plugin` is set to use JDK 17:
+
+  ```
+  [WARNING] Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the maven-surefire-plugin jdkToolchain configuration (version 17). The Liberty Maven Plugin jdkToolchain configuration will be used for test execution.
+  ```
 
 
 ###### Troubleshooting
