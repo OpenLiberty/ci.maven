@@ -2,9 +2,13 @@
 
 ----
 
-Start a Liberty instance in dev mode. This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the runtime. **Note:** This goal is designed to be executed directly from the Maven command line.
+Start a Liberty instance in dev mode (development mode). This goal also invokes the `create`, `install-feature`, and `deploy` goals before starting the runtime. **Note:** This goal is designed to be executed directly from the Maven command line.
 
- Starting in version 3.6.1, dev mode invokes the `generate-features` goal when the `generateFeatures` configuration parameter is set to `true`. **This goal modifies the source configuration directory of your application.** See [generate-features](generate-features.md) for details. The default value for the `generateFeatures` parameter is `false`. When auto-generation of features is turned on, dev mode has a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under IBM License Agreement for Non-Warranted Programs. For more information, see the [license](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt).
+Starting in version 3.11.5, dev mode invokes the `generate-features` goal by default. The `generated-features.xml` file is placed in the server configuration directory by default. These defaults can be changed using command line parameters or the behaviors can be modified by [console actions](#Console-Actions).
+
+In previous versions starting in version 3.6.1, dev mode invokes the `generate-features` goal when the `generateFeatures` configuration parameter is set to `true`. **In those versions this goal modifies the source configuration directory of your application.** Also, the default value for the `generateFeatures` parameter is `false`. See [generate-features](generate-features.md) for details.
+
+When auto-generation of features is turned on, dev mode has a runtime dependency on IBM WebSphere Application Server Migration Toolkit for Application Binaries, which is separately licensed under IBM License Agreement for Non-Warranted Programs. For more information, see the [license](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/wamt).
 
 Additionally, starting in version 3.5.2, [resource variable filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html) and [WAR overlays](https://maven.apache.org/plugins/maven-war-plugin/overlays.html) are supported for loose WAR applications. This is done by automatically detecting appropriate Maven WAR plugin configuration and calling the WAR plugin's [`exploded`](https://maven.apache.org/plugins/maven-war-plugin/exploded-mojo.html) goal and the Maven Resource plugin's [`resource`](https://maven.apache.org/plugins/maven-resources-plugin/resources-mojo.html) goal when appropriate. Behavior for updating/deleting resources can be configured via the [`outdatedCheckPath`](https://maven.apache.org/plugins/maven-war-plugin/exploded-mojo.html#outdatedCheckPath) parameter introduced and then enhanced in maven-war-plugin versions 3.3.1, 3.3.2.
 
@@ -15,8 +19,9 @@ To start the server in a container, see the [devc](#devc-container-mode) section
 
 While dev mode is running, perform the following in the command terminal to run the corresponding actions.
 
-* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the configDropins/overrides server configuration directory or optionally in the source configuration directory instead.
+* <kbd>s</kbd> - toggle the output directory for generation of features, type <kbd>s</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in either the server configuration directory (`target/liberty/wlp/usr/servers/defaultServer`) or in the source configuration directory (`src/main/liberty/config`).
+* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. All the class files will be scanned and a new server configuration file will be generated in the configDropins/overrides server or source configuration directory.
 * <kbd>Enter</kbd> - run tests on demand, press <kbd>Enter</kbd>.
 * <kbd>r</kbd> - restart the server, type <kbd>r</kbd> and press <kbd>Enter</kbd>.
 * <kbd>h</kbd> - see the help menu for available actions, type <kbd>h</kbd> and press <kbd>Enter</kbd>.
@@ -91,6 +96,11 @@ Start dev mode without allowing to attach a debugger.
 $ mvn liberty:dev -Ddebug=false
 ```
 
+Start dev mode and generate feature values in a file in the src directory.
+```
+$ mvn liberty:dev -DgenerateToSrc=true
+```
+
 ###### Additional Parameters
 
 The following are the parameters supported by this goal in addition to the [common server parameters](common-server-parameters.md#common-server-parameters) and the [common parameters](common-parameters.md#common-parameters).
@@ -101,7 +111,8 @@ The following are the parameters supported by this goal in addition to the [comm
 | compileWait | Time in seconds to wait before processing Java changes. If you encounter compile errors while refactoring, increase this value to allow all files to be saved before compilation occurs. The default value is `0.5` seconds. | No |
 | debug | Whether to allow attaching a debugger to the running server. The default value is `true`. | No |
 | debugPort | The debug port that you can attach a debugger to. The default value is `7777`. | No |
-| generateFeatures | If set to `true`, when a Java file, server configuration file, or build file is changed, generate features required by the application in the source configuration directory. The default value is `false`. | No |
+| generateFeatures | If set to `true`, when a Java file, server configuration file, or build file is changed, generate features required by the application in the server configuration directory. The default value is `true`. | No |
+| generateToSrc | If set to `true`, when features are generated, store the `generated-features.xml` file in the source configuration directory (`src/main/liberty/config`). The default value is `false`. | No |
 | hotTests | If set to `true`, run unit and integration tests automatically after every change. The default value is `false`. | No |
 | recompileDependencies | If set to `true`, when a Java file is changed, recompile all classes in that module and any modules that depend on it. The default value is `false` when running dev mode on a single module, and `true` when running dev mode on a multi module project.  | No |
 | serverStartTimeout | Maximum time to wait (in seconds) to verify that the server has started. The value must be an integer greater than or equal to 0. The default value is `90` seconds. | No |
@@ -130,7 +141,7 @@ Start a Liberty server in a local container using the Containerfile or Dockerfil
 
 When dev mode runs with container support, it builds a container image and runs the container. You can examine the commands that it uses to build and run the container by viewing the console output of dev mode. Additionally, it still provides the same features as the `dev` goal. It monitors files for changes and runs tests either automatically or on demand. This mode also allows you to attach a debugger to work on your application. You can review the logs generated by your server in the Liberty directory in your project e.g. target/liberty/wlp/usr/servers/defaultServer/logs.
 
-N.B. starting in 3.6.1, dev mode invokes `generate-features` if the `generateFeatures` configuration parameter is set to true. Ensure that the `generated-features.xml` configuration file is copied to your container image via your Containerfile/Dockerfile.
+N.B. starting in 3.11.5, dev mode invokes `generate-features` because the default value of the `generateFeatures` configuration parameter is `true`. In previous versions starting with 3.6.1 the default value was `false`. Ensure that the `generated-features.xml` configuration file is copied to your container image via your Containerfile/Dockerfile.
 ```dockerfile
 COPY --chown=1001:0  target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/generated-features.xml /config/configDropins/overrides/
 ```
@@ -177,8 +188,9 @@ Dev mode offers different levels of file tracking and deployment depending on th
 
 While dev mode is running in container mode, perform the following in the command terminal to run the corresponding actions.
 
-* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
-* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the SOURCE configDropins/overrides configuration directory.
+* <kbd>g</kbd> - toggle the automatic generation of features, type <kbd>g</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in the configDropins/overrides server configuration directory or optionally in the source configuration directory instead.
+* <kbd>s</kbd> - toggle the output directory for generation of features, type <kbd>s</kbd> and press <kbd>Enter</kbd>. A new server configuration file will be generated in either the server configuration directory (`target/liberty/wlp/usr/servers/defaultServer`) or in the source configuration directory (`src/main/liberty/config`).
+* <kbd>o</kbd> - optimize the list of generated features, type <kbd>o</kbd> and press <kbd>Enter</kbd>. All the class files will be scanned and a new server configuration file will be generated in the configDropins/overrides server or source configuration directory.
 * <kbd>t</kbd> or <kbd>Enter</kbd> - If `changeOnDemandTestAction` is set to `true`, type <kbd>t</kbd> and press <kbd>Enter</kbd> to run tests on demand. Otherwise, press <kbd>Enter</kbd>. 
 * <kbd>r</kbd> - rebuild the container image and restart the container, type <kbd>r</kbd> and press <kbd>Enter</kbd>.
 * <kbd>h</kbd> - see the help menu for available actions, type <kbd>h</kbd> and press <kbd>Enter</kbd>.
