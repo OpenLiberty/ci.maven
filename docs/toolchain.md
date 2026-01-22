@@ -44,7 +44,7 @@ Example:
 
 Configure the Liberty Maven Plugin with `jdkToolchain`.
 
-The `jdkToolchain` element corresponds to the `<provides>` section of a `jdk` toolchain in `~/.m2/toolchains.xml`. These requirements are passed through to Maven's ToolchainManager to select a matching JDK. In practice, you typically configure the `version` (and optionally `vendor`) keys for JDK selection.
+The `jdkToolchain` element corresponds to the `<provides>` section of a `jdk` toolchain in `~/.m2/toolchains.xml`. These requirements are passed through to Maven's ToolchainManager to select a matching JDK.
 
 For details on the `toolchains.xml` format and the `<provides>` keys, see the Maven [Using Toolchains](https://maven.apache.org/guides/mini/guide-using-toolchains.html) guide.
 
