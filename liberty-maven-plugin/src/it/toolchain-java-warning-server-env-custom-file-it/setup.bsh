@@ -1,0 +1,32 @@
+
+import java.io.*;
+
+boolean flag = true;
+// logic for REPLACE_JDK_PATH replacement
+    File envFile = new File(basedir, "src/test/resources/server2.env");
+
+    if (envFile.exists()) {
+        String javaHome = System.getenv("JAVA_HOME");
+        if (javaHome != null) {
+            // BeanShell doesn't support some modern String methods; using standard replace
+            String escapedJavaHome = javaHome.replace("\\", "/");
+
+            // Read file content
+            BufferedReader reader = new BufferedReader(new FileReader(envFile));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line.replace("<REPLACE_JDK_PATH>", escapedJavaHome)).append("\n");
+            }
+            reader.close();
+
+            // Write file content back
+            BufferedWriter writer = new BufferedWriter(new FileWriter(envFile));
+            writer.write(sb.toString());
+            writer.close();
+
+            System.out.println("--- Hook: Updated JAVA_HOME in " + envFile.getName() + " ---");
+        }
+    }
+
+return flag;

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2025.
+ * (C) Copyright IBM Corporation 2017, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,22 +237,6 @@ public abstract class PluginConfigSupport extends StartDebugMojoSupport {
         File f = new File(project.getBuild().getDirectory() + File.separator + PLUGIN_CONFIG_XML);
         configDocument.writeXMLDocument(f);
         return f;
-    }
-
-    /*
-     * Return specificFile if it exists; otherwise return the file with the requested fileName from the 
-     * configDirectory, but only if it exists. Null is returned if the file does not exist in either location.
-     */
-    protected File findConfigFile(String fileName, File specificFile) {
-        if (specificFile != null && specificFile.exists()) {
-            return specificFile;
-        }
-
-        File f = new File(configDirectory, fileName);
-        if (configDirectory != null && f.exists()) {
-            return f;
-        }
-        return null;
     }
 
     /*
