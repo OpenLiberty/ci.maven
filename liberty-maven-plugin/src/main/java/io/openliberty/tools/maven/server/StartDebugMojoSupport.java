@@ -291,12 +291,13 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         runLibertyMojo("install-feature", config);
     }
 
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize, boolean useTmpDirOut, boolean useTmpDirIn) throws MojoExecutionException {
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize, boolean generateToSrc, boolean useTmpDirOut, boolean useTmpDirIn) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", getLog());
         if (classFiles != null) {
             config = Xpp3Dom.mergeXpp3Dom(configuration(classFiles), config);
         }
         config.addChild(element(name("optimize"), Boolean.toString(optimize)).toDom());
+        config.addChild(element(name("generateToSrc"), Boolean.toString(generateToSrc)).toDom());
         config.addChild(element(name("useTempDirAsOutput"), Boolean.toString(useTmpDirOut)).toDom());
         config.addChild(element(name("useTempDirAsContext"), Boolean.toString(useTmpDirIn)).toDom());
         runLibertyMojo("generate-features", config);
