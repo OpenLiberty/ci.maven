@@ -18,6 +18,7 @@ Parameters shared by all goals.
 | runtimeInstallDirectory | Local installation directory location of the Liberty server when the server is installed using the runtime archive, runtime artifact or repository option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty server into the local directory. This is only used when when the server is installed using the runtime archive or runtime artifact option. The default value is false. | No |
 | skip | If true, the specified goal is bypassed entirely. The default value is false. | No |
+| jdkToolchain | Toolchain requirements (for example, `version` and `vendor`) used to select a JDK from `~/.m2/toolchains.xml` for Liberty server goals and dev mode. See [toolchain](toolchain.md#toolchain) for details. | No |
 
 #### Backward Compatibility
 
