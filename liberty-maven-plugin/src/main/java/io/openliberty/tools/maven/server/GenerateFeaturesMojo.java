@@ -226,8 +226,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         getLog().debug("--- Generate Features values ---");
         getLog().debug("Binary scanner jar: " + binaryScanner.getName());
         getLog().debug("optimize generate features: " + optimize);
-        getLog().debug("called by dev mode, useTempDirAsOutput: " + useTempDirAsOutput);
-        getLog().debug("called by dev mode, useTempDirAsContext: " + useTempDirAsContext);
+        getLog().debug("useTempDirAsOutput (dev mode only): " + useTempDirAsOutput);
+        getLog().debug("useTempDirAsContext (dev mode only): " + useTempDirAsContext);
         getLog().debug("generate to directory: " + generationOutputDir.getAbsolutePath());
 
         if (classFiles != null && !classFiles.isEmpty()) {
