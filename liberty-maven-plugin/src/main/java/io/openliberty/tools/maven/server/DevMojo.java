@@ -1693,7 +1693,8 @@ public class DevMojo extends LooseAppSupport {
             getLog().warn(
                     "The source configuration directory will be modified. Features will automatically be generated in a new file: "
                             + generatedFileCanonicalPath);
-            // Only generate to a tmp dir once dev mode has started.
+            // During dev mode start up the server is not running yet so we will generate features to the correct
+            // output directory and then install features in the next step.
             runLibertyMojoGenerateFeatures(null, true, false, false);
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
