@@ -1,0 +1,7 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+        
+    <webApplication id="toolchain-java-warning-jvmoption-file-it" location="toolchain-java-warning-jvmoption-file-it.war" name="toolchain-java-warning-jvmoption-file-it"/>
+</server>

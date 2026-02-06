@@ -20,22 +20,14 @@
     <testServerHttpsPort>9443</testServerHttpsPort>
     <!-- end::ports[] -->
     <packaging.type>usr</packaging.type>
-  </properties>
 
-  <repositories>
-      <!-- Sonatype repository used to get the latest binary scanner jar -->
-      <repository>
-          <id>oss-sonatype</id>
-          <name>oss-sonatype</name>
-          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-          <snapshots>
-              <enabled>true</enabled>
-          </snapshots>
-          <releases>
-              <enabled>false</enabled>
-          </releases>
-      </repository>
-  </repositories>
+    <!-- Variables for test dependencies  -->
+    <pg.group.id>org.postgresql</pg.group.id>
+    <pg.artifact.id>postgresql</pg.artifact.id>
+    <pg.version>42.1.1</pg.version>
+    <pg.scope>test</pg.scope>
+    <custom.dir.location>customDirLocation</custom.dir.location>
+  </properties>
 
   <dependencyManagement>
       <dependencies>
@@ -123,7 +115,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.0</version>
+      <version>3.18.0</version>
     </dependency>
     <!-- Support for JDK 9 and above-->
     <dependency>
@@ -217,6 +209,8 @@
             <param>-Xms512m</param>
          </jvmOptions>
           <!-- ADDITIONAL_CONFIGURATION -->
+            <debug>true</debug>
+            <debugPort>7077</debugPort>
         </configuration>
       </plugin>
       <!-- Plugin to run functional tests -->

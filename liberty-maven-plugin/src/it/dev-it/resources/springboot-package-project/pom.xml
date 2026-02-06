@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <artifactId>springboot-project</artifactId>
+    <version>0.1.0</version>
+    <name>springboot-project</name>
+    <description>Demo project for Spring Boot</description>
+    <packaging>war</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+      <!-- Enable Liberty Maven plugin -->
+      <!-- tag::libertyMavenPlugin[] -->
+      <plugin>
+        <groupId>io.openliberty.tools</groupId>
+        <artifactId>liberty-maven-plugin</artifactId>
+        <version>SUB_VERSION</version>
+        <configuration>
+          <!-- tag::appsDirectory[] -->
+          <appsDirectory>apps</appsDirectory>
+          <!-- end::appsDirectory[] -->
+          <!-- tag::installAppPackages[] -->
+          <installAppPackages>spring-boot-project</installAppPackages>
+          <!-- end::installAppPackages[] -->
+          <!-- tag::include[] -->
+          <include>minify,runnable</include>
+          <!-- end::include[] -->
+          <!-- tag::packageFile[] -->
+          <packageName>springboot-project</packageName>
+          <!-- end::packageFile[] -->
+        </configuration>
+        <!-- tag::packageGoals[] -->
+        <executions>
+          <execution>
+            <id>package-server</id>
+            <phase>package</phase>
+            <goals>
+              <goal>create</goal>
+              <goal>install-feature</goal>
+              <goal>deploy</goal>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <!-- end::packageGoals[] -->
+      </plugin>
+      <!-- end::libertyMavenPlugin[] -->
+      <!-- End of Liberty Maven plugin -->
+
+        </plugins>
+    </build>
+
+</project>

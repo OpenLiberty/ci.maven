@@ -22,20 +22,6 @@
         <!-- <skipITs>true</skipITs> -->
         <!-- <skipUTs>true</skipUTs> -->
     </properties>
-    <repositories>
-        <!-- Sonatype repository used to get the latest binary scanner jar -->
-        <repository>
-            <id>oss-sonatype</id>
-            <name>oss-sonatype</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
     <dependencies>
         <!-- web and jar modules as dependencies -->
@@ -44,6 +30,12 @@
             <artifactId>guide-maven-multimodules-jar</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>io.openliberty.guides</groupId>
+            <artifactId>guide-maven-multimodules-ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>ejb</type>
         </dependency>
         <dependency>
             <groupId>io.openliberty.guides</groupId>
@@ -84,6 +76,10 @@
                     <!-- Set skinnyModules -->
                     <skinnyModules>true</skinnyModules>
                     <modules>
+                        <ejbModule>
+                            <groupId>io.openliberty.guides</groupId>
+                            <artifactId>guide-maven-multimodules-ejb</artifactId>
+                        </ejbModule>
                         <webModule>
                             <groupId>io.openliberty.guides</groupId>
                             <artifactId>guide-maven-multimodules-war</artifactId>

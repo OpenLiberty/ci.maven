@@ -16,12 +16,16 @@
 package io.openliberty.tools.maven;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.HashSet;
 
+import io.openliberty.tools.common.plugins.util.VariableUtility;
+import io.openliberty.tools.maven.utils.CommonLogger;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -139,25 +143,10 @@ public abstract class AbstractLibertySupport extends AbstractMojo {
     
     // Search the value parameter for any properties referenced with ${xxx} syntax and replace those with their property value if defined.
     protected String resolvePropertyReferences(String value) {
-        String returnValue = value;
-
-        if (value != null) {
-            Matcher m = PROP_PATTERN.matcher(value);
-            while (m.find()) {
-                String varName = m.group(1);
-                if (project.getProperties().containsKey(varName)) {
-                    String replacementValue = project.getProperties().getProperty(varName);
-                    if (replacementValue != null) {
-                        returnValue = returnValue.replace("${"+varName+"}", replacementValue);
-                        getLog().info("Replaced Liberty configuration property reference ${"+varName+"} with value "+replacementValue);
-                    }
-                } else {
-                    getLog().debug("Could not replace property reference: "+varName+" in value: "+value);
-                }
-            }
-        }
-        
-        return returnValue;
+        Properties projectProps = new Properties();
+        CommonLogger logger = new CommonLogger(getLog());
+        projectProps.putAll(project.getProperties());
+        return VariableUtility.resolveVariables(logger, value, Collections.emptyList(), projectProps, new Properties(), Collections.emptyMap());
     }
     
     /**

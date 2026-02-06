@@ -98,7 +98,7 @@ public class ExecuteMojoUtil {
             "testFailureIgnore", "testNGArtifactName", "threadCount", "threadCountClasses",
             "threadCountMethods", "threadCountSuites", "trimStackTrace", "useFile",
             "useManifestOnlyJar", "useModulePath", "useSystemClassLoader",
-            "useUnlimitedThreads", "workingDirectory"
+            "useUnlimitedThreads", "workingDirectory", "jdkToolchain"
     ));
 
     // https://maven.apache.org/surefire/maven-failsafe-plugin/integration-test-mojo.html
@@ -120,7 +120,7 @@ public class ExecuteMojoUtil {
             "systemPropertyVariables", "tempDir", "test", "testClassesDirectory",
             "testNGArtifactName", "threadCount", "threadCountClasses", "threadCountMethods",
             "threadCountSuites", "trimStackTrace", "useFile", "useManifestOnlyJar",
-            "useModulePath", "useSystemClassLoader", "useUnlimitedThreads", "workingDirectory"
+            "useModulePath", "useSystemClassLoader", "useUnlimitedThreads", "workingDirectory", "jdkToolchain"
     ));
 
     // https://maven.apache.org/surefire/maven-failsafe-plugin/verify-mojo.html
@@ -206,7 +206,7 @@ public class ExecuteMojoUtil {
             "installDirectory", "assemblyArchive", "assemblyArtifact", "libertyRuntimeVersion",
             "install", "licenseArtifact", "serverName", "userDirectory", "outputDirectory",
             "assemblyInstallDirectory", "refresh", "skip", "serverXmlFile", "configDirectory", 
-            "serverEnvFile", "mergeServerEnv"
+            "serverEnvFile", "mergeServerEnv","jdkToolchain"
     // executeMojo can not use alias parameters:
     // "runtimeArchive", "runtimeArtifact", "runtimeInstallDirectory" "configFile" "serverEnv"
     ));
