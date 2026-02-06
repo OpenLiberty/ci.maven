@@ -1,0 +1,33 @@
+import java.io.File;
+
+public static boolean deleteFolder(File directory) {
+		if (directory.isDirectory()) {
+				File[] files = directory.listFiles();
+				if (null != files) {
+					for (File file : files) {
+						if (file.isDirectory()) {
+							deleteFolder(file);
+						} else {
+							if (!file.delete()) {
+									file.deleteOnExit();
+							}
+						}
+					}
+				}
+		}
+		if(!directory.delete()){
+				directory.deleteOnExit();
+				return false;
+		}
+		return true;
+	}
+
+File repo = new File(System.getProperty("user.home") + "/.m2/repository/test/user/test/osgi");
+
+if (repo.exists()) {
+    System.out.println("Deleting Maven local test repository at: " + repo.getAbsolutePath());
+    deleteFolder(repo);
+    System.out.println("Test repository deleted successfully.");
+} else {
+    System.out.println("Test repository directory does not exist.");
+}

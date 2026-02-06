@@ -10,6 +10,11 @@ if (basedir.getName().contains("springboot-3-appsdirectory-apps-fail-")) {
     System.out.println("Running post-build script: "+ errorScript);
     flag = source(errorScript);
 }
+if (basedir.getName().contains("verify-user-feature-it")) {
+    String postScript = new File(basedir, "deleteMavenTestRepo.bsh").getAbsolutePath();
+    System.out.println("Running post-build script: "+ postScript);
+    source(postScript);
+}
 //Runs clean in the test project directory
 Runtime.getRuntime().exec("../../../../mvnw clean", null, basedir);
 System.out.println("Cleaned target dir(s) for " + basedir);

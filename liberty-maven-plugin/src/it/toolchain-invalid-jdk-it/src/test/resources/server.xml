@@ -1,0 +1,7 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+        
+    <webApplication id="toolchain-invalid-jdk-it" location="toolchain-invalid-jdk-it.war" name="toolchain-invalid-jdk-it"/>
+</server>

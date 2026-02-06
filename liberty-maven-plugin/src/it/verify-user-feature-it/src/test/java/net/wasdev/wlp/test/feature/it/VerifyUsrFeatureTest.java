@@ -34,7 +34,7 @@ import java.io.FileInputStream;
 public class VerifyUsrFeatureTest {
 	
 	static File mavenLocalRepo = new File(System.getProperty("user.home")+ "/.m2/repository");
-	static File userTestRepo = new File(mavenLocalRepo, "test/user/test/features");
+	static File userTestRepo = new File(mavenLocalRepo, "test/user/test/osgi");
 	
 	Logger logger = Logger.getLogger(VerifyUsrFeatureTest.class.getName());
 	

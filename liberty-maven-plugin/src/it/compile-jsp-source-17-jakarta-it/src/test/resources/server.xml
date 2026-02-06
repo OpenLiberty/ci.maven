@@ -1,0 +1,5 @@
+<server description="default server">
+    <featureManager>    
+        <feature>pages-3.1</feature>
+    </featureManager>     
+</server>

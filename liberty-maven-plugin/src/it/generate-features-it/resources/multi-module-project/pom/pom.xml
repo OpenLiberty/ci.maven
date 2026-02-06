@@ -17,13 +17,6 @@
         <liberty.var.default.https.port>9443</liberty.var.default.https.port>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>io.openliberty.guides</groupId>

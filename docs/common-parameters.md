@@ -18,3 +18,16 @@ Parameters shared by all goals.
 | runtimeInstallDirectory | Local installation directory location of the Liberty server when the server is installed using the runtime archive, runtime artifact or repository option. The default value is `${project.build.directory}/liberty`.  | No |
 | refresh | If true, re-install Liberty server into the local directory. This is only used when when the server is installed using the runtime archive or runtime artifact option. The default value is false. | No |
 | skip | If true, the specified goal is bypassed entirely. The default value is false. | No |
+| jdkToolchain | Toolchain requirements (for example, `version` and `vendor`) used to select a JDK from `~/.m2/toolchains.xml` for Liberty server goals and dev mode. See [toolchain](toolchain.md#toolchain) for details. | No |
+
+#### Backward Compatibility
+
+The following parameter names from version 2.x are still supported for backward compatibility, but the new parameter names listed above should be used:
+
+| 2.x Parameter Name       | 3.0+ Parameter Name     |
+|--------------------------|-------------------------|
+| assemblyArchive          | runtimeArchive          |
+| assemblyArtifact         | runtimeArtifact         |
+| assemblyInstallDirectory | runtimeInstallDirectory |
+
+See the [version 3.0 migration guide](version_3.0_differences.md) for more information about parameter name changes.

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2024.
+ * (C) Copyright IBM Corporation 2017, 2025.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,15 @@ package io.openliberty.tools.maven.jsp;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -82,7 +86,11 @@ public class CompileJspMojo extends InstallFeatureSupport {
         compile.setDestdir(new File(getProject().getBuild().getOutputDirectory()));
         compile.setTempdir(new File(getProject().getBuild().getDirectory()));
         compile.setTimeout(timeout);
-
+        // put toolchain jdk into environment variables
+        Map<String, String> envVars = getToolchainEnvVar();
+        if(ObjectUtils.isNotEmpty(envVars)) {
+            compile.setEnvironmentVariables(envVars);
+        }
         // don't delete temporary server dir
         compile.setCleanup(false);
 
@@ -180,9 +188,14 @@ public class CompileJspMojo extends InstallFeatureSupport {
             //Set JSP Feature Version
             setJspVersion(compile, installedFeatures);
 
-            //Removing jsp features at it is already set at this point 
-            installedFeatures.remove("jsp-2.3");
-            installedFeatures.remove("jsp-2.2");
+            //Removing jsp and pages features as the jspVersion is already set at this point 
+            Iterator<String> it = installedFeatures.iterator();
+            while (it.hasNext()) {
+                String nextItem = it.next();
+                if (nextItem.startsWith("jsp-") || nextItem.startsWith("pages-")) {
+                    it.remove();
+                }
+            }
             
             if(installedFeatures != null && !installedFeatures.isEmpty()) {
                 compile.setFeatures(installedFeatures.toString().replace("[", "").replace("]", ""));
@@ -199,8 +212,8 @@ public class CompileJspMojo extends InstallFeatureSupport {
         }
         else {
             for (String currentFeature : installedFeatures) {
-                if(currentFeature.startsWith("jsp-")) {
-                    String version = currentFeature.replace("jsp-", "");
+                if(currentFeature.startsWith("jsp-") || currentFeature.startsWith("pages-")) {
+                    String version = currentFeature.substring(currentFeature.indexOf("-")+1);
                     compile.setJspVersion(version);
                     break;
                 }

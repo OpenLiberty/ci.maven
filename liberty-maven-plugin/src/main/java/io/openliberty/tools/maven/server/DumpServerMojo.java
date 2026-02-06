@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -90,6 +91,11 @@ public class DumpServerMojo extends StartDebugMojoSupport {
         serverTask.setOperation("dump");
         serverTask.setArchive(archive);
         serverTask.setInclude(generateInclude());
+        try {
+            checkAndEnablePosixRules(serverTask);
+        } catch (PluginExecutionException e) {
+            throw new MojoExecutionException("Error loading server properties from Liberty server directory.", e);
+        }
         serverTask.execute();
     }
     
