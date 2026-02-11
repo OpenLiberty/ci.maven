@@ -1009,6 +1009,7 @@ public class DevMojo extends LooseAppSupport {
             boolean redeployApp = false;
             boolean runBoostPackage = false;
             boolean optimizeGenerateFeatures = false;
+            boolean generateFeaturesSuccess = false;
 
             ProjectBuildingResult build;
             try {
@@ -1123,15 +1124,13 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
-                boolean generateFeaturesSuccess = false;
                 if (optimizeGenerateFeatures && generateFeatures) {
                     getLog().debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
-                    // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
-                    generateFeaturesSuccess = libertyGenerateFeatures(null, true, generateToSrc, !generateToSrc, false);
-                    if (generateFeaturesSuccess) {
-                        util.getJavaSourceClassPaths().clear();
-                    } else {
+                    // If generateToSrc is false then we must copy (below) new generated features file from temp dir to server dir
+                    generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
+                    util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null, generateFeaturesSuccess);
+                    if (!generateFeaturesSuccess) {
                         installFeature = false; // skip installing features if generate features fails
                     }
                 }
@@ -1174,18 +1173,20 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null,
-                            generateFeaturesSuccess);
                         runLibertyMojoDeploy();
+                        // Copy the file here to be used by updateExistingFeatures() below even though file watcher will also copy it
+                        // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
+                        if (generateFeaturesSuccess && !generateToSrc) {
+                            util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
+                        }
+                        // Update the features after deploy mojo has copied the config files to server dir and generated features file added
+                        if (generateFeaturesSuccess) {
+                            updateExistingFeatures(); // update the dev mode cache of features in the server
+                        }
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
                     }
-                }
-                // TODO: do we really need to copy this file here or is it copied by the file watcher after we register the generation temp dir?
-                // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
-                if (generateFeaturesSuccess && !generateToSrc) {
-                    util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
                 }
                 if (!(reinstallLiberty || restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
                     // pom.xml is changed but not affecting liberty:dev mode. return true with the
