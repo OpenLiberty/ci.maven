@@ -1176,7 +1176,7 @@ public class DevMojo extends LooseAppSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
-                        // Copy the file here to be used by updateExistingFeatures() below even though file watcher will also copy it
+                        // Copy the file here to be used by updateExistingFeatures() below
                         // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
                         if (generateFeaturesSuccess && !generateToSrc) {
                             util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
