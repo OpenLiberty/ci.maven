@@ -805,7 +805,7 @@ public class DevMojo extends LooseAppSupport {
                             // When generating to the src dir, mojo deploy will copy the files from src to the server.
                             // When not generating to the src dir, we must copy the generated features file here.
                             if (!generateToSrc) {
-                                // Copy the file here to be used by updateExistingFeatures() below even though file watcher will also copy it
+                                // Copy the file here to be used by updateExistingFeatures() below
                                 util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
                             }
                         }
