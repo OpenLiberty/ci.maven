@@ -110,7 +110,7 @@ jobs:
         with:
           repository: sajeerzeji/ci.common
           path: ci.common
-          reference: GH502-Incorporate_Toolchains_to_ProductInfo_called_from_ci_common
+          ref: GH502-Incorporate_Toolchains_to_ProductInfo_called_from_ci_common
       - name: Checkout ci.ant
         uses: actions/checkout@v3
         with:
