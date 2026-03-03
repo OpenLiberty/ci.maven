@@ -537,7 +537,7 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         }
         // 1. Read existing config files
         List<String> serverEnvLines = readConfigFileLines(getServerEnvFile());
-        if (mergeServerEnv && serverEnvFile != null && serverEnvFile.exists() && configDirectory.exists()) {
+        if (mergeServerEnv && serverEnvFile != null && serverEnvFile.exists() && configDirectory != null && configDirectory.exists()) {
                 File configDirServerEnv = new File(configDirectory, "server.env");
                 if (configDirServerEnv.exists()) {
                     serverEnvLines.addAll(readConfigFileLines(configDirServerEnv));
@@ -570,6 +570,9 @@ public abstract class ServerFeatureSupport extends BasicSupport {
     private File getServerEnvFile() {
         if (serverEnvFile != null && serverEnvFile.exists()) {
             return serverEnvFile;
+        }
+        if (configDirectory == null) {
+            return null;
         }
         File defaultServerEnv = new File(configDirectory, "server.env");
         if (defaultServerEnv.exists()) {
