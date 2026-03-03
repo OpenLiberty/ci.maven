@@ -19,6 +19,10 @@ public class ToolchainInstallFeatureTest {
     @Test
     public void testToolchainUsedForInstallFeature() throws Exception {
         File buildLog = new File("../build.log");
+        if (!buildLog.exists()) {
+            buildLog = new File("../../build.log");
+        }
+
         assertTrue("Build log should exist: " + buildLog.getAbsolutePath(), buildLog.exists());
         
         String logContent = readFile(buildLog);
