@@ -529,10 +529,9 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         if(envMavenProps.containsKey("JAVA_HOME") || envMavenProps.containsKey("java.home") ||
                 jvmMavenPropValues.stream()
                         .anyMatch(v->v.contains("-DJAVA_HOME=") || v.contains("-Djava.home="))){
-            String goalName = mojoExecution != null ? mojoExecution.getGoal() : "unknown";
             getLog().warn(MessageFormat.format(
                     messages.getString("warn.project.properties.java.home.configured"),
-                    goalName
+                    mojoExecution.getGoal()
             ));
             return Collections.emptyMap();
         }
@@ -551,10 +550,9 @@ public abstract class ServerFeatureSupport extends BasicSupport {
         // if user has configured JAVA_HOME in server.env or jvm.options, this will get higher precedence over toolchain JDK
         // hence a warning will be issued
         if (isJavaHomeSet(serverEnvLines, jvmOptionsLines)) {
-            String goalName = mojoExecution != null ? mojoExecution.getGoal() : "unknown";
             getLog().warn(MessageFormat.format(
                     messages.getString("warn.server.env.java.home.configured"),
-                    goalName
+                    mojoExecution.getGoal()
             ));
         } else {
             // 3. Apply toolchain configuration
@@ -610,10 +608,9 @@ public abstract class ServerFeatureSupport extends BasicSupport {
      * @return envVars
      */
     private Map<String, String> populateEnviornmentVariablesMap(String jdkHome) {
-        String goalName = mojoExecution != null ? mojoExecution.getGoal() : "unknown";
         getLog().info(MessageFormat.format(
                 messages.getString("info.toolchain.configured"),
-                goalName,
+                mojoExecution.getGoal(),
                 jdkHome
         ));
         Map<String, String> envVars = new HashMap<>();
