@@ -106,7 +106,6 @@
                     <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
-                    <runOrder>alphabetical</runOrder>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
