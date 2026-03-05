@@ -89,7 +89,7 @@
         <dependency>
             <groupId>io.openliberty.tools</groupId>
             <artifactId>ci.common</artifactId>
-            <version>1.8.41-SNAPSHOT</version>
+            <version>1.8.41</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
