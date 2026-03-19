@@ -36,9 +36,9 @@ The Liberty Maven Plugin provides a number of goals for managing a Liberty serve
 
 #### Java Support
 
-The Liberty Maven Plugin is tested with Long-Term-Support (LTS) releases of Java. The plugin, as of release 3.10, supports Java 8, 11, 17 and 21. Versions 3.7 to 3.9.x support Java 8, 11 and 17. Prior to version 3.7, the plugin is supported on Java 8 and 11.
+The Liberty Maven Plugin is tested with Long-Term-Support (LTS) releases of Java. The plugin, as of release 3.12.0, supports Java 8, 11, 17, 21 and 25. Versions 3.10 to 3.11.x support Java 8, 11, 17 and 21. Versions 3.7 to 3.9.x support Java 8, 11 and 17. Prior to version 3.7, the plugin is supported on Java 8 and 11.
 
-To control the JDK used by Liberty Maven Plugin goals and dev mode with Maven Toolchains, see the [toolchain documentation](docs/toolchain.md#toolchain). This feature will be available starting with Liberty Maven Plugin version 3.12.0.
+To control the JDK used by Liberty Maven Plugin goals and dev mode with Maven Toolchains, see the [toolchain documentation](docs/toolchain.md#toolchain). This feature is available starting with Liberty Maven Plugin version 3.12.0.
 
 #### Release 3.0 differences
 
