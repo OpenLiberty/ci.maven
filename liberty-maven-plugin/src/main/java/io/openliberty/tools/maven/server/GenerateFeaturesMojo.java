@@ -135,10 +135,6 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         }
 
         super.init();
-        // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
-        if (!generateToSrc && !serverDirectory.exists()) {
-            throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
-        }
     }
 
     @Override
@@ -182,7 +178,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         		getLog().info("\nSkipping module " + project.getArtifactId() + " which is not configured for the generate-features goal.\n");
         		return;
         	}
-        	
+
             List<MavenProject> downstreamProjects = graph.getDownstreamProjects(project, true);
             if (!downstreamProjects.isEmpty()) {
                 getLog().debug("Downstream projects: " + downstreamProjects);
@@ -208,6 +204,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 // skip this module
                 return;
             }
+        }
+        // Ensure server dir exists to generate features to the $serverDirectory/configDropins/overrides/generated-features.xml
+        if (!generateToSrc && !serverDirectory.exists()) {
+            throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
         }
 
         if (useTempDirAsContext) {
