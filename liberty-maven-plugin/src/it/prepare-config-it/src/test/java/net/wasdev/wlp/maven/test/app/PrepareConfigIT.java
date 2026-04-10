@@ -124,13 +124,80 @@ public class PrepareConfigIT {
     public void testNoTempDirectoryLeftBehind() throws Exception {
         // Check that no temporary Liberty installation directories are left behind
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        File[] tempLibertyDirs = tempDir.listFiles((dir, name) -> 
+        File[] tempLibertyDirs = tempDir.listFiles((dir, name) ->
             name.startsWith("liberty-temp-") && name.endsWith("-install"));
         
         if (tempLibertyDirs != null) {
-            Assert.assertEquals("No temporary Liberty directories should remain", 
+            Assert.assertEquals("No temporary Liberty directories should remain",
                 0, tempLibertyDirs.length);
         }
+    }
+
+    @Test
+    public void testMockLibertyServerStructureCreated() throws Exception {
+        // Verify that tmp directory structure was created
+        File tmpDir = new File("target/tmp");
+        Assert.assertTrue("tmp directory should exist", tmpDir.exists());
+        
+        File wlpDir = new File(tmpDir, "wlp");
+        Assert.assertTrue("wlp directory should exist", wlpDir.exists());
+        
+        File usrDir = new File(wlpDir, "usr");
+        Assert.assertTrue("usr directory should exist", usrDir.exists());
+        
+        File serversDir = new File(usrDir, "servers");
+        Assert.assertTrue("servers directory should exist", serversDir.exists());
+        
+        File serverDir = new File(serversDir, "testServer");
+        Assert.assertTrue("testServer directory should exist", serverDir.exists());
+    }
+
+    @Test
+    public void testConfigFilesCopiedToMockServer() throws Exception {
+        // Verify that config files were copied to mock server structure
+        File mockServerDir = new File("target/tmp/wlp/usr/servers/testServer");
+        
+        File serverXml = new File(mockServerDir, "server.xml");
+        Assert.assertTrue("server.xml should be copied to mock server", serverXml.exists());
+        
+        File bootstrapProps = new File(mockServerDir, "bootstrap.properties");
+        Assert.assertTrue("bootstrap.properties should be copied to mock server", bootstrapProps.exists());
+    }
+
+    @Test
+    public void testPluginConfigXmlPointsToMockServer() throws Exception {
+        // Verify that liberty-plugin-config.xml has correct directory structure
+        // All directories should point to mock structure in tmp
+        
+        // installDirectory should point to mock Liberty in tmp
+        String installDir = getXPathValue("/liberty-plugin-config/installDirectory");
+        Assert.assertNotNull("Install directory should be present", installDir);
+        Assert.assertTrue("Install directory should point to tmp/wlp",
+            installDir.contains("tmp") && installDir.endsWith("wlp"));
+        
+        // userDirectory should point to mock user directory in tmp
+        String userDir = getXPathValue("/liberty-plugin-config/userDirectory");
+        Assert.assertNotNull("User directory should be present", userDir);
+        Assert.assertTrue("User directory should point to tmp/wlp/usr",
+            userDir.contains("tmp") && userDir.contains("wlp") && userDir.endsWith("usr"));
+        
+        // serverDirectory should point to mock server in tmp
+        String serverDir = getXPathValue("/liberty-plugin-config/serverDirectory");
+        Assert.assertNotNull("Server directory should be present", serverDir);
+        Assert.assertTrue("Server directory should point to mock server in tmp",
+            serverDir.contains("tmp") && serverDir.contains("testServer"));
+        
+        // serverOutputDirectory should point to mock server in tmp
+        String serverOutputDir = getXPathValue("/liberty-plugin-config/serverOutputDirectory");
+        Assert.assertNotNull("Server output directory should be present", serverOutputDir);
+        Assert.assertTrue("Server output directory should point to mock server in tmp",
+            serverOutputDir.contains("tmp") && serverOutputDir.contains("testServer"));
+        
+        // configFile should point to mock server
+        String configFile = getXPathValue("/liberty-plugin-config/configFile");
+        Assert.assertNotNull("Config file should be present", configFile);
+        Assert.assertTrue("Config file should point to mock server in tmp",
+            configFile.contains("tmp") && configFile.contains("testServer"));
     }
 
     /**

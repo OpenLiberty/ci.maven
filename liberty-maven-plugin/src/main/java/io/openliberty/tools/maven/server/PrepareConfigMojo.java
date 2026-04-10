@@ -106,10 +106,30 @@ public class PrepareConfigMojo extends PluginConfigSupport {
         getLog().info("Preparing Liberty configuration...");
 
         try {
-            // Generate the liberty-plugin-config.xml file
+            // Create mock Liberty server structure in target/tmp folder
+            File mockServerDir = createMockLibertyServerStructure();
+            
+            // Temporarily set serverDirectory to mock location for config file copying
+            File originalServerDir = serverDirectory;
+            try {
+                serverDirectory = mockServerDir;
+                
+                // Use parent's copyConfigFiles which handles:
+                // - configDirectory, serverXmlFile, jvmOptionsFile, bootstrapPropertiesFile, serverEnvFile overrides
+                // - inline configurations, mergeServerEnv logic, Maven property resolution
+                super.copyConfigFiles();
+                
+            } finally {
+                // Restore original serverDirectory
+                serverDirectory = originalServerDir;
+            }
+            
+            // Generate liberty-plugin-config.xml with paths pointing to mock server
             File configFile = exportParametersToXml(includeServerInfo);
             getLog().info(MessageFormat.format("Liberty configuration file generated: {0}",
                 configFile.getAbsolutePath()));
+            getLog().info(MessageFormat.format("Mock Liberty server structure created: {0}",
+                mockServerDir.getAbsolutePath()));
 
         } catch (IOException | ParserConfigurationException | TransformerException e) {
             throw new MojoExecutionException("Error preparing Liberty configuration.", e);
@@ -117,17 +137,82 @@ public class PrepareConfigMojo extends PluginConfigSupport {
     }
 
     /**
-     * Override to prevent server creation during config preparation.
-     * This goal only generates the config file, it does not install Liberty or create a server.
+     * Create a mock Liberty server structure in target/tmp folder.
+     * This mimics the actual Liberty server directory structure without installing Liberty.
+     *
+     * Structure created:
+     * target/tmp/
+     *   └── wlp/
+     *       └── usr/
+     *           └── servers/
+     *               └── {serverName}/
+     *                   ├── server.xml
+     *                   ├── bootstrap.properties
+     *                   ├── server.env
+     *                   └── jvm.options
+     *
+     * @return The mock server directory (target/tmp/wlp/usr/servers/{serverName})
+     * @throws IOException if directory creation fails
+     */
+    private File createMockLibertyServerStructure() throws IOException {
+        // Create tmp directory in target
+        File tmpDir = new File(project.getBuild().getDirectory(), "tmp");
+        
+        // Create Liberty server structure: wlp/usr/servers/{serverName}
+        File wlpDir = new File(tmpDir, "wlp");
+        File usrDir = new File(wlpDir, "usr");
+        File serversDir = new File(usrDir, "servers");
+        File mockServerDir = new File(serversDir, serverName);
+        
+        // Create all directories
+        if (!mockServerDir.exists()) {
+            if (!mockServerDir.mkdirs()) {
+                throw new IOException("Failed to create mock server directory: " + mockServerDir.getAbsolutePath());
+            }
+            getLog().debug("Created mock server directory: " + mockServerDir.getAbsolutePath());
+        }
+        
+        return mockServerDir;
+    }
+    /**
+     * Override to generate liberty-plugin-config.xml pointing to mock server structure.
+     * All directories (installDirectory, userDirectory, serverDirectory, serverOutputDirectory)
+     * are set to mock locations in target/tmp/wlp/usr/servers/{serverName}.
      */
     @Override
-    protected void installServerAssembly() throws MojoExecutionException {
-        // Only export parameters, don't install Liberty or create server
+    protected File exportParametersToXml(boolean includeServerInfo)
+            throws IOException, ParserConfigurationException, TransformerException {
+        // Build mock Liberty directory structure paths
+        File tmpDir = new File(project.getBuild().getDirectory(), "tmp");
+        File mockInstallDir = new File(tmpDir, "wlp");
+        File mockUserDir = new File(mockInstallDir, "usr");
+        File mockServersDir = new File(mockUserDir, "servers");
+        File mockServerDir = new File(mockServersDir, serverName);
+        
+        // Save original values to restore after XML generation
+        File originalInstallDir = installDirectory;
+        File originalUserDir = userDirectory;
+        File originalServerDir = serverDirectory;
+        File originalOutputDir = outputDirectory;
+        
         try {
-            exportParametersToXml(false);
-            // Skip the actual Liberty installation
-        } catch (IOException | ParserConfigurationException | TransformerException e) {
-            throw new MojoExecutionException("Error exporting parameters.", e);
+            // Override all directories to point to mock structure
+            installDirectory = mockInstallDir;
+            userDirectory = mockUserDir;
+            serverDirectory = mockServerDir;
+            // Parent creates serverOutputDirectory as new File(outputDirectory, serverName)
+            // Set outputDirectory = mockServersDir to get mockServersDir/serverName = mockServerDir
+            outputDirectory = mockServersDir;
+            
+            // Call parent implementation with mock directories
+            return super.exportParametersToXml(includeServerInfo);
+            
+        } finally {
+            // Restore original values
+            installDirectory = originalInstallDir;
+            userDirectory = originalUserDir;
+            serverDirectory = originalServerDir;
+            outputDirectory = originalOutputDir;
         }
     }
 }

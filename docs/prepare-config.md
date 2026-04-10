@@ -2,15 +2,21 @@
 
 ---
 
-Prepare Liberty configuration and generate `liberty-plugin-config.xml` without creating the server or installing Liberty. This lightweight goal evaluates project configuration and generates metadata needed by IDE tools and language servers.
+Prepare Liberty configuration and generate `liberty-plugin-config.xml` with a mock Liberty server structure. This lightweight goal evaluates project configuration, creates a temporary Liberty server structure in `.libertyls` folder, copies all configuration files, and generates metadata needed by IDE tools and language servers.
 
 This goal is particularly useful for:
 - Enabling IDE support for Liberty configuration files (server.xml, bootstrap.properties, server.env)
 - Providing configuration metadata to language servers for code completion and diagnostics
 - Supporting Liberty Tools and other IDE extensions
 - Quick configuration validation without full project build
+- Creating a mock Liberty server structure for language server integration
 
-The goal does NOT install Liberty or create a server. It only generates the configuration metadata file based on your project's Maven configuration.
+**What this goal does:**
+1. Creates a mock Liberty server structure in `target/.libertyls/wlp/usr/servers/{serverName}/`
+2. Copies all configuration files (server.xml, bootstrap.properties, server.env, jvm.options, etc.) to the mock server
+3. Generates `liberty-plugin-config.xml` pointing to the mock server structure
+
+The goal does NOT install Liberty runtime. It only creates a minimal directory structure that mimics a Liberty server and copies configuration files.
 
 ---
 
@@ -101,13 +107,31 @@ Configure the goal to run automatically during project initialization:
 
 ---
 
-### Generated Configuration File
+### Generated Configuration File and Mock Server Structure
 
-The `prepare-config` goal generates `target/liberty-plugin-config.xml` containing:
+The `prepare-config` goal generates:
+
+1. **Mock Liberty Server Structure** in `target/.libertyls/`:
+   ```
+   target/.libertyls/
+   └── wlp/
+       └── usr/
+           └── servers/
+               └── {serverName}/
+                   ├── server.xml
+                   ├── bootstrap.properties
+                   ├── server.env
+                   ├── jvm.options
+                   └── (other config files)
+   ```
+
+2. **Configuration Metadata File** `target/liberty-plugin-config.xml` containing:
 
 **Always included:**
-- Install directory (if Liberty is already installed)
-- Server name and directory paths
+- Install directory (points to `target/.libertyls/wlp`)
+- User directory (points to `target/.libertyls/wlp/usr`)
+- Server directory (points to `target/.libertyls/wlp/usr/servers/{serverName}`)
+- Server name and output directory paths
 - Project type (packaging)
 - Active build profiles
 - Project compile dependencies
@@ -115,10 +139,10 @@ The `prepare-config` goal generates `target/liberty-plugin-config.xml` containin
 
 **Included when `includeServerInfo=true`:**
 - Configuration directory
-- Server configuration file (`server.xml`)
-- Bootstrap properties file (`bootstrap.properties`)
-- JVM options file (`jvm.options`)
-- Server environment file (`server.env`)
+- Server configuration file path (in mock server)
+- Bootstrap properties file path (in mock server)
+- JVM options file path (in mock server)
+- Server environment file path (in mock server)
 - Applications directory (`apps` or `dropins`)
 - Loose application configuration
 - Strip version settings
@@ -179,12 +203,12 @@ mvn liberty:prepare-config
 
 ### Comparison with Other Goals
 
-| Goal | Liberty Install | Server Creation | Config Files Copied | Use Case |
-|------|----------------|-----------------|---------------------|----------|
-| `prepare-config` | No | No | No | Generate config metadata for tools |
-| `create` | Yes | Yes | Yes | Create and configure Liberty server |
-| `install-server` | Yes | No | No | Install Liberty runtime only |
-| `dev` | Yes | Yes | Yes | Development mode with hot reload |
+| Goal | Liberty Install | Server Creation | Mock Server Structure | Config Files Copied | Use Case |
+|------|----------------|-----------------|----------------------|---------------------|----------|
+| `prepare-config` | No | No | Yes (in .libertyls) | Yes (to mock server) | Generate config metadata and mock structure for tools |
+| `create` | Yes | Yes | No | Yes (to real server) | Create and configure Liberty server |
+| `install-server` | Yes | No | No | No | Install Liberty runtime only |
+| `dev` | Yes | Yes | No | Yes (to real server) | Development mode with hot reload |
 
 ---
 
