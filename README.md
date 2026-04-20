@@ -262,7 +262,7 @@ Example:
 
 There are multiple starters available to generate a package to start developing your first application on Open Liberty.
 
-* [Open Liberty starter](https://openliberty.io/start/)
+* [Open Liberty starter](https://start.openliberty.io/)
 * [Eclipse Starter for Jakarta EE](https://start.jakarta.ee/) - choose `Open Liberty` for the `Runtime`
 * [MicroProfile Starter](https://start.microprofile.io/) - choose `Open Liberty` for the `MicroProfile Runtime`
 
