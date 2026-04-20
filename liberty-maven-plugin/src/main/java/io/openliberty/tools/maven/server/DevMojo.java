@@ -1717,9 +1717,11 @@ public class DevMojo extends LooseAppSupport {
                 generatedFileCanonicalPath = new File(configDirectory,
                         BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
             }
-            getLog().warn(
-                    "The source configuration directory will be modified. Features will automatically be generated in a new file: "
-                            + generatedFileCanonicalPath);
+            if (generateToSrc) {
+                getLog().info(
+                        "The source configuration directory will be modified. Features will automatically be generated in a new file: "
+                                + generatedFileCanonicalPath);
+            }
             // During dev mode start up the server is not running yet so we will generate features to the correct
             // output directory and then install features in the next step.
             runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
@@ -1730,7 +1732,7 @@ public class DevMojo extends LooseAppSupport {
                 generateFeatures = false;
             } else {
                 throw new MojoExecutionException(e.getMessage()
-                + " To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
+                + " To disable the automatic generation of features, type 'g' and press 'Enter' or restart dev mode with -DgenerateFeatures=false.",
                 e);
             }
         }
