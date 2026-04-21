@@ -1732,7 +1732,7 @@ public class DevMojo extends LooseAppSupport {
                 generateFeatures = false;
             } else {
                 throw new MojoExecutionException(e.getMessage()
-                + " To disable the automatic generation of features, type 'g' and press 'Enter' or restart dev mode with -DgenerateFeatures=false.",
+                + " To disable the automatic generation of features, type 'g' and press 'Enter' once dev mode is running or restart dev mode with -DgenerateFeatures=false.",
                 e);
             }
         }
