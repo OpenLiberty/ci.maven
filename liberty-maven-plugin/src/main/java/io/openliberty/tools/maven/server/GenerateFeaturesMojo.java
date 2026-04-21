@@ -437,7 +437,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private void printCommonMessages(String eeVersion, String mpVersion, File generatedXmlFile) {
         getLog().info("The generated feature list has been written to the following file: " + generatedXmlFile.getAbsolutePath());
         if (eeVersion == null && mpVersion == null) {
-            getLog().warn("Verify the generated feature list meets the needs of your application." +
+            getLog().info("Verify the generated feature list meets the needs of your application." +
             " If you see features missing or features at unexpected versions, please add the expected features to your server configuration" +
             (isDevMode ? "." : " and run the generate-features goal again."));
         }
