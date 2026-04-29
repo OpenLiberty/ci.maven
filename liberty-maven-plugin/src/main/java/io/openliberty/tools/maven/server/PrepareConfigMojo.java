@@ -27,6 +27,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
+import io.openliberty.tools.common.plugins.util.PrepareConfigUtil;
+
 /**
  * Prepare Liberty configuration and generate liberty-plugin-config.xml without
  * creating the server. This lightweight goal evaluates project configuration 
@@ -106,8 +108,9 @@ public class PrepareConfigMojo extends PluginConfigSupport {
         getLog().info("Preparing Liberty configuration...");
 
         try {
-            // Create mock Liberty server structure in target/tmp folder
-            File mockServerDir = createMockLibertyServerStructure();
+            // Create mock Liberty server structure using common utility
+            File buildDirectory = new File(project.getBuild().getDirectory());
+            File mockServerDir = PrepareConfigUtil.createMockLibertyServerStructure(buildDirectory, serverName);
             
             // Temporarily set serverDirectory to mock location for config file copying
             File originalServerDir = serverDirectory;
@@ -135,45 +138,6 @@ public class PrepareConfigMojo extends PluginConfigSupport {
             throw new MojoExecutionException("Error preparing Liberty configuration.", e);
         }
     }
-
-    /**
-     * Create a mock Liberty server structure in target/tmp folder.
-     * This mimics the actual Liberty server directory structure without installing Liberty.
-     *
-     * Structure created:
-     * target/tmp/
-     *   └── wlp/
-     *       └── usr/
-     *           └── servers/
-     *               └── {serverName}/
-     *                   ├── server.xml
-     *                   ├── bootstrap.properties
-     *                   ├── server.env
-     *                   └── jvm.options
-     *
-     * @return The mock server directory (target/tmp/wlp/usr/servers/{serverName})
-     * @throws IOException if directory creation fails
-     */
-    private File createMockLibertyServerStructure() throws IOException {
-        // Create tmp directory in target
-        File tmpDir = new File(project.getBuild().getDirectory(), "tmp");
-        
-        // Create Liberty server structure: wlp/usr/servers/{serverName}
-        File wlpDir = new File(tmpDir, "wlp");
-        File usrDir = new File(wlpDir, "usr");
-        File serversDir = new File(usrDir, "servers");
-        File mockServerDir = new File(serversDir, serverName);
-        
-        // Create all directories
-        if (!mockServerDir.exists()) {
-            if (!mockServerDir.mkdirs()) {
-                throw new IOException("Failed to create mock server directory: " + mockServerDir.getAbsolutePath());
-            }
-            getLog().debug("Created mock server directory: " + mockServerDir.getAbsolutePath());
-        }
-        
-        return mockServerDir;
-    }
     /**
      * Override to generate liberty-plugin-config.xml pointing to mock server structure.
      * All directories (installDirectory, userDirectory, serverDirectory, serverOutputDirectory)
@@ -182,12 +146,12 @@ public class PrepareConfigMojo extends PluginConfigSupport {
     @Override
     protected File exportParametersToXml(boolean includeServerInfo)
             throws IOException, ParserConfigurationException, TransformerException {
-        // Build mock Liberty directory structure paths
-        File tmpDir = new File(project.getBuild().getDirectory(), "tmp");
-        File mockInstallDir = new File(tmpDir, "wlp");
-        File mockUserDir = new File(mockInstallDir, "usr");
-        File mockServersDir = new File(mockUserDir, "servers");
-        File mockServerDir = new File(mockServersDir, serverName);
+        // Build mock Liberty directory structure paths using common utility
+        File buildDirectory = new File(project.getBuild().getDirectory());
+        File mockInstallDir = PrepareConfigUtil.getMockInstallDirectory(buildDirectory);
+        File mockUserDir = PrepareConfigUtil.getMockUserDirectory(buildDirectory);
+        File mockServersDir = PrepareConfigUtil.getMockServersDirectory(buildDirectory);
+        File mockServerDir = PrepareConfigUtil.getMockServerDirectory(buildDirectory, serverName);
         
         // Save original values to restore after XML generation
         File originalInstallDir = installDirectory;
