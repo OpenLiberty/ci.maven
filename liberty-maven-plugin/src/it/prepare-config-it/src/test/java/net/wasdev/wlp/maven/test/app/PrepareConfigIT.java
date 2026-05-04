@@ -17,16 +17,23 @@ package net.wasdev.wlp.maven.test.app;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Integration test for prepare-config goal
@@ -34,6 +41,10 @@ import org.w3c.dom.NodeList;
 public class PrepareConfigIT {
 
     private static final String PLUGIN_CONFIG_XML = "target/liberty-plugin-config.xml";
+    public static final String TARGET_TMP_WLP_USR_SERVERS_TEST_SERVER = "target/tmp/wlp/usr/servers/testServer";
+    public static final String BOOTSTRAP_PROPERTIES = "bootstrap.properties";
+    public static final String SERVER_XML = "server.xml";
+    public static final String LIBERTY_PLUGIN_CONFIG_CONFIG_FILE = "/liberty-plugin-config/configFile";
 
     @Test
     public void testPluginConfigXmlExists() throws Exception {
@@ -55,9 +66,9 @@ public class PrepareConfigIT {
 
     @Test
     public void testPluginConfigXmlContainsConfigFile() throws Exception {
-        String configFile = getXPathValue("/liberty-plugin-config/configFile");
+        String configFile = getXPathValue(LIBERTY_PLUGIN_CONFIG_CONFIG_FILE);
         Assert.assertNotNull("Config file should be present", configFile);
-        Assert.assertTrue("Config file should reference server.xml", configFile.contains("server.xml"));
+        Assert.assertTrue("Config file should reference server.xml", configFile.contains(SERVER_XML));
     }
 
     @Test
@@ -65,7 +76,7 @@ public class PrepareConfigIT {
         String bootstrapFile = getXPathValue("/liberty-plugin-config/bootstrapPropertiesFile");
         Assert.assertNotNull("Bootstrap properties file should be present", bootstrapFile);
         Assert.assertTrue("Bootstrap file should reference bootstrap.properties", 
-            bootstrapFile.contains("bootstrap.properties"));
+            bootstrapFile.contains(BOOTSTRAP_PROPERTIES));
     }
 
     @Test
@@ -155,12 +166,12 @@ public class PrepareConfigIT {
     @Test
     public void testConfigFilesCopiedToMockServer() throws Exception {
         // Verify that config files were copied to mock server structure
-        File mockServerDir = new File("target/tmp/wlp/usr/servers/testServer");
+        File mockServerDir = new File(TARGET_TMP_WLP_USR_SERVERS_TEST_SERVER);
         
-        File serverXml = new File(mockServerDir, "server.xml");
+        File serverXml = new File(mockServerDir, SERVER_XML);
         Assert.assertTrue("server.xml should be copied to mock server", serverXml.exists());
         
-        File bootstrapProps = new File(mockServerDir, "bootstrap.properties");
+        File bootstrapProps = new File(mockServerDir, BOOTSTRAP_PROPERTIES);
         Assert.assertTrue("bootstrap.properties should be copied to mock server", bootstrapProps.exists());
     }
 
@@ -194,7 +205,7 @@ public class PrepareConfigIT {
             serverOutputDir.contains("tmp") && serverOutputDir.contains("testServer"));
         
         // configFile should point to mock server
-        String configFile = getXPathValue("/liberty-plugin-config/configFile");
+        String configFile = getXPathValue(LIBERTY_PLUGIN_CONFIG_CONFIG_FILE);
         Assert.assertNotNull("Config file should be present", configFile);
         Assert.assertTrue("Config file should point to mock server in tmp",
             configFile.contains("tmp") && configFile.contains("testServer"));
@@ -203,11 +214,8 @@ public class PrepareConfigIT {
     /**
      * Helper method to get XPath value from the plugin config XML
      */
-    private String getXPathValue(String expression) throws Exception {
-        File configFile = new File(PLUGIN_CONFIG_XML);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new FileInputStream(configFile));
+    private String getXPathValue(String expression) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document doc = getDocument(configFile);
         
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
@@ -218,15 +226,139 @@ public class PrepareConfigIT {
     /**
      * Helper method to get XPath NodeList from the plugin config XML
      */
-    private NodeList getXPathNodeList(String expression) throws Exception {
+    private NodeList getXPathNodeList(String expression) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         File configFile = new File(PLUGIN_CONFIG_XML);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new FileInputStream(configFile));
-        
+        Document doc = getDocument(configFile);
+
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
         
         return (NodeList) xpath.evaluate(expression, doc, XPathConstants.NODESET);
+    }
+
+    private static Document getDocument(File configFile) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        // Protect against XXE attacks
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+
+        factory.setIgnoringComments(true);
+        factory.setCoalescing(true);
+        factory.setIgnoringElementContentWhitespace(true);
+        factory.setValidating(false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc;
+        try (FileInputStream fis = new FileInputStream(configFile)) {
+            doc = builder.parse(fis);
+        }
+        return doc;
+    }
+
+    @Test
+    public void testPluginConfigXmlContainsUserDirectory() throws Exception {
+        String userDirectory = getXPathValue("/liberty-plugin-config/userDirectory");
+        Assert.assertNotNull("User directory should be present", userDirectory);
+        Assert.assertTrue("User directory should point to mock user directory",
+            userDirectory.contains("tmp") && userDirectory.contains("usr"));
+    }
+
+    @Test
+    public void testPluginConfigXmlContainsServerOutputDirectory() throws Exception {
+        String serverOutputDirectory = getXPathValue("/liberty-plugin-config/serverOutputDirectory");
+        Assert.assertNotNull("Server output directory should be present", serverOutputDirectory);
+        Assert.assertTrue("Server output directory should point to mock server",
+            serverOutputDirectory.contains("tmp") && serverOutputDirectory.contains("testServer"));
+    }
+
+    @Test
+    public void testBootstrapPropertiesContentCopied() throws Exception {
+        // Verify that bootstrap.properties was copied with correct content
+        File mockServerDir = new File(TARGET_TMP_WLP_USR_SERVERS_TEST_SERVER);
+        File bootstrapProps = new File(mockServerDir, BOOTSTRAP_PROPERTIES);
+        
+        Assert.assertTrue("bootstrap.properties should exist", bootstrapProps.exists());
+        
+        // Read and verify content
+        String content = new String(Files.readAllBytes(bootstrapProps.toPath()), StandardCharsets.UTF_8);
+        
+        Assert.assertTrue("Bootstrap properties should contain default.http.port",
+            content.contains("default.http.port"));
+        Assert.assertTrue("Bootstrap properties should contain default.https.port",
+            content.contains("default.https.port"));
+    }
+
+    @Test
+    public void testServerXmlContentCopied() throws Exception {
+        // Verify that server.xml was copied with correct content
+        File mockServerDir = new File(TARGET_TMP_WLP_USR_SERVERS_TEST_SERVER);
+        File serverXml = new File(mockServerDir, SERVER_XML);
+        
+        Assert.assertTrue("server.xml should exist", serverXml.exists());
+        
+        // Read and verify content
+        String content = new String(Files.readAllBytes(serverXml.toPath()), StandardCharsets.UTF_8);
+        
+        Assert.assertTrue("server.xml should contain featureManager",
+            content.contains("featureManager"));
+        Assert.assertTrue("server.xml should contain jakartaee-9.1 feature",
+            content.contains("jakartaee-9.1"));
+        Assert.assertTrue("server.xml should contain microProfile-5.0 feature",
+            content.contains("microProfile-5.0"));
+    }
+
+    @Test
+    public void testPluginConfigXmlContainsProjectDirectory() throws Exception {
+        String projectDirectory = getXPathValue("/liberty-plugin-config/projectDirectory");
+        Assert.assertNotNull("Project directory should be present", projectDirectory);
+        Assert.assertFalse("Project directory should not be empty", projectDirectory.trim().isEmpty());
+    }
+
+    @Test
+    public void testPluginConfigXmlContainsBuildDirectory() throws Exception {
+        String buildDirectory = getXPathValue("/liberty-plugin-config/buildDirectory");
+        Assert.assertNotNull("Build directory should be present", buildDirectory);
+        Assert.assertTrue("Build directory should contain 'target'", buildDirectory.contains("target"));
+    }
+
+    @Test
+    public void testMockServerStructureIsComplete() throws Exception {
+        // Comprehensive check of the entire mock server structure
+        File tmpDir = new File("target/tmp");
+        File wlpDir = new File(tmpDir, "wlp");
+        File usrDir = new File(wlpDir, "usr");
+        File serversDir = new File(usrDir, "servers");
+        File serverDir = new File(serversDir, "testServer");
+        
+        Assert.assertTrue("tmp directory should be a directory", tmpDir.isDirectory());
+        Assert.assertTrue("wlp directory should be a directory", wlpDir.isDirectory());
+        Assert.assertTrue("usr directory should be a directory", usrDir.isDirectory());
+        Assert.assertTrue("servers directory should be a directory", serversDir.isDirectory());
+        Assert.assertTrue("testServer directory should be a directory", serverDir.isDirectory());
+        
+        // Verify the structure matches Liberty's expected layout
+        Assert.assertEquals("wlp should be child of tmp", tmpDir, wlpDir.getParentFile());
+        Assert.assertEquals("usr should be child of wlp", wlpDir, usrDir.getParentFile());
+        Assert.assertEquals("servers should be child of usr", usrDir, serversDir.getParentFile());
+        Assert.assertEquals("testServer should be child of servers", serversDir, serverDir.getParentFile());
+    }
+
+    @Test
+    public void testIncludeServerInfoIsTrue() throws Exception {
+        // Verify that when includeServerInfo=true (default), server files are included
+        String configFile = getXPathValue(LIBERTY_PLUGIN_CONFIG_CONFIG_FILE);
+        String bootstrapFile = getXPathValue("/liberty-plugin-config/bootstrapPropertiesFile");
+        
+        Assert.assertNotNull("Config file should be present when includeServerInfo=true", configFile);
+        Assert.assertFalse("Config file should not be empty", configFile.trim().isEmpty());
+        
+        Assert.assertNotNull("Bootstrap file should be present when includeServerInfo=true", bootstrapFile);
+        Assert.assertFalse("Bootstrap file should not be empty", bootstrapFile.trim().isEmpty());
     }
 }
