@@ -79,6 +79,14 @@
                 <goals>
                     <goal>install-server</goal>
                 </goals>
+                <configuration>
+                    <assemblyArtifact>
+                        <groupId>io.openliberty</groupId>
+                        <artifactId>openliberty-runtime</artifactId>
+                        <version>[26.0.0.4,)</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                </configuration>
             </execution>
             <execution>
                 <id>create-liberty-server</id>
@@ -177,5 +185,3 @@
     </plugins>
   </build>
 </project>
-
-<!-- Made with Bob -->
