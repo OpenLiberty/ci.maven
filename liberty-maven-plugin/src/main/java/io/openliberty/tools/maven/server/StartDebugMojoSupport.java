@@ -596,9 +596,9 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
      */
     private Map<String, String> mergeSpecialPropsFromInstallServerEnvIfAbsent(Map<String, String> envProps) throws IOException {
 
-        String[] specialProps = { "keystore_password" };
+        String[] specialProps = { "keystore_password", "ltpa_keys_password" };
 
-        // Clone to avoid side effects 
+        // Clone to avoid side effects
         Map<String, String> mergedProps = new HashMap<String,String>(envProps);
         
         // From install (target) dir
