@@ -139,7 +139,7 @@ Starting with the 3.1 release of the liberty-maven-plugin, support is added to s
 
 If Liberty configuration is specified with Maven properties, the above indicated files are created in the target Liberty server. By default there is no merging behavior for the Maven properties with files located in the `configDirectory` or the specific configuration file parameters such as `bootstrapPropertiesFile`, `jvmOptionsFile` and `serverEnvFile`. However, the `liberty.env.{var}` Maven properties can be merged with other configured `server.env` files by setting the `mergeServerEnv` parameter to `true`.   
 
-As a special case when `mergeServerEnv` is `false`,  an existing `keystore_password` property in the default generated `server.env` file in the target server will be merged in if there is no `serverEnvFile` configured nor `server.env` file located in the `configDirectory`, and the `keystore_password` env var is not defined as a Maven property.
+As a special case when `mergeServerEnv` is `false`,  existing `keystore_password` and `ltpa_keys_password` properties in the default generated `server.env` file in the target server will be merged in if there is no `serverEnvFile` configured nor `server.env` file located in the `configDirectory`, and these env vars are not defined as Maven properties.
 
 Note that properties specified with `-D` on the command line are also analyzed for the property name formats listed above and take precedence over Maven properties specified in the pom.xml.
 
