@@ -801,7 +801,7 @@ public class DevMojo extends LooseAppSupport {
                             generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
                             // install new generated features because deploy will copy config files to server dir.
                             // It will not trigger install-feature if the feature list has not changed
-                            util.installFeaturesToTempDir(generateFeaturesFile, configDirectory, null, generateFeaturesSuccess);
+                            util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
                             // When generating to the src dir, mojo deploy will copy the files from src to the server.
                             // When not generating to the src dir, we must copy the generated features file here.
                             if (!generateToSrc) {
