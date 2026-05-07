@@ -1,8 +1,8 @@
-## prepare-config
+l## prepare-config
 
 ---
 
-Prepare Liberty configuration and generate `liberty-plugin-config.xml` with a mock Liberty server structure. This lightweight goal evaluates project configuration, creates a temporary Liberty server structure in `.libertyls` folder, copies all configuration files, and generates metadata needed by IDE tools and language servers.
+Prepare Liberty configuration and generate `liberty-plugin-config.xml` with a mock Liberty server structure. This lightweight goal evaluates project configuration, creates a temporary Liberty server structure in a configurable temporary directory, copies all configuration files, and generates metadata needed by IDE tools and language servers.
 
 This goal is particularly useful for:
 - Enabling IDE support for Liberty configuration files (server.xml, bootstrap.properties, server.env)
@@ -12,7 +12,7 @@ This goal is particularly useful for:
 - Creating a mock Liberty server structure for language server integration
 
 **What this goal does:**
-1. Creates a mock Liberty server structure in `target/.libertyls/wlp/usr/servers/{serverName}/`
+1. Creates a mock Liberty server structure in `target/tmp/liberty-var-cache/wlp/usr/servers/{serverName}/` (configurable)
 2. Copies all configuration files (server.xml, bootstrap.properties, server.env, jvm.options, etc.) to the mock server
 3. Generates `liberty-plugin-config.xml` pointing to the mock server structure
 
@@ -51,11 +51,11 @@ mvn liberty:prepare-config
 
 ### Configuration Parameters
 
-The `prepare-config` goal supports the following configuration parameter in addition to the [common parameters](common-parameters.md) and [common server parameters](common-server-parameters.md):
+The `prepare-config` goal supports the following configuration parameters in addition to the [common parameters](common-parameters.md) and [common server parameters](common-server-parameters.md):
 
 | Parameter | Description | Required | Default |
 | --------- | ----------- | -------- | ------- |
-| includeServerInfo | Whether to include server-specific information in the generated config. When `true`, includes `server.xml`, `bootstrap.properties`, `jvm.options`, etc. When `false`, only includes project and build metadata. | No | `true` |
+| prepareConfigTempDir | Name of the temporary directory used for mock Liberty server structures. This directory is created under the build output directory (`target/` for Maven, `build/` for Gradle). | No | `tmp/liberty-var-cache` |
 
 ---
 
@@ -71,15 +71,15 @@ mvn liberty:prepare-config
 
 This will create `target/liberty-plugin-config.xml` with project metadata, dependencies, and configuration file references.
 
-#### Example 2: Generate minimal configuration
+#### Example 2: Custom temporary directory
 
-Generate only project metadata without server-specific information:
+Use a custom temporary directory name:
 
 ```bash
-mvn liberty:prepare-config -DincludeServerInfo=false
+mvn liberty:prepare-config -DprepareConfigTempDir=my-temp-dir
 ```
 
-This creates a minimal configuration file with just project and build information, and executes faster.
+This will create the mock server structure in `target/my-temp-dir/wlp/usr/servers/{serverName}/` instead of the default location.
 
 #### Example 3: IDE integration
 
@@ -97,9 +97,6 @@ Configure the goal to run automatically during project initialization:
             <goals>
                 <goal>prepare-config</goal>
             </goals>
-            <configuration>
-                <includeServerInfo>true</includeServerInfo>
-            </configuration>
         </execution>
     </executions>
 </plugin>
@@ -111,9 +108,9 @@ Configure the goal to run automatically during project initialization:
 
 The `prepare-config` goal generates:
 
-1. **Mock Liberty Server Structure** in `target/.libertyls/`:
+1. **Mock Liberty Server Structure** in `target/tmp/liberty-var-cache/` (or custom directory):
    ```
-   target/.libertyls/
+   target/tmp/liberty-var-cache/
    └── wlp/
        └── usr/
            └── servers/
@@ -127,17 +124,14 @@ The `prepare-config` goal generates:
 
 2. **Configuration Metadata File** `target/liberty-plugin-config.xml` containing:
 
-**Always included:**
-- Install directory (points to `target/.libertyls/wlp`)
-- User directory (points to `target/.libertyls/wlp/usr`)
-- Server directory (points to `target/.libertyls/wlp/usr/servers/{serverName}`)
+- Install directory (points to `target/tmp/liberty-var-cache/wlp`)
+- User directory (points to `target/tmp/liberty-var-cache/wlp/usr`)
+- Server directory (points to `target/tmp/liberty-var-cache/wlp/usr/servers/{serverName}`)
 - Server name and output directory paths
 - Project type (packaging)
 - Active build profiles
 - Project compile dependencies
 - Aggregator parent information (for multi-module projects)
-
-**Included when `includeServerInfo=true`:**
 - Configuration directory
 - Server configuration file path (in mock server)
 - Bootstrap properties file path (in mock server)
@@ -205,7 +199,7 @@ mvn liberty:prepare-config
 
 | Goal | Liberty Install | Server Creation | Mock Server Structure | Config Files Copied | Use Case |
 |------|----------------|-----------------|----------------------|---------------------|----------|
-| `prepare-config` | No | No | Yes (in .libertyls) | Yes (to mock server) | Generate config metadata and mock structure for tools |
+| `prepare-config` | No | No | Yes (in liberty-var-cache) | Yes (to mock server) | Generate config metadata and mock structure for tools |
 | `create` | Yes | Yes | No | Yes (to real server) | Create and configure Liberty server |
 | `install-server` | Yes | No | No | No | Install Liberty runtime only |
 | `dev` | Yes | Yes | No | Yes (to real server) | Development mode with hot reload |
@@ -257,14 +251,6 @@ mvn liberty:prepare-config -X
 ```
 
 The debug output will show the exact location where the file is being written.
-
-#### Missing server information
-
-If server-specific information is missing, ensure `includeServerInfo=true`:
-
-```bash
-mvn liberty:prepare-config -DincludeServerInfo=true
-```
 
 #### Variable resolution not working in IDE
 
