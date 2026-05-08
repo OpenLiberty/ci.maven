@@ -555,35 +555,29 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
      * 
      * @return The File object of the feature list in the local cache.
      */
-    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_START = "25.0.0.7";
-    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_CONTINUE = "25.0.0.10";
-    private static String WEBSPHERE_LIBERTY_FEATURE_LIST_END = "25.0.0.12";
     private static String FEATURE_LIST_BASE = "base";
     private static String FEATURE_LIST_CORE = "core";
     private File getWebSphereFeatureListFile(String featureListVar) throws MojoExecutionException {
-        // Feature lists are only available for 25.0.0.7 and 25.0.0.10-25.0.0.12.
-        // For releases earlier than 25.0.0.10 use 25.0.0.7, for releases after 25.0.0.12 use 25.0.0.12.
+        // For releases earlier than 25.0.0.7 use 25.0.0.7 Maven coordinates (batch 1).
+        // For releases 25.0.0.8 to 25.0.0.12 use batch 2 coordinates. 
+        // For 26.0.0.1 and later use the third batch.
         String libertyGroupId, libertyArtifactId;
         String libertyVersion = getLibertyRuntimeVersion();
         if (libertyVersion == null) {
             return null;
         }
-        // There is a value for 25.0.0.7 but not for 25.0.0.8 or 25.0.0.9 and none for <25.0.0.7
-        // so for any liberty <25.0.0.10 use the 07 values
-        if (VersionUtility.compareArtifactVersion(libertyVersion, WEBSPHERE_LIBERTY_FEATURE_LIST_CONTINUE, true) < 0) {
-            libertyGroupId = WS1_FEATURELIST_GROUP_ID;
-            libertyVersion = WEBSPHERE_LIBERTY_FEATURE_LIST_START;
-        } else { // 25.0.0.10 and up
-            libertyGroupId = WS2_FEATURELIST_GROUP_ID;
-            // if >25.0.0.12 just use 25.0.0.12
-            if (VersionUtility.compareArtifactVersion(libertyVersion, WEBSPHERE_LIBERTY_FEATURE_LIST_END, true) > 0) {
-                libertyVersion = WEBSPHERE_LIBERTY_FEATURE_LIST_END;
-            } // else liberty version is 25.0.0.10-25.0.0.12
-        }
-        if (featureListVar.equals(FEATURE_LIST_BASE)) {
-            libertyArtifactId = WSBASE_FEATURELIST_ARTIFACT_ID;
-        } else {
-            libertyArtifactId = WSCORE_FEATURELIST_ARTIFACT_ID;
+        // Publishing started with 25.0.0.7 so for any liberty <25.0.0.7 use the 07 values
+        if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_BATCH1, true) <= 0) {
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH1;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH1 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH1;
+            libertyVersion = WS_FEATURE_LIST_VERSION_BATCH1; // must set for versions before 07
+        } else if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_BATCH3, true) < 0) {
+            // 25.0.0.8 to 25.0.0.12
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH2;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH2 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH2;
+        } else { // 26.0.0.1 and up
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH3;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH3 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH3;
         }
         libertyVersion = "[" + libertyVersion + "]"; // Maven syntax to specify an exact version, not a range
         getLog().debug("WebSphere Liberty feature list coordinates, libertyGroupId="+libertyGroupId+" libertyArtifactId="+libertyArtifactId+" WS_FEATURELIST_TYPE="+WS_FEATURELIST_TYPE+" libertyVersion="+libertyVersion);
