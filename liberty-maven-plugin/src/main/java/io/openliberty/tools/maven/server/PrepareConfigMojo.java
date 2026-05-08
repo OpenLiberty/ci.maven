@@ -75,17 +75,6 @@ import io.openliberty.tools.common.plugins.util.PrepareConfigUtil;
 @Mojo(name = "prepare-config", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class PrepareConfigMojo extends PluginConfigSupport {
 
-    /**
-     * Name of the temporary directory used for mock Liberty server structures.
-     * This directory is created under the build output directory (target/).
-     * Default value is "tmp/liberty-var-cache".
-     *
-     * <p>Example: If set to "my-temp", the mock server will be created at:
-     * target/my-temp/wlp/usr/servers/{serverName}</p>
-     */
-    @Parameter(property = "prepareConfigTempDir", defaultValue = "tmp/liberty-var-cache")
-    private String prepareConfigTempDir;
-
     @Override
     public void execute() throws MojoExecutionException {
         // Set flag to skip server config setup in init() to avoid Liberty runtime download
@@ -113,10 +102,13 @@ public class PrepareConfigMojo extends PluginConfigSupport {
             serverName = "defaultServer";
         }
 
-        // Validate and use the configured temp directory name
-        String tempDirName = (prepareConfigTempDir != null && !prepareConfigTempDir.trim().isEmpty())
-            ? prepareConfigTempDir.trim()
-            : PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+        // Check for system property override, otherwise use default
+        String tempDirName = System.getProperty("prepareConfigTempDir");
+        if (tempDirName == null || tempDirName.trim().isEmpty()) {
+            tempDirName = PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+        } else {
+            tempDirName = tempDirName.trim();
+        }
 
         // Set up mock Liberty directory structure
         File buildDirectory = new File(project.getBuild().getDirectory());
@@ -136,10 +128,13 @@ public class PrepareConfigMojo extends PluginConfigSupport {
         getLog().info("Preparing Liberty configuration...");
 
         try {
-            // Validate and use the configured temp directory name
-            String tempDirName = (prepareConfigTempDir != null && !prepareConfigTempDir.trim().isEmpty())
-                ? prepareConfigTempDir.trim()
-                : PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+            // Check for system property override, otherwise use default
+            String tempDirName = System.getProperty("prepareConfigTempDir");
+            if (tempDirName == null || tempDirName.trim().isEmpty()) {
+                tempDirName = PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+            } else {
+                tempDirName = tempDirName.trim();
+            }
 
             // Create mock Liberty server structure using common utility
             File buildDirectory = new File(project.getBuild().getDirectory());
@@ -181,10 +176,13 @@ public class PrepareConfigMojo extends PluginConfigSupport {
     @Override
     protected File exportParametersToXml(boolean includeServerInfo)
             throws IOException, ParserConfigurationException, TransformerException {
-        // Validate and use the configured temp directory name
-        String tempDirName = (prepareConfigTempDir != null && !prepareConfigTempDir.trim().isEmpty())
-            ? prepareConfigTempDir.trim()
-            : PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+        // Check for system property override, otherwise use default
+        String tempDirName = System.getProperty("prepareConfigTempDir");
+        if (tempDirName == null || tempDirName.trim().isEmpty()) {
+            tempDirName = PrepareConfigUtil.DEFAULT_TEMP_DIR_NAME;
+        } else {
+            tempDirName = tempDirName.trim();
+        }
 
         // Build mock Liberty directory structure paths using common utility
         File buildDirectory = new File(project.getBuild().getDirectory());
