@@ -558,26 +558,26 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private static String FEATURE_LIST_BASE = "base";
     private static String FEATURE_LIST_CORE = "core";
     private File getWebSphereFeatureListFile(String featureListVar) throws MojoExecutionException {
-        // For releases earlier than 25.0.0.7 use 25.0.0.7 Maven coordinates (cadre1).
-        // For releases 25.0.0.8 to 25.0.0.12 use cadre 2 coordinates. 
-        // For 26.0.0.1 and later use the third cadre.
+        // For releases earlier than 25.0.0.7 use 25.0.0.7 Maven coordinates (batch 1).
+        // For releases 25.0.0.8 to 25.0.0.12 use batch 2 coordinates. 
+        // For 26.0.0.1 and later use the third batch.
         String libertyGroupId, libertyArtifactId;
         String libertyVersion = getLibertyRuntimeVersion();
         if (libertyVersion == null) {
             return null;
         }
         // Publishing started with 25.0.0.7 so for any liberty <25.0.0.7 use the 07 values
-        if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_CADRE1, true) <= 0) {
-            libertyGroupId = WS_FEATURELIST_GROUP_ID_CADRE1;
-            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_CADRE1 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_CADRE1;
-            libertyVersion = WS_FEATURE_LIST_VERSION_CADRE1; // must set for versions before 07
-        } else if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_CADRE3, true) < 0) {
+        if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_BATCH1, true) <= 0) {
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH1;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH1 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH1;
+            libertyVersion = WS_FEATURE_LIST_VERSION_BATCH1; // must set for versions before 07
+        } else if (VersionUtility.compareArtifactVersion(libertyVersion, WS_FEATURE_LIST_VERSION_BATCH3, true) < 0) {
             // 25.0.0.8 to 25.0.0.12
-            libertyGroupId = WS_FEATURELIST_GROUP_ID_CADRE2;
-            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_CADRE2 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_CADRE2;
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH2;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH2 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH2;
         } else { // 26.0.0.1 and up
-            libertyGroupId = WS_FEATURELIST_GROUP_ID_CADRE3;
-            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_CADRE3 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_CADRE3;
+            libertyGroupId = WS_FEATURELIST_GROUP_ID_BATCH3;
+            libertyArtifactId = (featureListVar.equals(FEATURE_LIST_BASE)) ? WS_BASE_FEATURE_LIST_ARTIFACT_ID_BATCH3 : WS_CORE_FEATURE_LIST_ARTIFACT_ID_BATCH3;
         }
         libertyVersion = "[" + libertyVersion + "]"; // Maven syntax to specify an exact version, not a range
         getLog().debug("WebSphere Liberty feature list coordinates, libertyGroupId="+libertyGroupId+" libertyArtifactId="+libertyArtifactId+" WS_FEATURELIST_TYPE="+WS_FEATURELIST_TYPE+" libertyVersion="+libertyVersion);
