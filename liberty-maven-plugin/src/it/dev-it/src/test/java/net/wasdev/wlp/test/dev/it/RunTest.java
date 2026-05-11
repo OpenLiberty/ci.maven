@@ -24,9 +24,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -45,21 +48,20 @@ public class RunTest extends BaseDevTest {
 
    @Test
    public void endpointTest() throws Exception {
-         HttpClient client = new HttpClient();
+         try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet method = new HttpGet(URL);
+            
+            try (CloseableHttpResponse response = client.execute(method)) {
+               int statusCode = response.getStatusLine().getStatusCode();
 
-        GetMethod method = new GetMethod(URL);
-         try {
-            int statusCode = client.executeMethod(method);
+               assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
 
-            assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+               String responseBody = EntityUtils.toString(response.getEntity());
 
-            String response = method.getResponseBodyAsString();
-
-            assertTrue("Unexpected response body", response.contains("hello world"));
-            assertFalse(verifyLogMessageExists("SLF4J: Failed to load class", 2000));
-            assertTrue(verifyLogMessageExists("SLF4J Logger is ready for messages.", 2000));
-         } finally {
-            method.releaseConnection();
+               assertTrue("Unexpected response body", responseBody.contains("hello world"));
+               assertFalse(verifyLogMessageExists("SLF4J: Failed to load class", 2000));
+               assertTrue(verifyLogMessageExists("SLF4J Logger is ready for messages.", 2000));
+            }
          }
    }
 

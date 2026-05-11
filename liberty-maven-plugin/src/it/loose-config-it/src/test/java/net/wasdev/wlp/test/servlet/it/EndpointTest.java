@@ -18,9 +18,12 @@ package net.wasdev.wlp.test.servlet.it;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class EndpointTest {
     private static String URL;
@@ -32,20 +35,18 @@ public class EndpointTest {
 
     @Test
     public void testServlet() throws Exception {
-        HttpClient client = new HttpClient();
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet method = new HttpGet(URL);
 
-        GetMethod method = new GetMethod(URL);
+            try (CloseableHttpResponse response = client.execute(method)) {
+                int statusCode = response.getStatusLine().getStatusCode();
 
-        try {
-            int statusCode = client.executeMethod(method);
+                assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
 
-            assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+                String responseBody = EntityUtils.toString(response.getEntity());
 
-            String response = method.getResponseBodyAsString();
-
-            assertTrue("Unexpected response body", response.contains("Hello! How are you today?"));
-        } finally {
-            method.releaseConnection();
-        }  
+                assertTrue("Unexpected response body", responseBody.contains("Hello! How are you today?"));
+            }
+        }
     }
 }
