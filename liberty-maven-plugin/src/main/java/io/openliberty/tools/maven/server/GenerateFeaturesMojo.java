@@ -220,6 +220,21 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         if (!generateToSrc && !serverDirectory.exists()) {
             throw new MojoExecutionException("The 'generate-features' goal requires an existing Liberty server in directory " + serverDirectory.getPath() + ". Please run the 'liberty:create' goal before 'generate-features'.");
         }
+        // Detect if there is a generate-features.xml file in src already when generating to server dir
+        if (!generateToSrc && new File(configDirectory, GENERATED_FEATURES_FILE_PATH).exists()) {
+            if (isDevMode) { // this is serious because dev mode will overwrite the generated file when copying from src
+                getLog().error("A 'generated-features.xml' file was detected in the source Liberty configuration directory. " +
+                    "It will overwrite the file generated to the server directory by the automatic generation of features. " +
+                    "To continue to generate features to the server directory, you must delete the 'generated-features.xml' file " +
+                    "in the source Liberty configuration directory. To generate features to the source Liberty configuration " +
+                    "directory instead, you can type 's' + Enter.");
+            } else { // command line mojo just a warning that this configuration is not expected
+                getLog().warn("A 'generated-features.xml' file was detected in the source Liberty configuration directory. " +
+                    "To generate features to the server directory, it is recommended you delete the 'generated-features.xml' " +
+                    "file in the source Liberty configuration directory. To generate features to the source Liberty " +
+                    "configuration directory, you must use the option -DgenerateToSrc=true.");
+            }
+        }
 
         if (useTempDirAsContext) {
             // When this parameter is true it is required that the caller has copied the config into this dir.
