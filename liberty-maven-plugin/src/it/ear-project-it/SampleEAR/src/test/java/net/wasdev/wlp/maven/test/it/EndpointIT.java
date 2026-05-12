@@ -18,9 +18,12 @@ package net.wasdev.wlp.maven.test.it;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class EndpointIT {
     private static String URL;
@@ -32,20 +35,18 @@ public class EndpointIT {
     
     @Test
     public void testServlet() throws Exception {
-        HttpClient client = new HttpClient();
-        
-        GetMethod method = new GetMethod(URL);
-        
-        try {
-            int statusCode = client.executeMethod(method);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet method = new HttpGet(URL);
             
-            assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
-            
-            String response = method.getResponseBodyAsString(1000);
-            
-            assertTrue("Unexpected response body", response.contains("Hello EJB World."));
-        } finally {
-            method.releaseConnection();
+            try (CloseableHttpResponse response = client.execute(method)) {
+                int statusCode = response.getStatusLine().getStatusCode();
+                
+                assertEquals("HTTP GET failed", HttpStatus.SC_OK, statusCode);
+                
+                String responseBody = EntityUtils.toString(response.getEntity());
+                
+                assertTrue("Unexpected response body", responseBody.contains("Hello EJB World."));
+            }
         }
     }
 }
