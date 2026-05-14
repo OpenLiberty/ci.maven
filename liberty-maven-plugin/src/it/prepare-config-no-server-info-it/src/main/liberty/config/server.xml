@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Test server for prepare-config goal with includeServerInfo=false">
+
+    <featureManager>
+        <feature>jakartaee-9.1</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="9080"
+                  httpsPort="9443" />
+
+    <webApplication location="prepare-config-no-server-info-it.war" contextRoot="/" />
+
+</server>
