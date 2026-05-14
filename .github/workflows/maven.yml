@@ -7,7 +7,7 @@ on:
   push:
     branches: '**'
   pull_request:
-    branches: [ main ]
+    branches: [ main, prepare-config]
 
 env:
   # server-config-props-it fix
@@ -98,9 +98,9 @@ jobs:
       - name: Checkout ci.common
         uses: actions/checkout@v3
         with:
-          repository: venmanyarun/ci.common
+          repository: OpenLiberty/ci.common
           path: ci.common
-          ref: prepare_config_poc
+          ref: prepare-config
       - name: Checkout ci.ant
         uses: actions/checkout@v3
         with:
@@ -207,7 +207,7 @@ jobs:
       - name: Clone ci.ant and ci.common repos to github.workspace
         run: |
           echo ${{github.workspace}}
-          git clone https://github.com/venmanyarun/ci.common.git --branch prepare_config_poc --single-branch ${{github.workspace}}/ci.common
+          git clone https://github.com/OpenLiberty/ci.common.git --branch prepare-config --single-branch ${{github.workspace}}/ci.common
           git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.5
