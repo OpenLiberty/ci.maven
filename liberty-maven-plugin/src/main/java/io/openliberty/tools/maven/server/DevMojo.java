@@ -1674,6 +1674,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         util.addShutdownHook(executor);
+        util.startEarlyHotkeyReader(executor);
         
         try {
             util.startServer();
