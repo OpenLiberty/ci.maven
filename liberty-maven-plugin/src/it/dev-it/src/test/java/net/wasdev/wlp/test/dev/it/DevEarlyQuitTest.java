@@ -159,11 +159,10 @@ public class DevEarlyQuitTest extends BaseDevTest {
 
         // Check logs for any errors
         Thread.sleep(2000);
-        String logContent = readFile(logFile);
 
         // Should not have any severe errors from multiple quit attempts
         // (Some warnings might be expected, but no severe errors)
-        int severeCount = countOccurrences(logContent, "SEVERE");
+        int severeCount = countOccurrences("SEVERE", logFile);
         assertTrue("Should not have excessive SEVERE errors (found " + severeCount + ")",
                 severeCount < 3);
     }
@@ -194,17 +193,4 @@ public class DevEarlyQuitTest extends BaseDevTest {
         }
         return new String(java.nio.file.Files.readAllBytes(file.toPath()));
     }
-
-    // Helper method to count occurrences of a string
-    private int countOccurrences(String text, String search) {
-        int count = 0;
-        int index = 0;
-        while ((index = text.indexOf(search, index)) != -1) {
-            count++;
-            index += search.length();
-        }
-        return count;
-    }
 }
-
-// Made with Bob
