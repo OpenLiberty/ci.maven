@@ -186,6 +186,55 @@ public class DevEarlyQuitTest extends BaseDevTest {
         assertTrue("Process should have terminated", terminated);
     }
 
+    /**
+     * Test that other hotkeys (r, h, g, o, t, p, enter) are ignored during server startup.
+     * Only 'q' should be processed during startup; other keys should be ignored with a message.
+     */
+    @Test
+    public void testOtherHotkeysIgnoredDuringStartup() throws Exception {
+        // Start dev mode
+        startProcess(null, true, "mvn liberty:", false);
+        Thread.sleep(1000); // Wait for startup to begin but not complete
+
+        // Try various hotkeys that should be ignored during startup
+        String[] ignoredKeys = {"r", "h", "g", "o", "t", "p", "\n"};
+        
+        for (String key : ignoredKeys) {
+            writer.write(key);
+            writer.flush();
+            if (!key.equals("\n")) {
+                writer.newLine();
+                writer.flush();
+            }
+            Thread.sleep(200); // Small delay between commands
+        }
+
+        // Wait a bit to see if any of those commands triggered actions
+        Thread.sleep(2000);
+
+        // Process should still be alive (none of the commands should have quit)
+        assertTrue("Process should still be alive after ignored hotkeys", process.isAlive());
+
+        // Check logs for the "only 'q' is available" message
+        String logContent = readFile(logFile);
+        assertTrue("Should have message about only 'q' being available during startup",
+                logContent.contains("Only 'q' (quit) is available") ||
+                logContent.contains("Server is starting"));
+
+        // Verify that restart (r) didn't happen
+        int restartCount = countOccurrences("Restarting", logFile);
+        assertEquals("Should not have restarted during startup", 0, restartCount);
+
+        // Now send 'q' to properly quit
+        writer.write("q");
+        writer.flush();
+        writer.newLine();
+        writer.flush();
+
+        boolean terminated = process.waitFor(30, TimeUnit.SECONDS);
+        assertTrue("Process should have terminated after 'q' command", terminated);
+    }
+
     // Helper method to read file content
     private String readFile(File file) throws IOException {
         if (!file.exists()) {
