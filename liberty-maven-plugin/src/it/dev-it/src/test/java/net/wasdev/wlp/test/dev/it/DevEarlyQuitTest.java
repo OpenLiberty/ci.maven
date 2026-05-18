@@ -187,8 +187,8 @@ public class DevEarlyQuitTest extends BaseDevTest {
     }
 
     /**
-     * Test that other hotkeys (r, h, g, o, t, p, enter) are ignored during server startup.
-     * Only 'q' should be processed during startup; other keys should be ignored with a message.
+     * Test that other hotkeys (r, g, o, t, p, enter) are ignored during server startup.
+     * Only 'q' and 'h' should be processed during startup; other keys should be ignored with a message.
      */
     @Test
     public void testOtherHotkeysIgnoredDuringStartup() throws Exception {
@@ -196,8 +196,8 @@ public class DevEarlyQuitTest extends BaseDevTest {
         startProcess(null, true, "mvn liberty:", false);
         Thread.sleep(1000); // Wait for startup to begin but not complete
 
-        // Try various hotkeys that should be ignored during startup
-        String[] ignoredKeys = {"r", "h", "g", "o", "t", "p", "\n"};
+        // Try various hotkeys that should be ignored during startup (excluding 'q' and 'h')
+        String[] ignoredKeys = {"r", "g", "o", "t", "p", "\n"};
         
         for (String key : ignoredKeys) {
             writer.write(key);
@@ -215,11 +215,10 @@ public class DevEarlyQuitTest extends BaseDevTest {
         // Process should still be alive (none of the commands should have quit)
         assertTrue("Process should still be alive after ignored hotkeys", process.isAlive());
 
-        // Check logs for the "only 'q' is available" message
+        // Check logs for the "command not available" message
         String logContent = readFile(logFile);
-        assertTrue("Should have message about only 'q' being available during startup",
-                logContent.contains("Only 'q' (quit) is available") ||
-                logContent.contains("Server is starting"));
+        assertTrue("Should have message about command not being available during startup",
+                logContent.contains("The requested command is not available during server startup"));
 
         // Verify that restart (r) didn't happen
         int restartCount = countOccurrences("Restarting", logFile);
@@ -232,6 +231,37 @@ public class DevEarlyQuitTest extends BaseDevTest {
         writer.flush();
 
         boolean terminated = process.waitFor(30, TimeUnit.SECONDS);
+        assertTrue("Process should have terminated after 'q' command", terminated);
+    }
+
+    /**
+     * Test that 'h' (help) command works during server startup.
+     * This verifies that users can see help messages while waiting for server to start.
+     */
+    @Test
+    public void testHelpCommandDuringStartup() throws Exception {
+        // Start dev mode
+        startProcess(null, true, "mvn liberty:", false);
+        Thread.sleep(1500); // Wait for startup to begin but not complete
+
+        // Send 'h' command to show help
+        writer.write("h");
+        writer.newLine();
+        writer.flush();
+
+        // Wait a bit for help to be displayed
+        Thread.sleep(2000);
+
+        // Process should still be alive (help shouldn't quit)
+        assertTrue("Process should still be alive after 'h' command", process.isAlive());
+
+        // Now send 'q' to properly quit - use same pattern as other tests
+        writer.write("q");
+        writer.newLine();
+        writer.flush();
+
+        // Give more time for graceful shutdown
+        boolean terminated = process.waitFor(60, TimeUnit.SECONDS);
         assertTrue("Process should have terminated after 'q' command", terminated);
     }
 
