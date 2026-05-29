@@ -64,6 +64,10 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -1833,6 +1837,60 @@ public class DevMojo extends LooseAppSupport {
         if (encoding != null) {
             getLog().debug("Setting compiler encoding to " + encoding);
             compilerOptions.setEncoding(encoding);
+        }
+
+        // Extract and resolve annotation processor paths
+        if (configuration != null) {
+            Xpp3Dom annotationProcessorPaths = configuration.getChild("annotationProcessorPaths");
+            if (annotationProcessorPaths != null) {
+                Xpp3Dom[] pathElements = annotationProcessorPaths.getChildren("path");
+                if (pathElements != null && pathElements.length > 0) {
+                    List<String> resolvedPaths = new ArrayList<>();
+                    for (Xpp3Dom path : pathElements) {
+                        Xpp3Dom groupIdElement = path.getChild("groupId");
+                        Xpp3Dom artifactIdElement = path.getChild("artifactId");
+                        Xpp3Dom versionElement = path.getChild("version");
+                        
+                        if (groupIdElement != null && artifactIdElement != null && versionElement != null) {
+                            String groupId = groupIdElement.getValue();
+                            String artifactId = artifactIdElement.getValue();
+                            String version = versionElement.getValue();
+                            
+                            if (groupId != null && artifactId != null && version != null) {
+                                try {
+                                    // Use Maven's artifact resolution to resolve annotation processor artifacts
+                                    org.eclipse.aether.artifact.Artifact aetherArtifact =
+                                        new DefaultArtifact(groupId, artifactId, "jar", version);
+                                    
+                                    ArtifactRequest req =
+                                        new ArtifactRequest()
+                                            .setRepositories(this.repositories)
+                                            .setArtifact(aetherArtifact);
+                                    
+                                    ArtifactResult result =
+                                        this.repositorySystem.resolveArtifact(this.repoSession, req);
+                                    
+                                    if (result.isResolved() && result.getArtifact().getFile() != null) {
+                                        File file = result.getArtifact().getFile();
+                                        resolvedPaths.add(file.getAbsolutePath());
+                                        getLog().debug("Resolved annotation processor " + groupId + ":" + artifactId +
+                                                     ":" + version + " to " + file.getAbsolutePath());
+                                    }
+                                } catch (ArtifactResolutionException e) {
+                                    getLog().warn("Failed to resolve annotation processor artifact " +
+                                                groupId + ":" + artifactId + ":" + version + ": " + e.getMessage());
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!resolvedPaths.isEmpty()) {
+                        String processorPath = String.join(File.pathSeparator, resolvedPaths);
+                        compilerOptions.setAnnotationProcessorPath(processorPath);
+                        getLog().debug("Setting annotation processor path: " + processorPath);
+                    }
+                }
+            }
         }
 
         return compilerOptions;
