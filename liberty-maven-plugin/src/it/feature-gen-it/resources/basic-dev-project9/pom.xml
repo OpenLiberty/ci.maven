@@ -3,7 +3,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>binary-scanner-it-tests</groupId>
+  <groupId>feature-gen-it-tests</groupId>
   <artifactId>dev-sample-proj</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -20,7 +20,7 @@
     <!-- end::ports[] -->
     <packaging.type>usr</packaging.type>
   </properties>
-  
+
   <dependencyManagement>
       <dependencies>
           <dependency>
@@ -36,9 +36,16 @@
   <dependencies>
     <!-- Umbrella features -->
     <dependency>
-        <groupId>javax</groupId>
-        <artifactId>javaee-api</artifactId>
-        <version>6.0</version>
+        <groupId>jakarta.platform</groupId>
+        <artifactId>jakarta.jakartaee-api</artifactId>
+        <version>9.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.microprofile</groupId>
+        <artifactId>microprofile</artifactId>
+        <version>5.0</version>
+        <type>pom</type>
         <scope>provided</scope>
     </dependency>
     <!-- For tests -->

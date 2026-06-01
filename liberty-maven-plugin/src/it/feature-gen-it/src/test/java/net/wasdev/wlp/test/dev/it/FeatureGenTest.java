@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
-import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +36,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * scanner acceptance tests
+ * Feature generator acceptance tests
  */
-public class ScannerTest extends BaseScannerTest {
+public class FeatureGenTest extends BaseFeatureGenTest {
 
     @Before
     public void setUp() throws Exception {
@@ -52,39 +52,39 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     /**
-     * The user must record the expected binary scanner version in the pom.xml file.
+     * The user must record the expected feature generator version in the pom.xml file.
      * This tests that the expected version is actually pulled in by the plugin.
      * 
      * @throws Exception
      */
     @Test
     public void versionTest() throws Exception {
-        String expectedVersion = System.getProperty("scannerVersion");
-        assertNotNull("The <scannerVersion> is not set in the pom.", expectedVersion);
-        assertTrue("The <scannerVersion> set in the pom is empty.", expectedVersion.length() > 0);
+        String expectedVersion = System.getProperty("featureGenVersion");
+        assertNotNull("The <featureGenVersion> is not set in the pom.", expectedVersion);
+        assertTrue("The <featureGenVersion> set in the pom is empty.", expectedVersion.length() > 0);
         // Must differentiate between 22.0.0.3.jar and 22.0.0.3-SNAPSHOT.jar
-        String expectedJarName = "binary-app-scanner-" + expectedVersion + ".jar";
+        String expectedJarName = "feature-gen-" + expectedVersion + ".jar";
         runCompileAndGenerateFeatures("-X");
-        // Find "[DEBUG] Calling binary-app-scanner-22.0.0.3-SNAPSHOT.jar with the following inputs..."
+        // Find "[DEBUG] Calling feature-gen-22.0.0.3-SNAPSHOT.jar with the following inputs..."
         String line = findLogMessage("with the following inputs...", 10000, logFile);
-        assertNotNull("Calling binary-app-scanner... line not found in log file", line);
-        assertTrue("The <scannerVersion> set in the pom:" + expectedVersion + " not found in log:\"" + line + "\"", 
+        assertNotNull("Calling feature-gen... line not found in log file", line);
+        assertTrue("The <featureGenVersion> set in the pom:" + expectedVersion + " not found in log:\"" + line + "\"",
             line.contains(expectedJarName));
     }
 
     /**
-     * Verify a scanner log is generated when plugin logging is enabled.
+     * Verify a feature gen log is generated when plugin logging is enabled.
      * 
      * @throws Exception
      */
     @Test
-    public void scannerLogExistenceTest() throws Exception {
-        File scannerLogDir = new File(targetDir, "logs");
-        assertFalse(scannerLogDir.exists());
+    public void featureGenLogExistenceTest() throws Exception {
+        File featureGenLogDir = new File(targetDir, "logs");
+        assertFalse(featureGenLogDir.exists());
 
         runCompileAndGenerateFeatures("-X");
-        assertTrue(scannerLogDir.exists());
-        File[] logDirListing = scannerLogDir.listFiles();
+        assertTrue(featureGenLogDir.exists());
+        File[] logDirListing = featureGenLogDir.listFiles();
         assertNotNull(logDirListing);
         boolean logExists = false;
         for (File child : logDirListing) {
@@ -118,9 +118,9 @@ public class ScannerTest extends BaseScannerTest {
 
     /**
      * Verify FeatureConflictException is thrown by checking for
-     * BINARY_SCANNER_CONFLICT_MESSAGE1 (conflict between configured features
+     * FEATURE_GEN_CONFLICT_MESSAGE1 (conflict between configured features
      * and API usage)
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -133,19 +133,19 @@ public class ScannerTest extends BaseScannerTest {
             serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify BINARY_SCANNER_CONFLICT_MESSAGE1 is shown.
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE1 is shown.
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         recommendedFeatureSet.add("cdi-3.0");
-        String expectedMessage = String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet);
+        String expectedMessage = String.format(FEATURE_GEN_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet);
         assertTrue("Could not find the feature conflict message in the process output.\n" + formatOutput(processOutput),
             processOutput.contains(expectedMessage));
     }
 
     /**
      * Verify ProvidedFeatureConflictException is thrown by checking
-     * for BINARY_SCANNER_CONFLICT_MESSAGE2 (conflict between configured features)
-     * 
+     * for FEATURE_GEN_CONFLICT_MESSAGE2 (conflict between configured features)
+     *
      * @throws Exception
      */
     @Test
@@ -159,14 +159,14 @@ public class ScannerTest extends BaseScannerTest {
         replaceString("<!--replaceable-->", featureManagerString, serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify BINARY_SCANNER_CONFLICT_MESSAGE2 error is shown
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is shown
         Set<String> expectedReportedConflictSet = new HashSet<String>();
         expectedReportedConflictSet.add("restfulWS-3.0");
         // TODO: already asked scanner team why servlet-5.0 is not shown. Should be added here.
         expectedReportedConflictSet.add("cdi-1.2");
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        String expectedMessage = String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, expectedReportedConflictSet, recommendedFeatureSet);
+        String expectedMessage = String.format(FEATURE_GEN_CONFLICT_MESSAGE2, expectedReportedConflictSet, recommendedFeatureSet);
         assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
             processOutput.contains(expectedMessage));
     }
@@ -174,8 +174,8 @@ public class ScannerTest extends BaseScannerTest {
     /**
      * FeatureNotAvailableAtRequestedLevelException flags conflict between
      * required features in API usage or configured features and MP/EE level specified.
-     * Check for BINARY_SCANNER_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
-     * 
+     * Check for FEATURE_GEN_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
+     *
      * @throws Exception
      */
     @Test
@@ -197,7 +197,7 @@ public class ScannerTest extends BaseScannerTest {
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
             processOutput.contains(
-                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee7", removeFeatures)));
+                String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee7", removeFeatures)));
     }
 
     // TODO FeatureModifiedException
@@ -205,7 +205,7 @@ public class ScannerTest extends BaseScannerTest {
     // java.lang.IllegalArgumentException - targetMicroProfile N.B. tested in DevTest.java
 
     /**
-     * Test calling the scanner with both the EE umbrella dependency and the MP
+     * Test calling the generator with both the EE umbrella dependency and the MP
      * umbrella dependency.
      * 
      * @throws Exception
@@ -223,7 +223,7 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     /**
-     * Test calling the scanner with just the EE umbrella dependency and no MP
+     * Test calling the generator with just the EE umbrella dependency and no MP
      * umbrella dependency.
      * 
      * @throws Exception
@@ -242,7 +242,7 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     /**
-     * Test calling the scanner with just the MP umbrella dependency and no EE
+     * Test calling the generator with just the MP umbrella dependency and no EE
      * umbrella dependency.
      * 
      * @throws Exception
@@ -261,7 +261,7 @@ public class ScannerTest extends BaseScannerTest {
     }
 
     /**
-     * Test calling the scanner with no EE umbrella dependency and no MP
+     * Test calling the generator with no EE umbrella dependency and no MP
      * umbrella dependency.
      * 
      * @throws Exception

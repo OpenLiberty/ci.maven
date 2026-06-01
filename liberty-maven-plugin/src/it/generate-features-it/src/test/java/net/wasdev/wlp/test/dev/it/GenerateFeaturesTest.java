@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022, 2025
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
-import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -197,8 +197,8 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     /**
      * Conflict between user specified features.
-     * Check for BINARY_SCANNER_CONFLICT_MESSAGE2 (conflict between configured features)
-     * 
+     * Check for FEATURE_GEN_CONFLICT_MESSAGE2 (conflict between configured features)
+     *
      * @throws Exception
      */
     @Test
@@ -212,18 +212,18 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify BINARY_SCANNER_CONFLICT_MESSAGE2 error is thrown (BinaryScannerUtil.RecommendationSetException)
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is thrown (FeatureGenUtil.RecommendationSetException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
                 processOutput.contains(
-                        String.format(BINARY_SCANNER_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+                        String.format(FEATURE_GEN_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
 
     /**
      * Conflict between user specified features and API usage.
-     * Check for BINARY_SCANNER_CONFLICT_MESSAGE1 (conflict between configured features and API usage)
-     * 
+     * Check for FEATURE_GEN_CONFLICT_MESSAGE1 (conflict between configured features and API usage)
+     *
      * @throws Exception
      */
     @Test
@@ -236,21 +236,21 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify BINARY_SCANNER_CONFLICT_MESSAGE1 error is thrown (BinaryScannerUtil.FeatureModifiedException)
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE1 error is thrown (FeatureGenUtil.FeatureModifiedException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.add("cdi-2.0");
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         assertTrue("Could not find the feature conflict message in the process output.\n" + formatOutput(processOutput),
             processOutput.contains(
-                String.format(BINARY_SCANNER_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+                String.format(FEATURE_GEN_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
     }
 
-    // TODO add an integration test for feature conflict for API usage (BINARY_SCANNER_CONFLICT_MESSAGE3), ie. MP4 and EE9
+    // TODO add an integration test for feature conflict for API usage (FEATURE_GEN_CONFLICT_MESSAGE3), ie. MP4 and EE9
 
     /**
      * Conflict between required features in API usage or configured features and MP/EE level specified
-     * Check for BINARY_SCANNER_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
-     * 
+     * Check for FEATURE_GEN_CONFLICT_MESSAGE5 (feature unavailable for required MP/EE levels)
+     *
      * @throws Exception
      */
     @Test
@@ -271,7 +271,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
         processOutput.contains(
-                String.format(BINARY_SCANNER_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
+                String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
     }
 
     // get the app features that conflict with cdi-1.2

@@ -40,8 +40,8 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
-import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
-import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
+import io.openliberty.tools.common.plugins.util.FeatureGenUtil;
+import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
@@ -77,8 +77,8 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private List<String> classFiles;
 
     /**
-     * If optimize is true, pass all class files and only user specified features to binary scanner
-     * Otherwise, if optimize is false, pass only provided updated class files (if any) and all existing features to binary scanner
+     * If optimize is true, pass all class files and only user specified features to feature generator
+     * Otherwise, if optimize is false, pass only provided updated class files (if any) and all existing features to feature generator
      */
     @Parameter(property = "optimize", defaultValue = "true")
     private boolean optimize;
@@ -164,11 +164,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     /**
-     * Generates features for the application given the API usage detected by the binary scanner and
+     * Generates features for the application given the API usage detected by the feature generator and
      * taking any user specified features into account
      * 
      * @throws MojoExecutionException
-     * @throws PluginExecutionException indicates the binary-app-scanner.jar could
+     * @throws PluginExecutionException indicates the feature-gen.jar could
      *                                  not be found
      */
     private void generateFeatures() throws MojoExecutionException, PluginExecutionException {
@@ -247,11 +247,11 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         generationOutputDir = useTempDirAsOutput ? getGeneratedFeaturesTempDir() : generationContextDir;
 
         // The executable file used to scan binaries for the Liberty features they use.
-        File binaryScannerJar = getBinaryScannerJarFromRepository();
-        BinaryScannerHandler binaryScannerHandler = new BinaryScannerHandler(binaryScannerJar);
+        File featureGenJar = getFeatureGenJarFromRepository();
+        FeatureGenHandler featureGenHandler = new FeatureGenHandler(featureGenJar);
 
         getLog().debug("--- Generate Features values ---");
-        getLog().debug("Binary scanner jar: " + binaryScannerJar.getName());
+        getLog().debug("Feature generator jar: " + featureGenJar.getName());
         getLog().debug("optimize generate features: " + optimize);
         getLog().debug("useTempDirAsOutput (dev mode only): " + useTempDirAsOutput);
         getLog().debug("useTempDirAsContext (dev mode only): " + useTempDirAsContext);
@@ -285,7 +285,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
         generatedFiles.add(GENERATED_FEATURES_FILE_NAME);
 
         Set<String> existingFeatures = getServerFeatures(servUtil, generatedFiles, optimize);
-        Set<String> nonCustomFeatures = new HashSet<String>(); // binary scanner only handles actual Liberty features
+        Set<String> nonCustomFeatures = new HashSet<String>(); // feature generator only handles actual Liberty features
         for (String feature : existingFeatures) { // custom features are "usr:feature-1.0" or "myExt:feature-2.0"
             if (!feature.contains(":")) nonCustomFeatures.add(feature);
         }
@@ -299,7 +299,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             mavenProjects.add(project);
             Set<String> directories = getClassesDirectories(mavenProjects);
             if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
-                // log as warning and continue to call binary scanner to detect conflicts in
+                // log as warning and continue to call feature generator to detect conflicts in
                 // user specified features
                 getLog().warn(NO_CLASSES_DIR_WARNING);
             }
@@ -326,14 +326,14 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 featureListFileMap.put(WSBASE_FEATURELIST_KEY, baseFeatureListFile);
             } // else should not happen, just pass empty map
 
-            scannedFeatureList = binaryScannerHandler.runBinaryScanner(nonCustomFeatures, classFiles, directories, logLocation, 
+            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, directories, logLocation,
                 eeVersionArg, mpVersionArg, featureListFileMap, optimize);
-        } catch (BinaryScannerUtil.NoRecommendationException noRecommendation) {
-            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
-        } catch (BinaryScannerUtil.FeatureModifiedException featuresModified) {
+        } catch (FeatureGenUtil.NoRecommendationException noRecommendation) {
+            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
+        } catch (FeatureGenUtil.FeatureModifiedException featuresModified) {
             Set<String> userFeatures = (optimize) ? existingFeatures :
                 getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
-            Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the scanner
+            Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the generator
             if (modifiedSet.containsAll(userFeatures)) {
                 // none of the user features were modified, only features which were generated earlier.
                 getLog().debug(
@@ -344,28 +344,28 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
             } else {
                 Set<String> allAppFeatures = featuresModified.getSuggestions(); // suggestions are scanned from binaries
                 allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
-                getLog().debug("FeatureModifiedException, combine suggestions from scanner with user features in error msg");
+                getLog().debug("FeatureModifiedException, combine suggestions from generator with user features in error msg");
                 throw new MojoExecutionException(
-                        String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
+                        String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
 
             }
-        } catch (BinaryScannerUtil.RecommendationSetException showRecommendation) {
+        } catch (FeatureGenUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
-                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             } else {
-                throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             }
-        } catch (BinaryScannerUtil.FeatureUnavailableException featureUnavailable) {
-            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
-        } catch (BinaryScannerUtil.IllegalTargetComboException illegalCombo) {
-            throw new MojoExecutionException(String.format(BinaryScannerUtil.BINARY_SCANNER_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
-        } catch (BinaryScannerUtil.IllegalTargetException illegalTargets) {
+        } catch (FeatureGenUtil.FeatureUnavailableException featureUnavailable) {
+            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
+        } catch (FeatureGenUtil.IllegalTargetComboException illegalCombo) {
+            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
+        } catch (FeatureGenUtil.IllegalTargetException illegalTargets) {
             String messages = buildInvalidArgExceptionMessage(illegalTargets.getEELevel(), illegalTargets.getMPLevel(), eeVersion, mpVersion);
             throw new MojoExecutionException(messages);
-        } catch (BinaryScannerUtil.VersionlessFeatureDetectedException versionless) {
+        } catch (FeatureGenUtil.VersionlessFeatureDetectedException versionless) {
             throw new MojoExecutionException(isDevMode ? VERSIONLESS_FEATURE_DETECTED_DEVMODE : VERSIONLESS_FEATURE_DETECTED);
         } catch (PluginExecutionException x) {
-            // throw an error when there is a problem not caught in runBinaryScanner()
+            // throw an error when there is a problem not caught in runFeatureGenerator()
             Object o = x.getCause();
             if (o != null) {
                 getLog().debug("Caused by exception:" + x.getCause().getClass().getName());
@@ -390,7 +390,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 missingLibertyFeatures.removeAll(userDefinedFeatures);
             }
         }
-        getLog().debug("Features detected by binary scanner which are not in server.xml" + missingLibertyFeatures);
+        getLog().debug("Features detected by feature generator which are not in server.xml" + missingLibertyFeatures);
 
         // generate the new features into an xml file in the correct context directory
         // The ServerConfigXmlDocument class will create the directories if needed.
@@ -499,7 +499,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private Set<String> getServerFeaturesPlatforms(ServerFeatureUtil servUtil, Set<String> generatedFiles, boolean excludeGenerated, boolean features) {
         servUtil.setLowerCaseFeatures(false);
         // if optimizing, ignore generated files when passing in existing features to
-        // binary scanner
+        // feature generator
         FeaturesPlatforms fp = servUtil.getServerFeatures(generationContextDir, serverXmlFile,
                 new HashMap<String, File>(), excludeGenerated ? generatedFiles : null); // pass generatedFiles to exclude them
         servUtil.setLowerCaseFeatures(true);
@@ -530,21 +530,21 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
     /**
-     * Gets the binary scanner jar file from the local cache.
+     * Gets the feature generator jar file from the local cache.
      * Downloads it first from connected repositories such as Maven Central if a newer release is available than the cached version.
      * Note: Maven updates artifacts daily by default based on the last updated timestamp. Users should use 'mvn -U' to force updates if needed.
      * 
-     * @return The File object of the binary scanner jar in the local cache.
+     * @return The File object of the feature generator jar in the local cache.
      * @throws PluginExecutionException
      */
-    private File getBinaryScannerJarFromRepository() throws PluginExecutionException {
+    private File getFeatureGenJarFromRepository() throws PluginExecutionException {
         try {
-            return getArtifact(BINARY_SCANNER_MAVEN_GROUP_ID, BINARY_SCANNER_MAVEN_ARTIFACT_ID, BINARY_SCANNER_MAVEN_TYPE, BINARY_SCANNER_MAVEN_VERSION).getFile();
+            return getArtifact(FEATURE_GEN_MAVEN_GROUP_ID, FEATURE_GEN_MAVEN_ARTIFACT_ID, FEATURE_GEN_MAVEN_TYPE, FEATURE_GEN_MAVEN_VERSION).getFile();
         } catch (Exception e) {
-            throw new PluginExecutionException("Could not retrieve the artifact " + BINARY_SCANNER_MAVEN_GROUP_ID + "."
-                    + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+            throw new PluginExecutionException("Could not retrieve the artifact " + FEATURE_GEN_MAVEN_GROUP_ID + "."
+                    + FEATURE_GEN_MAVEN_ARTIFACT_ID
                     + " needed for liberty:generate-features. Ensure you have a connection to Maven Central or another repository that contains the "
-                    + BINARY_SCANNER_MAVEN_GROUP_ID + "." + BINARY_SCANNER_MAVEN_ARTIFACT_ID
+                    + FEATURE_GEN_MAVEN_GROUP_ID + "." + FEATURE_GEN_MAVEN_ARTIFACT_ID
                     + ".jar configured in your pom.xml.",
                     e);
         }
@@ -644,7 +644,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     private Set<String> getClassesDirectories(List<MavenProject> mavenProjects) throws MojoExecutionException {
         Set<String> dirs = new HashSet<String>();
         String classesDirName = null;
-        getLog().debug("For binary scanner gathering Java build output directories for Maven projects, size="
+        getLog().debug("For feature generator gathering Java build output directories for Maven projects, size="
                 + mavenProjects.size());
         for (MavenProject mavenProject : mavenProjects) {
             classesDirName = getClassesDirectory(mavenProject.getBuild().getOutputDirectory());
@@ -845,10 +845,10 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
     }
 
 
-    // Define the logging functions of the binary scanner handler and make it available in this plugin
-    private class BinaryScannerHandler extends BinaryScannerUtil {
-        BinaryScannerHandler(File scannerFile) {
-            super(scannerFile);
+    // Define the logging functions of the feature generator handler and make it available in this plugin
+    private class FeatureGenHandler extends FeatureGenUtil {
+        FeatureGenHandler(File generatorFile) {
+            super(generatorFile);
         }
         @Override
         public void debug(String msg) {
