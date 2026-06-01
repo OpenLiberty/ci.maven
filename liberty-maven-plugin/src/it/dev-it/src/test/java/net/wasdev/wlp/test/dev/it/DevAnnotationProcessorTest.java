@@ -41,15 +41,18 @@ public class DevAnnotationProcessorTest extends BaseDevTest {
       
       assertTrue("Web app should be available", verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
       
+      assertFalse("Should not have compilation errors during startup",
+                  verifyLogMessageExists("variable name not initialized", 2000));
+      
       File pojoFile = new File(tempProj, "src/main/java/com/demo/rest/Pojo.java");
       assertTrue("Pojo.java should exist", pojoFile.exists());
       replaceString("@RequiredArgsConstructor", "// Modified\n@RequiredArgsConstructor", pojoFile);
 
-      Thread.sleep(5000);
+      Thread.sleep(8000);
       
-      assertTrue("Recompilation should succeed with annotation processor", 
+      assertTrue("Recompilation should succeed with annotation processor",
                  verifyLogMessageExists(COMPILATION_SUCCESSFUL, 60000));
-      assertFalse("Should not have compilation errors", 
+      assertFalse("Should not have compilation errors",
                   verifyLogMessageExists("variable name not initialized", 5000));
       
       tagLog("##annotationProcessorTest end");

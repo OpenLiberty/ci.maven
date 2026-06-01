@@ -1891,6 +1891,26 @@ public class DevMojo extends LooseAppSupport {
                     }
                 }
             }
+            
+            // Extract annotation processors (comma separated list of processor class names)
+            Xpp3Dom annotationProcessors = configuration.getChild("annotationProcessors");
+            if (annotationProcessors != null) {
+                Xpp3Dom[] processorElements = annotationProcessors.getChildren("annotationProcessor");
+                if (processorElements != null && processorElements.length > 0) {
+                    List<String> processorList = new ArrayList<>();
+                    for (Xpp3Dom processor : processorElements) {
+                        String processorClass = processor.getValue();
+                        if (processorClass != null && !processorClass.trim().isEmpty()) {
+                            processorList.add(processorClass.trim());
+                        }
+                    }
+                    if (!processorList.isEmpty()) {
+                        String processors = String.join(",", processorList);
+                        compilerOptions.setAnnotationProcessors(processors);
+                        getLog().debug("Setting annotation processors: " + processors);
+                    }
+                }
+            }
         }
 
         return compilerOptions;
