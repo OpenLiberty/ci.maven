@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2018, 2025.
+ * (C) Copyright IBM Corporation 2018, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,19 @@
 package io.openliberty.tools.maven.utils;
 
 import java.io.File;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import io.openliberty.tools.common.plugins.util.PluginScenarioException;
+import io.openliberty.tools.common.plugins.util.VersionUtility;
 
 public class SpringBootUtil {
+    
+    public static final String MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4 = "26.0.0.5";
 
     /**
      * Checks that the spring-boot-maven-plugin repackage goal execution exists.
@@ -128,5 +134,19 @@ public class SpringBootUtil {
 
     public static boolean isSpringBoot2plus(int springBootMajorVersion) {
         return springBootMajorVersion > 1;
+    }
+
+    public static boolean requiresSpringBoot4MinimumLibertyVersion(int springBootMajorVersion) {
+        return springBootMajorVersion >= 4;
+    }
+
+    public static void validateSpringBootLibertyVersion(int springBootMajorVersion, String libertyVersion,
+            ResourceBundle messages) throws MojoExecutionException {
+        if (requiresSpringBoot4MinimumLibertyVersion(springBootMajorVersion)
+                && VersionUtility.compareArtifactVersion(libertyVersion, MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4, true) < 0) {
+            throw new MojoExecutionException(MessageFormat.format(
+                    messages.getString("error.springboot.version.liberty.unsupported"),
+                    springBootMajorVersion + ".0", libertyVersion, MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4));
+        }
     }
 }

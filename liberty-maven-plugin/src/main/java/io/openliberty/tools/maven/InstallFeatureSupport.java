@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020, 2025.
+ * (C) Copyright IBM Corporation 2020, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.Set;
 
 import io.openliberty.tools.common.plugins.util.LibertyPropFilesUtility;
 import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.maven.utils.SpringBootUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -205,6 +206,8 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         }
 
         checkServerHomeExists();
+        SpringBootUtil.validateSpringBootLibertyVersion(SpringBootUtil.getSpringBootMavenPluginVersion(project),
+                assemblyArtifact.getVersion(), messages);
 
         return true;
     }
