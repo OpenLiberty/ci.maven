@@ -17,6 +17,9 @@ package io.openliberty.tools.maven.utils;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,7 +31,13 @@ import io.openliberty.tools.common.plugins.util.VersionUtility;
 
 public class SpringBootUtil {
     
-    public static final String MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4 = "26.0.0.5";
+    public static final Map<Integer, String> MIN_LIBERTY_VERSION_BY_SPRING_BOOT_MAJOR_VERSION;
+    
+    static {
+        Map<Integer, String> minimumLibertyVersions = new HashMap<>();
+        minimumLibertyVersions.put(4, "26.0.0.5");
+        MIN_LIBERTY_VERSION_BY_SPRING_BOOT_MAJOR_VERSION = Collections.unmodifiableMap(minimumLibertyVersions);
+    }
 
     /**
      * Checks that the spring-boot-maven-plugin repackage goal execution exists.
@@ -136,17 +145,18 @@ public class SpringBootUtil {
         return springBootMajorVersion > 1;
     }
 
-    public static boolean requiresSpringBoot4MinimumLibertyVersion(int springBootMajorVersion) {
-        return springBootMajorVersion >= 4;
+    public static String getSpringBootMinimumLibertyVersion(int springBootMajorVersion) {
+        return MIN_LIBERTY_VERSION_BY_SPRING_BOOT_MAJOR_VERSION.get(springBootMajorVersion);
     }
 
     public static void validateSpringBootLibertyVersion(int springBootMajorVersion, String libertyVersion,
             ResourceBundle messages) throws MojoExecutionException {
-        if (requiresSpringBoot4MinimumLibertyVersion(springBootMajorVersion)
-                && VersionUtility.compareArtifactVersion(libertyVersion, MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4, true) < 0) {
+        String minimumLibertyVersion = getSpringBootMinimumLibertyVersion(springBootMajorVersion);
+        if (minimumLibertyVersion != null
+                && VersionUtility.compareArtifactVersion(libertyVersion, minimumLibertyVersion, true) < 0) {
             throw new MojoExecutionException(MessageFormat.format(
                     messages.getString("error.springboot.version.liberty.unsupported"),
-                    springBootMajorVersion + ".0", libertyVersion, MIN_LIBERTY_VERSION_FOR_SPRING_BOOT_4));
+                    springBootMajorVersion + ".x", libertyVersion, minimumLibertyVersion));
         }
     }
 }
