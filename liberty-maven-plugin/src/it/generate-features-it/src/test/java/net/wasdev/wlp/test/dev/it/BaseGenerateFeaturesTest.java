@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022, 2025
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,6 +228,14 @@ public class BaseGenerateFeaturesTest {
 
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
         runProcess("clean compile liberty:create liberty:generate-features");
+    }
+
+    protected void runClean() throws IOException, InterruptedException {
+        runProcess("clean");
+    }
+
+    protected void runCleanAndCreate() throws IOException, InterruptedException {
+        runProcess("clean liberty:create");
     }
 
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {

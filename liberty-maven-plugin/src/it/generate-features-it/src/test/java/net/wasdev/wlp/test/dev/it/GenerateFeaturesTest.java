@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022, 2025
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,9 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void noClassFiles() throws Exception {
+        // Need a server to test no class files
+        runCleanAndCreate();
+
         // do not compile before running generate-features
         runGenerateFeaturesGoal();
 
@@ -120,6 +123,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     @Test
     public void noServer() throws Exception {
         // do not create the server before running generate-features
+        runClean();
         runGenerateFeaturesGoal();
 
         // verify that generated features file was not created
@@ -127,6 +131,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
         // verify server not found warning message
         assertTrue(processOutput.contains(SERVER_MISSING_MESSAGE));
+
     }
 
     @Test
