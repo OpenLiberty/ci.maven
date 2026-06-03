@@ -131,7 +131,6 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
         // verify server not found warning message
         assertTrue(processOutput.contains(SERVER_MISSING_MESSAGE));
-
     }
 
     @Test
