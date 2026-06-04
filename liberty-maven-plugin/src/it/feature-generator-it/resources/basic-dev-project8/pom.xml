@@ -3,7 +3,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>feature-gen-it-tests</groupId>
+  <groupId>feature-generator-it-tests</groupId>
   <artifactId>dev-sample-proj</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -20,7 +20,7 @@
     <!-- end::ports[] -->
     <packaging.type>usr</packaging.type>
   </properties>
-  
+
   <repositories>
     <!-- Sonatype repo needed to get the feature-gen jar for liberty:generate-features -->
     <repository>
@@ -47,12 +47,23 @@
 
   <dependencies>
     <!-- Umbrella features -->
+    <!-- Jakarta dependency start -->
     <dependency>
-        <groupId>javax</groupId>
-        <artifactId>javaee-api</artifactId>
-        <version>6.0</version>
+        <groupId>jakarta.platform</groupId>
+        <artifactId>jakarta.jakartaee-api</artifactId>
+        <version>8.0.0</version>
         <scope>provided</scope>
     </dependency>
+    <!-- Jakarta dependency end -->
+    <!-- MicroProfile dependency start -->
+    <dependency>
+        <groupId>org.eclipse.microprofile</groupId>
+        <artifactId>microprofile</artifactId>
+        <version>4.1</version>
+        <type>pom</type>
+        <scope>provided</scope>
+    </dependency>
+    <!-- MicroProfile dependency end -->
     <!-- For tests -->
     <dependency>
       <groupId>junit</groupId>

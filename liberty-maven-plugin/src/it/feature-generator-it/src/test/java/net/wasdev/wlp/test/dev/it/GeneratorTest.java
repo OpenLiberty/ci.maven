@@ -16,7 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
-import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import org.junit.Test;
 /**
  * Feature generator acceptance tests
  */
-public class FeatureGenTest extends BaseFeatureGenTest {
+public class GeneratorTest extends BaseGeneratorTest {
 
     @Before
     public void setUp() throws Exception {
@@ -59,32 +59,32 @@ public class FeatureGenTest extends BaseFeatureGenTest {
      */
     @Test
     public void versionTest() throws Exception {
-        String expectedVersion = System.getProperty("featureGenVersion");
-        assertNotNull("The <featureGenVersion> is not set in the pom.", expectedVersion);
-        assertTrue("The <featureGenVersion> set in the pom is empty.", expectedVersion.length() > 0);
+        String expectedVersion = System.getProperty("generatorVersion");
+        assertNotNull("The <generatorVersion> is not set in the pom.", expectedVersion);
+        assertTrue("The <generatorVersion> set in the pom is empty.", expectedVersion.length() > 0);
         // Must differentiate between 22.0.0.3.jar and 22.0.0.3-SNAPSHOT.jar
         String expectedJarName = "feature-gen-" + expectedVersion + ".jar";
         runCompileAndGenerateFeatures("-X");
         // Find "[DEBUG] Calling feature-gen-22.0.0.3-SNAPSHOT.jar with the following inputs..."
         String line = findLogMessage("with the following inputs...", 10000, logFile);
         assertNotNull("Calling feature-gen... line not found in log file", line);
-        assertTrue("The <featureGenVersion> set in the pom:" + expectedVersion + " not found in log:\"" + line + "\"",
+        assertTrue("The <generatorVersion> set in the pom:" + expectedVersion + " not found in log:\"" + line + "\"",
             line.contains(expectedJarName));
     }
 
     /**
-     * Verify a feature gen log is generated when plugin logging is enabled.
+     * Verify a generator log is generated when plugin logging is enabled.
      * 
      * @throws Exception
      */
     @Test
-    public void featureGenLogExistenceTest() throws Exception {
-        File featureGenLogDir = new File(targetDir, "logs");
-        assertFalse(featureGenLogDir.exists());
+    public void generatorLogExistenceTest() throws Exception {
+        File generatorLogDir = new File(targetDir, "logs");
+        assertFalse(generatorLogDir.exists());
 
         runCompileAndGenerateFeatures("-X");
-        assertTrue(featureGenLogDir.exists());
-        File[] logDirListing = featureGenLogDir.listFiles();
+        assertTrue(generatorLogDir.exists());
+        File[] logDirListing = generatorLogDir.listFiles();
         assertNotNull(logDirListing);
         boolean logExists = false;
         for (File child : logDirListing) {

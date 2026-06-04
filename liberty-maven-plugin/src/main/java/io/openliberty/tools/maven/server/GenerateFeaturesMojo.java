@@ -40,8 +40,8 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.common.plugins.config.ServerConfigXmlDocument;
-import io.openliberty.tools.common.plugins.util.FeatureGenUtil;
-import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
+import io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil.FeaturesPlatforms;
@@ -328,9 +328,9 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
             scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, directories, logLocation,
                 eeVersionArg, mpVersionArg, featureListFileMap, optimize);
-        } catch (FeatureGenUtil.NoRecommendationException noRecommendation) {
-            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
-        } catch (FeatureGenUtil.FeatureModifiedException featuresModified) {
+        } catch (FeatureGeneratorUtil.NoRecommendationException noRecommendation) {
+            throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
+        } catch (FeatureGeneratorUtil.FeatureModifiedException featuresModified) {
             Set<String> userFeatures = (optimize) ? existingFeatures :
                 getServerFeatures(servUtil, generatedFiles, true); // user features excludes generatedFiles
             Set<String> modifiedSet = featuresModified.getFeatures(); // a set that works after being modified by the generator
@@ -346,23 +346,23 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
                 allAppFeatures.addAll(userFeatures); // scanned plus configured features were detected to be in conflict
                 getLog().debug("FeatureModifiedException, combine suggestions from generator with user features in error msg");
                 throw new MojoExecutionException(
-                        String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
+                        String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE1, allAppFeatures, modifiedSet));
 
             }
-        } catch (FeatureGenUtil.RecommendationSetException showRecommendation) {
+        } catch (FeatureGeneratorUtil.RecommendationSetException showRecommendation) {
             if (showRecommendation.isExistingFeaturesConflict()) {
-                throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE2, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             } else {
-                throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
+                throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE1, showRecommendation.getConflicts(), showRecommendation.getSuggestions()));
             }
-        } catch (FeatureGenUtil.FeatureUnavailableException featureUnavailable) {
-            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
-        } catch (FeatureGenUtil.IllegalTargetComboException illegalCombo) {
-            throw new MojoExecutionException(String.format(FeatureGenUtil.FEATURE_GEN_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
-        } catch (FeatureGenUtil.IllegalTargetException illegalTargets) {
+        } catch (FeatureGeneratorUtil.FeatureUnavailableException featureUnavailable) {
+            throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE5, featureUnavailable.getConflicts(), featureUnavailable.getMPLevel(), featureUnavailable.getEELevel(), featureUnavailable.getUnavailableFeatures()));
+        } catch (FeatureGeneratorUtil.IllegalTargetComboException illegalCombo) {
+            throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_INVALID_COMBO_MESSAGE, eeVersion, mpVersion));
+        } catch (FeatureGeneratorUtil.IllegalTargetException illegalTargets) {
             String messages = buildInvalidArgExceptionMessage(illegalTargets.getEELevel(), illegalTargets.getMPLevel(), eeVersion, mpVersion);
             throw new MojoExecutionException(messages);
-        } catch (FeatureGenUtil.VersionlessFeatureDetectedException versionless) {
+        } catch (FeatureGeneratorUtil.VersionlessFeatureDetectedException versionless) {
             throw new MojoExecutionException(isDevMode ? VERSIONLESS_FEATURE_DETECTED_DEVMODE : VERSIONLESS_FEATURE_DETECTED);
         } catch (PluginExecutionException x) {
             // throw an error when there is a problem not caught in runFeatureGenerator()
@@ -846,7 +846,7 @@ public class GenerateFeaturesMojo extends PluginConfigSupport {
 
 
     // Define the logging functions of the feature generator handler and make it available in this plugin
-    private class FeatureGenHandler extends FeatureGenUtil {
+    private class FeatureGenHandler extends FeatureGeneratorUtil {
         FeatureGenHandler(File generatorFile) {
             super(generatorFile);
         }
