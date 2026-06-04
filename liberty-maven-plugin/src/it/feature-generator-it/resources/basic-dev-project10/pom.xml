@@ -3,7 +3,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>feature-gen-it-tests</groupId>
+  <groupId>feature-generator-it-tests</groupId>
   <artifactId>dev-sample-proj</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -11,8 +11,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <app.name>LibertyProject</app.name>
     <!-- tag::ports[] -->
     <testServerHttpPort>9080</testServerHttpPort>
@@ -35,23 +35,19 @@
 
   <dependencies>
     <!-- Umbrella features -->
-    <!-- Jakarta dependency start -->
     <dependency>
         <groupId>jakarta.platform</groupId>
         <artifactId>jakarta.jakartaee-api</artifactId>
-        <version>8.0.0</version>
+        <version>10.0.0</version>
         <scope>provided</scope>
     </dependency>
-    <!-- Jakarta dependency end -->
-    <!-- MicroProfile dependency start -->
     <dependency>
         <groupId>org.eclipse.microprofile</groupId>
         <artifactId>microprofile</artifactId>
-        <version>4.1</version>
+        <version>6.0</version>
         <type>pom</type>
         <scope>provided</scope>
     </dependency>
-    <!-- MicroProfile dependency end -->
     <!-- For tests -->
     <dependency>
       <groupId>junit</groupId>
@@ -128,7 +124,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.3.2</version>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <packagingExcludes>pom.xml</packagingExcludes>
@@ -138,7 +134,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.0.0-M1</version>
         <executions>
           <execution>
             <phase>test</phase>
@@ -178,7 +174,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.0.0-M1</version>
         <executions>
           <execution>
             <phase>integration-test</phase>
