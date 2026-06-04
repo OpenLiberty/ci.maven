@@ -16,7 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
-import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 
 import java.io.File;
 import java.io.IOException;

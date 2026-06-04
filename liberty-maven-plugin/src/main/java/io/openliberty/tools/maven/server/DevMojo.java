@@ -67,7 +67,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.util.FeatureGenUtil;
+import io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
@@ -1712,10 +1712,10 @@ public class DevMojo extends LooseAppSupport {
             String generatedFileCanonicalPath;
             try {
                 generatedFileCanonicalPath = new File(configDirectory,
-                        FeatureGenUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
             } catch (IOException e) {
                 generatedFileCanonicalPath = new File(configDirectory,
-                        FeatureGenUtil.GENERATED_FEATURES_FILE_PATH).toString();
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).toString();
             }
             if (generateToSrc) {
                 getLog().info(

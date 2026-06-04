@@ -16,7 +16,7 @@
 package net.wasdev.wlp.test.dev.it;
 
 import static org.junit.Assert.*;
-import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -212,7 +212,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is thrown (FeatureGenUtil.RecommendationSetException)
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is thrown (FeatureGeneratorUtil.RecommendationSetException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
         assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
@@ -236,7 +236,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        // Verify FEATURE_GEN_CONFLICT_MESSAGE1 error is thrown (FeatureGenUtil.FeatureModifiedException)
+        // Verify FEATURE_GEN_CONFLICT_MESSAGE1 error is thrown (FeatureGeneratorUtil.FeatureModifiedException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.add("cdi-2.0");
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());

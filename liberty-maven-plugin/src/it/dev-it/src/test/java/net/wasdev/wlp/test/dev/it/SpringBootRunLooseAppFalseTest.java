@@ -30,7 +30,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import static io.openliberty.tools.common.plugins.util.FeatureGenUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 
 public class SpringBootRunLooseAppFalseTest extends BaseDevTest {
 
