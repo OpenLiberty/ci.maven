@@ -12,6 +12,9 @@ switch (testname) {
     case "springboot-4-appsdirectory-apps-fail-it":
             expectedMessage = "CWWKM2165E: Spring Boot 4.x applications require Liberty runtime version 26.0.0.5 or later. The configured Liberty runtime version is 25.0.0.12";
             break;
+    case "springboot-4-appsdirectory-apps-fail-runtimeurl-it":
+            expectedMessage = "CWWKM2165E: Spring Boot 4.x applications require Liberty runtime version 26.0.0.5 or later. The configured Liberty runtime version is 25.0.0.12";
+            break;
     default:
          return false;
 }

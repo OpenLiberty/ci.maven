@@ -206,9 +206,24 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
         }
 
         checkServerHomeExists();
-        SpringBootUtil.validateSpringBootLibertyVersion(SpringBootUtil.getSpringBootMavenPluginVersion(project),
-                assemblyArtifact.getVersion(), messages);
 
+        // Load Liberty version from install directory instead of using assemblyArtifact which may not have a version
+        List<ProductProperties> propertiesList = null;
+        String libertyVersion = null;
+        try {
+            propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+            libertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+        } catch (PluginExecutionException e) {
+            getLog().warn("Unable to find liberty version from installDirectory");
+        }
+        if (libertyVersion != null) {
+            SpringBootUtil.validateSpringBootLibertyVersion(SpringBootUtil.getSpringBootMavenPluginVersion(project),
+                    libertyVersion, messages);
+        } else {
+            getLog().info("Using runtimeArtifact to get liberty version");
+            SpringBootUtil.validateSpringBootLibertyVersion(SpringBootUtil.getSpringBootMavenPluginVersion(project),
+                    assemblyArtifact.getVersion(), messages);
+        }
         return true;
     }
 
