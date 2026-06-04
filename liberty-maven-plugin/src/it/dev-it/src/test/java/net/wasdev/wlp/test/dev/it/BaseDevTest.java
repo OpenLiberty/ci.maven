@@ -592,10 +592,10 @@ public class BaseDevTest {
    // get generated features file in target directory for the corresponding
    // libertyConfigModule (module name)
    protected static File getTargetGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
-      String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
-      newFeatureFilePath += "/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"
-            + GENERATED_FEATURES_FILE_NAME;
-      File newTargetFeatureFile = new File(targetDir, newFeatureFilePath);
+      String newFeatureFilePath = libertyConfigModule == null ? "" : libertyConfigModule + "/";
+      newFeatureFilePath += "target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"
+         + GENERATED_FEATURES_FILE_NAME;
+      File newTargetFeatureFile = new File(tempProj, newFeatureFilePath);
       return newTargetFeatureFile;
    }
 
