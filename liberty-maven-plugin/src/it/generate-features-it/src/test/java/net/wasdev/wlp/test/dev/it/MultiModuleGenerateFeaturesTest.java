@@ -66,6 +66,12 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     }
 
     @Override
+    protected void runCleanAndCreate() throws IOException, InterruptedException {
+        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
+        runProcess("clean " + lmp + ":create");
+    }
+
+    @Override
     protected Set<String> getExpectedGeneratedFeaturesSet() {
         return new HashSet<String>(Arrays.asList("cdi-2.0", "jaxrs-2.1"));
     }
