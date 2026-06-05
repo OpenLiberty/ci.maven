@@ -98,9 +98,9 @@ jobs:
       - name: Checkout ci.common
         uses: actions/checkout@v3
         with:
-          repository: turkeylurkey/ci.common
+          repository: OpenLiberty/ci.common
           path: ci.common
-          ref: refactor-feature-gen
+          ref: generate-features-update
       - name: Checkout ci.ant
         uses: actions/checkout@v3
         with:
@@ -207,7 +207,7 @@ jobs:
       - name: Clone ci.ant and ci.common repos to github.workspace
         run: |
           echo ${{github.workspace}}
-          git clone -b refactor-feature-gen https://github.com/turkeylurkey/ci.common.git ${{github.workspace}}/ci.common
+          git clone -b generate-features-update https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common
           git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.5
