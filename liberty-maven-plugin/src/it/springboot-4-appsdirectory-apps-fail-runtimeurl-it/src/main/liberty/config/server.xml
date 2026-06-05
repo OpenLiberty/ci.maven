@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+	<featureManager>
+		<feature>springBoot-4.0</feature>
+		<feature>servlet-6.1</feature>
+	</featureManager>
+
+	<httpEndpoint httpPort="9080" httpsPort="9443"
+		id="defaultHttpEndpoint" />
+
+</server>

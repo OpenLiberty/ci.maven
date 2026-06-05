@@ -242,6 +242,7 @@
                                 <pomExcludes>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>springboot-4-tests/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-custom-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-property-it/pom.xml</pomExclude>
@@ -288,6 +289,7 @@
                                     <pomExclude>install-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>springboot-4-tests/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-custom-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-property-it/pom.xml</pomExclude>
@@ -335,6 +337,7 @@
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>springboot-4-tests/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-custom-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-property-it/pom.xml</pomExclude>
@@ -386,6 +389,7 @@
                                     <pomExclude>generate-features-it/pom.xml</pomExclude>
                                     <pomExclude>binary-scanner-it/pom.xml</pomExclude>
                                     <pomExclude>springboot-3-tests/pom.xml</pomExclude>
+                                    <pomExclude>springboot-4-tests/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-custom-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-file-it/pom.xml</pomExclude>
                                     <pomExclude>toolchain-java-warning-jvmoption-property-it/pom.xml</pomExclude>
