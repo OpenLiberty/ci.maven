@@ -67,7 +67,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
+import io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
@@ -476,7 +476,7 @@ public class DevMojo extends LooseAppSupport {
                 // log errors instead of throwing an exception so we do not flood console with
                 // stacktrace
                 if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
-                    // PluginExecutionException indicates that the binary scanner jar could not be found
+                    // PluginExecutionException indicates that the feature generator jar could not be found
                     getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                     setFeatureGeneration(false);
                 } else {
@@ -1707,15 +1707,15 @@ public class DevMojo extends LooseAppSupport {
 
     private void generateFeaturesOnStartup() throws MojoExecutionException {
         // generate features on startup - provide all classes and only user specified
-        // features to binary scanner
+        // features to feature generator
         try {
             String generatedFileCanonicalPath;
             try {
                 generatedFileCanonicalPath = new File(configDirectory,
-                        BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
             } catch (IOException e) {
                 generatedFileCanonicalPath = new File(configDirectory,
-                        BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).toString();
             }
             if (generateToSrc) {
                 getLog().info(
@@ -1727,7 +1727,7 @@ public class DevMojo extends LooseAppSupport {
             runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
-                // PluginExecutionException indicates that the binary scanner jar could not be found
+                // PluginExecutionException indicates that the feature generator jar could not be found
                 getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                 generateFeatures = false;
             } else {

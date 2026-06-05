@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * liberty:generate-features goal tests for various MicroProfile and Java EE versions
- * Test to ensure the binary scanner honours the version of MicroProfile and Java EE
+ * Test to ensure the feature generator honours the version of MicroProfile and Java EE
  * specified in the pom.xml
  */
 public class GenerateFeaturesRestTest extends BaseGenerateFeaturesTest {

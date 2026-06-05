@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2019, 2025
+ * (c) Copyright IBM Corporation 2019, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import static io.openliberty.tools.common.plugins.util.BinaryScannerUtil.*;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.*;
 
 public class DevTest extends BaseDevTest {
 
@@ -353,8 +353,8 @@ public class DevTest extends BaseDevTest {
    }
 
    @Test
-   public void scannerInvalidEETest() throws Exception {
-      tagLog("##scannerInvalidEETest start");
+   public void generatorInvalidEETest() throws Exception {
+      tagLog("##generatorInvalidEETest start");
       // TODO: Remove this code once issue 1554 is fixed
       Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
       String placeholder1 = "<!-- Umbrella dependency replace 1 -->";
@@ -366,7 +366,7 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         String expectedMessage = String.format(BINARY_SCANNER_INVALID_EE_MESSAGE, "99.0.0"); // value used in badDep
+         String expectedMessage = String.format(FEATURE_GEN_INVALID_EE_MESSAGE, "99.0.0"); // value used in badDep
          int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder1, badDep, pom);
          assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
@@ -378,12 +378,12 @@ public class DevTest extends BaseDevTest {
       replaceString(badDep, placeholder1, pom);
       assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
 
-      tagLog("##scannerInvalidEETest end");
+      tagLog("##generatorInvalidEETest end");
    }
 
    @Test
-   public void scannerInvalidMPTest() throws Exception {
-      tagLog("##scannerInvalidMPTest start");
+   public void generatorInvalidMPTest() throws Exception {
+      tagLog("##generatorInvalidMPTest start");
       // TODO: Remove this code once issue 1554 is fixed
       Thread.sleep(11500); // wait for devmode to complete start-up if this is the first test case
       String placeholder2 = "<!-- Umbrella dependency replace 2 -->";
@@ -396,7 +396,7 @@ public class DevTest extends BaseDevTest {
          "    </dependency>\n";
 
       try {
-         String expectedMessage = String.format(BINARY_SCANNER_INVALID_MP_MESSAGE, "99.0"); // value used in badDep
+         String expectedMessage = String.format(FEATURE_GEN_INVALID_MP_MESSAGE, "99.0"); // value used in badDep
          int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder2, badDep, pom);
          assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
@@ -408,7 +408,7 @@ public class DevTest extends BaseDevTest {
       replaceString(badDep, placeholder2, pom);
       assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
 
-      tagLog("##scannerInvalidMPTest end");
+      tagLog("##generatorInvalidMPTest end");
    }
 
 }
