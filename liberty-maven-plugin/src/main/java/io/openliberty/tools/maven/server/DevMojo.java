@@ -65,9 +65,14 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -1858,26 +1863,32 @@ public class DevMojo extends LooseAppSupport {
                             
                             if (groupId != null && artifactId != null && version != null) {
                                 try {
-                                    // Use Maven's artifact resolution to resolve annotation processor artifacts
+                                    // Create artifact for the annotation processor
                                     org.eclipse.aether.artifact.Artifact aetherArtifact =
                                         new DefaultArtifact(groupId, artifactId, "jar", version);
                                     
-                                    ArtifactRequest req =
-                                        new ArtifactRequest()
-                                            .setRepositories(this.repositories)
-                                            .setArtifact(aetherArtifact);
+                                    org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(aetherArtifact, JavaScopes.COMPILE); // Compile scope for processors
+                                    CollectRequest collectRequest = new CollectRequest();
+                                    collectRequest.setRoot(dependency);
+                                    collectRequest.setRepositories(this.repositories);
+                                    DependencyFilter filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME); // Filter for compile/runtime scope
                                     
-                                    ArtifactResult result =
-                                        this.repositorySystem.resolveArtifact(this.repoSession, req);
+                                    DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, filter);
+                                    DependencyResult result = this.repositorySystem.resolveDependencies(this.repoSession, dependencyRequest); // Includes transitive dependencies
                                     
-                                    if (result.isResolved() && result.getArtifact().getFile() != null) {
-                                        File file = result.getArtifact().getFile();
-                                        resolvedPaths.add(file.getAbsolutePath());
-                                        getLog().debug("Resolved annotation processor " + groupId + ":" + artifactId +
-                                                     ":" + version + " to " + file.getAbsolutePath());
+                                    // Add all resolved artifacts (root + transitives) using the flat ArtifactResults list
+                                    for (ArtifactResult artifactResult : result.getArtifactResults()) {
+                                        if (artifactResult.isResolved() && artifactResult.getArtifact().getFile() != null) {
+                                            String resolvedPath = artifactResult.getArtifact().getFile().getAbsolutePath();
+                                            if (!resolvedPaths.contains(resolvedPath)) {
+                                                resolvedPaths.add(resolvedPath);
+                                                getLog().debug("Resolved annotation processor artifact: " + resolvedPath);
+                                            }
+                                        }
                                     }
-                                } catch (ArtifactResolutionException e) {
-                                    getLog().warn("Failed to resolve annotation processor artifact " +
+                                    
+                                } catch (DependencyResolutionException e) {
+                                    getLog().warn("Failed to resolve annotation processor artifact with dependencies " +
                                                 groupId + ":" + artifactId + ":" + version + ": " + e.getMessage());
                                 }
                             }
