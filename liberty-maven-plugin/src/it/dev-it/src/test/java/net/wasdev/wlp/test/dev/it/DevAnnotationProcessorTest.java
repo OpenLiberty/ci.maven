@@ -55,8 +55,8 @@ public class DevAnnotationProcessorTest extends BaseDevTest {
       assertFalse("Should not have compilation errors",
                   verifyLogMessageExists("variable name not initialized", 5000));
 
-      assertTrue("Transitive dependency 'mapstruct' should be resolved and included in the processor path",
-                 verifyLogMessageExists("mapstruct-", 5000));
+      assertTrue("MapStruct processor should be resolved and included in the processor path during dev mode recompilation",
+                 verifyLogMessageExists("Adding annotation processor artifact to processor path: org.mapstruct:mapstruct-processor:", 5000));
       
       tagLog("##annotationProcessorTest end");
    }

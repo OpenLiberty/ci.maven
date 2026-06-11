@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1850,7 +1851,7 @@ public class DevMojo extends LooseAppSupport {
             if (annotationProcessorPaths != null) {
                 Xpp3Dom[] pathElements = annotationProcessorPaths.getChildren("path");
                 if (pathElements != null && pathElements.length > 0) {
-                    List<String> resolvedPaths = new ArrayList<>();
+                    LinkedHashSet<String> resolvedPaths = new LinkedHashSet();
                     for (Xpp3Dom path : pathElements) {
                         Xpp3Dom groupIdElement = path.getChild("groupId");
                         Xpp3Dom artifactIdElement = path.getChild("artifactId");
@@ -1879,10 +1880,12 @@ public class DevMojo extends LooseAppSupport {
                                     // Add all resolved artifacts (root + transitives) using the flat ArtifactResults list
                                     for (ArtifactResult artifactResult : result.getArtifactResults()) {
                                         if (artifactResult.isResolved() && artifactResult.getArtifact().getFile() != null) {
-                                            String resolvedPath = artifactResult.getArtifact().getFile().getAbsolutePath();
-                                            if (!resolvedPaths.contains(resolvedPath)) {
-                                                resolvedPaths.add(resolvedPath);
-                                                getLog().debug("Resolved annotation processor artifact: " + resolvedPath);
+                                            org.eclipse.aether.artifact.Artifact resolved = artifactResult.getArtifact();
+                                            String resolvedPath = resolved.getFile().getAbsolutePath();
+                                            if (resolvedPaths.add(resolvedPath)) {
+                                                getLog().info("Adding annotation processor artifact to processor path: "
+                                                    + resolved.getGroupId() + ":" + resolved.getArtifactId() + ":" + resolved.getVersion()
+                                                    + " (" + resolvedPath + ")");
                                             }
                                         }
                                     }
