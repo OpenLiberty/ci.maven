@@ -98,7 +98,8 @@ jobs:
       - name: Checkout ci.common
         uses: actions/checkout@v3
         with:
-          repository: OpenLiberty/ci.common
+          repository: sajeerzeji/ci.common
+          reference: feature/MVNGH2044-compiler-args-support
           path: ci.common
       - name: Checkout ci.ant
         uses: actions/checkout@v3
@@ -206,7 +207,7 @@ jobs:
       - name: Clone ci.ant and ci.common repos to github.workspace
         run: |
           echo ${{github.workspace}}
-          git clone https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common
+          git clone https://github.com/sajeerzeji/ci.common.git --branch feature/MVNGH2044-compiler-args-support --single-branch ${{github.workspace}}/ci.common
           git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.5
