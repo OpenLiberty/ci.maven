@@ -107,6 +107,9 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
 
     @Test
     public void noClassFiles() throws Exception {
+        // Need a server to test no class files
+        runCleanAndCreate();
+
         // do not compile before running generate-features
         runGenerateFeaturesGoal();
 
@@ -120,6 +123,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     @Test
     public void noServer() throws Exception {
         // do not create the server before running generate-features
+        runClean();
         runGenerateFeaturesGoal();
 
         // verify that generated features file was not created
