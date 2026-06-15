@@ -60,6 +60,7 @@ public class BaseDevTest {
 
    static String customLibertyModule;
    static String customPomModule;
+   // This is a working copy of the project that allows us to make modifications (called temporary here)
    static File tempProj;
    static File basicDevProj;
    static File logFile;
@@ -118,6 +119,7 @@ public class BaseDevTest {
 
       basicDevProj = new File(projectRoot);
 
+      // Make a working copy of the project that allows us to make modifications
       tempProj = Files.createTempDirectory("temp").toFile();
       assertTrue("temp directory does not exist", tempProj.exists());
 
@@ -585,6 +587,7 @@ public class BaseDevTest {
    protected static File getGeneratedFeaturesFile(String libertyConfigModule) throws Exception {
       String newFeatureFilePath = libertyConfigModule == null ? "" : "/" + libertyConfigModule;
       newFeatureFilePath += "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+      // Make a file relative to the working copy of the project
       File newFeatureFile = new File(tempProj, newFeatureFilePath);
       return newFeatureFile;
    }
@@ -595,6 +598,7 @@ public class BaseDevTest {
       String newFeatureFilePath = libertyConfigModule == null ? "" : libertyConfigModule + "/";
       newFeatureFilePath += "target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/"
          + GENERATED_FEATURES_FILE_NAME;
+      // Make a file relative to the working copy of the project
       File newTargetFeatureFile = new File(tempProj, newFeatureFilePath);
       return newTargetFeatureFile;
    }
