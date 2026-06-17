@@ -45,6 +45,8 @@ public class DevCompilerArgsTest extends BaseDevTest {
       
       assertTrue("Web app should be available", verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
       
+      Thread.sleep(2000);
+      
       File resourceFile = new File(tempProj, "src/main/java/com/demo/rest/HelloResource.java");
       assertTrue("HelloResource.java should exist", resourceFile.exists());
       replaceString("@Path\\(\"/hello\"\\)", "// Modified\n@Path(\"/hello\")", resourceFile);

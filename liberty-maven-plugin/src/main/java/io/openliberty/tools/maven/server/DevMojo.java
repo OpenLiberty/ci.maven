@@ -433,7 +433,7 @@ public class DevMojo extends LooseAppSupport {
 
         @Override
         protected boolean recompileJava(Collection<File> javaFilesChanged, Set<String> artifactPaths, ThreadPoolExecutor executor, boolean tests, File outputDirectory, File testOutputDirectory, String projectName, File projectBuildFile, JavaCompilerOptions projectCompilerOptions, boolean forceSkipUTs, boolean skipRunningTests) throws PluginExecutionException {
-            if (projectCompilerOptions != null && projectCompilerOptions.getOptions() != null && !projectCompilerOptions.getOptions().isEmpty()) {
+            if (projectCompilerOptions != null && projectCompilerOptions.getOptions() != null) {
                 getLog().info("Recompiling with compiler options: " + projectCompilerOptions.getOptions());
             }
             return super.recompileJava(javaFilesChanged, artifactPaths, executor, tests, outputDirectory, testOutputDirectory, projectName, projectBuildFile, projectCompilerOptions, forceSkipUTs, skipRunningTests);
