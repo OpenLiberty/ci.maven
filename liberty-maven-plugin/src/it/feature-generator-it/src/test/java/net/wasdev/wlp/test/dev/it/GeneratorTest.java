@@ -338,7 +338,7 @@ public class GeneratorTest extends BaseGeneratorTest {
             String newUmbrella = MP4_UMBRELLA.replace("<version>4.1", "<version>" + mpVersion);
             replaceString(oldUmbrella, newUmbrella, pom);
             // @Liveness not supported for these low version numbers, change to @Health
-            File codeFile = new File(tempProj, EE8_CODE_FILENAME);
+            File codeFile = new File(workingProj, EE8_CODE_FILENAME);
             replaceString(EE8_CODE_FIX1b, EE8_CODE_FIX1a, codeFile);
             replaceString(EE8_CODE_FIX2b, EE8_CODE_FIX2a, codeFile);
             // Compile, generate and check results
