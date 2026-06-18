@@ -1925,6 +1925,25 @@ public class DevMojo extends LooseAppSupport {
                     }
                 }
             }
+            
+            // Extract compiler arguments from <compilerArgs> configuration
+            Xpp3Dom compilerArgsElement = configuration.getChild("compilerArgs");
+            if (compilerArgsElement != null) {
+                Xpp3Dom[] argElements = compilerArgsElement.getChildren("arg");
+                if (argElements != null && argElements.length > 0) {
+                    LinkedHashSet<String> args = new LinkedHashSet<>();
+                    for (Xpp3Dom arg : argElements) {
+                        String value = arg.getValue();
+                        if (value != null && !value.trim().isEmpty()) {
+                            args.add(value.trim());
+                        }
+                    }
+                    if (!args.isEmpty()) {
+                        compilerOptions.setCompilerArgs(new ArrayList<>(args));
+                        getLog().debug("Setting compiler args: " + args);
+                    }
+                }
+            }
         }
 
         return compilerOptions;
