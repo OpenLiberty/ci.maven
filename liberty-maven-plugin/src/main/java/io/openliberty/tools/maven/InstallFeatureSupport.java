@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2020, 2025.
+ * (C) Copyright IBM Corporation 2020, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.Set;
 
 import io.openliberty.tools.common.plugins.util.LibertyPropFilesUtility;
 import io.openliberty.tools.maven.utils.CommonLogger;
+import io.openliberty.tools.maven.utils.SpringBootUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -206,6 +207,19 @@ public abstract class InstallFeatureSupport extends ServerFeatureSupport {
 
         checkServerHomeExists();
 
+        // Load Liberty version from install directory instead of using assemblyArtifact which may not have a version
+        List<ProductProperties> propertiesList = null;
+        String libertyVersion = null;
+        try {
+            propertiesList = InstallFeatureUtil.loadProperties(installDirectory);
+            libertyVersion = InstallFeatureUtil.getOpenLibertyVersion(propertiesList);
+        } catch (PluginExecutionException e) {
+            getLog().warn("Unable to find Liberty version from installDirectory");
+        }
+        if (libertyVersion != null) {
+            SpringBootUtil.validateSpringBootLibertyVersion(SpringBootUtil.getSpringBootMavenPluginVersion(project),
+                    libertyVersion, messages);
+        }
         return true;
     }
 

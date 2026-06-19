@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Spring Boot 4.0 Test Server">
+    
+    <featureManager>
+        <feature>springBoot-4.0</feature>
+        <feature>servlet-6.1</feature>
+    </featureManager>
+    
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080"
+                  httpsPort="9443" />
+    
+    <springBootApplication location="thin-springboot-4-appsdirectory-apps-it-1.0.0.Final-exec.jar"/>
+    
+    <logging consoleLogLevel="INFO" />
+    
+</server>
