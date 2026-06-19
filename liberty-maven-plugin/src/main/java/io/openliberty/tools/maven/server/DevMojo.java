@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +65,15 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -1678,6 +1688,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         util.addShutdownHook(executor);
+        util.startEarlyHotkeyReader(executor);
         
         try {
             util.startServer();
@@ -1869,6 +1880,107 @@ public class DevMojo extends LooseAppSupport {
         if (encoding != null) {
             getLog().debug("Setting compiler encoding to " + encoding);
             compilerOptions.setEncoding(encoding);
+        }
+
+        // Extract and resolve annotation processor paths
+        if (configuration != null) {
+            Xpp3Dom annotationProcessorPaths = configuration.getChild("annotationProcessorPaths");
+            if (annotationProcessorPaths != null) {
+                Xpp3Dom[] pathElements = annotationProcessorPaths.getChildren("path");
+                if (pathElements != null && pathElements.length > 0) {
+                    LinkedHashSet<String> resolvedPaths = new LinkedHashSet();
+                    for (Xpp3Dom path : pathElements) {
+                        Xpp3Dom groupIdElement = path.getChild("groupId");
+                        Xpp3Dom artifactIdElement = path.getChild("artifactId");
+                        Xpp3Dom versionElement = path.getChild("version");
+                        
+                        if (groupIdElement != null && artifactIdElement != null && versionElement != null) {
+                            String groupId = groupIdElement.getValue();
+                            String artifactId = artifactIdElement.getValue();
+                            String version = versionElement.getValue();
+                            
+                            if (groupId != null && artifactId != null && version != null) {
+                                try {
+                                    // Create artifact for the annotation processor
+                                    org.eclipse.aether.artifact.Artifact aetherArtifact =
+                                        new DefaultArtifact(groupId, artifactId, "jar", version);
+                                    
+                                    org.eclipse.aether.graph.Dependency dependency = new org.eclipse.aether.graph.Dependency(aetherArtifact, JavaScopes.COMPILE); // Compile scope for processors
+                                    CollectRequest collectRequest = new CollectRequest();
+                                    collectRequest.setRoot(dependency);
+                                    collectRequest.setRepositories(this.repositories);
+                                    DependencyFilter filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME); // Filter for compile/runtime scope
+                                    
+                                    DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, filter);
+                                    DependencyResult result = this.repositorySystem.resolveDependencies(this.repoSession, dependencyRequest); // Includes transitive dependencies
+                                    
+                                    // Add all resolved artifacts (root + transitives) using the flat ArtifactResults list
+                                    for (ArtifactResult artifactResult : result.getArtifactResults()) {
+                                        if (artifactResult.isResolved() && artifactResult.getArtifact().getFile() != null) {
+                                            org.eclipse.aether.artifact.Artifact resolved = artifactResult.getArtifact();
+                                            String resolvedPath = resolved.getFile().getAbsolutePath();
+                                            if (resolvedPaths.add(resolvedPath)) {
+                                                getLog().info("Adding annotation processor artifact to processor path: "
+                                                    + resolved.getGroupId() + ":" + resolved.getArtifactId() + ":" + resolved.getVersion()
+                                                    + " (" + resolvedPath + ")");
+                                            }
+                                        }
+                                    }
+                                    
+                                } catch (DependencyResolutionException e) {
+                                    getLog().warn("Failed to resolve annotation processor artifact with dependencies " +
+                                                groupId + ":" + artifactId + ":" + version + ": " + e.getMessage());
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!resolvedPaths.isEmpty()) {
+                        String processorPath = String.join(File.pathSeparator, resolvedPaths);
+                        compilerOptions.setAnnotationProcessorPath(processorPath);
+                        getLog().debug("Setting annotation processor path: " + processorPath);
+                    }
+                }
+            }
+            
+            // Extract annotation processors (comma separated list of processor class names)
+            Xpp3Dom annotationProcessors = configuration.getChild("annotationProcessors");
+            if (annotationProcessors != null) {
+                Xpp3Dom[] processorElements = annotationProcessors.getChildren("annotationProcessor");
+                if (processorElements != null && processorElements.length > 0) {
+                    List<String> processorList = new ArrayList<>();
+                    for (Xpp3Dom processor : processorElements) {
+                        String processorClass = processor.getValue();
+                        if (processorClass != null && !processorClass.trim().isEmpty()) {
+                            processorList.add(processorClass.trim());
+                        }
+                    }
+                    if (!processorList.isEmpty()) {
+                        String processors = String.join(",", processorList);
+                        compilerOptions.setAnnotationProcessors(processors);
+                        getLog().debug("Setting annotation processors: " + processors);
+                    }
+                }
+            }
+            
+            // Extract compiler arguments from <compilerArgs> configuration
+            Xpp3Dom compilerArgsElement = configuration.getChild("compilerArgs");
+            if (compilerArgsElement != null) {
+                Xpp3Dom[] argElements = compilerArgsElement.getChildren("arg");
+                if (argElements != null && argElements.length > 0) {
+                    LinkedHashSet<String> args = new LinkedHashSet<>();
+                    for (Xpp3Dom arg : argElements) {
+                        String value = arg.getValue();
+                        if (value != null && !value.trim().isEmpty()) {
+                            args.add(value.trim());
+                        }
+                    }
+                    if (!args.isEmpty()) {
+                        compilerOptions.setCompilerArgs(new ArrayList<>(args));
+                        getLog().debug("Setting compiler args: " + args);
+                    }
+                }
+            }
         }
 
         return compilerOptions;

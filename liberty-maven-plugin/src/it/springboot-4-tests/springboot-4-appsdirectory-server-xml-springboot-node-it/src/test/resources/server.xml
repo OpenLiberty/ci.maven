@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Spring Boot 4.0 Server XML Node Test Server">
+    <featureManager>
+        <feature>springBoot-4.0</feature>
+        <feature>servlet-6.1</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080"
+                  httpsPort="9443" />
+
+    <springBootApplication id="springboot-4-appsdirectory-server-xml-springboot-node-it" 
+                          location="springboot-4-appsdirectory-server-xml-springboot-node-it.jar"
+                          name="springboot-4-appsdirectory-server-xml-springboot-node-it">
+        <applicationArgument>--server.port=9080</applicationArgument>
+    </springBootApplication>
+</server>

@@ -44,35 +44,35 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '8'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 11 (If Not Matrix Version)
         if: ${{ matrix.java != '11' }}
         uses: actions/setup-java@v4
         with:
           java-version: '11'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 17 (If Not Matrix Version)
         if: ${{ matrix.java != '17' }}
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 21 (If Not Matrix Version)
         if: ${{ matrix.java != '21' }}
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 25 (If Not Matrix Version)
         if: ${{ matrix.java != '25' }}
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'semeru'
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Verify JAVA_HOME and Installed JDKs
@@ -120,7 +120,7 @@ jobs:
       - name: Run tests that require a minimum of Java 17 or later
         if: ${{ matrix.java != '8' && matrix.java != '11'}}
         timeout-minutes: 20
-        run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+        run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*springboot-4-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
       # Run tests
       - name: Run tests
         timeout-minutes: 90
@@ -156,35 +156,35 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '8'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 11 (If Not Matrix Version)
         if: ${{ matrix.java != '11' }}
         uses: actions/setup-java@v4
         with:
           java-version: '11'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 17 (If Not Matrix Version)
         if: ${{ matrix.java != '17' }}
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 21 (If Not Matrix Version)
         if: ${{ matrix.java != '21' }}
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Pre-install JDK 25 (If Not Matrix Version)
         if: ${{ matrix.java != '25' }}
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: 'semeru'
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'semeru'
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Verify JAVA_HOME and Installed JDKs
@@ -228,7 +228,7 @@ jobs:
         working-directory: ${{github.workspace}}
         if: ${{ matrix.java != '8' && matrix.java != '11'}}
         timeout-minutes: 45
-        run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
+        run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*springboot-4-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
       # Run tests
       - name: Run tests
         working-directory: ${{github.workspace}}
