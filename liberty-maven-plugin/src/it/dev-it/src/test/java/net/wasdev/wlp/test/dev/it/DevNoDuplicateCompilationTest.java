@@ -70,10 +70,15 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
         assertTrue("Class file was not recompiled", waitForCompilation(targetHelloWorld, lastModified, 10000));
         assertTrue("Source compilation message not found", 
             verifyLogMessageExists(COMPILATION_SUCCESSFUL, 10000, ++initialCompilationCount));
+        // [INFO] Source compilation was successful. ...
+        // [INFO] [AUDIT   ] CWWKZ0003I: The application dev-sample-proj-1.0-SNAPSHOT updated in 0.069 seconds.
         assertTrue("Liberty hot reload message (CWWKZ0003I) not found",
             verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++initialHotReloadCount));
 
         Thread.sleep(3000);
+        // [INFO] Running liberty:generate-features ...
+        // [INFO] [AUDIT   ] CWWKZ0003I: The application dev-sample-proj-1.0-SNAPSHOT updated in 0.053 seconds.
+        ++initialHotReloadCount;
 
         // Count final compilation messages
         int finalCompilationCount = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
