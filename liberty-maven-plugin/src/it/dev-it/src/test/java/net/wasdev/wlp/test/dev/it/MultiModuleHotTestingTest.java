@@ -60,7 +60,7 @@ public class MultiModuleHotTestingTest extends BaseMultiModuleTest {
         assertTrue(targetEarClass.lastModified() > targetLastModified);
 
         // check tests running message for jar since we expect jar unit tests to fail (after modifying)
-        assertTrue(verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 3000));
+        assertTrue(verifyLogMessageExists("Running unit tests for guide-maven-multimodules-jar ...", 30000)); // wait for feature gen
         
         verifyTestsRan("guide-maven-multimodules-war", "guide-maven-multimodules-ear");
 
