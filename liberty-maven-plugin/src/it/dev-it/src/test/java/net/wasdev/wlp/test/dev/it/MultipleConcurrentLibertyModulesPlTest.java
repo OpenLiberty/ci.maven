@@ -101,10 +101,15 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "100");
 
-      // test modify a Java file in an upstream module
+      // Test the modification of a Java file in an upstream module
+      // the modify method only tracks one log file, we need to track the other here
+      int appUpdatedCount2 = countOccurrences("CWWKZ0003I:", logFile2);
       modifyJarClass();
+      // the previous method waits for one app, we must wait for app ear2 to update
+      assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile2, ++appUpdatedCount2));
 
-      Thread.sleep(30000); // wait for feature gen and server
+
+      Thread.sleep(5000);
 
       assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
       assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200");
