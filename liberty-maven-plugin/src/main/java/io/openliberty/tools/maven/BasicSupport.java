@@ -22,9 +22,7 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
@@ -60,8 +58,6 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     protected static final ResourceBundle messages = ResourceBundle.getBundle("io.openliberty.tools.maven.MvnMessages");
 
     protected boolean defaultOutputDirSet = false;
-
-    protected boolean skipServerConfigSetup = false;
 
     /**
      * Skips the specific goal
@@ -205,10 +201,6 @@ public abstract class BasicSupport extends AbstractLibertySupport {
         }
 
         super.init();
-
-        if (skipServerConfigSetup) {
-            return;
-        }
 
         try {
             // First check if installDirectory is set, if it is, then we can skip this

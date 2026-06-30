@@ -3,7 +3,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>binary-scanner-it-tests</groupId>
+  <groupId>feature-generator-it-tests</groupId>
   <artifactId>dev-sample-proj</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -21,6 +21,18 @@
     <packaging.type>usr</packaging.type>
   </properties>
 
+  <repositories>
+    <!-- Sonatype repo needed to get the feature-gen jar for liberty:generate-features -->
+    <repository>
+        <id>central-portal-snapshots</id>
+        <name>Central Portal Snapshots</name>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
+
   <dependencyManagement>
       <dependencies>
           <dependency>
@@ -36,15 +48,15 @@
   <dependencies>
     <!-- Umbrella features -->
     <dependency>
-        <groupId>jakarta.platform</groupId>
-        <artifactId>jakarta.jakartaee-api</artifactId>
-        <version>9.1.0</version>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>7.0</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.eclipse.microprofile</groupId>
         <artifactId>microprofile</artifactId>
-        <version>5.0</version>
+        <version>1.4</version>
         <type>pom</type>
         <scope>provided</scope>
     </dependency>

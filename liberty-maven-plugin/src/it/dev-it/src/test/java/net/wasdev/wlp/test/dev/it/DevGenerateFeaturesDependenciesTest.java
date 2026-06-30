@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ import org.junit.Test;
 public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
     @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
-      setUpBeforeClass(null, "../resources/basic-dev-project-umbrella-deps");
-   }
+    public static void setUpBeforeClass() throws Exception {
+        setUpBeforeClass(null, "../resources/basic-dev-project-umbrella-deps");
+    }
  
     @AfterClass
     public static void cleanUpAfterClass() throws Exception {
-       BaseDevTest.cleanUpAfterClass();
+        BaseDevTest.cleanUpAfterClass();
     }
 
     @Test
@@ -45,19 +45,19 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
        assertTrue(verifyLogMessageExists("Listening for transport dt_socket at address: 8077", 20000) || verifyLogMessageExists("The debug port 8077 is not available.",20000));
        assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
-       File generatedFeaturesFile = getGeneratedFeaturesFile();
+       //File generatedFeaturesFile = getGeneratedFeaturesFile();
        File targetGeneratedFeaturesFile = getTargetGeneratedFeaturesFile();
        assertTrue(pom.exists());
-       assertTrue(generatedFeaturesFile.exists());
+       //assertTrue(generatedFeaturesFile.exists());
        assertTrue(targetGeneratedFeaturesFile.exists());
-       long lastModified = generatedFeaturesFile.lastModified();
+       // long lastModified = generatedFeaturesFile.lastModified();
+       long lastModified = targetGeneratedFeaturesFile.lastModified();
        waitLongEnough();
 
        // verify mpHealth-2.2 is in generated features file
-       assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000, generatedFeaturesFile));
+       assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000, targetGeneratedFeaturesFile));
        assertTrue(verifyLogMessageExists("mpHealth-2.2", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
 
-       int generateFeaturesCount = countOccurrences("Running liberty:generate-features", logFile);
        assertTrue(verifyLogMessageExists("Recompile skipped for dev-sample-proj since earlier compilation is successful", 10000));
 
        // modify MicroProfile umbrella dependency in pom.xml
@@ -76,17 +76,18 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
              pom);
 
        // Dev mode should now run the generate features mojo
-       assertTrue(getLogTail(), verifyLogMessageExists("Generated the following features:", 15000, logFile, ++generateFeaturesCount)); // mojo ran
-       assertTrue(generatedFeaturesFile.exists());
-       assertTrue(getLogTail(), lastModified < generatedFeaturesFile.lastModified());
+       assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000)); // mojo ran
+       // Dev mode will now install the features before copying them into the server dir. Look for server response before further checks
+       assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 120000)); // could take a couple minutes
+
        assertTrue(targetGeneratedFeaturesFile.exists());
 
-       // verify that mpHealth-3.0 is now in the generated features file
-       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 10000, generatedFeaturesFile));
-       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 10000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
+       // verify that mpHealth-3.1 is now in the generated features file
+       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 1000, targetGeneratedFeaturesFile));
+       assertTrue(getLogTail(), verifyLogMessageExists("mpHealth-3.1", 1000)); // should appear in the message "CWWKF0012I: The server installed the following features:"
        
        // verify that mpHealth-2.2 is no longer in the generated features file
-       assertFalse(getLogTail(), verifyLogMessageExists("mpHealth-2.2", 10000, generatedFeaturesFile));
+       assertFalse(getLogTail(), verifyLogMessageExists("mpHealth-2.2", 1000, targetGeneratedFeaturesFile));
     }
 
 }

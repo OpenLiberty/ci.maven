@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,9 +56,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class BaseScannerTest {
+public class BaseGeneratorTest {
 
-    static File tempProj;
+    static File workingProj;
     static File basicProj;
     static File logFile;
     static BufferedWriter writer;
@@ -70,7 +70,7 @@ public class BaseScannerTest {
     static File serverXmlFile;
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
-    static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_PATH = "/target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
     static final String TARGET_EE_NULL = "targetJavaEE: null";
     static final String TARGET_MP_NULL = "targetMicroP: null";
     static final String EE8_UMBRELLA = "<dependency>\n" +
@@ -150,28 +150,28 @@ public class BaseScannerTest {
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
-        tempProj = Files.createTempDirectory("temp").toFile();
-        assertTrue(tempProj.exists());
+        workingProj = Files.createTempDirectory("temp").toFile();
+        assertTrue(workingProj.exists());
         assertTrue(basicProj.exists());
 
-        FileUtils.copyDirectory(basicProj, tempProj);
-        assertTrue(tempProj.listFiles().length > 0);
+        FileUtils.copyDirectory(basicProj, workingProj);
+        assertTrue(workingProj.listFiles().length > 0);
         logFile = new File(basicProj, "logFile.txt");
         logFile.delete();
         assertTrue(logFile.createNewFile());
 
-        newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
-        pom = new File(tempProj, "pom.xml");
+        newFeatureFile = new File(workingProj, GENERATED_FEATURES_FILE_PATH);
+        pom = new File(workingProj, "pom.xml");
         assertTrue(pom.exists());
-        replaceVersion(tempProj);
+        replaceVersion(workingProj);
 
-        serverXmlFile = new File(tempProj, "src/main/liberty/config/server.xml");
-        targetDir = new File(tempProj, "target");
+        serverXmlFile = new File(workingProj, "src/main/liberty/config/server.xml");
+        targetDir = new File(workingProj, "target");
     }
 
     protected static void cleanUpAfterTest() throws Exception {
-        if (tempProj != null && tempProj.exists()) {
-            FileUtils.deleteDirectory(tempProj);
+        if (workingProj != null && workingProj.exists()) {
+            FileUtils.deleteDirectory(workingProj);
         }
         if (logFile != null && logFile.exists()) {
             assertTrue(logFile.delete());
@@ -185,7 +185,7 @@ public class BaseScannerTest {
      * @param command - command to run
      */
     protected static void runProcess(String processCommand) throws IOException, InterruptedException {
-        StringBuilder command = new StringBuilder("mvn " + processCommand);
+        StringBuilder command = new StringBuilder("mvn ").append(processCommand);
         ProcessBuilder builder = buildProcess(command.toString());
         builder.redirectOutput(logFile);
         builder.redirectError(logFile);
@@ -206,7 +206,7 @@ public class BaseScannerTest {
 
     protected static ProcessBuilder buildProcess(String processCommand) {
         ProcessBuilder builder = new ProcessBuilder();
-        builder.directory(tempProj);
+        builder.directory(workingProj);
 
         String os = System.getProperty("os.name");
         if (os != null && os.toLowerCase().startsWith("windows")) {
@@ -319,7 +319,7 @@ public class BaseScannerTest {
         runCompileAndGenerateFeatures("");
     }
     protected void runCompileAndGenerateFeatures(String args) throws IOException, InterruptedException {
-        runProcess("compile liberty:generate-features " + args);
+        runProcess("compile liberty:create liberty:generate-features " + args);
     }
 
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {

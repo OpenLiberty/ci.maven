@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>binary-scanner-it</artifactId>
+    <artifactId>feature-generator-it</artifactId>
     <groupId>io.openliberty.tools.it</groupId>
     <version>1.0</version>
     <packaging>jar</packaging>
@@ -13,8 +13,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- Scanner version e.g. 22.0.0.3 or 22.0.0.3-SNAPSHOT -->
-        <scanner.version>23.0.0.5-SNAPSHOT</scanner.version>
+        <!-- Feature generator version e.g. 22.0.0.3 or 22.0.0.3-SNAPSHOT -->
+        <featureGenJar.version>23.0.0.5-SNAPSHOT</featureGenJar.version>
     </properties>
 
     <dependencies>
@@ -69,7 +69,7 @@
                     <systemPropertyVariables>
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>
                         <runtimeVersion>${runtimeVersion}</runtimeVersion>
-                        <scannerVersion>${scanner.version}</scannerVersion>
+                        <generatorVersion>${featureGenJar.version}</generatorVersion>
                     </systemPropertyVariables>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>

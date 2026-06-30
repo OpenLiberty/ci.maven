@@ -10,11 +10,23 @@
     <openliberty.maven.version>2.2</openliberty.maven.version>
     <final.name>demo</final.name>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <openliberty.version>RELEASE</openliberty.version>
+    <openliberty.version>${runtimeVersion}</openliberty.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
   
+  <repositories>
+    <!-- Sonatype repo needed to get the feature-gen jar for liberty:generate-features -->
+    <repository>
+        <id>central-portal-snapshots</id>
+        <name>Central Portal Snapshots</name>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.eclipse.microprofile</groupId>

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2019, 2026.
+ * (C) Copyright IBM Corporation 2019, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
 import io.openliberty.tools.ant.ServerTask;
-import io.openliberty.tools.common.plugins.util.BinaryScannerUtil;
+import io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil;
 import io.openliberty.tools.common.plugins.util.DevUtil;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.JavaCompilerOptions;
@@ -147,8 +147,15 @@ public class DevMojo extends LooseAppSupport {
     @Parameter(property = "container", defaultValue = "false")
     private boolean container;
 
-     @Parameter(property = "generateFeatures", defaultValue = "false")
-     private boolean generateFeatures;
+    @Parameter(property = "generateFeatures", defaultValue = "true")
+    private boolean generateFeatures;
+
+    /**
+     * If generateToSrc is true, then create the file containing new features in the src directory
+     * Otherwise, place the file in the target directory where the Liberty server is defined.
+     */
+    @Parameter(property = "generateToSrc", defaultValue = "false")
+    private boolean generateToSrc;
 
     /**
      * Whether to recompile dependencies. Defaults to false for single module
@@ -363,7 +370,7 @@ public class DevMojo extends LooseAppSupport {
                            File testSourceDirectory, File configDirectory, File projectDirectory, File multiModuleProjectDirectory,
                            List<File> resourceDirs, JavaCompilerOptions compilerOptions, String mavenCacheLocation,
                            List<ProjectModule> upstreamProjects, List<MavenProject> upstreamMavenProjects, boolean recompileDeps,
-                           File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean skipInstallFeature,
+                           File pom, Map<String, List<String>> parentPoms, boolean generateFeatures, boolean generateToSrc, boolean skipInstallFeature,
                            Set<String> compileArtifactPaths, Set<String> testArtifactPaths, List<Path> webResourceDirs, File serverOutputDirectory) throws IOException, PluginExecutionException {
             super(new File(project.getBuild().getDirectory()), serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, projectDirectory, multiModuleProjectDirectory, resourceDirs, changeOnDemandTestsAction, hotTests, skipTests,
@@ -371,7 +378,7 @@ public class DevMojo extends LooseAppSupport {
                     ((long) (compileWait * 1000L)), libertyDebug, false, false, pollingTest, container, containerfile,
                     containerBuildContext, containerRunOpts, containerBuildTimeout, skipDefaultPorts, compilerOptions,
                     keepTempContainerfile, mavenCacheLocation, upstreamProjects, recompileDeps, project.getPackaging(),
-                    pom, parentPoms, generateFeatures, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
+                    pom, parentPoms, generateFeatures, generateToSrc, compileArtifactPaths, testArtifactPaths, webResourceDirs, compileMojoError);
 
             this.libertyDirPropertyFiles = LibertyPropFilesUtility.getLibertyDirectoryPropertyFiles(new CommonLogger(getLog()), installDir, userDir,
                     serverDirectory, serverOutputDirectory);
@@ -459,7 +466,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public boolean libertyGenerateFeatures(Collection<String> classes, boolean optimize) {
+        public boolean libertyGenerateFeatures(Collection<String> classes, boolean optimize, boolean genToSrc, boolean useTmpDirOut, boolean useTmpDirIn) {
             try {
                 if (classes != null) {
                     Element[] classesElem = new Element[classes.size()];
@@ -469,18 +476,17 @@ public class DevMojo extends LooseAppSupport {
                         i++;
                     }
                     // generate features for only the classFiles passed
-                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize);
+                    runLibertyMojoGenerateFeatures(element(name("classFiles"), classesElem), optimize, genToSrc, useTmpDirOut, useTmpDirIn);
                 } else {
-                    // pass null for classFiles so that features are generated for ALL of the
-                    // classes
-                    runLibertyMojoGenerateFeatures(null, optimize);
+                    // pass null for classFiles so that features are generated for ALL of the classes
+                    runLibertyMojoGenerateFeatures(null, optimize, genToSrc, useTmpDirOut, useTmpDirIn);
                 }
                 return true; // successfully generated features
             } catch (MojoExecutionException e) {
                 // log errors instead of throwing an exception so we do not flood console with
                 // stacktrace
                 if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
-                    // PluginExecutionException indicates that the binary scanner jar could not be found
+                    // PluginExecutionException indicates that the feature generator jar could not be found
                     getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                     setFeatureGeneration(false);
                 } else {
@@ -796,19 +802,28 @@ public class DevMojo extends LooseAppSupport {
 
                     // detect compile dependency changes
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
+                        boolean generateFeaturesSuccess = false;
                         // optimize generate features
                         if (generateFeatures) {
                             getLog().debug("Detected a change in the compile dependencies for "
                                     + buildFile + " , regenerating features");
-                            boolean generateFeaturesSuccess = libertyGenerateFeatures(null, true);
-                            if (generateFeaturesSuccess) {
-                                util.getJavaSourceClassPaths().clear();
+                            // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
+                            generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
+                            // install new generated features because deploy will copy config files to server dir.
+                            // It will not trigger install-feature if the feature list has not changed
+                            util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
+                            // When generating to the src dir, mojo deploy will copy the files from src to the server.
+                            // When not generating to the src dir, we must copy the generated features file here.
+                            if (!generateToSrc) {
+                                // Copy the file here to be used by updateExistingFeatures() below
+                                util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
                             }
-                            // install new generated features, will not trigger install-feature if the feature list has not changed
-                            util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
-                                generateFeaturesSuccess);
                         }
                         runLibertyMojoDeploy();
+                        // Update the features after deploy mojo has copied the config files to server dir
+                        if (generateFeaturesSuccess) {
+                            updateExistingFeatures(); // update the dev mode cache of features in the server
+                        }
                     }
                 }
             } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
@@ -1006,6 +1021,7 @@ public class DevMojo extends LooseAppSupport {
             boolean redeployApp = false;
             boolean runBoostPackage = false;
             boolean optimizeGenerateFeatures = false;
+            boolean generateFeaturesSuccess = false;
 
             ProjectBuildingResult build;
             try {
@@ -1120,19 +1136,17 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
-                boolean generateFeaturesSuccess = false;
                 if (optimizeGenerateFeatures && generateFeatures) {
                     getLog().debug("Detected a change in the compile dependencies, regenerating features");
                     // always optimize generate features on dependency change
-                    generateFeaturesSuccess = libertyGenerateFeatures(null, true);
-                    if (generateFeaturesSuccess) {
-                        util.getJavaSourceClassPaths().clear();
-                    } else {
+                    // If generateToSrc is false then we must copy (below) new generated features file from temp dir to server dir
+                    generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
+                    util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
+                    if (!generateFeaturesSuccess) {
                         installFeature = false; // skip installing features if generate features fails
                     }
-
                 }
-                
+
                 // We don't currently have the ability to dynamically add new directories to be watched
                 // There is so much that we are dynamically able to do that this could be surprising.
                 // For now issue a warning
@@ -1171,9 +1185,16 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        util.installFeaturesToTempDir(generatedFeaturesFile, configDirectory, null,
-                                generateFeaturesSuccess);
+                        // Copy the file here to be used by updateExistingFeatures() below
+                        // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
+                        if (generateFeaturesSuccess && !generateToSrc) {
+                            util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
+                        }
                         runLibertyMojoDeploy();
+                        // Update the features after deploy mojo has copied the config files to server dir and generated features file added
+                        if (generateFeaturesSuccess) {
+                            updateExistingFeatures(); // update the dev mode cache of features in the server
+                        }
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
@@ -1544,35 +1565,18 @@ public class DevMojo extends LooseAppSupport {
             getLog().info("Running boost:package");
             runBoostMojo("package");
         } else {
+            // If generate features to server directory then create server first.
             if (generateFeatures) {
-                // generate features on startup - provide all classes and only user specified
-                // features to binary scanner
-                try {
-                    String generatedFileCanonicalPath;
-                    try {
-                        generatedFileCanonicalPath = new File(configDirectory,
-                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
-                    } catch (IOException e) {
-                        generatedFileCanonicalPath = new File(configDirectory,
-                                BinaryScannerUtil.GENERATED_FEATURES_FILE_PATH).toString();
-                    }
-                    getLog().warn(
-                            "The source configuration directory will be modified. Features will automatically be generated in a new file: "
-                                    + generatedFileCanonicalPath);
-                    runLibertyMojoGenerateFeatures(null, true);
-                } catch (MojoExecutionException e) {
-                    if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
-                        // PluginExecutionException indicates that the binary scanner jar could not be found
-                        getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
-                        generateFeatures = false;
-                    } else {
-                        throw new MojoExecutionException(e.getMessage()
-                        + " To disable the automatic generation of features, start dev mode with -DgenerateFeatures=false.",
-                        e);
-                    }
+                if (generateToSrc) {
+                    generateFeaturesOnStartup();
+                    runLibertyMojoCreate();
+                } else {
+                    runLibertyMojoCreate();
+                    generateFeaturesOnStartup();
                 }
+            } else {
+                runLibertyMojoCreate();
             }
-            runLibertyMojoCreate();
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
             // installed.
@@ -1678,7 +1682,7 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
+                    generateFeatures, generateToSrc, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
@@ -1709,6 +1713,39 @@ public class DevMojo extends LooseAppSupport {
                 getLog().info(e.getMessage());
             }
             return; // enter shutdown hook
+        }
+    }
+
+    private void generateFeaturesOnStartup() throws MojoExecutionException {
+        // generate features on startup - provide all classes and only user specified
+        // features to feature generator
+        try {
+            String generatedFileCanonicalPath;
+            try {
+                generatedFileCanonicalPath = new File(configDirectory,
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+            } catch (IOException e) {
+                generatedFileCanonicalPath = new File(configDirectory,
+                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).toString();
+            }
+            if (generateToSrc) {
+                getLog().info(
+                        "The source configuration directory will be modified. Features will automatically be generated in a new file: "
+                                + generatedFileCanonicalPath);
+            }
+            // During dev mode start up the server is not running yet so we will generate features to the correct
+            // output directory and then install features in the next step.
+            runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
+        } catch (MojoExecutionException e) {
+            if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
+                // PluginExecutionException indicates that the feature generator jar could not be found
+                getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                generateFeatures = false;
+            } else {
+                throw new MojoExecutionException(e.getMessage()
+                + " To disable the automatic generation of features, type 'g' and press 'Enter' once dev mode is running or restart dev mode with -DgenerateFeatures=false.",
+                e);
+            }
         }
     }
 
@@ -2432,7 +2469,7 @@ public class DevMojo extends LooseAppSupport {
      * @throws MojoExecutionException
      */
     @Override
-    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize) throws MojoExecutionException {
-        super.runLibertyMojoGenerateFeatures(classFiles, optimize);
+    protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize, boolean genToSrc, boolean useTmpDirOut, boolean useTmpDirIn) throws MojoExecutionException {
+        super.runLibertyMojoGenerateFeatures(classFiles, optimize, genToSrc, useTmpDirOut, useTmpDirIn);
     }
 }

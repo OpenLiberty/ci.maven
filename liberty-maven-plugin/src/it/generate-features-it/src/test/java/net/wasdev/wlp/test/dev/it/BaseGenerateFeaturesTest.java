@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2022.
+ * (c) Copyright IBM Corporation 2022, 2026
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,14 @@ public class BaseGenerateFeaturesTest {
     static File targetDir;
     static String processOutput = "";
     static File newFeatureFile;
+    static File newFeatureFileSrc;
     static File pom;
     static File serverXmlFile;
 
     static final String GENERATED_FEATURES_FILE_NAME = "generated-features.xml";
-    static final String GENERATED_FEATURES_FILE_PATH = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_PATH = "/target/liberty/wlp/usr/servers/defaultServer/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String GENERATED_FEATURES_FILE_PATH_SRC = "/src/main/liberty/config/configDropins/overrides/" + GENERATED_FEATURES_FILE_NAME;
+    static final String SERVER_MISSING_MESSAGE = "The 'generate-features' goal requires an existing Liberty server";
 
     protected static void setUpBeforeTest(String projectRoot) throws IOException, InterruptedException {
         basicProj = new File(projectRoot);
@@ -81,6 +84,7 @@ public class BaseGenerateFeaturesTest {
         assertTrue(logFile.createNewFile());
 
         newFeatureFile = new File(tempProj, GENERATED_FEATURES_FILE_PATH);
+        newFeatureFileSrc = new File(tempProj, GENERATED_FEATURES_FILE_PATH_SRC);
         pom = new File(tempProj, "pom.xml");
         assertTrue(pom.exists());
         replaceVersion(tempProj);
@@ -223,7 +227,20 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("compile liberty:generate-features");
+        runProcess("clean compile liberty:create liberty:generate-features");
+    }
+
+    protected void runClean() throws IOException, InterruptedException {
+        runProcess("clean");
+    }
+
+    protected void runCleanAndCreate() throws IOException, InterruptedException {
+        runProcess("clean liberty:create");
+    }
+
+    protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
+        // do not create liberty when generating to src
+        runProcess("clean compile liberty:generate-features -DgenerateToSrc=true");
     }
 
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {

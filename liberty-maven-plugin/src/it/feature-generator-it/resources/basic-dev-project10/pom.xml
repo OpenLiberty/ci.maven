@@ -3,7 +3,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>binary-scanner-it-tests</groupId>
+  <groupId>feature-generator-it-tests</groupId>
   <artifactId>dev-sample-proj</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -11,8 +11,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <app.name>LibertyProject</app.name>
     <!-- tag::ports[] -->
     <testServerHttpPort>9080</testServerHttpPort>
@@ -20,6 +20,18 @@
     <!-- end::ports[] -->
     <packaging.type>usr</packaging.type>
   </properties>
+
+  <repositories>
+    <!-- Sonatype repo needed to get the feature-gen jar for liberty:generate-features -->
+    <repository>
+        <id>central-portal-snapshots</id>
+        <name>Central Portal Snapshots</name>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
       <dependencies>

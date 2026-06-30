@@ -5,6 +5,7 @@ target/
 .classpath
 .factorypath
 .idea/
+.vscode/
 .DS_Store
 *.versionsBackup
 /.metadata/
