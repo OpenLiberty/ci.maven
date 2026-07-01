@@ -94,20 +94,25 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       Thread.sleep(5000);
 
       // check endpoints on both projects
-      assertEndpointContent("http://localhost:9080/converter", "Height Converter");
-      assertEndpointContent("http://localhost:9081/converter", "Height Converter");
+      assertEndpointContent("http://localhost:9080/converter", "Height Converter", logFile);
+      assertEndpointContent("http://localhost:9081/converter", "Height Converter", logFile2);
 
       // invoke upstream java code
-      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100");
-      assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "100");
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "100", logFile);
+      assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "100", logFile2);
 
-      // test modify a Java file in an upstream module
+      // Test the modification of a Java file in an upstream module
+      // the modify method only tracks one log file, we need to track the other here
+      int appUpdatedCount2 = countOccurrences("CWWKZ0003I:", logFile2);
       modifyJarClass();
+      // the previous method waits for one app, we must wait for app ear2 to update
+      assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile2, ++appUpdatedCount2));
+
 
       Thread.sleep(5000);
 
-      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200");
-      assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200");
+      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200", logFile);
+      assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200", logFile2);
    }
 
    @AfterClass
