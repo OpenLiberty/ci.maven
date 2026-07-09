@@ -38,11 +38,8 @@ public class DevToolchainTest extends BaseDevTest {
             String newContent = fileContent.replace(originalContent, modifiedContent);
             FileUtils.writeStringToFile(javaFile, newContent, "UTF-8");
 
-            // Allow the recompile to start before checking the logs.
-            Thread.sleep(8000);
-
             // Verify that recompilation used compiler options
-            assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 120000));
+            assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 128000));
             assertTrue(verifyLogMessageExists("-source, 11", 120000));
             assertTrue(verifyLogMessageExists("-target, 11", 120000));
         } finally {
