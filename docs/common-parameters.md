@@ -30,4 +30,4 @@ The following parameter names from version 2.x are still supported for backward 
 | assemblyArtifact         | runtimeArtifact         |
 | assemblyInstallDirectory | runtimeInstallDirectory |
 
-See the [version 3.0 migration guide](version_3.0_differences.md) for more information about parameter name changes.
+See the [version 3.0 migration guide](https://github.com/OpenLiberty/ci.maven/releases/tag/liberty-maven-3.0/) for more information about parameter name changes.
