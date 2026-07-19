@@ -242,6 +242,13 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         runLibertyMojo("install-feature", config);
     }
 
+
+    protected void runLibertyMojoApplyIfix() throws MojoExecutionException {
+        Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "apply-ifix", getLog());
+        runLibertyMojo("apply-ifix", config);
+    }
+
+
     protected void runLibertyMojoGenerateFeatures(Element classFiles, boolean optimize, boolean generateToSrc, boolean useTmpDirOut, boolean useTmpDirIn) throws MojoExecutionException {
         Xpp3Dom config = ExecuteMojoUtil.getPluginGoalConfig(getLibertyPlugin(), "generate-features", getLog());
         if (classFiles != null) {

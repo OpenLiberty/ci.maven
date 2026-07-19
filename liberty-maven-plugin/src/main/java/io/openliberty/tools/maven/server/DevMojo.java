@@ -1198,6 +1198,7 @@ public class DevMojo extends LooseAppSupport {
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
+                        runLibertyMojoApplyIfix();
                     }
                 }
                 if (!(reinstallLiberty || restartServer || createServer || redeployApp || installFeature || runBoostPackage)) {
@@ -1584,6 +1585,7 @@ public class DevMojo extends LooseAppSupport {
             // Need to also check if this is a new Liberty installation or not. The isNewInstallation flag is set by runLibertyMojoCreate.
             if (!container && (!skipInstallFeature || isNewInstallation)) {
                 runLibertyMojoInstallFeature(null, null, null);
+                runLibertyMojoApplyIfix();
             } else if (skipInstallFeature) {
                 getLog().info("Skipping installation of features due to skipInstallFeature configuration.");
             }
