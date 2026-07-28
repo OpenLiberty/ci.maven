@@ -15,6 +15,7 @@
  */
 package io.openliberty.tools.maven.server;
 
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
@@ -44,6 +45,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.openliberty.tools.common.plugins.util.LibertyPropFilesUtility;
 import io.openliberty.tools.maven.utils.CommonLogger;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -1565,17 +1568,21 @@ public class DevMojo extends LooseAppSupport {
             getLog().info("Running boost:package");
             runBoostMojo("package");
         } else {
-            // If generate features to server directory then create server first.
+            runLibertyMojoCreate();
+            runLibertyMojoDeploy();
+            // generate features depends on both the server dir and the app file
             if (generateFeatures) {
-                if (generateToSrc) {
-                    generateFeaturesOnStartup();
-                    runLibertyMojoCreate();
-                } else {
-                    runLibertyMojoCreate();
-                    generateFeaturesOnStartup();
+                generateFeaturesOnStartup();
+                try {
+                    if (generateToSrc) {
+                        File generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
+                        File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+                        // if features generated to the src dir then copy them to the server dir before server start-up
+                        FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
+                    }
+                } catch (IOException x) {
+                    getLog().warn("Exception copying " + GENERATED_FEATURES_FILE_PATH);
                 }
-            } else {
-                runLibertyMojoCreate();
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
@@ -1587,7 +1594,6 @@ public class DevMojo extends LooseAppSupport {
             } else if (skipInstallFeature) {
                 getLog().info("Skipping installation of features due to skipInstallFeature configuration.");
             }
-            runLibertyMojoDeploy();
         }
         
         if (project.getPackaging().equals("war")) {
@@ -1682,7 +1688,8 @@ public class DevMojo extends LooseAppSupport {
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
                     settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
-                    generateFeatures, generateToSrc, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs, new File(super.outputDirectory,serverName));
+                    generateFeatures, generateToSrc, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs,
+                    new File(super.outputDirectory,serverName));
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error initializing dev mode.", e);
         }
@@ -1720,21 +1727,21 @@ public class DevMojo extends LooseAppSupport {
         // generate features on startup - provide all classes and only user specified
         // features to feature generator
         try {
-            String generatedFileCanonicalPath;
-            try {
-                generatedFileCanonicalPath = new File(configDirectory,
-                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
-            } catch (IOException e) {
-                generatedFileCanonicalPath = new File(configDirectory,
-                        FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).toString();
-            }
-            if (generateToSrc) {
+            if (generateToSrc) { // need to print info message
+                String generatedFileCanonicalPath;
+                try {
+                    generatedFileCanonicalPath = new File(configDirectory,
+                            FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).getCanonicalPath();
+                } catch (IOException e) {
+                    generatedFileCanonicalPath = new File(configDirectory,
+                            FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH).toString();
+                }
                 getLog().info(
                         "The source configuration directory will be modified. Features will automatically be generated in a new file: "
                                 + generatedFileCanonicalPath);
             }
             // During dev mode start up the server is not running yet so we will generate features to the correct
-            // output directory and then install features in the next step.
+            // output directory and then install features in a future step.
             runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
