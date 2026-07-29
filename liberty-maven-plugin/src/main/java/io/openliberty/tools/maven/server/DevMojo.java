@@ -1570,19 +1570,9 @@ public class DevMojo extends LooseAppSupport {
         } else {
             runLibertyMojoCreate();
             runLibertyMojoDeploy();
-            // generate features depends on both the server dir and the app file
+            // generate features depends on both the server dir and the app file (.war or .war.xml)
             if (generateFeatures) {
                 generateFeaturesOnStartup();
-                try {
-                    if (generateToSrc) {
-                        File generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
-                        File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
-                        // if features generated to the src dir then copy them to the server dir before server start-up
-                        FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
-                    }
-                } catch (IOException x) {
-                    getLog().warn("Exception copying " + GENERATED_FEATURES_FILE_PATH);
-                }
             }
             // If non-container, install features before starting server. Otherwise, user
             // should have "RUN features.sh" in their Containerfile/Dockerfile if they want features to be
@@ -1743,15 +1733,27 @@ public class DevMojo extends LooseAppSupport {
             // During dev mode start up the server is not running yet so we will generate features to the correct
             // output directory and then install features in a future step.
             runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
+            try {
+                if (generateToSrc) {
+                    // if features generated to the src dir then copy them to the server dir before
+                    // install features and server start-up
+                    File generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
+                    File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+                    FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
+                }
+            } catch (IOException x) {
+                getLog().warn("Exception copying " + GENERATED_FEATURES_FILE_PATH + " from " +
+                    configDirectory.getPath() + " to " + serverDirectory.getPath());
+            }
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                 // PluginExecutionException indicates that the feature generator jar could not be found
                 getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
                 generateFeatures = false;
             } else {
-                throw new MojoExecutionException(e.getMessage()
-                + " To disable the automatic generation of features, type 'g' and press 'Enter' once dev mode is running or restart dev mode with -DgenerateFeatures=false.",
-                e);
+                throw new MojoExecutionException(e.getMessage() +
+                    " To disable the automatic generation of features, type 'g' and press 'Enter' once dev mode is running or restart dev mode with -DgenerateFeatures=false.",
+                    e);
             }
         }
     }
