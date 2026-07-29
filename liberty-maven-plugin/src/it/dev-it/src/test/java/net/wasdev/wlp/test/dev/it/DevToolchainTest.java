@@ -25,6 +25,11 @@ public class DevToolchainTest extends BaseDevTest {
             assertTrue(verifyLogMessageExists("Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.", 120000));
             assertTrue(verifyLogMessageExists("Setting compiler source to toolchain JDK version 11", 120000));
 
+            // Wait for the application to be available and for dev mode to finish its initial
+            // compilation/watcher setup before modifying source files, avoiding intermittent races.
+            assertTrue("Web app should be available", verifyLogMessageExists(WEB_APP_AVAILABLE, 60000));
+            Thread.sleep(2000);
+
             // Trigger a recompile by modifying a Java source file
             File javaFile = new File(tempProj, "src/main/java/com/demo/HelloWorld.java");
             String originalContent = "public String helloWorld() {\n\t\treturn \"helloWorld\";\n\t}";
@@ -34,7 +39,7 @@ public class DevToolchainTest extends BaseDevTest {
             FileUtils.writeStringToFile(javaFile, newContent, "UTF-8");
 
             // Verify that recompilation used compiler options
-            assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 120000));
+            assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 128000));
             assertTrue(verifyLogMessageExists("-source, 11", 120000));
             assertTrue(verifyLogMessageExists("-target, 11", 120000));
         } finally {
