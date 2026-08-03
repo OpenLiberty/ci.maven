@@ -3,7 +3,9 @@ package net.wasdev.wlp.maven.test.app;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -171,6 +173,39 @@ public class MergeServerEnvTest {
         Assert.assertEquals(
                 "TEST_BACKSLASH_VALUE must preserve the mid-string backslash verbatim",
                 "abc\\`;xyz", serverEnvContents.get("TEST_BACKSLASH_VALUE"));
+    }
+
+    /**
+     * Order test: WIN_HOME must appear before WIN_JAVA_HOME in the merged server.env.
+     * When expansion variables reference earlier entries (e.g. WIN_JAVA_HOME=!WIN_HOME!\java),
+     * Liberty resolves them in file order — so the referenced variable must come first.
+     */
+    @Test
+    public void check_expansion_variable_order_preserved() throws Exception {
+        File serverEnv = new File("liberty/wlp/usr/servers/test", "server.env");
+        assertTrue(serverEnv.getCanonicalFile() + " doesn't exist", serverEnv.exists());
+
+        List<String> keys = new ArrayList<String>();
+        try (Scanner s = new Scanner(serverEnv)) {
+            while (s.hasNextLine()) {
+                String line = s.nextLine();
+                if (!line.startsWith("#") && !line.trim().isEmpty()) {
+                    String[] kv = line.split("=", 2);
+                    if (kv.length == 2) {
+                        keys.add(kv[0]);
+                    }
+                }
+            }
+        }
+
+        int winHomeIndex = keys.indexOf("WIN_HOME");
+        int winJavaHomeIndex = keys.indexOf("WIN_JAVA_HOME");
+
+        Assert.assertTrue("WIN_HOME must be present in merged server.env", winHomeIndex >= 0);
+        Assert.assertTrue("WIN_JAVA_HOME must be present in merged server.env", winJavaHomeIndex >= 0);
+        Assert.assertTrue(
+                "WIN_HOME (pos " + winHomeIndex + ") must appear before WIN_JAVA_HOME (pos " + winJavaHomeIndex + ") so the !WIN_HOME! expansion reference can be resolved",
+                winHomeIndex < winJavaHomeIndex);
     }
 
 }

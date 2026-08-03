@@ -33,16 +33,11 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -598,8 +593,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         String[] specialProps = { "keystore_password", "ltpa_keys_password" };
 
-        // Clone to avoid side effects
-        Map<String, String> mergedProps = new HashMap<String,String>(envProps);
+        // Clone into LinkedHashMap to preserve insertion order (expansion variables must precede references)
+        Map<String, String> mergedProps = new LinkedHashMap<String,String>(envProps);
         
         // From install (target) dir
         File serverEnv = new File(serverDirectory, "server.env");
@@ -682,8 +677,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         return updatedServerEnvPath.toString();
     }
 
+    // Uses LinkedHashMap to preserve insertion order so expansion variables (e.g. WIN_HOME)
+    // appear before entries that reference them (e.g. WIN_JAVA_HOME=!WIN_HOME!\java).
     private Map<String, String> convertServerEnvToProperties(File serverEnv) throws IOException {
-        Map<String, String> mavenProperties = new HashMap<String, String>();
+        Map<String, String> mavenProperties = new LinkedHashMap<String, String>();
 
         if ((serverEnv == null) || !serverEnv.exists()) {
             return mavenProperties;
