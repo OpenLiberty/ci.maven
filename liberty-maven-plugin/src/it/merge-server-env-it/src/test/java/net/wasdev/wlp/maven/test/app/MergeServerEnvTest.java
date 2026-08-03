@@ -82,7 +82,7 @@ public class MergeServerEnvTest {
             // The contents of the default server.env can change over time.
             // After 20.0.0.3, for example, the WLP_SKIP_MAXPERMSIZE was removed.
             // Just confirm the keystore_password and ltpa_keys_password are present to prove the default server.env was merged with the plugin config.
-            Assert.assertTrue("Number of env properties should be >= 11, but is "+serverEnvContents.size(),  	serverEnvContents.size() >= 11);
+            Assert.assertTrue("Number of env properties should be >= 12, but is "+serverEnvContents.size(),  	serverEnvContents.size() >= 12);
             Assert.assertTrue("keystore_password mapping found", serverEnvContents.containsKey("keystore_password"));
             Assert.assertTrue("ltpa_keys_password mapping found", serverEnvContents.containsKey("ltpa_keys_password"));
             Assert.assertTrue("ConfigDir=TEST mapping found", serverEnvContents.get("ConfigDir").equals("TEST"));
@@ -95,10 +95,18 @@ public class MergeServerEnvTest {
     }
 
     /**
-     * Regression test for: mergeServerEnv=true must not corrupt file-system paths or
-     * variable-expansion references written verbatim in a user's server.env file.
+     * Regression test for: mergeServerEnv=true must not corrupt file-system paths,
+     * variable-expansion references, or any arbitrary value containing a backslash written
+     * verbatim in a user's server.env file.
+     *
+     * Entries in src/test/resources/server.env that exercise the fix:
+     *   WIN_HOME=C:\myfolder\folder2        (Windows backslash path)
+     *   WIN_JAVA_HOME=!WIN_HOME!\java       (delayed-expansion variable reference)
+     *   UNIX_HOME=/usr/local/myapp          (Unix forward-slash path)
+     *   TEST_BACKSLASH_VALUE=abc\`;xyz      (arbitrary mid-string backslash, not a path)
+     *
      * On Windows: assert backslashes and !VAR! refs are preserved exactly.
-     * On all platforms: assert UNIX_HOME and the presence of all three keys are correct.
+     * On all platforms: assert UNIX_HOME, TEST_BACKSLASH_VALUE, and key presence are correct.
      */
     @Test
     public void check_windows_path_and_expansion_variables_preserved() throws Exception {
@@ -121,15 +129,15 @@ public class MergeServerEnvTest {
         String os = System.getProperty("os.name");
         boolean isWindows = os != null && os.toLowerCase().startsWith("windows");
 
-        // WIN_HOME and WIN_JAVA_HOME are always written to the merged file.
-        // On Windows the backslashes in those values MUST be preserved as-is;
-        // on other platforms they still must not be mangled (the fix is platform-independent).
+        // All four keys must always be present in the merged file regardless of platform.
         Assert.assertTrue("WIN_HOME key should be present in merged server.env",
                 serverEnvContents.containsKey("WIN_HOME"));
         Assert.assertTrue("WIN_JAVA_HOME key should be present in merged server.env",
                 serverEnvContents.containsKey("WIN_JAVA_HOME"));
         Assert.assertTrue("UNIX_HOME key should be present in merged server.env",
                 serverEnvContents.containsKey("UNIX_HOME"));
+        Assert.assertTrue("TEST_BACKSLASH_VALUE key should be present in merged server.env",
+                serverEnvContents.containsKey("TEST_BACKSLASH_VALUE"));
 
         if (isWindows) {
             // On Windows: backslash path must not be converted to forward-slashes.
@@ -143,8 +151,7 @@ public class MergeServerEnvTest {
                     "WIN_JAVA_HOME value must preserve backslash in !VAR! expansion reference on Windows",
                     "!WIN_HOME!\\java", serverEnvContents.get("WIN_JAVA_HOME"));
         } else {
-            // On Linux/Mac: same entries are present but backslash-to-forward-slash corruption
-            // is equally wrong — verify neither value was mangled.
+            // On Linux/Mac: same entries are present — verify backslashes were not mangled.
             Assert.assertFalse(
                     "WIN_HOME value must not have backslashes replaced with forward-slashes",
                     serverEnvContents.get("WIN_HOME").contains("/myfolder/folder2"));
@@ -157,6 +164,13 @@ public class MergeServerEnvTest {
         Assert.assertEquals(
                 "UNIX_HOME value must be preserved as-is on all platforms",
                 "/usr/local/myapp", serverEnvContents.get("UNIX_HOME"));
+
+        // Arbitrary mid-string backslash must be preserved verbatim on all platforms.
+        // This covers the case where any value containing a backslash (not just a Windows path)
+        // was corrupted: e.g. abc\`;xyz was written out as abc/`;xyz.
+        Assert.assertEquals(
+                "TEST_BACKSLASH_VALUE must preserve the mid-string backslash verbatim",
+                "abc\\`;xyz", serverEnvContents.get("TEST_BACKSLASH_VALUE"));
     }
 
 }
