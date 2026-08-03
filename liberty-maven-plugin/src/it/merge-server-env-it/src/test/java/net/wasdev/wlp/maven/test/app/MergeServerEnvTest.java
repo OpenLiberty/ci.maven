@@ -10,6 +10,7 @@ import java.util.Scanner;
 import org.junit.Test;
 import org.junit.Assert;
 
+
 /**
  * 
  * MergeServerEnv
@@ -81,7 +82,7 @@ public class MergeServerEnvTest {
             // The contents of the default server.env can change over time.
             // After 20.0.0.3, for example, the WLP_SKIP_MAXPERMSIZE was removed.
             // Just confirm the keystore_password and ltpa_keys_password are present to prove the default server.env was merged with the plugin config.
-            Assert.assertTrue("Number of env properties should be >= 8, but is "+serverEnvContents.size(),  	serverEnvContents.size() >= 8);
+            Assert.assertTrue("Number of env properties should be >= 11, but is "+serverEnvContents.size(),  	serverEnvContents.size() >= 11);
             Assert.assertTrue("keystore_password mapping found", serverEnvContents.containsKey("keystore_password"));
             Assert.assertTrue("ltpa_keys_password mapping found", serverEnvContents.containsKey("ltpa_keys_password"));
             Assert.assertTrue("ConfigDir=TEST mapping found", serverEnvContents.get("ConfigDir").equals("TEST"));
@@ -91,6 +92,71 @@ public class MergeServerEnvTest {
             Assert.assertTrue("TEST_PROP_2=white", serverEnvContents.get("TEST_PROP_2").equals("white"));
             Assert.assertTrue("TEST_PROP_1=red", serverEnvContents.get("TEST_PROP_1").equals("red"));
         }
+    }
+
+    /**
+     * Regression test for: mergeServerEnv=true must not corrupt file-system paths or
+     * variable-expansion references written verbatim in a user's server.env file.
+     * On Windows: assert backslashes and !VAR! refs are preserved exactly.
+     * On all platforms: assert UNIX_HOME and the presence of all three keys are correct.
+     */
+    @Test
+    public void check_windows_path_and_expansion_variables_preserved() throws Exception {
+        File serverEnv = new File("liberty/wlp/usr/servers/test", "server.env");
+        assertTrue(serverEnv.getCanonicalFile() + " doesn't exist", serverEnv.exists());
+
+        Map<String, String> serverEnvContents = new HashMap<String, String>();
+        try (Scanner s = new Scanner(serverEnv)) {
+            while (s.hasNextLine()) {
+                String line = s.nextLine();
+                if (!line.startsWith("#") && !line.trim().isEmpty()) {
+                    String[] kv = line.split("=", 2);
+                    if (kv.length == 2) {
+                        serverEnvContents.put(kv[0], kv[1]);
+                    }
+                }
+            }
+        }
+
+        String os = System.getProperty("os.name");
+        boolean isWindows = os != null && os.toLowerCase().startsWith("windows");
+
+        // WIN_HOME and WIN_JAVA_HOME are always written to the merged file.
+        // On Windows the backslashes in those values MUST be preserved as-is;
+        // on other platforms they still must not be mangled (the fix is platform-independent).
+        Assert.assertTrue("WIN_HOME key should be present in merged server.env",
+                serverEnvContents.containsKey("WIN_HOME"));
+        Assert.assertTrue("WIN_JAVA_HOME key should be present in merged server.env",
+                serverEnvContents.containsKey("WIN_JAVA_HOME"));
+        Assert.assertTrue("UNIX_HOME key should be present in merged server.env",
+                serverEnvContents.containsKey("UNIX_HOME"));
+
+        if (isWindows) {
+            // On Windows: backslash path must not be converted to forward-slashes.
+            Assert.assertEquals(
+                    "WIN_HOME value must preserve backslashes on Windows (not converted to forward-slashes)",
+                    "C:\\myfolder\\folder2", serverEnvContents.get("WIN_HOME"));
+
+            // Delayed-expansion variable reference (!VAR!\subdir) must keep its backslash;
+            // Liberty uses !VAR! expansion at server start on Windows.
+            Assert.assertEquals(
+                    "WIN_JAVA_HOME value must preserve backslash in !VAR! expansion reference on Windows",
+                    "!WIN_HOME!\\java", serverEnvContents.get("WIN_JAVA_HOME"));
+        } else {
+            // On Linux/Mac: same entries are present but backslash-to-forward-slash corruption
+            // is equally wrong — verify neither value was mangled.
+            Assert.assertFalse(
+                    "WIN_HOME value must not have backslashes replaced with forward-slashes",
+                    serverEnvContents.get("WIN_HOME").contains("/myfolder/folder2"));
+            Assert.assertFalse(
+                    "WIN_JAVA_HOME value must not have its backslash replaced with a forward-slash",
+                    serverEnvContents.get("WIN_JAVA_HOME").contains("!WIN_HOME!/java"));
+        }
+
+        // Forward-slash (Unix) path must pass through unchanged on all platforms.
+        Assert.assertEquals(
+                "UNIX_HOME value must be preserved as-is on all platforms",
+                "/usr/local/myapp", serverEnvContents.get("UNIX_HOME"));
     }
 
 }
