@@ -84,7 +84,7 @@ public class MergeServerEnvTest {
             // The contents of the default server.env can change over time.
             // After 20.0.0.3, for example, the WLP_SKIP_MAXPERMSIZE was removed.
             // Just confirm the keystore_password and ltpa_keys_password are present to prove the default server.env was merged with the plugin config.
-            Assert.assertTrue("Number of env properties should be >= 12, but is "+serverEnvContents.size(),  serverEnvContents.size() >= 12);
+            Assert.assertTrue("Number of env properties should be >= 13, but is "+serverEnvContents.size(),  serverEnvContents.size() >= 13);
             Assert.assertTrue("keystore_password mapping found", serverEnvContents.containsKey("keystore_password"));
             Assert.assertTrue("ltpa_keys_password mapping found", serverEnvContents.containsKey("ltpa_keys_password"));
             Assert.assertTrue("ConfigDir=TEST mapping found", serverEnvContents.get("ConfigDir").equals("TEST"));
@@ -93,6 +93,8 @@ public class MergeServerEnvTest {
             Assert.assertTrue("CONFIG_SERVER_ENV_PROPS=TEST", serverEnvContents.get("CONFIG_SERVER_ENV_PROPS").equals("TEST"));
             Assert.assertTrue("TEST_PROP_2=white", serverEnvContents.get("TEST_PROP_2").equals("white"));
             Assert.assertTrue("TEST_PROP_1=red", serverEnvContents.get("TEST_PROP_1").equals("red"));
+            // Maven inline property with backslash path: must be written verbatim (no replace).
+            Assert.assertTrue("MAVEN_WIN_PATH=C:\\Semeru\\jdk", serverEnvContents.get("MAVEN_WIN_PATH").equals("C:\\Semeru\\jdk"));
         }
     }
 

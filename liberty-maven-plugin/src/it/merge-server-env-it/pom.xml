@@ -30,6 +30,7 @@
   <properties>
     <liberty.env.TEST_PROP_2>white</liberty.env.TEST_PROP_2>
     <liberty.env.CONFIG_SERVER_ENV_PROPS>TEST</liberty.env.CONFIG_SERVER_ENV_PROPS>
+    <liberty.env.MAVEN_WIN_PATH>C:\Semeru\jdk</liberty.env.MAVEN_WIN_PATH>
   </properties>
 
   <build>
