@@ -29,7 +29,7 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass("-DgenerateFeatures=true");
+        setUpBeforeClass(null);
     }
 
     @AfterClass
