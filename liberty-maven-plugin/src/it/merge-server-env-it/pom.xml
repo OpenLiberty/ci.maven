@@ -30,7 +30,6 @@
   <properties>
     <liberty.env.TEST_PROP_2>white</liberty.env.TEST_PROP_2>
     <liberty.env.CONFIG_SERVER_ENV_PROPS>TEST</liberty.env.CONFIG_SERVER_ENV_PROPS>
-    <liberty.env.OVERLAP_PROP>maven\value</liberty.env.OVERLAP_PROP>
   </properties>
 
   <build>

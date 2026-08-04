@@ -638,9 +638,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 serverEnvProps.putAll(envMavenProps);
             }
 
-            // Only keys that originated from Maven pom.xml properties need backslash-to-forward-slash
-            // normalisation.
-            writeServerEnvProperties(serverEnv, serverEnvProps, envMavenProps.keySet());
+            writeServerEnvProperties(serverEnv, serverEnvProps);
             modifiedServerEnvPath = getMergedServerEnvPath(serverEnvPath);
         }
 
@@ -772,17 +770,6 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
     }
 
     private void writeServerEnvProperties(File file, Map<String, String> mavenProperties) throws IOException {
-        writeServerEnvProperties(file, mavenProperties, mavenProperties.keySet());
-    }
-
-    /**
-     * Writes server.env properties to file. Path separator normalisation (backslash to forward-slash)
-     * is applied only to keys present in {@code normaliseKeys}, which should be the set of keys whose
-     * values originated from Maven pom.xml properties. Values read verbatim from an existing server.env
-     * file must not be transformed so that Windows paths and delayed-expansion variable references
-     * (e.g. {@code !VAR!\subdir}) are preserved correctly.
-     */
-    private void writeServerEnvProperties(File file, Map<String, String> mavenProperties, Set<String> normaliseKeys) throws IOException {
         makeParentDirectory(file);
         PrintWriter writer = null;
         try {
@@ -793,10 +780,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 writer.print(key);
                 writer.print("=");
                 String value = entry.getValue();
-                if (value != null) {
-                    writer.println(normaliseKeys.contains(key) ? value.replace("\\", "/") : value);
-                } else {
-                    writer.println("");
+                writer.println(value != null ? value : "");
+                if (value == null) {
                     getLog().warn("The value of the server.env property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
