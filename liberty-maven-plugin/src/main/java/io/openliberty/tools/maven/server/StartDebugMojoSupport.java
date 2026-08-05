@@ -780,8 +780,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 writer.print(key);
                 writer.print("=");
                 String value = entry.getValue();
-                writer.println(value != null ? value : "");
-                if (value == null) {
+                if (value != null) {
+                    writer.println(convertServerEnvPathSeparator ? value.replace("\\", "/") : value);
+                } else {
+                    writer.println("");
                     getLog().warn("The value of the server.env property " + key + " is null. Verify if the needed POM properties are set correctly.");
                 }
             }
