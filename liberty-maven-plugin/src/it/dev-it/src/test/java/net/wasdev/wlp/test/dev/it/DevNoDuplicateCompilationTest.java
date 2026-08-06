@@ -76,7 +76,8 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
             verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++initialHotReloadCount));
 
         Thread.sleep(3000);
-        // generate-features runs after compilation and triggers a second CWWKZ0003I
+        // [INFO] Running liberty:generate-features ...
+        // [INFO] [AUDIT   ] CWWKZ0003I: The application dev-sample-proj-1.0-SNAPSHOT updated in 0.053 seconds.
         ++initialHotReloadCount;
 
         // Count final compilation messages
@@ -128,8 +129,6 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
                 verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++hotReloadCountBefore));
 
             Thread.sleep(3000);
-            // generate-features runs after compilation and triggers a second CWWKZ0003I
-            ++hotReloadCountBefore;
 
             // Count compilation messages after change
             int compilationCountAfter = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
