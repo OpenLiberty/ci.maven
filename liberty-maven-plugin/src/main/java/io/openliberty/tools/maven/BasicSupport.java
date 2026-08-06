@@ -181,6 +181,15 @@ public abstract class BasicSupport extends AbstractLibertySupport {
     protected boolean mergeServerEnv;
 
     /**
+     * When {@code true}, backslashes in server.env property values are converted to forward-slashes
+     * before being written to the merged server.env file. This was the default behaviour prior to
+     * the fix for Windows path corruption. Set to {@code true} only if you relied on this conversion.
+     * Default is {@code false} (values are written verbatim).
+     */
+    @Parameter(property = "convertServerEnvPathSeparator", defaultValue = "false")
+    protected boolean convertServerEnvPathSeparator;
+
+    /**
      * GroupId to override any specified in the assemblyArtifact
      */
     @Parameter(alias = "libertyRuntimeGroupId", property = "liberty.runtime.groupId")
