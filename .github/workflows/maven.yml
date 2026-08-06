@@ -98,8 +98,7 @@ jobs:
       - name: Checkout ci.common
         uses: actions/checkout@v3
         with:
-          repository: sajeerzeji/ci.common
-          ref: GHLMP2070-Fix_race_condition_in_DevMojo_doDevMode
+          repository: OpenLiberty/ci.common
           path: ci.common
       - name: Checkout ci.ant
         uses: actions/checkout@v3
