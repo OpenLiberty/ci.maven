@@ -29,7 +29,7 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setUpBeforeClass(null);
+        setUpBeforeClass("-DgenerateFeatures=true");
     }
 
     @AfterClass
@@ -76,6 +76,8 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
             verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++initialHotReloadCount));
 
         Thread.sleep(3000);
+        // generate-features runs after compilation and triggers a second CWWKZ0003I
+        ++initialHotReloadCount;
 
         // Count final compilation messages
         int finalCompilationCount = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
@@ -126,6 +128,8 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
                 verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++hotReloadCountBefore));
 
             Thread.sleep(3000);
+            // generate-features runs after compilation and triggers a second CWWKZ0003I
+            ++hotReloadCountBefore;
 
             // Count compilation messages after change
             int compilationCountAfter = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
