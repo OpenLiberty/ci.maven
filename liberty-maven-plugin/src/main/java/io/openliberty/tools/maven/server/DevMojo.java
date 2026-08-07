@@ -805,24 +805,20 @@ public class DevMojo extends LooseAppSupport {
 
                     // detect compile dependency changes
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
+                        runLibertyMojoDeploy(); // deploy to create app artifact before generating features
                         boolean generateFeaturesSuccess = false;
                         // optimize generate features
                         if (generateFeatures) {
-                            getLog().debug("Detected a change in the compile dependencies for "
-                                    + buildFile + " , regenerating features");
-                            // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
+                            getLog().debug("Detected a change in the compile dependencies for " + buildFile + " , regenerating features");
                             generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
-                            // install new generated features because deploy will copy config files to server dir.
+                            // install new generated features before copying config file to server dir.
                             // It will not trigger install-feature if the feature list has not changed
                             util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
-                            // When generating to the src dir, mojo deploy will copy the files from src to the server.
-                            // When not generating to the src dir, we must copy the generated features file here.
-                            if (!generateToSrc) {
-                                // Copy the file here to be used by updateExistingFeatures() below
-                                util.copyGeneratedFeaturesFile(serverDirectory); // finalize the generate-features operation
-                            }
+                            // if generateToSrc then need to copy xml from src to server dir because deploy already copied the files from src to the server
+                            // if !generateToSrc then xml file is in tempDirOut so need to copy from tmp dir to server dir
+                            // Copy the file here to be used by updateExistingFeatures() below
+                            util.copyGeneratedFeaturesFile(serverDirectory);
                         }
-                        runLibertyMojoDeploy();
                         // Update the features after deploy mojo has copied the config files to server dir
                         if (generateFeaturesSuccess) {
                             updateExistingFeatures(); // update the dev mode cache of features in the server
