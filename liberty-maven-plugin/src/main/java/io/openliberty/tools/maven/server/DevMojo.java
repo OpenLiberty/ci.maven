@@ -1136,18 +1136,6 @@ public class DevMojo extends LooseAppSupport {
                 compileArtifactPaths.addAll(project.getCompileClasspathElements());
                 testArtifactPaths.addAll(project.getTestClasspathElements());
 
-                if (optimizeGenerateFeatures && generateFeatures) {
-                    getLog().debug("Detected a change in the compile dependencies, regenerating features");
-                    getLog().warn ("Detected a change in the compile dependencies, regenerating features");
-                    // always optimize generate features on dependency change
-                    // If generateToSrc is false then we must copy (below) new generated features file from temp dir to server dir
-                    generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
-                    util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
-                    if (!generateFeaturesSuccess) {
-                        installFeature = false; // skip installing features if generate features fails
-                    }
-                }
-
                 // We don't currently have the ability to dynamically add new directories to be watched
                 // There is so much that we are dynamically able to do that this could be surprising.
                 // For now issue a warning
@@ -1186,15 +1174,20 @@ public class DevMojo extends LooseAppSupport {
                     } else if (createServer) {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
-                        // Copy the file here to be used by updateExistingFeatures() below
-                        // If generateToSrc is false then we must copy new generated features file from temp dir to server dir after install
-                        if (generateFeaturesSuccess && !generateToSrc) {
-                            util.copyGeneratedFeaturesFile(serverDirectory); // server can now process the features
-                        }
                         runLibertyMojoDeploy();
-                        // Update the features after deploy mojo has copied the config files to server dir and generated features file added
+                    }
+                    if (optimizeGenerateFeatures && generateFeatures) {
+                        // changing the generate-features config can cause this call independent of app changes
+                        getLog().debug("Detected a change in the compile dependencies, regenerating features");
+                        // always optimize generate features on dependency change
+                        generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
                         if (generateFeaturesSuccess) {
+                            util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
+                            // Copy new generated features file from temp dir or src dir to server dir after install
+                            util.copyGeneratedFeaturesFile(serverDirectory); // server can now process the features
                             updateExistingFeatures(); // update the dev mode cache of features in the server
+                        } else {
+                            installFeature = false; // skip installing features if generate features fails
                         }
                     }
                     if (installFeature) {
