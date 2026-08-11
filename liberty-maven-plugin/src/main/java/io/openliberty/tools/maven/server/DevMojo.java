@@ -1021,7 +1021,6 @@ public class DevMojo extends LooseAppSupport {
             boolean runBoostPackage = false;
             boolean optimizeGenerateFeatures = false;
             boolean generateFeaturesSuccess = false;
-                getLog().warn ("recompileBuildFile. " );
 
             ProjectBuildingResult build;
             try {
