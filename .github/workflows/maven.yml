@@ -199,12 +199,12 @@ jobs:
       - name: Install ci.ant
         working-directory: ${{github.workspace}}/ci.ant
         timeout-minutes: 15
-        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
+        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -D"trimStackTrace"=false -DskipTests -D"invoker.skip"=true
       # Install ci.common
       - name: Install ci.common
         working-directory: ${{github.workspace}}/ci.common
         timeout-minutes: 15
-        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
+        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -D"trimStackTrace"=false -DskipTests -D"invoker.skip"=true
       # Run tests
       - name: Run tests
         working-directory: ${{github.workspace}}
