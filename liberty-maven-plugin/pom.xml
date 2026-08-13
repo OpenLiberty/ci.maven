@@ -162,7 +162,7 @@
                                 <libertyInstallDir>${libertyInstallDir}</libertyInstallDir>
                             </properties>
                             <profiles>
-                                <profile>offline-its</profile>
+                                <profile>?offline-its</profile>
                             </profiles>
                             <streamLogsOnFailures>true</streamLogsOnFailures>
                         </configuration>
@@ -202,7 +202,7 @@
                                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
                             </properties>
                             <profiles>
-                                <profile>online-its</profile>
+                                <profile>?online-its</profile>
                             </profiles>
                             <streamLogsOnFailures>true</streamLogsOnFailures>
                             <mavenOpts>-Dfile.encoding=UTF-8</mavenOpts>

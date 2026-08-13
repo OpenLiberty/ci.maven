@@ -323,7 +323,9 @@ public class DeployMojo extends DeployMojoSupport {
         MavenProject currentProject = proj;
         while(currentProject != null) {
             List<Object> plugins = new ArrayList<Object>(currentProject.getBuildPlugins());
-            plugins.addAll(currentProject.getPluginManagement().getPlugins());
+            if (currentProject.getPluginManagement() != null) {
+                plugins.addAll(currentProject.getPluginManagement().getPlugins());
+            }
             for(Object o : plugins) {
                 if(o instanceof Plugin) {
                     Plugin plugin = (Plugin) o;
