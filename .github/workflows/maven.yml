@@ -107,8 +107,8 @@ jobs:
       - name: Install ci.ant and ci.common
         timeout-minutes: 15
         run: |
-          ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
-          ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
+          ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
+          ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
       # Run tests
       - name: Run tests
         timeout-minutes: 120
@@ -199,12 +199,12 @@ jobs:
       - name: Install ci.ant
         working-directory: ${{github.workspace}}/ci.ant
         timeout-minutes: 15
-        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
+        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
       # Install ci.common
       - name: Install ci.common
         working-directory: ${{github.workspace}}/ci.common
         timeout-minutes: 15
-        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
+        run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests -Dinvoker.skip=true
       # Run tests
       - name: Run tests
         working-directory: ${{github.workspace}}
