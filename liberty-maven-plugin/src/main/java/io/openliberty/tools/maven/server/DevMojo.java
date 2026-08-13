@@ -1696,9 +1696,6 @@ public class DevMojo extends LooseAppSupport {
             throw new MojoExecutionException("Error starting the server in dev mode.", e);
         }
 
-        // start watching for keypresses immediately
-        util.runHotkeyReaderThread(executor);
-
         // Note that serverXmlFile can be null. DevUtil will automatically watch
         // all files in the configDirectory,
         // which is where the server.xml is located if a specific serverXmlFile
