@@ -23,15 +23,11 @@ jobs:
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
-        RUNTIME_VERSION: [25.0.0.12]
-        java: [25, 21, 17, 11, 8]
+        RUNTIME_VERSION: [26.0.0.6]
+        java: [25, 21, 17]
         exclude:
-          - java: 8
-            RUNTIME: wlp
           - java: 17
             RUNTIME: wlp
-          - java: 11
-            RUNTIME: ol
           - java: 21
             RUNTIME: ol
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Linux
@@ -39,14 +35,12 @@ jobs:
       # Checkout repos
       - name: Checkout ci.maven
         uses: actions/checkout@v3
-      - name: Pre-install JDK 8 (If Not Matrix Version)
-        if: ${{ matrix.java != '8' }}
+      - name: Pre-install JDK 8 (for toolchains)
         uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'semeru'
-      - name: Pre-install JDK 11 (If Not Matrix Version)
-        if: ${{ matrix.java != '11' }}
+      - name: Pre-install JDK 11 (for toolchains)
         uses: actions/setup-java@v4
         with:
           java-version: '11'
@@ -106,23 +100,18 @@ jobs:
           repository: OpenLiberty/ci.ant
           path: ci.ant
       - name: Set up Maven
-        uses: stCarolas/setup-maven@v4.5
+        uses: stCarolas/setup-maven@v5.1
         with:
-          maven-version: 3.9.9
+          maven-version: 4.0.0-rc-6
       # Install dependencies
       - name: Install ci.ant and ci.common
         timeout-minutes: 15
         run: |
           ./mvnw -V clean install -f ci.ant --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
           ./mvnw -V clean install -f ci.common --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
-      # Run tests that require a minimum of Java 17 or later
-      - name: Run tests that require a minimum of Java 17 or later
-        if: ${{ matrix.java != '8' && matrix.java != '11'}}
-        timeout-minutes: 20
-        run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*springboot-4-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
       # Run tests
       - name: Run tests
-        timeout-minutes: 90
+        timeout-minutes: 120
         run: ./mvnw -V verify --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -Ponline-its -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
 
 # WINDOWS BUILD
@@ -135,14 +124,10 @@ jobs:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         RUNTIME: [ol, wlp]
         RUNTIME_VERSION: [ 25.0.0.12 ]
-        java: [ 25, 21, 17, 11, 8 ]
+        java: [ 25, 21, 17 ]
         exclude:
-          - java: 8
-            RUNTIME: wlp
           - java: 17
             RUNTIME: wlp
-          - java: 11
-            RUNTIME: ol
           - java: 21
             RUNTIME: ol
     name: ${{ matrix.RUNTIME }} ${{ matrix.RUNTIME_VERSION }}, Java ${{ matrix.java }}, Windows
@@ -150,14 +135,12 @@ jobs:
       # Checkout repos
       - name: Checkout ci.maven
         uses: actions/checkout@v3
-      - name: Pre-install JDK 8 (If Not Matrix Version)
-        if: ${{ matrix.java != '8' }}
+      - name: Pre-install JDK 8 (for toolchains)
         uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'semeru'
-      - name: Pre-install JDK 11 (If Not Matrix Version)
-        if: ${{ matrix.java != '11' }}
+      - name: Pre-install JDK 11 (for toolchains)
         uses: actions/setup-java@v4
         with:
           java-version: '11'
@@ -209,9 +192,9 @@ jobs:
           git clone https://github.com/OpenLiberty/ci.common.git ${{github.workspace}}/ci.common
           git clone https://github.com/OpenLiberty/ci.ant.git ${{github.workspace}}/ci.ant
       - name: Set up Maven
-        uses: stCarolas/setup-maven@v4.5
+        uses: stCarolas/setup-maven@v5.1
         with:
-          maven-version: 3.9.9
+          maven-version: 4.0.0-rc-6
       # Install ci.ant
       - name: Install ci.ant
         working-directory: ${{github.workspace}}/ci.ant
@@ -222,14 +205,8 @@ jobs:
         working-directory: ${{github.workspace}}/ci.common
         timeout-minutes: 15
         run: .\mvnw.cmd -V clean install --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -DskipTests
-      # Run tests that require a minimum of Java 17 or later
-      - name: Run tests that require a minimum of Java 17 or later
-        working-directory: ${{github.workspace}}
-        if: ${{ matrix.java != '8' && matrix.java != '11'}}
-        timeout-minutes: 45
-        run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -D"invoker.test"="*setup*,*springboot-3-*,*springboot-4-*,*compile-jsp-source-17-*,*toolchain-java-warning-jvmoption*" -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
       # Run tests
       - name: Run tests
         working-directory: ${{github.workspace}}
-        timeout-minutes: 90
+        timeout-minutes: 150
         run: .\mvnw.cmd -V verify -Ponline-its --batch-mode --no-transfer-progress --errors -DtrimStackTrace=false -D"invoker.streamLogsOnFailures"=true -Druntime=${{ matrix.RUNTIME }} -DruntimeVersion="${{ matrix.RUNTIME_VERSION }}"
