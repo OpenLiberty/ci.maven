@@ -54,11 +54,11 @@ public class ToolchainTest {
         Assert.assertTrue(buildLog.exists());
         String os = System.getProperty("os.name");
         if (os != null && os.toLowerCase().startsWith("windows")) {
-            Assert.assertTrue("Did not find variable expansion message in build.log", logContainsMessage(buildLog, "Resolving Property EXP_VAR for expression !EXP_VAR!_!EXP_VAR3!. Resolved expression value is TEST"));
-            Assert.assertTrue("Did not find second variable expansion message in build.log", logContainsMessage(buildLog, "Resolving Property EXP_VAR3 for expression !EXP_VAR!_!EXP_VAR3!. Resolved expression value is TEST_WINDOWS"));
-        }else {
-            Assert.assertTrue("Did not find variable expansion message in build.log", logContainsMessage(buildLog, "Resolving Property EXP_VAR for expression ${EXP_VAR}_${EXP_VAR2}. Resolved expression value is TEST"));
-            Assert.assertTrue("Did not find second variable expansion message in build.log", logContainsMessage(buildLog, "Resolving Property EXP_VAR2 for expression ${EXP_VAR}_${EXP_VAR2}. Resolved expression value is TEST_UNIX"));
+            Assert.assertTrue("Did not find variable expansion message in build.log", logContainsMessage(buildLog, "Resolved environment variable \"EXP_VAR\" in path \"!EXP_VAR!_!EXP_VAR3!\" to \"TEST_WINDOWS\""));
+            Assert.assertTrue("Did not find second variable expansion message in build.log", logContainsMessage(buildLog, "Resolved environment variable \"EXP_VAR3\" in path \"!EXP_VAR!_!EXP_VAR3!\" to \"TEST_WINDOWS\""));
+        } else {
+            Assert.assertTrue("Did not find variable expansion message in build.log", logContainsMessage(buildLog, "Resolved environment variable \"EXP_VAR\" in path \"${EXP_VAR}_${EXP_VAR2}\" to \"TEST_UNIX\""));
+            Assert.assertTrue("Did not find second variable expansion message in build.log", logContainsMessage(buildLog, "Resolved environment variable \"EXP_VAR2\" in path \"${EXP_VAR}_${EXP_VAR2}\" to \"TEST_UNIX\""));
         }
 
     }
