@@ -23,7 +23,8 @@ public class DevToolchainTest extends BaseDevTest {
             startProcess(null, true, "mvn liberty:");
 
             assertTrue(verifyLogMessageExists("Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.", 120000));
-            assertTrue(verifyLogMessageExists("Setting compiler source to toolchain JDK version 11", 120000));
+            // basic-dev-project uses <maven.compiler.release>, so DevMojo takes the release branch
+            assertTrue(verifyLogMessageExists("Setting compiler release to toolchain JDK version 11", 120000));
 
             // Wait for the application to be available and for dev mode to finish its initial
             // compilation/watcher setup before modifying source files, avoiding intermittent races.
@@ -38,10 +39,9 @@ public class DevToolchainTest extends BaseDevTest {
             String newContent = fileContent.replace(originalContent, modifiedContent);
             FileUtils.writeStringToFile(javaFile, newContent, "UTF-8");
 
-            // Verify that recompilation used compiler options
+            // Verify that recompilation used compiler options (--release because <maven.compiler.release> is set)
             assertTrue(verifyLogMessageExists("Recompiling with compiler options:", 128000));
-            assertTrue(verifyLogMessageExists("-source, 11", 120000));
-            assertTrue(verifyLogMessageExists("-target, 11", 120000));
+            assertTrue(verifyLogMessageExists("--release, 11", 120000));
         } finally {
             cleanUpAfterClass();
         }
@@ -169,19 +169,19 @@ public class DevToolchainTest extends BaseDevTest {
                                                 "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
-            String pluginsEndMarker = "</plugins>";
-            String surefirePluginReplacement = "    <plugin>\n" +
-                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
-                                                "       <artifactId>maven-surefire-plugin</artifactId>\n" +
-                                                "       <version>3.0.0</version>\n" +
-                                                "       <configuration>\n" +
-                                                "           <jdkToolchain>\n" +
-                                                "               <version>11</version>\n" +
-                                                "           </jdkToolchain>\n" +
-                                                "       </configuration>\n" +
-                                                "   </plugin>\n" +
-                                                "</plugins>";
-            replaceString(pluginsEndMarker, surefirePluginReplacement, pom);
+            // Replace the existing maven-surefire-plugin block to add a jdkToolchain configuration.
+            // We must not add a second <plugin> block for maven-surefire-plugin because Maven 4
+            // rejects duplicate plugin declarations.
+            String surefirePluginMarker = "<artifactId>maven-surefire-plugin</artifactId>\n" +
+                                          "        <version>3.1.2</version>";
+            String surefirePluginReplacement = "<artifactId>maven-surefire-plugin</artifactId>\n" +
+                                               "        <version>3.1.2</version>\n" +
+                                               "        <configuration>\n" +
+                                               "            <jdkToolchain>\n" +
+                                               "                <version>11</version>\n" +
+                                               "            </jdkToolchain>\n" +
+                                               "        </configuration>";
+            replaceString(surefirePluginMarker, surefirePluginReplacement, pom);
 
             startProcess(null, true, "mvn -X liberty:");
 
@@ -202,19 +202,19 @@ public class DevToolchainTest extends BaseDevTest {
                                                     "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
-            String pluginsEndMarker = "</plugins>";
-            String surefirePluginReplacement = "    <plugin>\n" +
-                                                "       <groupId>org.apache.maven.plugins</groupId>\n" +
-                                                "       <artifactId>maven-surefire-plugin</artifactId>\n" +
-                                                "       <version>3.0.0</version>\n" +
-                                                "       <configuration>\n" +
-                                                "           <jdkToolchain>\n" +
-                                                "               <version>8</version>\n" +
-                                                "           </jdkToolchain>\n" +
-                                                "       </configuration>\n" +
-                                                "   </plugin>\n" +
-                                                "</plugins>";
-            replaceString(pluginsEndMarker, surefirePluginReplacement, pom);
+            // Replace the existing maven-surefire-plugin block to add a jdkToolchain configuration.
+            // We must not add a second <plugin> block for maven-surefire-plugin because Maven 4
+            // rejects duplicate plugin declarations.
+            String surefirePluginMarker = "<artifactId>maven-surefire-plugin</artifactId>\n" +
+                                          "        <version>3.1.2</version>";
+            String surefirePluginReplacement = "<artifactId>maven-surefire-plugin</artifactId>\n" +
+                                               "        <version>3.1.2</version>\n" +
+                                               "        <configuration>\n" +
+                                               "            <jdkToolchain>\n" +
+                                               "                <version>8</version>\n" +
+                                               "            </jdkToolchain>\n" +
+                                               "        </configuration>";
+            replaceString(surefirePluginMarker, surefirePluginReplacement, pom);
 
             startProcess(null, true, "mvn -X liberty:");
 

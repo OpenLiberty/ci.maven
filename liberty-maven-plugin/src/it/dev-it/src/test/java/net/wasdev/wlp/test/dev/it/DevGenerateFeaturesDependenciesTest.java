@@ -77,8 +77,9 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
 
        // Dev mode should now run the generate features mojo
        assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000)); // mojo ran
-       // Dev mode will now install the features before copying them into the server dir. Look for server response before further checks
-       assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 120000)); // could take a couple minutes
+       // Dev mode will now install the features before copying them into the server dir.
+       // Allow up to 3 minutes: feature download + signature verification on Liberty 26+ can be slow.
+       assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 180000));
 
        assertTrue(targetGeneratedFeaturesFile.exists());
 

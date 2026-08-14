@@ -71,8 +71,9 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
             
         waitLongEnough();
 
-        // Cleanup (stop Liberty)
-        cleanUpAfterClass(false);
+        // Cleanup (stop Liberty). Skip shutdown message check: run-mode uses process.destroy()
+        // which sends SIGTERM; the JVM may exit before Liberty writes CWWKE0036I.
+        cleanUpAfterClass(false, false);
 
         // Setup and run Liberty again
         setUpBeforeClass();
@@ -98,7 +99,9 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
 
    @AfterClass
    public static void cleanUpAfterClass() throws Exception {
-      BaseDevTest.cleanUpAfterClass(false);
+      // Pass checkForShutdownMessage=false: run-mode uses process.destroy() which sends
+      // SIGTERM; the JVM may exit before Liberty writes CWWKE0036I to the log file.
+      BaseDevTest.cleanUpAfterClass(false, false);
    }
 
 }
