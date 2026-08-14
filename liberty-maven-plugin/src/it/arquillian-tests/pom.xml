@@ -11,7 +11,9 @@
         <groupId>io.openliberty.tools.it</groupId>
         <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../tests</relativePath>
+        <!-- Empty relativePath: Maven 4 treats a non-existent path as a FATAL error;
+             use the local repo where the parent is installed by the Invoker setup phase. -->
+        <relativePath/>
     </parent>
 
     <pluginRepositories>
@@ -283,6 +285,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Skip install: Maven 4 install-plugin validates the effective model
+                 strictly and rejects unresolved ${arquillian.container.type} when
+                 no profile is active. These are test-only projects; no install needed. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.1.3</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
 
             <plugin>

@@ -368,14 +368,16 @@ public class DevTest extends BaseDevTest {
          String expectedMessage = String.format(FEATURE_GEN_INVALID_EE_MESSAGE, "99.0.0"); // value used in badDep
          int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder1, badDep, pom);
-         assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
+         // Increased from 9s: dev mode pom-change detection + feature generator invocation
+         // can take longer on slower/loaded CI runners (e.g. Java 25 + OL 26.x).
+         assertTrue(verifyLogMessageExists(expectedMessage, 20000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder1, pom);
       }
       int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
       replaceString(badDep, placeholder1, pom);
-      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 20000, logFile, ++systemUpdateCount));
 
       tagLog("##generatorInvalidEETest end");
    }
@@ -398,14 +400,16 @@ public class DevTest extends BaseDevTest {
          String expectedMessage = String.format(FEATURE_GEN_INVALID_MP_MESSAGE, "99.0"); // value used in badDep
          int msgCount = countOccurrences(expectedMessage, logFile);
          replaceString(placeholder2, badDep, pom);
-         assertTrue(verifyLogMessageExists(expectedMessage, 9000, logFile, ++msgCount));
+         // Increased from 9s: dev mode pom-change detection + feature generator invocation
+         // can take longer on slower/loaded CI runners (e.g. Java 25 + OL 26.x).
+         assertTrue(verifyLogMessageExists(expectedMessage, 20000, logFile, ++msgCount));
       } finally {
          // restore pom
          replaceString(badDep, placeholder2, pom);
       }
       int systemUpdateCount = countOccurrences(SERVER_CONFIG_SUCCESS, logFile);
       replaceString(badDep, placeholder2, pom);
-      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 9000, logFile, ++systemUpdateCount));
+      assertTrue(verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 20000, logFile, ++systemUpdateCount));
 
       tagLog("##generatorInvalidMPTest end");
    }
