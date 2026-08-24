@@ -40,9 +40,9 @@
                             </test>
                             <prepare-package>
                                 io.openliberty.tools:liberty-maven-plugin:install-server,
-                                io.openliberty.tools:liberty-maven-plugin:create,
-				io.openliberty.tools:liberty-maven-plugin:prepare-feature,
-                                io.openliberty.tools:liberty-maven-plugin:install-feature
+                                io.openliberty.tools:liberty-maven-plugin:create,				io.openliberty.tools:liberty-maven-plugin:prepare-feature,
+                                io.openliberty.tools:liberty-maven-plugin:install-feature,
+                                io.openliberty.tools:liberty-maven-plugin:apply-ifix
                             </prepare-package>
                             <package>
                                 io.openliberty.tools:liberty-maven-plugin:deploy,
