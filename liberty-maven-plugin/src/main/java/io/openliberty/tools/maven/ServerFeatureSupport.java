@@ -48,6 +48,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
+import org.apache.maven.toolchain.ToolchainPrivate;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import io.openliberty.tools.common.plugins.util.ServerFeatureUtil;
@@ -440,6 +441,16 @@ public abstract class ServerFeatureSupport extends BasicSupport {
     /**
      * Initialize the toolchain by calling the toolchain goal.
      * If useToolchainJdk is set to true, this method will also set the toolchain variable.
+     * <p>
+     * Resolution order:
+     * <ol>
+     *   <li>Toolchain selected by {@code maven-toolchains-plugin} and stored in the build context
+     *       (supports both explicit {@code toolchains.xml} entries and auto-discovered JDKs).
+     *       The build-context toolchain is accepted only when it matches the {@code jdkToolchain}
+     *       requirements.</li>
+     *   <li>Direct lookup via {@link ToolchainManager#getToolchains} against {@code toolchains.xml}
+     *       (legacy path, kept for backwards compatibility).</li>
+     * </ol>
      *
      * @throws MojoExecutionException If an exception occurred while running toolchain goal
      */
@@ -452,10 +463,29 @@ public abstract class ServerFeatureSupport extends BasicSupport {
             getLog().warn("ToolchainManager is null. Falling back to system default JDK.");
             return;
         }
+
+        // 1. Prefer the toolchain already selected by maven-toolchains-plugin (build context).
+        //    This is the path used by auto-discovery and by explicit toolchains.xml when the
+        //    toolchains goal has already run earlier in the lifecycle.
+        Toolchain buildContextTc = toolchainManager.getToolchainFromBuildContext("jdk", session);
+        if (buildContextTc != null) {
+            // Validate that the build-context toolchain satisfies the configured requirements.
+            boolean matches = true;
+            if (buildContextTc instanceof ToolchainPrivate) {
+                matches = ((ToolchainPrivate) buildContextTc).matchesRequirements(jdkToolchain);
+            }
+            if (matches) {
+                this.toolchain = buildContextTc;
+                getLog().info(MessageFormat.format(messages.getString("info.toolchain.initialized.context"), this.toolchain));
+                return;
+            }
+        }
+
+        // 2. Fall back to a direct scan of toolchains.xml entries (no maven-toolchains-plugin needed).
         List<Toolchain> tcs = toolchainManager.getToolchains(session, "jdk", jdkToolchain);
         if (tcs != null && !tcs.isEmpty()) {
             this.toolchain = tcs.get(0);
-            getLog().info(MessageFormat.format(messages.getString("info.toolchain.initialized"), this.toolchain));
+            getLog().info(MessageFormat.format(messages.getString("info.toolchain.initialized.xml"), this.toolchain));
         } else {
             getLog().warn(MessageFormat.format(messages.getString("warn.toolchain.not.available"), jdkToolchain));
         }

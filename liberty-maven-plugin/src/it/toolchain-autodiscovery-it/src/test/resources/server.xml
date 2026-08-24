@@ -1,0 +1,7 @@
+<server description="default server">
+    <featureManager>
+        <feature>jsp-2.3</feature>
+    </featureManager>
+
+    <webApplication id="toolchain-autodiscovery-it" location="toolchain-autodiscovery-it.war" name="toolchain-autodiscovery-it"/>
+</server>

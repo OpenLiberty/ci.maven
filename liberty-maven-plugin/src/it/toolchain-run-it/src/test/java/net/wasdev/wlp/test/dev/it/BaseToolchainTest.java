@@ -53,7 +53,10 @@ public class BaseToolchainTest {
     static File pom;
     static BufferedWriter writer;
     static Process process;
-    static final String TOOLCHAIN_INITIALIZED = "CWWKM4100I: Using toolchain from build context";
+    static final String TOOLCHAIN_INITIALIZED_XML     = "CWWKM4100I: Using toolchain JDK from toolchains.xml";
+    static final String TOOLCHAIN_INITIALIZED_CONTEXT = "CWWKM4100I: Using toolchain JDK from build context (auto-discovery)";
+    // Backwards-compat alias used by tests that accept either resolution path
+    static final String TOOLCHAIN_INITIALIZED = TOOLCHAIN_INITIALIZED_XML;
     static final String TOOLCHAIN_CONFIGURED_FOR_GOAL = "CWWKM4101I: The %s goal is using the configured toolchain JDK located at";
     static final String JAVA_11_SE_REQUIRED_FOR_FEATURE = "CWWKF0032E: The %s feature requires a minimum Java runtime environment version of JavaSE 11";
     static final String JAVA_HOME_CONFIGURED="CWWKM4101W: The toolchain JDK configuration for goal %s is not honored because the JAVA_HOME property is specified in the server.env or jvm.options file.";
