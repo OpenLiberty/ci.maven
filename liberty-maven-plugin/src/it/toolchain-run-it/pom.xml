@@ -72,6 +72,7 @@
                     <systemPropertyVariables>
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>
                         <runtimeVersion>${runtimeVersion}</runtimeVersion>
+                        <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
