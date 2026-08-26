@@ -25,9 +25,12 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -807,23 +810,7 @@ public class DevMojo extends LooseAppSupport {
                     // detect compile dependency changes
                     if (!dependencyListsEquals(getCompileDependency(deps), getCompileDependency(oldDeps))) {
                         runLibertyMojoDeploy(); // deploy to create app artifact before generating features
-                        boolean generateFeaturesSuccess = false;
-                        // optimize generate features
-                        if (generateFeatures) {
-                            getLog().debug("Detected a change in the compile dependencies for " + buildFile + " , regenerating features");
-                            generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
-                            // install new generated features before copying config file to server dir.
-                            // It will not trigger install-feature if the feature list has not changed
-                            util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
-                            // if generateToSrc then need to copy xml from src to server dir because deploy already copied the files from src to the server
-                            // if !generateToSrc then xml file is in tempDirOut so need to copy from tmp dir to server dir
-                            // Copy the file here to be used by updateExistingFeatures() below
-                            util.copyGeneratedFeaturesFile(serverDirectory); // server can now process the features
-                        }
-                        // Update the features after deploy mojo has copied the config files to server dir
-                        if (generateFeaturesSuccess) {
-                            updateExistingFeatures(); // update the dev mode cache of features in the server
-                        }
+                        modifiedDependencies = true; // when generating features we will want to optimize after compiling the projects
                     }
                 }
             } catch (ProjectBuildingException | DependencyResolutionRequiredException | IOException
@@ -1020,8 +1007,7 @@ public class DevMojo extends LooseAppSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
-            boolean optimizeGenerateFeatures = false;
-            boolean generateFeaturesSuccess = false;
+            boolean updateGenerateFeatures = false;
 
             ProjectBuildingResult build;
             try {
@@ -1100,7 +1086,7 @@ public class DevMojo extends LooseAppSupport {
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", getLog());
                 if (!Objects.equals(config, oldConfig)) {
-                    optimizeGenerateFeatures = true;
+                    updateGenerateFeatures = true;
                 }
 
                 List<Dependency> deps = project.getDependencies();
@@ -1118,7 +1104,7 @@ public class DevMojo extends LooseAppSupport {
                         // to deploy loose app again to remove or add or update embedded libraries in
                         // the loose app
                         redeployApp = true;
-                        optimizeGenerateFeatures = true;
+                        modifiedDependencies = true;
                     }
                 }
                 // update classpath for dependencies changes
@@ -1176,19 +1162,9 @@ public class DevMojo extends LooseAppSupport {
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
                     }
-                    if (optimizeGenerateFeatures && generateFeatures) {
-                        // changing the generate-features config can cause this call independent of app changes
-                        getLog().debug("Detected a change in the compile dependencies, regenerating features");
-                        // always optimize generate features on dependency change
-                        generateFeaturesSuccess = optimizeGenerateFeatures(!generateToSrc, false);
-                        if (generateFeaturesSuccess) {
-                            util.installFeaturesToTempDir(generateFeaturesFile, generateFeaturesOutputDir, null, generateFeaturesSuccess);
-                            // Copy new generated features file from temp dir or src dir to server dir after install
-                            util.copyGeneratedFeaturesFile(serverDirectory); // server can now process the features
-                            updateExistingFeatures(); // update the dev mode cache of features in the server
-                        } else {
-                            installFeature = false; // skip installing features if generate features fails
-                        }
+                    if (updateGenerateFeatures) {
+                        // touch the generateFeaturesFile to cause regeneration after the configuration was updated
+                        Files.setLastModifiedTime(generateFeaturesFile.toPath(), FileTime.from(Instant.now()));
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
