@@ -84,7 +84,7 @@ public class MultiModuleRunInstallEarTest extends BaseMultiModuleTest {
    }
 
    private static void runMvnInstallEar() throws Exception {
-      StringBuilder command = new StringBuilder("mvn install -pl ../ear -am");
+      StringBuilder command = new StringBuilder(getMvnBin() + " install -pl ../ear -am");
       ProcessBuilder builder = buildProcess(command.toString());
 
       builder.redirectOutput(logFile);

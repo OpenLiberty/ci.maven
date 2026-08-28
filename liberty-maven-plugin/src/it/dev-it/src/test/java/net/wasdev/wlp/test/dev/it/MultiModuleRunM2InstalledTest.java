@@ -40,7 +40,7 @@ public class MultiModuleRunM2InstalledTest extends BaseMultiModuleTest {
    public void purgeUpstreamSourcePart_LibertyRun_Test() throws Exception {
 
       // install everything to m2
-      runCommand("mvn install");
+      runCommand(getMvnBin() + " install");
 
       // ensure class was compiled
       File targetClass = new File(tempProj, "jar/target/classes/io/openliberty/guides/multimodules/lib/Converter.class");
@@ -51,11 +51,11 @@ public class MultiModuleRunM2InstalledTest extends BaseMultiModuleTest {
       assertTrue(srcClass.delete());
 
       // clean targets
-      runCommand("mvn clean");
+      runCommand(getMvnBin() + " clean");
 
       // run goal should purge the jar module from m2, so that the war module will show a failure due to the missing dependency.
       // i.e. it should not find the jar dependency from m2
-      startProcess(null, false, "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":", false);
+      startProcess(null, false, getMvnBin() + " io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":", false);
       
       assertTrue(getLogTail(logFile), verifyLogMessageExists("package io.openliberty.guides.multimodules.lib does not exist", 25000));
       
