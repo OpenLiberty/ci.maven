@@ -1,0 +1,21 @@
+<server description="Non-default port test server">
+
+  <featureManager>
+      <feature>restfulWS-3.0</feature>
+  </featureManager>
+
+  <!--
+    Ports are intentionally left as variable references.
+    The actual values (9090 / 9453) are injected via liberty.var.* in pom.xml,
+    which writes them to configDropins/overrides/liberty-plugin-variable-config.xml.
+    The plugin must read that file before building the container run command so
+    that it publishes -p <host>:9090 instead of the default -p <host>:9080.
+  -->
+  <variable name="default.http.port" defaultValue="9080"/>
+  <variable name="default.https.port" defaultValue="9443"/>
+
+  <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
+      id="defaultHttpEndpoint" host="*" />
+
+  <webApplication location="rest.war" contextRoot="/"/>
+</server>
