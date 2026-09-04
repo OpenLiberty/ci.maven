@@ -894,6 +894,28 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
         }
     }
 
+    /**
+     * Ensure the rar artifact for the given upstream module is resolvable by downstream
+     * EAR modules during dev mode.  Because the EAR is assembled as a loose application,
+     * the actual {@code .rar} file never needs to exist on disk; we only need Maven's
+     * artifact resolution to succeed.  If the artifact is not already in the local
+     * repository we point its in-memory file reference at the module's build output
+     * directory ({@code target/}) so that resolution does not fall back to
+     * {@code ~/.m2} and fail with "Could not find artifact".
+     *
+     * @param rarProject the upstream project with {@code rar} packaging
+     */
+    protected void getOrCreateRarArtifact(MavenProject rarProject) {
+        org.apache.maven.model.Dependency existingRarItem = createArtifactItem(rarProject.getGroupId(), rarProject.getArtifactId(), rarProject.getPackaging(), rarProject.getVersion());
+        try {
+            Artifact existingRarArtifact = getArtifact(existingRarItem);
+            getLog().debug("RAR artifact already exists at " + existingRarArtifact.getFile());
+        } catch (MojoExecutionException e) {
+            getLog().debug("RAR artifact not in local repository; pointing artifact file to build output directory.");
+            updateArtifactPathToOutputDirectory(rarProject);
+        }
+    }
+
     private void installEmptyEAR(MavenProject earProject) throws MojoExecutionException {
         String goal = "install-file";
         Plugin plugin = getPlugin("org.apache.maven.plugins", "maven-install-plugin");
@@ -967,8 +989,10 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
      * @param artifactToUpdate
      */
     protected void updateArtifactPathToOutputDirectory(MavenProject mavenProject, Artifact artifactToUpdate) {
-        Path outputDir = null; 
-        if (artifactToUpdate.getType().equals("ear")) {
+        Path outputDir = null;
+        String type = artifactToUpdate.getType();
+        if (type.equals("ear") || type.equals("rar")) {
+            // Binary artifact types that are resolved from the build directory, not target/classes
             outputDir = Paths.get(mavenProject.getBuild().getDirectory());
         } else {
             outputDir = Paths.get(mavenProject.getBuild().getOutputDirectory());
