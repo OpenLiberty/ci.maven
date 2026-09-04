@@ -1412,6 +1412,17 @@ public class DevMojo extends LooseAppSupport {
                     getOrCreateEarArtifact(project);
                 } else if (project.getPackaging().equals("pom")) {
                     getLog().debug("Skipping compile/resources on module with pom packaging type");
+                } else if (project.getPackaging().equals("rar")) {
+                    // A rar-packaged upstream module must have its artifact available for
+                    // downstream EAR dependency resolution. Mirroring the EAR handling above,
+                    // we compile and then ensure the artifact is resolvable via getOrCreateRarArtifact.
+                    runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
+                    try {
+                        runCompileMojoLogWarningWithException("compile");
+                    } catch (MojoExecutionException e) {
+                        compileMojoError.put(project.getName(), Boolean.TRUE);
+                    }
+                    getOrCreateRarArtifact(project);
                 } else {
                     runMojo("org.apache.maven.plugins", "maven-resources-plugin", "resources");
                     try {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2021.
+ * (c) Copyright IBM Corporation 2021, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ public class BaseMultiModuleTest extends BaseDevTest {
       optionalReplaceVersion(new File(tempProj, "ear2"));
       optionalReplaceVersion(new File(tempProj, "war"));
       optionalReplaceVersion(new File(tempProj, "war2"));
+      optionalReplaceVersion(new File(tempProj, "rar-ra"));
+      optionalReplaceVersion(new File(tempProj, "rar-war"));
+      optionalReplaceVersion(new File(tempProj, "rar-ear"));
    }
 
    protected static void run(String params) throws Exception {
