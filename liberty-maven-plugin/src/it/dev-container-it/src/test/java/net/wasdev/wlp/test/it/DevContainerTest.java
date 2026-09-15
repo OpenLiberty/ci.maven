@@ -43,10 +43,12 @@ public class DevContainerTest extends BaseDevTest {
 
       String content = FileUtils.readFileToString(devcMetaDataFile, "UTF-8");
 
-      assertTrue("Container name is incorrect in devc metadata XML.", content.contains("<containerName>liberty-dev</containerName"));
+      // Container name now includes the artifactId as a suffix (Issue 1 fix in ci.common).
+      assertTrue("Container name is incorrect in devc metadata XML.", content.contains("<containerName>liberty-dev-dev-containers-it</containerName"));
       assertTrue("Container alive status is incorrect in devc metadata XML.", content.contains("<containerAlive>true</containerAlive>"));
       assertTrue("Container build timeout is incorrect in devc metadata XML.", content.contains("<containerBuildTimeout>599</containerBuildTimeout>"));
-      assertTrue("Container engine is incorrect in devc metadata XML.", content.contains("<containerEngine>podman</containerEngine>"));
+      // The metadata element is 'containerType', not 'containerEngine'.
+      assertTrue("Container type is incorrect in devc metadata XML.", content.contains("<containerType>podman</containerType>"));
       assertTrue("Container run options are incorrect in devc metadata XML.", content.contains("<containerRunOpts></containerRunOpts>"));
       assertTrue("Container image name is incorrect in devc metadata XML.", content.contains("<imageName>dev-containers-it-dev-mode</imageName>"));
    }
