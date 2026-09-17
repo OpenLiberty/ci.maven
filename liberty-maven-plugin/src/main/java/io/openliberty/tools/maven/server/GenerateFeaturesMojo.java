@@ -294,18 +294,16 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         String eeVersion = null;
         String mpVersion = null;
         try {
-            List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
-            mavenProjects.addAll(upstreamProjects);
-            mavenProjects.add(project);
-            Set<String> directories = getClassesDirectories(mavenProjects);
-            if (directories.isEmpty() && (classFiles == null || classFiles.isEmpty())) {
+            String deployedAppFilePath = getDeployedAppFilePath();
+            if (deployedAppFilePath == null && (classFiles == null || classFiles.isEmpty())) {
                 // log as warning and continue to call feature generator to detect conflicts in
                 // user specified features
                 getLog().warn(NO_CLASSES_DIR_WARNING);
             }
 
-            String looseConfigFilePath = getLooseConfigFilePath();
-
+            List<MavenProject> mavenProjects = new ArrayList<MavenProject>();
+            mavenProjects.addAll(upstreamProjects);
+            mavenProjects.add(project);
             eeVersion = getEEVersion(mavenProjects, servUtil);
             mpVersion = getMPVersion(mavenProjects, servUtil);
 
@@ -329,7 +327,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 featureListFileMap.put(WSBASE_FEATURELIST_KEY, baseFeatureListFile);
             } // else should not happen, just pass empty map
 
-            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, directories, looseConfigFilePath,
+            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, deployedAppFilePath,
                 logLocation, eeVersionArg, mpVersionArg, featureListFileMap, optimize);
         } catch (FeatureGeneratorUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
@@ -676,12 +674,22 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         return null; // directory does not exist.
     }
 
-    // Find the app's loose config file name's absolute path e.g. /users/foo/app/target/myApp.war.xml
-    private String getLooseConfigFilePath() {
+    // Find the app file name's absolute path. If looseApplication is true one name will be used, otherwise
+    // the other name must be used. If the app has not been generated an error message is generated.
+    // e.g. /users/foo/app/target/myApp.war.xml or /users/foo/app/target/myApp.war
+    private String getDeployedAppFilePath() {
         String looseConfigFileName = getLooseConfigFileName(project);
+        String regularAppFileName = getPostDeployAppFileName(project);
         File destDir = new File(serverDirectory, getAppsDirectory(false));
         File looseConfigFile = new File(destDir, looseConfigFileName);
-        return looseConfigFile.getAbsolutePath();
+        if (looseConfigFile.exists()) {
+            return looseConfigFile.getAbsolutePath();
+        }
+        File regularAppFile = new File(destDir, regularAppFileName);
+        if (regularAppFile.exists()) {
+            return regularAppFile.getAbsolutePath();
+        }
+        return null;
     }
 
     /**
