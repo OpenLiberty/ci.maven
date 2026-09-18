@@ -114,6 +114,7 @@ public class DevMojo extends LooseAppSupport {
     private static final String GEN_FEAT_LIBERTY_DEP_WARNING = "Liberty ESA feature dependencies were detected in the pom.xml file and automatic generation of features is [On]. "
             + "Automatic generation of features does not support Liberty ESA feature dependencies. "
             + "Remove any Liberty ESA feature dependencies from the pom.xml file or disable automatic generation of features by typing 'g' and press Enter.";
+    private static final String GEN_FEAT_EXCEPTION_ERROR = ".\nDisabling the automatic generation of features.";
 
     DevMojoUtil util = null;
 
@@ -490,7 +491,7 @@ public class DevMojo extends LooseAppSupport {
                 // stacktrace
                 if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                     // PluginExecutionException indicates that the feature generator jar could not be found
-                    getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                    getLog().error(e.getMessage() + GEN_FEAT_EXCEPTION_ERROR);
                     setFeatureGeneration(false);
                 } else {
                     getLog().error(e.getMessage()
@@ -1738,7 +1739,7 @@ public class DevMojo extends LooseAppSupport {
         } catch (MojoExecutionException e) {
             if (e.getCause() != null && e.getCause() instanceof PluginExecutionException) {
                 // PluginExecutionException indicates that the feature generator jar could not be found
-                getLog().error(e.getMessage() + ".\nDisabling the automatic generation of features.");
+                getLog().error(e.getMessage() + GEN_FEAT_EXCEPTION_ERROR);
                 generateFeatures = false;
             } else {
                 throw new MojoExecutionException(e.getMessage() +
