@@ -677,7 +677,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
     }
 
     // Find the app file name's absolute path. If looseApplication is true one name will be used, otherwise
-    // the other name must be used. If the app has not been generated an error message is generated.
+    // the other name must be used. If the app has not been generated return null to engage error handling.
     // e.g. /users/foo/app/target/myApp.war.xml or /users/foo/app/target/myApp.war
     private String getDeployedAppFilePath() {
         String looseConfigFileName = getLooseConfigFileName(project);
