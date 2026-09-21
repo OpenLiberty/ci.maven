@@ -295,9 +295,9 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         String mpVersion = null;
         try {
             String deployedAppFilePath = getDeployedAppFilePath();
-            if (deployedAppFilePath == null && (classFiles == null || classFiles.isEmpty())) {
+            if (optimize && deployedAppFilePath == null) {
                 // liberty:generate-features on the command line requires that an app has been deployed
-                // in dev mode we require the app or some classes passed in
+                // In dev mode we require the app for optimize. For incremental just pass the classes on.
                 throw new MojoExecutionException(NO_APPLICATION_ERROR);
             }
 
