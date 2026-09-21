@@ -63,7 +63,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
     public static final String GENERATED_FEATURES_COMMENT = "The following features were generated based on API usage detected in your application";
     public static final String NO_NEW_FEATURES_COMMENT = "No additional features generated";
     public static final String NO_APPLICATION_ERROR = "Failed to generate a working set of features. No application archive file found. To generate features, it is required to package and deploy your application archive file.";
-    public static final String APPLICATION_READ_ERROR = "An error occurred reading the application file during generation of features. Ensure the file exists and is readable.";
+    public static final String APPLICATION_READ_ERROR = "An error occurred reading the loose application archive file while attempting to generate features. Ensure the file exists and is readable.";
     public static final String VERSIONLESS_FEATURE_DETECTED_DEVMODE = "Versionless features are detected in the server configuration. "
             + "If you would like to continue using the automatic generation of features, remove all versionless features from your server configuration. "
             + "If you would like to continue using versionless features, you can disable the automatic generation of features.";
