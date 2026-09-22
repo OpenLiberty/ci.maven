@@ -49,26 +49,32 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
-        runProcess("clean compile " + lmp + ":create " + lmp + ":generate-features");
+        String lmp = getLMPName();
+        runProcess("clean compile");
+        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features", "ear");
     }
 
     @Override
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
-        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
-        runProcess("clean compile " + lmp + ":generate-features -DgenerateToSrc=true");
+        String lmp = getLMPName();
+        runProcess("clean compile");
+        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features -DgenerateToSrc=true", "ear");
     }
 
     @Override
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess("io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion")
-                + ":generate-features ");
+        runProcess(getLMPName() + ":generate-features", "ear");
     }
 
     @Override
     protected void runCleanAndCreate() throws IOException, InterruptedException {
-        String lmp = "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
-        runProcess("clean " + lmp + ":create");
+        String lmp = getLMPName();
+        runProcess("clean");
+        runProcess(lmp + ":create", "ear");
+    }
+
+    private String getLMPName() {
+        return "io.openliberty.tools:liberty-maven-plugin:" + System.getProperty("mavenPluginVersion");
     }
 
     @Override
