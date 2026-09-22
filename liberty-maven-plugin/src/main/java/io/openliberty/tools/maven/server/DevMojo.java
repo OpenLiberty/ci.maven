@@ -1007,7 +1007,6 @@ public class DevMojo extends LooseAppSupport {
             boolean installFeature = false;
             boolean redeployApp = false;
             boolean runBoostPackage = false;
-            boolean updateGenerateFeatures = false;
 
             ProjectBuildingResult build;
             try {
@@ -1086,7 +1085,8 @@ public class DevMojo extends LooseAppSupport {
                 config = ExecuteMojoUtil.getPluginGoalConfig(libertyPlugin, "generate-features", getLog());
                 oldConfig = ExecuteMojoUtil.getPluginGoalConfig(backupLibertyPlugin, "generate-features", getLog());
                 if (!Objects.equals(config, oldConfig)) {
-                    updateGenerateFeatures = true;
+                    // When the config changes set this so that generate features can run
+                    modifiedDependencies = true;
                 }
 
                 List<Dependency> deps = project.getDependencies();
@@ -1161,10 +1161,6 @@ public class DevMojo extends LooseAppSupport {
                         runLibertyMojoCreate();
                     } else if (redeployApp) {
                         runLibertyMojoDeploy();
-                    }
-                    if (updateGenerateFeatures) {
-                        // touch the generateFeaturesFile to cause regeneration after the configuration was updated
-                        Files.setLastModifiedTime(generateFeaturesFile.toPath(), FileTime.from(Instant.now()));
                     }
                     if (installFeature) {
                         runLibertyMojoInstallFeature(null, null, super.getContainerName());
