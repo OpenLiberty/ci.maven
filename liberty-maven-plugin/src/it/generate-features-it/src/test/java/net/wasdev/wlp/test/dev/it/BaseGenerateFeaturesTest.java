@@ -106,10 +106,18 @@ public class BaseGenerateFeaturesTest {
      * Runs process and waits for it to finish
      * Times out after 20 seconds
      * 
-     * @param command - command to run
+     * @param processCommand - Maven arguments (tasks, options etc)
+     * @param workingDirectory - change to the indicated directory before executing the command
      */
     protected static void runProcess(String processCommand) throws IOException, InterruptedException {
-        StringBuilder command = new StringBuilder("mvn " + processCommand);
+        runProcess(processCommand, null);
+    }
+    protected static void runProcess(String processCommand, String workingDirectory) throws IOException, InterruptedException {
+        StringBuilder command = new StringBuilder();
+        if (workingDirectory != null) {
+            command.append("cd " + workingDirectory + "; ");
+        }
+        command.append("mvn " + processCommand);
         ProcessBuilder builder = buildProcess(command.toString());
         builder.redirectOutput(logFile);
         builder.redirectError(logFile);

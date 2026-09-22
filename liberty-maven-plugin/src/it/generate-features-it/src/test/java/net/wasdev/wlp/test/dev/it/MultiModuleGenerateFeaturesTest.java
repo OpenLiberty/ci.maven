@@ -50,24 +50,27 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     @Override
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
         String lmp = getLMPName();
-        runProcess("clean compile " + lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features");
+        runProcess("clean compile");
+        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features", "ear");
     }
 
     @Override
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
         String lmp = getLMPName();
-        runProcess("clean compile " + lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features -DgenerateToSrc=true");
+        runProcess("clean compile");
+        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features -DgenerateToSrc=true", "ear");
     }
 
     @Override
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess(getLMPName() + ":generate-features");
+        runProcess(getLMPName() + ":generate-features", "ear");
     }
 
     @Override
     protected void runCleanAndCreate() throws IOException, InterruptedException {
         String lmp = getLMPName();
-        runProcess("clean " + lmp + ":create");
+        runProcess("clean");
+        runProcess(lmp + ":create", "ear");
     }
 
     private String getLMPName() {
