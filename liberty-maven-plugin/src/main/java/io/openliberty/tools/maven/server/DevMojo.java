@@ -25,12 +25,9 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -1172,7 +1169,7 @@ public class DevMojo extends LooseAppSupport {
                     getLog().debug("changes in the pom.xml are not monitored by dev mode");
                     return true;
                 }
-            } catch (MojoExecutionException | DependencyResolutionRequiredException | IOException e) {
+            } catch (MojoExecutionException | DependencyResolutionRequiredException e) {
                 getLog().error("An unexpected error occurred while processing changes in pom.xml. " + e.getMessage());
                 if (installFeature) {
                     libertyDependencyWarning(generateFeatures, e);
