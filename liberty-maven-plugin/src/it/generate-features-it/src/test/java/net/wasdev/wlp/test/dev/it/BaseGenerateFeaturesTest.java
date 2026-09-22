@@ -227,7 +227,7 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("clean compile liberty:create liberty:generate-features");
+        runProcess("clean compile liberty:create liberty:deploy liberty:generate-features");
     }
 
     protected void runClean() throws IOException, InterruptedException {
@@ -239,8 +239,7 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
-        // do not create liberty when generating to src
-        runProcess("clean compile liberty:generate-features -DgenerateToSrc=true");
+        runProcess("clean compile liberty:create liberty:deploy liberty:generate-features -DgenerateToSrc=true");
     }
 
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
