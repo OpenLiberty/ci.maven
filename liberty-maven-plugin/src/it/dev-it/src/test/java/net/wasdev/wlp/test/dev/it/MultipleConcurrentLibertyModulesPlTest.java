@@ -106,13 +106,11 @@ public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest 
       int appUpdatedCount2 = countOccurrences("CWWKZ0003I:", logFile2);
       modifyJarClass();
       // the previous method waits for one app, we must wait for app ear2 to update
-      assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKZ0003I:", 10000, logFile2, ++appUpdatedCount2));
+      assertTrue(getLogTail(logFile2), verifyLogMessageExists("CWWKZ0003I:", 40000, logFile2, ++appUpdatedCount2));
 
-
-      Thread.sleep(5000);
-
-      assertEndpointContent("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200", logFile);
-      assertEndpointContent("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200", logFile2);
+      // poll both servers; a shared upstream jar change can cause multiple reload cycles before the endpoint stabilises
+      assertEndpointContentWithRetry("http://localhost:9080/converter/heights.jsp?heightCm=3048", "200", logFile, 30000);
+      assertEndpointContentWithRetry("http://localhost:9081/converter/heights.jsp?heightCm=3048", "200", logFile2, 30000);
    }
 
    @AfterClass

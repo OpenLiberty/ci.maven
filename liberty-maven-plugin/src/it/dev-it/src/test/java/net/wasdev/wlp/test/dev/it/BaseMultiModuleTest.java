@@ -18,6 +18,7 @@ package net.wasdev.wlp.test.dev.it;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -135,6 +136,33 @@ public class BaseMultiModuleTest extends BaseDevTest {
             assertTrue("Unexpected response body: " + responseBody + ". " + getLogTail(), responseBody.contains(assertResponseContains));
          }
       }
+   }
+
+   // polls until HTTP 200 with expected content, or timeout; retries on 4xx/5xx and connection errors
+   public void assertEndpointContentWithRetry(String url, String assertResponseContains, File log, int timeoutMs)
+           throws IOException, InterruptedException {
+      long deadline = System.currentTimeMillis() + timeoutMs;
+      String lastError = "No response received";
+      while (System.currentTimeMillis() < deadline) {
+         try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet method = new HttpGet(url);
+            try (CloseableHttpResponse response = client.execute(method)) {
+               int statusCode = response.getStatusLine().getStatusCode();
+               String responseBody = EntityUtils.toString(response.getEntity());
+               if (statusCode == HttpStatus.SC_OK) {
+                  assertTrue("Unexpected response body: " + responseBody + ". " + getLogTail(log),
+                        responseBody.contains(assertResponseContains));
+                  return;
+               }
+               lastError = "status=" + statusCode;
+            }
+         } catch (IOException e) {
+            lastError = e.getMessage();
+         }
+         Thread.sleep(1000);
+      }
+      fail("HTTP GET did not return 200 within " + timeoutMs + "ms. Last error: " + lastError
+           + ". " + getLogTail(log));
    }
 
    protected static void modifyJarClass() throws IOException, InterruptedException {

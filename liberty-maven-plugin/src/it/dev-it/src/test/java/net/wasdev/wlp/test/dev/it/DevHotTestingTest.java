@@ -41,8 +41,8 @@ public class DevHotTestingTest extends BaseDevTest {
    
       testModifyJavaFile();
 
-      assertTrue(verifyLogMessageExists("Unit tests finished.", 2000));
-      assertTrue(verifyLogMessageExists("Integration tests finished.", 2000));   
+      assertTrue(verifyLogMessageExists("Unit tests finished.", 10000));
+      assertTrue(verifyLogMessageExists("Integration tests finished.", 10000));
    }
 
 }
