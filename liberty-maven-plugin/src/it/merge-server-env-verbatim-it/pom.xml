@@ -9,8 +9,20 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>merge-server-env-it</artifactId>
+  <artifactId>merge-server-env-verbatim-it</artifactId>
   <packaging>war</packaging>
+
+  <!--
+    Verifies that mergeServerEnv=true with the DEFAULT convertServerEnvPathSeparator=false
+    writes all server.env values verbatim — backslashes in Windows paths and delayed-expansion
+    variable references are preserved unchanged.
+  -->
+
+  <properties>
+    <liberty.env.TEST_PROP_2>white</liberty.env.TEST_PROP_2>
+    <liberty.env.CONFIG_SERVER_ENV_PROPS>TEST</liberty.env.CONFIG_SERVER_ENV_PROPS>
+    <liberty.env.MAVEN_WIN_PATH>C:\Semeru\jdk</liberty.env.MAVEN_WIN_PATH>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -26,11 +38,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <properties>
-    <liberty.env.TEST_PROP_2>white</liberty.env.TEST_PROP_2>
-    <liberty.env.CONFIG_SERVER_ENV_PROPS>TEST</liberty.env.CONFIG_SERVER_ENV_PROPS>
-  </properties>
 
   <build>
     <pluginManagement>
@@ -67,11 +74,10 @@
         <configuration>
           <stripVersion>true</stripVersion>
           <serverName>test</serverName>
-          <serverXmlFile>src/test/resources/server.xml</serverXmlFile>
           <deployPackages>project</deployPackages>
           <looseApplication>false</looseApplication>
           <mergeServerEnv>true</mergeServerEnv>
-          <convertServerEnvPathSeparator>true</convertServerEnvPathSeparator>
+          <!-- convertServerEnvPathSeparator intentionally omitted (defaults to false) -->
           <serverEnvFile>src/test/resources/server.env</serverEnvFile>
           <configDirectory>src/test/resources/configDir</configDirectory>
         </configuration>
@@ -151,7 +157,7 @@
                     <argLine>-enableassertions</argLine>
                     <workingDirectory>${project.build.directory}</workingDirectory>
                     <includes>
-                        <include>**/*MergeServerEnvTest.java</include>
+                        <include>**/*MergeServerEnvVerbatimTest.java</include>
                     </includes>
                 </configuration>
                 <executions>

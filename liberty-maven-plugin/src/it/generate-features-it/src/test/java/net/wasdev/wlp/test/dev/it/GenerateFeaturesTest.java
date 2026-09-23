@@ -117,7 +117,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertFalse(newFeatureFile.exists());
 
         // verify class files not found warning message
-        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
+        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_APPLICATION_ERROR));
     }
 
     @Test
