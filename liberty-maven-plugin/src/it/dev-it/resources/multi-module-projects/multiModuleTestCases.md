@@ -14,6 +14,17 @@ multipleLibertyModules-skip-conflicts)  pom, ear1+war+jar, ear2+war+jar, jar2
 sample.ejb) pom, ear+war+ejb
 - Based on https://github.com/WASdev/sample.ejb
 
+sample.rar) pom, rar-ear+rar-war+rar-ra
+- Reproduces the bug where liberty:dev failed on a multi-module project with a
+  rar-packaged upstream module: dev mode only ran compile on rar-ra, leaving the
+  artifact unresolvable by the downstream EAR (CWWKM/dependency resolution failure).
+- Fix: DevMojo adds a rar branch that calls getOrCreateRarArtifact(), mirroring
+  the existing EAR handling, pointing the in-memory artifact reference at target/
+  so downstream resolution succeeds without a prior mvn install.
+- Server info in rar-ear module
+- Main pom: ./pom.xml
+- Tests: MultiModuleRarUpstreamTest (cold start), MultiModuleRarPreInstalledTest (pre-installed)
+
 a)  pom, ear+war+jar
 - Server info in ear module
 - Main pom: ./pom.xml
