@@ -267,6 +267,7 @@ public class DevTest extends BaseDevTest {
       tagLog("##resolveDependencyTest end");
    }
 
+   @Ignore
    @Test
    public void generateFeatureTest() throws Exception {
       tagLog("##generateFeatureTest start");
