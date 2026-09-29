@@ -45,6 +45,9 @@ import javax.xml.transform.TransformerException;
 import io.openliberty.tools.common.plugins.util.InstallFeatureUtil;
 import io.openliberty.tools.common.plugins.util.PluginExecutionException;
 import io.openliberty.tools.common.plugins.util.VersionUtility;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -406,22 +409,16 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         if (configDirectory != null && configDirectory.exists()) {
             // copy configuration files from configuration directory to server directory if end-user set it
-            // Use NIO Files.copy to perform a raw byte-for-byte copy, bypassing any z/OS USS
-            // encoding conversion that Ant's Copy task may apply to untagged source files.
+            // Use FileUtils.copyDirectory with StandardCopyOption.REPLACE_EXISTING so Commons IO
+            // delegates to Files.copy() internally — a raw byte-for-byte transfer that bypasses
+            // z/OS USS encoding conversion that Ant's Copy task applies to untagged source files.
             File configDirServerEnv = new File(configDirectory, "server.env");
-            Path srcBase = configDirectory.toPath();
-            Path destBase = serverDirectory.toPath();
-            List<Path> filesToCopy = new ArrayList<>();
-            Files.walk(srcBase).filter(p -> !Files.isDirectory(p)).forEach(filesToCopy::add);
-            for (Path srcPath : filesToCopy) {
-                // If mergeServerEnv is true, don't overwrite generated server.env
-                if (mergeServerEnv && srcPath.equals(configDirServerEnv.toPath())) {
-                    continue;
-                }
-                Path destPath = destBase.resolve(srcBase.relativize(srcPath));
-                Files.createDirectories(destPath.getParent());
-                Files.copy(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
-            }
+            // Pass a FileFilter to copyDirectory so we can use the CopyOption-accepting overload,
+            // which delegates each file to Files.copy() for a raw byte-for-byte transfer.
+            IOFileFilter fileFilter = (mergeServerEnv && configDirServerEnv.exists())
+                    ? FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("server.env"))
+                    : null;
+            FileUtils.copyDirectory(configDirectory, serverDirectory, fileFilter, true, StandardCopyOption.REPLACE_EXISTING);
 
             File configDirServerXML = new File(configDirectory, "server.xml");
             if (configDirServerXML.exists()) {
