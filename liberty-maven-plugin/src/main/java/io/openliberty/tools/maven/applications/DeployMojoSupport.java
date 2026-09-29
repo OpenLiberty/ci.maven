@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2016, 2025.
+ * (C) Copyright IBM Corporation 2016, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +33,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.tools.ant.taskdefs.Copy;
 import org.w3c.dom.Element;
 
 import io.openliberty.tools.ant.ServerTask;
@@ -83,18 +84,13 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         File destDir = new File(serverDirectory, getAppsDirectory());
         getLog().info(MessageFormat.format(messages.getString("info.install.app"), artifact.getFile().getCanonicalPath()));
 
-        Copy copyFile = (Copy) ant.createTask("copy");
         File fileToCopy = artifact.getFile();
-        copyFile.setFile(fileToCopy);
         String originalFileName = fileToCopy.getName();
         File destFile = new File(destDir, originalFileName);
         String destFileName = originalFileName;
         if (stripVersion) {
             destFileName = stripVersionFromName(originalFileName, artifact.getBaseVersion());
             destFile = new File(destDir, destFileName); // fileName should have changed after stripping version so recreate destFile
-            copyFile.setTofile(destFile);
-        } else {
-            copyFile.setTodir(destDir);
         }
 
         // validate application configuration if appsDirectory="dropins" or inject
@@ -103,8 +99,8 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
         validateAppConfig(destFile.getCanonicalPath(), destFileName, artifact.getArtifactId());
 
         deleteApplication(serverDirectory, fileToCopy, destFile);
-        
-        copyFile.execute();
+
+        Files.copy(fileToCopy.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         verifyAppStarted(destFileName);
     }
