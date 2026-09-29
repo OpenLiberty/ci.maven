@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,8 +55,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.tools.ant.taskdefs.Copy;
-import org.apache.tools.ant.types.FileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor.Element;
 
@@ -366,11 +365,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
                 File fileToCopyTo = new File(location, targetFileName);
 
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(nextFile);
-                copy.setTofile(fileToCopyTo);
-                copy.setOverwrite(true);
-                copy.execute();
+                Files.copy(nextFile.toPath(), fileToCopyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 getLog().info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
             }
@@ -411,21 +406,22 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
         if (configDirectory != null && configDirectory.exists()) {
             // copy configuration files from configuration directory to server directory if end-user set it
-            Copy copydir = (Copy) ant.createTask("copy");
-            FileSet fileset = new FileSet();
-            fileset.setDir(configDirectory);
-
-            // If mergeServerEnv is true, don't overwrite generated server.env
+            // Use NIO Files.copy to perform a raw byte-for-byte copy, bypassing any z/OS USS
+            // encoding conversion that Ant's Copy task may apply to untagged source files.
             File configDirServerEnv = new File(configDirectory, "server.env");
-            if(mergeServerEnv && configDirServerEnv.exists()){
-                // set excludes pattern 
-                fileset.setExcludes("server.env");
+            Path srcBase = configDirectory.toPath();
+            Path destBase = serverDirectory.toPath();
+            List<Path> filesToCopy = new ArrayList<>();
+            Files.walk(srcBase).filter(p -> !Files.isDirectory(p)).forEach(filesToCopy::add);
+            for (Path srcPath : filesToCopy) {
+                // If mergeServerEnv is true, don't overwrite generated server.env
+                if (mergeServerEnv && srcPath.equals(configDirServerEnv.toPath())) {
+                    continue;
+                }
+                Path destPath = destBase.resolve(srcBase.relativize(srcPath));
+                Files.createDirectories(destPath.getParent());
+                Files.copy(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
             }
-
-            copydir.addFileset(fileset);
-            copydir.setTodir(serverDirectory);
-            copydir.setOverwrite(true);
-            copydir.execute();
 
             File configDirServerXML = new File(configDirectory, "server.xml");
             if (configDirServerXML.exists()) {
@@ -452,11 +448,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
                 getLog().info("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
-            copy.setFile(serverXmlFile);
-            copy.setTofile(new File(serverDirectory, "server.xml"));
-            copy.setOverwrite(true);
-            copy.execute();
+            Files.copy(serverXmlFile.toPath(), new File(serverDirectory, "server.xml").toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);  // raw byte copy — avoids z/OS USS encoding conversion
             serverXMLPath = serverXmlFile.getCanonicalPath();
         }
 
@@ -480,11 +473,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (jvmOptionsPath != null) {
                 getLog().info("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
-            copy.setFile(jvmOptionsFile);
-            copy.setTofile(optionsFile);
-            copy.setOverwrite(true);
-            copy.execute();
+            Files.copy(jvmOptionsFile.toPath(), optionsFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
             jvmOptionsPath = jvmOptionsFile.getCanonicalPath();
         }
 
@@ -496,7 +486,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 getLog().info(bootstrapFile.getCanonicalPath() + " file deleted before processing plugin configuration.");
                 bootstrapFile.delete();
             }
-        } 
+        }
         if (bootstrapProperties != null || !bootstrapMavenProps.isEmpty()) {
             if (bootStrapPropertiesPath != null) {
                 getLog().info("The " + bootStrapPropertiesPath + " file is overwritten by inlined configuration.");
@@ -508,11 +498,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (bootStrapPropertiesPath != null) {
                 getLog().info("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
             }
-            Copy copy = (Copy) ant.createTask("copy");
-            copy.setFile(bootstrapPropertiesFile);
-            copy.setTofile(bootstrapFile);
-            copy.setOverwrite(true);
-            copy.execute();
+            Files.copy(bootstrapPropertiesFile.toPath(), bootstrapFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
             bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
         }
 
@@ -533,11 +520,8 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
             } else if (serverEnvFile != null && serverEnvFile.exists()) {
-                Copy copy = (Copy) ant.createTask("copy");
-                copy.setFile(serverEnvFile);
-                copy.setTofile(envFile);
-                copy.setOverwrite(true);
-                copy.execute();
+                Files.copy(serverEnvFile.toPath(), envFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
                 serverEnvPath = serverEnvFile.getCanonicalPath();
             }
         }
