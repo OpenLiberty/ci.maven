@@ -106,10 +106,18 @@ public class BaseGenerateFeaturesTest {
      * Runs process and waits for it to finish
      * Times out after 20 seconds
      * 
-     * @param command - command to run
+     * @param processCommand - Maven arguments (tasks, options etc)
+     * @param workingDirectory - change to the indicated directory before executing the command
      */
     protected static void runProcess(String processCommand) throws IOException, InterruptedException {
-        StringBuilder command = new StringBuilder("mvn " + processCommand);
+        runProcess(processCommand, null);
+    }
+    protected static void runProcess(String processCommand, String workingDirectory) throws IOException, InterruptedException {
+        StringBuilder command = new StringBuilder();
+        if (workingDirectory != null) {
+            command.append("cd " + workingDirectory + "; ");
+        }
+        command.append("mvn " + processCommand);
         ProcessBuilder builder = buildProcess(command.toString());
         builder.redirectOutput(logFile);
         builder.redirectError(logFile);
@@ -227,7 +235,7 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
-        runProcess("clean compile liberty:create liberty:generate-features");
+        runProcess("clean compile liberty:create liberty:deploy liberty:generate-features");
     }
 
     protected void runClean() throws IOException, InterruptedException {
@@ -239,8 +247,7 @@ public class BaseGenerateFeaturesTest {
     }
 
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
-        // do not create liberty when generating to src
-        runProcess("clean compile liberty:generate-features -DgenerateToSrc=true");
+        runProcess("clean compile liberty:create liberty:deploy liberty:generate-features -DgenerateToSrc=true");
     }
 
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
