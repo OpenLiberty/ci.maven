@@ -678,16 +678,14 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
 
     // Collect all the filenames in the Liberty server's application directories "apps" and "dropins".
     // These are populated by the Liberty deployment mechanism like mvn liberty:deploy.
-    // e.g. ${server.dir}/apps/myApp.war.xml or ${server.dir}/dropins/myApp.war
+    // e.g. ${server.config.dir}/apps/myApp.war.xml or ${server.config.dir}/dropins/myApp.war
     private String[] getDeployedAppFilePaths() {
         List<String> paths = new ArrayList<>();
         for (String appDirName : new String[] {"apps", "dropins"}) {
             File appDir = new File(serverDirectory, appDirName);
-            getLog().warn ("deployed app dir="+appDir.getAbsolutePath());
             if (appDir.exists() && appDir.isDirectory()) {
                 File[] appFiles = appDir.listFiles();
                 for (File app : appFiles) {
-                    getLog().warn ("deployed app="+app.getAbsolutePath());
                     paths.add(app.getAbsolutePath());
                 }
             }
