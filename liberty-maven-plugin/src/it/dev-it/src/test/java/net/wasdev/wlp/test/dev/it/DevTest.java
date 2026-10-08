@@ -267,7 +267,6 @@ public class DevTest extends BaseDevTest {
       tagLog("##resolveDependencyTest end");
    }
 
-   @Ignore
    @Test
    public void generateFeatureTest() throws Exception {
       tagLog("##generateFeatureTest start");
@@ -302,6 +301,10 @@ public class DevTest extends BaseDevTest {
       // "CWWKF0012I: The server installed the following features:" assume batch-1.0 is in there
       // batch-1.0 pulls in other features that can take a long time to download.
       assertTrue(verifyLogMessageExists(SERVER_INSTALLED_FEATURES, 123000, ++installedFeaturesCount));
+
+      // Re-snapshot count after feature installation; ci.common lifecycle changes may trigger
+      // additional generate-features runs during/after feature install.
+      runGenerateFeaturesCount = countOccurrences(RUNNING_GENERATE_FEATURES, logFile);
 
       // When there is a compilation error the generate features process should not run
       final String goodCode = "import javax.ws.rs.GET;";
