@@ -27,10 +27,8 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Feature-Gen Changes failing this, temporarily disabling")
 public class MultiModuleTypeETest extends BaseMultiModuleTest {
 
    @BeforeClass
