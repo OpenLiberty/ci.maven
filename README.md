@@ -146,6 +146,7 @@ The Liberty Maven Plugin provides the following goals.
 
 | Goal | Description |
 | --------- | ------------ |
+| [apply-ifix](docs/apply-ifix.md#apply-ifix) | Apply WebSphere Liberty iFix JAR files to the Liberty runtime installation. Only supported when `runtimeArtifact` groupId is `com.ibm.websphere.appserver.runtime`. |
 | [clean](docs/clean.md#clean) | Deletes every file in the `${outputDirectory}/logs`, `${outputDirectory}/workarea`, `${userDirectory}/dropins` or `${userDirectory}/apps`. |
 | [compile-jsp](docs/compile-jsp.md#compile-jsps) | Compile JSPs in the src/main/webapp into the target/classes directory |
 | [create](docs/create.md#create) | Create a Liberty server. |
@@ -206,7 +207,7 @@ The `liberty-assembly` default lifecycle includes:
 | process-test-resources | maven-resources-plugin:testResources |
 | test-compile | maven-compiler-plugin:testCompile |
 | test | maven-surefire-plugin:test |
-| prepare-package | liberty:create, liberty:prepare-feature, liberty:install-feature |
+| prepare-package | liberty:create, liberty:prepare-feature, liberty:install-feature, liberty:apply-ifix |
 | package | liberty:deploy, liberty:package|
 | pre-integration-test | liberty:test-start|
 | integration-test | maven-failsafe-plugin:integration-test |
