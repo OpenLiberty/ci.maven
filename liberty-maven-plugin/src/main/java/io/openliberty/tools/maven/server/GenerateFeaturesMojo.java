@@ -294,8 +294,8 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         String eeVersion = null;
         String mpVersion = null;
         try {
-            String deployedAppFilePath = getDeployedAppFilePath();
-            if (optimize && deployedAppFilePath == null) {
+            String[] deployedAppFilePaths = getDeployedAppFilePaths();
+            if (optimize && (deployedAppFilePaths == null || deployedAppFilePaths.length == 0)) {
                 // liberty:generate-features on the command line requires that an app has been deployed
                 // In dev mode we require the app for optimize. For incremental just pass the classes on.
                 throw new MojoExecutionException(NO_APPLICATION_ERROR);
@@ -327,7 +327,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
                 featureListFileMap.put(WSBASE_FEATURELIST_KEY, baseFeatureListFile);
             } // else should not happen, just pass empty map
 
-            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, deployedAppFilePath,
+            scannedFeatureList = featureGenHandler.runFeatureGenerator(nonCustomFeatures, classFiles, deployedAppFilePaths,
                 logLocation, eeVersionArg, mpVersionArg, featureListFileMap, optimize);
         } catch (FeatureGeneratorUtil.NoRecommendationException noRecommendation) {
             throw new MojoExecutionException(String.format(FeatureGeneratorUtil.FEATURE_GEN_CONFLICT_MESSAGE3, noRecommendation.getConflicts()));
@@ -676,22 +676,21 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
         return null; // directory does not exist.
     }
 
-    // Find the app file name's absolute path. If looseApplication is true one name will be used, otherwise
-    // the other name must be used. If the app has not been generated return null to engage error handling.
-    // e.g. /users/foo/app/target/myApp.war.xml or /users/foo/app/target/myApp.war
-    private String getDeployedAppFilePath() {
-        String looseConfigFileName = getLooseConfigFileName(project);
-        String regularAppFileName = getPostDeployAppFileName(project);
-        File destDir = new File(serverDirectory, getAppsDirectory(false));
-        File looseConfigFile = new File(destDir, looseConfigFileName);
-        if (looseConfigFile.exists()) {
-            return looseConfigFile.getAbsolutePath();
+    // Collect all the filenames in the Liberty server's application directories "apps" and "dropins".
+    // These are populated by the Liberty deployment mechanism like mvn liberty:deploy.
+    // e.g. ${server.config.dir}/apps/myApp.war.xml or ${server.config.dir}/dropins/myApp.war
+    private String[] getDeployedAppFilePaths() {
+        List<String> paths = new ArrayList<>();
+        for (String appDirName : new String[] {"apps", "dropins"}) {
+            File appDir = new File(serverDirectory, appDirName);
+            if (appDir.exists() && appDir.isDirectory()) {
+                File[] appFiles = appDir.listFiles();
+                for (File app : appFiles) {
+                    paths.add(app.getAbsolutePath());
+                }
+            }
         }
-        File regularAppFile = new File(destDir, regularAppFileName);
-        if (regularAppFile.exists()) {
-            return regularAppFile.getAbsolutePath();
-        }
-        return null;
+        return paths.toArray(new String[0]);
     }
 
     /**
