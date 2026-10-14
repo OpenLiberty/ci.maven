@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.ProcessBuilder.Redirect;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +72,7 @@ public class ServerConfigPropertiesTest {
         props = new Properties();
         props.put("pluginVersion", pomVersion);
     }
-    
+
     @Test
     public void checkMessagesLogForIncludes() throws Exception {
         Scanner s = null;
@@ -80,23 +83,17 @@ public class ServerConfigPropertiesTest {
 
         try {
             //Create server and copy config
-            InvocationRequest createRequest = new DefaultInvocationRequest()
-            .setPomFile(pomFilePath)
-            .setGoals(Collections.singletonList("liberty:create"))
-            .setProperties(props);
-
-            Invoker invoker = new DefaultInvoker();
-            invoker.setMavenHome(new File(System.getenv("MAVEN_HOME")));
-            InvocationResult createResult = invoker.execute( createRequest );
-
-            Assert.assertTrue("Server not created successfully.", createResult.getExitCode() == 0);
-
-            //Start server in dev mode with generate-features disabled
-            ProcessBuilder builder = buildProcess(logFile, "mvn liberty:dev");
+            ProcessBuilder builder = buildProcess(logFile, "mvn liberty:create");
             Process process = builder.start();
+            int exitCode = process.waitFor();
+
+            Assert.assertTrue("Server not created successfully, rc=" + exitCode, exitCode == 0);
+
+            builder = buildProcess(logFile, "mvn liberty:dev");
+            process = builder.start();
             OutputStream stdin = process.getOutputStream();
-      
-            //Wait for dev mode to run
+
+            //Wait for dev mode to run until user input is needed
             Thread.sleep(30000);
 
             //Stop dev mode
@@ -104,6 +101,7 @@ public class ServerConfigPropertiesTest {
             writer.write("exit\n");
             writer.flush();
             writer.close();
+            exitCode = process.waitFor();
 
             s = new Scanner(logFile);
 
@@ -129,9 +127,11 @@ public class ServerConfigPropertiesTest {
         }
 
         //Check app name/appsDir resolved correctly during create, deploy, and start
-        Assert.assertTrue("Found duplicate application message in console output", duplicateMatches.size() == 0);
-        Assert.assertEquals("appsDirMessage size: " + appDirMatches.size(), 3, appDirMatches.size()); // once for each goal - create, deploy and start
-        Assert.assertTrue("Did not find app install message in console output", appInstalledMatches.size() == 1);
+        String logText = new String(Files.readAllBytes(logFile.toPath()), StandardCharsets.UTF_8);
+        Assert.assertTrue("Found duplicate application message in console output, log=\n" + logText, duplicateMatches.size() == 0);
+        // 4: once for each goal - create, create (from dev mode), deploy and start
+        Assert.assertEquals("appsDirMessage size: " + appDirMatches.size() + ", log=\n" + logText, 4, appDirMatches.size());
+        Assert.assertTrue("Did not find app install message in console output, log=\n" + logText, appInstalledMatches.size() == 1);
 
         String appMessage = appInstalledMatches.get(0);
 
@@ -140,10 +140,10 @@ public class ServerConfigPropertiesTest {
 
     private ProcessBuilder buildProcess(File logFile, String processCommand) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
-        builder.redirectOutput(logFile);
-        builder.redirectError(logFile);
+        builder.redirectOutput(Redirect.appendTo(logFile)); // since we are calling this method twice we need to append
+        builder.redirectErrorStream(true); // redirect to the output stream
         builder.directory(new File(".."));
-  
+
         String os = System.getProperty("os.name");
         if (os != null && os.toLowerCase().startsWith("windows")) {
            builder.command("CMD", "/C", processCommand);
