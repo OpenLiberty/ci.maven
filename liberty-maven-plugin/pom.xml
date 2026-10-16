@@ -19,6 +19,8 @@
         <maven>${maven.version}</maven>
     </prerequisites>
 
+    <!-- Specify the property <it.test> below to run just one class in the integration test bucket. -->
+
     <repositories>
         <!-- Configure Sonatype OSS Maven snapshots repository when using snapshots -->
         <repository>
@@ -194,6 +196,9 @@
                                 <runtimeArtifactId>${runtimeArtifactId}</runtimeArtifactId>
                                 <runtimeKernelId>${runtimeKernelId}</runtimeKernelId>
                                 <runtimeVersion>${runtimeVersion}</runtimeVersion>
+                                <!-- Uncomment this property and specify a value on the command line with the option
+                                     -Dit.test=test-class-name to run just one class in the integration test bucket.-->
+                                <!-- <it.test>${it.test}</it.test> -->
                             </properties>
                             <profiles>
                                 <profile>online-its</profile>
