@@ -1,0 +1,10 @@
+- stepName: "CiMavenBuild"
+  coreStep: true
+  workType: Jenkins
+  projectName: CiMavenBuild
+  timeoutInMinutes: 30
+  dependsOn:
+    - stepName: CiMavenDependencyBuild
+      awaitOutputProperties: true
+  properties:
+    jenkinsServiceName: "websphere-extra-jenkins"
