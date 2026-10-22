@@ -1,0 +1,27 @@
+type: pipeline_definition
+product: Liberty
+name: CiMaven
+description: Run a Pipeline for ci.maven using Cognitive Software Delivery infrastructure
+
+triggers:
+- type: manual
+  triggerName: "Manual"
+  description: "Runs a ci.maven Pipeline, building and testing the PR - Manual Trigger"
+  triggerRank: 50
+  groups: ["CommonComponents"]
+- type: github
+  triggerName: "GitHub"
+  description: "Runs a ci.maven Pipeline, building and testing the PR - Github Trigger"
+  triggerRank: 50
+  groups: ["CommonComponents"]
+  keyword: "!build"
+  aliasKeywords:
+    - "#build"
+
+steps:
+- stepGroup: Build ci.maven Dependency
+  includeSteps:
+  - file: steps/buildCiMavenDependency.yml
+- stepGroup: Build ci.maven
+  includeSteps:
+  - file: steps/buildCiMaven.yml

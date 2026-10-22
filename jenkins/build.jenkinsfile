@@ -1,0 +1,38 @@
+properties([
+   parameters([
+      string(name: 'executionId',      defaultValue: UUID.randomUUID().toString(), description: 'Unique execution id.'),
+      string(name: 'ebcPlan',          defaultValue: 'See Shortlist', description: 'EBC plan to use when provisioning a Jenkins node (ignored when shortlist is supplied).'),
+      string(name: 'ebcShortlist',     defaultValue: 'jenkins-child.yml', description: 'Overrides the ebcPlan.  This controls the EBC shortlist to use when provisioning a Jenkins node.'),
+      string(name: 'github_pr_branch', defaultValue: "main", description: 'Git branch to check out of repo.  If the branch does not exist, main is used instead.')
+   ])
+])
+timestamps {
+   library 'jenkins-ci-websphere'
+   if (shouldSkipDueToSeedJob()) {
+      return;
+   }
+
+   try {
+      onEBC(
+         demandId: params.executionId,
+         ebcPlan: params.ebcPlan,
+         ebcShortlist: params.ebcShortlist,
+         autoCompleteAfterXHours: 24) {
+         buildName params.executionId
+         stage("Running Job") {
+            reportActivity(name: "ci.maven PR Build", executionId: params.executionId) {
+               sh "git clone --branch ${params.github_pr_branch} --depth 1 https://github.com/OpenLiberty/ci.maven.git ci.maven"
+               withEnv([
+                  "executionId=${params.executionId}"
+               ]) {
+                  sh "ci.maven/scripts/build.sh"
+               }
+            }
+         }
+      }
+   } finally {
+      onLocal() {
+         cleanupWorkspace()
+      }
+   }
+}
