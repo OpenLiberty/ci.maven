@@ -748,7 +748,7 @@ public class DevMojo extends LooseAppSupport {
         }
 
         @Override
-        public boolean updateArtifactPaths(ProjectModule projectModule, boolean redeployCheck, boolean generateFeatures, ThreadPoolExecutor executor)
+        public boolean updateArtifactPaths(ProjectModule projectModule, boolean redeployCheck, ThreadPoolExecutor executor)
                 throws PluginExecutionException {
             try {
                 File buildFile = projectModule.getBuildFile();
@@ -1435,10 +1435,10 @@ public class DevMojo extends LooseAppSupport {
             }
         }
 
-        // get all parent poms
-        Map<String, List<String>> parentPoms = new HashMap<String, List<String>>();
+        // Create a map from a parent pom to a list of all child poms
+        Map<String, List<String>> parentPomMap = new HashMap<String, List<String>>();
         for (MavenProject proj : graph.getAllProjects()) {
-            updateParentPoms(parentPoms, proj);
+            updateParentPoms(parentPomMap, proj);
         }
 
         // default behavior of recompileDependencies
@@ -1648,7 +1648,7 @@ public class DevMojo extends LooseAppSupport {
 
             util = new DevMojoUtil(installDirectory, userDirectory, serverDirectory, sourceDirectory, testSourceDirectory,
                     configDirectory, project.getBasedir(), multiModuleProjectDirectory, resourceDirs, compilerOptions,
-                    settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPoms, 
+                    settings.getLocalRepository(), upstreamProjects, upstreamMavenProjects, recompileDeps, pom, parentPomMap, 
                     generateFeatures, generateToSrc, skipInstallFeature, compileArtifactPaths, testArtifactPaths, webResourceDirs,
                     new File(super.outputDirectory,serverName));
         } catch (IOException | PluginExecutionException |DependencyResolutionRequiredException e) {
