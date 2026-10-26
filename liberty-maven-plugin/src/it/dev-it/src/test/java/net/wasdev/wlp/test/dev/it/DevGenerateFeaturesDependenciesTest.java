@@ -40,7 +40,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
         BaseDevTest.cleanUpAfterClass();
     }
 
-    @Ignore("Feature-Gen Changes failing this, temporarily disabling")
+    // @Ignore("Feature-Gen Changes failing this, temporarily disabling")
     @Test
     public void updateDependencyTest() throws Exception {
        //debugPort set as 8077
