@@ -81,9 +81,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-mapping</artifactId>
-            <version>3.0.0</version>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-interpolation</artifactId>
+            <version>1.30.0</version>
         </dependency>
         <!-- dependencies to annotations -->
         <dependency>
