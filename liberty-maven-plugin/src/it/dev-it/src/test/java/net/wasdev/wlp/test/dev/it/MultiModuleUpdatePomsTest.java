@@ -31,7 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("feature-gen")
+// @Ignore("feature-gen")
 public class MultiModuleUpdatePomsTest extends BaseMultiModuleTest {
 
    @BeforeClass
