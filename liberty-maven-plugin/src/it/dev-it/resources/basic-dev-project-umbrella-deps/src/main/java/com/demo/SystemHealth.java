@@ -1,11 +1,11 @@
 package com.demo;
 
 import javax.enterprise.context.ApplicationScoped;
-import org.eclipse.microprofile.health.Health;
+import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-@Health
+@Liveness
 @ApplicationScoped
 public class SystemHealth implements HealthCheck {
   @Override

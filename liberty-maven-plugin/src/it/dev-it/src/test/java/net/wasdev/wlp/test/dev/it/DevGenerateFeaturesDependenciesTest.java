@@ -72,7 +72,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
              pom);
 
        // Dev mode should now run the generate features mojo
-       assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 30000, 2)); // mojo ran again (first was on dev mode startup)
+       assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000, 2)); // mojo ran again (first was on dev mode startup)
        // Dev mode will now install the features before copying them into the server dir. Look for server response before further checks
        assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 120000)); // could take a couple minutes
 
