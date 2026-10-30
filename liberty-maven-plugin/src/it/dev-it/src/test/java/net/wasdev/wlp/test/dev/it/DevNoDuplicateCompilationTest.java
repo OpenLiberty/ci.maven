@@ -77,8 +77,6 @@ public class DevNoDuplicateCompilationTest extends BaseDevTest {
             verifyLogMessageExists(SERVER_CONFIG_SUCCESS, 10000, ++initialHotReloadCount));
 
         Thread.sleep(3000);
-        // In prior versions generate-features would be called later and cause a second SERVER_CONFIG_SUCCESS message
-        // ++initialHotReloadCount;
 
         // Count final compilation messages
         int finalCompilationCount = countOccurrences(COMPILATION_SUCCESSFUL, logFile);
