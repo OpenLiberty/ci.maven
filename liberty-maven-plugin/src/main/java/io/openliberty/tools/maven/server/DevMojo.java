@@ -16,6 +16,7 @@
 package io.openliberty.tools.maven.server;
 
 import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.GENERATED_FEATURES_FILE_PATH;
+import static io.openliberty.tools.common.plugins.util.FeatureGeneratorUtil.GENERATED_FEATURES_TEMP_DIR;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
@@ -1700,12 +1701,25 @@ public class DevMojo extends LooseAppSupport {
             }
             // During dev mode start up the server is not running yet so we will generate features to the correct
             // output directory and then install features in a future step.
-            runLibertyMojoGenerateFeatures(null, true, generateToSrc, false, false);
+            // When the output directory is the server dir, normally dev mode generates to the temp dir first.
+            // Here we generate to the temp dir so that we do not have an edge condition where the server dir is up to date
+            // but the temp dir is empty. The install features will be done later.
             try {
                 if (generateToSrc) {
-                    // if features generated to the src dir then copy them to the server dir before
+                    // generate the features to the src dir (configDirectory) and copy them to the server dir before
                     // install features and server start-up
+                    runLibertyMojoGenerateFeatures(null, true, true, false, false);
                     File generatedXmlFile = new File(configDirectory, GENERATED_FEATURES_FILE_PATH);
+                    File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
+                    FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
+                } else {
+                    // generate the features to the temp dir in the normal (for dev mode) way and copy them to the server dir
+                    // before install features and server start-up
+                    runLibertyMojoGenerateFeatures(null, true, false, true, false);
+
+                    File buildDirectory = new File(project.getBuild().getDirectory());
+                    File generateFeaturesTmpDir = new File(buildDirectory, GENERATED_FEATURES_TEMP_DIR);
+                    File generatedXmlFile = new File(generateFeaturesTmpDir, GENERATED_FEATURES_FILE_PATH);
                     File serverDirXmlFile = new File(serverDirectory, GENERATED_FEATURES_FILE_PATH);
                     FileUtils.copyFile(generatedXmlFile, serverDirXmlFile);
                 }
