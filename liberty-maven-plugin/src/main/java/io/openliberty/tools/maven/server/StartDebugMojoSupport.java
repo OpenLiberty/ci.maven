@@ -369,6 +369,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
 
                 File fileToCopyTo = new File(location, targetFileName);
 
+                Files.createDirectories(fileToCopyTo.toPath().getParent());
                 Files.copy(nextFile.toPath(), fileToCopyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 getLog().info("copyDependencies copied file "+nextFile.getName()+" to location "+location+"/"+targetFileName+".");
@@ -452,6 +453,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (serverXMLPath != null && ! serverXmlFile.getCanonicalPath().equals(serverXMLPath)) {
                 getLog().info("The " + serverXMLPath + " file is overwritten by the "+serverXmlFile.getCanonicalPath()+" file.");
             }
+            Files.createDirectories(serverDirectory.toPath());
             Files.copy(serverXmlFile.toPath(), new File(serverDirectory, "server.xml").toPath(),
                     StandardCopyOption.REPLACE_EXISTING);  // raw byte copy — avoids z/OS USS encoding conversion
             serverXMLPath = serverXmlFile.getCanonicalPath();
@@ -477,6 +479,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (jvmOptionsPath != null) {
                 getLog().info("The " + jvmOptionsPath + " file is overwritten by the "+jvmOptionsFile.getCanonicalPath()+" file.");
             }
+            Files.createDirectories(serverDirectory.toPath());
             Files.copy(jvmOptionsFile.toPath(), optionsFile.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
             jvmOptionsPath = jvmOptionsFile.getCanonicalPath();
@@ -502,6 +505,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
             if (bootStrapPropertiesPath != null) {
                 getLog().info("The " + bootStrapPropertiesPath + " file is overwritten by the "+ bootstrapPropertiesFile.getCanonicalPath()+" file.");
             }
+            Files.createDirectories(serverDirectory.toPath());
             Files.copy(bootstrapPropertiesFile.toPath(), bootstrapFile.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
             bootStrapPropertiesPath = bootstrapPropertiesFile.getCanonicalPath();
@@ -524,6 +528,7 @@ public abstract class StartDebugMojoSupport extends ServerFeatureSupport {
                 writeServerEnvProperties(envFile, envPropsToWrite);
                 serverEnvPath = "inlined configuration";
             } else if (serverEnvFile != null && serverEnvFile.exists()) {
+                Files.createDirectories(serverDirectory.toPath());
                 Files.copy(serverEnvFile.toPath(), envFile.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
                 serverEnvPath = serverEnvFile.getCanonicalPath();
