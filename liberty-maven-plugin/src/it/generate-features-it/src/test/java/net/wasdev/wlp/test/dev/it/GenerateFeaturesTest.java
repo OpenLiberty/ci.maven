@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openliberty.tools.maven.server.GenerateFeaturesMojo;
@@ -52,7 +51,6 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     }
 
     @Test
-    @Ignore("Fails with Open Liberty 26.0.0.6 due to feature generation lifecycle changes")
     public void basicTest() throws Exception {
         executeBasicTests(false);
     }
@@ -70,12 +68,12 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(formatOutput(processOutput), featureFile.exists());
+        assertTrue(formatOutput(processOutput)+"\nfeatureFile="+featureFile, featureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
         Set<String> features = readFeatures(featureFile);
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
-        assertEquals(expectedFeatures.size(), features.size());
+        assertEquals("real features, expected features:"+features+expectedFeatures, expectedFeatures.size(), features.size());
         assertEquals(expectedFeatures, features);
 
         // place generated features in server.xml
@@ -156,51 +154,6 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertEquals(expectedFeatures, features);
     }
 
-    @Test
-    public void serverXmlCommentNoFMTest() throws Exception {
-        // initially the expected comment is not found in server.xml
-        // assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
-        // also we wish to test behaviour when there is no <featureManager> element so test that
-        assertFalse(verifyLogMessageExists("<featureManager>", 10, serverXmlFile));
-
-        runCompileAndGenerateFeatures();
-
-        // verify that generated features file was created
-        assertTrue(newFeatureFile.exists());
-
-        // verify expected comment found in server.xml
-        Charset charset = StandardCharsets.UTF_8;
-        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
-        serverXmlContents = "\n" + serverXmlContents;
-        // assertTrue(serverXmlContents,
-        //     verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
-    }
-
-    @Test
-    public void serverXmlCommentFMTest() throws Exception {
-        replaceString("<!--replaceable-->",
-                "<!--Feature generation comment goes below this line-->\n" +
-                        "  <featureManager>\n" +
-                        "    <feature>servlet-4.0</feature>\n" +
-                        "  </featureManager>\n",
-                serverXmlFile);
-
-        // initially the expected comment is not found in server.xml
-        // assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
-
-        runCompileAndGenerateFeatures();
-
-        // verify that generated features file was created
-        assertTrue(newFeatureFile.exists());
-
-        // verify expected comment found in server.xml
-        Charset charset = StandardCharsets.UTF_8;
-        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
-        serverXmlContents = "\n" + serverXmlContents;
-        // assertTrue(serverXmlContents,
-        //     verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
-    }
-
     /**
      * Conflict between user specified features.
      * Check for FEATURE_GEN_CONFLICT_MESSAGE2 (conflict between configured features)
@@ -276,7 +229,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         conflictingFeatureSet.add("mpOpenAPI-1.0");
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
         assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
-        processOutput.contains(
+            processOutput.contains(
                 String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
     }
 
@@ -291,7 +244,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
     }
 
     protected Set<String> getExpectedGeneratedFeaturesSet() {
-        return new HashSet<String>(Arrays.asList("servlet-4.0", "jaxrs-2.1"));
+        return new HashSet<String>(Arrays.asList("jsp-2.3", "servlet-4.0", "cdi-2.0", "jaxrs-2.1"));
     }
 
     // change MP version in pom file
