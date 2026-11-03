@@ -21,7 +21,6 @@ import java.io.File;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -40,20 +39,15 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
         BaseDevTest.cleanUpAfterClass();
     }
 
-    @Ignore("Feature-Gen Changes failing this, temporarily disabling")
     @Test
     public void updateDependencyTest() throws Exception {
-       //debugPort set as 8077
+       //debugPort set to 8077
        assertTrue(verifyLogMessageExists("Listening for transport dt_socket at address: 8077", 20000) || verifyLogMessageExists("The debug port 8077 is not available.",20000));
        assertTrue(verifyLogMessageExists("Liberty is running in dev mode.", 10000));
 
-       //File generatedFeaturesFile = getGeneratedFeaturesFile();
        File targetGeneratedFeaturesFile = getTargetGeneratedFeaturesFile();
        assertTrue(pom.exists());
-       //assertTrue(generatedFeaturesFile.exists());
        assertTrue(targetGeneratedFeaturesFile.exists());
-       // long lastModified = generatedFeaturesFile.lastModified();
-       long lastModified = targetGeneratedFeaturesFile.lastModified();
        waitLongEnough();
 
        // verify mpHealth-2.2 is in generated features file
@@ -78,7 +72,7 @@ public class DevGenerateFeaturesDependenciesTest extends BaseDevTest {
              pom);
 
        // Dev mode should now run the generate features mojo
-       assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000)); // mojo ran
+       assertTrue(getLogTail(), verifyLogMessageExists(GENERATE_FEATURES, 15000, 2)); // mojo ran again (first was on dev mode startup)
        // Dev mode will now install the features before copying them into the server dir. Look for server response before further checks
        assertTrue(getLogTail(), verifyLogMessageExists(SERVER_UPDATE_COMPLETE, 120000)); // could take a couple minutes
 
