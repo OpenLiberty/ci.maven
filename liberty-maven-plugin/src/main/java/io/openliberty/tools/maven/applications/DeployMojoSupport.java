@@ -100,6 +100,7 @@ public abstract class DeployMojoSupport extends LooseAppSupport {
 
         deleteApplication(serverDirectory, fileToCopy, destFile);
 
+        Files.createDirectories(destFile.toPath().getParent());
         Files.copy(fileToCopy.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         verifyAppStarted(destFileName);
