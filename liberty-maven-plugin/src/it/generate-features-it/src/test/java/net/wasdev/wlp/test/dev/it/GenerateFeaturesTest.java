@@ -162,7 +162,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
      */
     @Test
     public void userConflictTest() throws Exception {
-        // place expected generated features in server.xml and conflicting cdi-1.2
+        // place expected generated features in server.xml and add conflicting cdi-1.2
         replaceString("<!--replaceable-->",
                 "<featureManager>\n" +
                         getExpectedFeatureElementString() +
@@ -174,9 +174,11 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is thrown (FeatureGeneratorUtil.RecommendationSetException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
-                processOutput.contains(
-                        String.format(FEATURE_GEN_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+        Set<String> conflictingFeatures = getCdi12ConflictingFeatures();
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE2, conflictingFeatures, recommendedFeatureSet);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
     /**
@@ -196,12 +198,15 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         runCompileAndGenerateFeatures();
 
         // Verify FEATURE_GEN_CONFLICT_MESSAGE1 error is thrown (FeatureGeneratorUtil.FeatureModifiedException)
+        // feature-gen scanner current features: servlet-4.0, cdi-2.0, jaxrs-2.1
         Set<String> recommendedFeatureSet = new HashSet<String>();
-        recommendedFeatureSet.add("cdi-2.0");
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n" + formatOutput(processOutput),
-            processOutput.contains(
-                String.format(FEATURE_GEN_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+        recommendedFeatureSet.add("cdi-2.0");
+        Set<String> conflictingFeatures = getCdi12ConflictingFeatures();
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE1, conflictingFeatures, recommendedFeatureSet);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
     // TODO add an integration test for feature conflict for API usage (FEATURE_GEN_CONFLICT_MESSAGE3), ie. MP4 and EE9
@@ -225,15 +230,16 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        Set<String> conflictingFeatureSet = getExpectedGeneratedFeaturesSet();
+        Set<String> conflictingFeatureSet = getUnavailableConflictingFeatures();
         conflictingFeatureSet.add("mpOpenAPI-1.0");
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
-        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
-            processOutput.contains(
-                String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
-    // get the app features that conflict with cdi-1.2
+    // get the app features that conflict with cdi-1.2, different for multimod test
     protected Set<String> getCdi12ConflictingFeatures() {
         // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)
         Set<String> conflictingFeatures = new HashSet<String>();
@@ -243,8 +249,17 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         return conflictingFeatures;
     }
 
+    // get the app features that conflict when one is not available in MP 1.2
+    protected Set<String> getUnavailableConflictingFeatures() {
+        // The features generated for single mod app: servlet-4.0, jaxrs-2.1
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("servlet-4.0");
+        conflictingFeatures.add("jaxrs-2.1");
+        return conflictingFeatures;
+    }
+
     protected Set<String> getExpectedGeneratedFeaturesSet() {
-        return new HashSet<String>(Arrays.asList("jsp-2.3", "servlet-4.0", "cdi-2.0", "jaxrs-2.1"));
+        return new HashSet<String>(Arrays.asList("servlet-4.0", "jaxrs-2.1"));
     }
 
     // change MP version in pom file

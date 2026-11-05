@@ -89,13 +89,25 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
         "            <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
         "            <version>" + updatedVersion + "</version>", new File(tempProj, "war/pom.xml"));
     }
- 
+
     @Override
     protected Set<String> getCdi12ConflictingFeatures() {
         // cdi-2.0 (EE8) conflicts with cdi-1.2 (EE7)
         Set<String> conflictingFeatures = new HashSet<String>();
         conflictingFeatures.add("cdi-1.2");
         conflictingFeatures.add("cdi-2.0");
+        return conflictingFeatures;
+    }
+
+    // get the app features that conflict when one is not available in MP 1.2
+    @Override
+    protected Set<String> getUnavailableConflictingFeatures() {
+        // The features generated for multimod app: jsp-2.3, servlet-4.0, cdi-2.0, jaxrs-2.1
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("servlet-4.0");
+        conflictingFeatures.add("cdi-2.0");
+        conflictingFeatures.add("jaxrs-2.1");
+        conflictingFeatures.add("jsp-2.3");
         return conflictingFeatures;
     }
 
