@@ -52,7 +52,7 @@ public class SpringBootRunTest extends BaseDevTest {
     */
    @Test
    public void validateRunExecutionNotSkipped() throws Exception {
-	   String mavenPluginCommand = "mvn package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run";
+    String mavenPluginCommand = getMvnBin() + " package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run";
 
        StringBuilder command = new StringBuilder(mavenPluginCommand);
        ProcessBuilder builder = buildProcess(command.toString());
