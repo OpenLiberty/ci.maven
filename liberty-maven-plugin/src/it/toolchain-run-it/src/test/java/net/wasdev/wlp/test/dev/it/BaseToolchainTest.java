@@ -98,7 +98,7 @@ public class BaseToolchainTest {
         replaceVersion();
         // if you want some custom action to be executed
         customActionBeforeProcessStart.run();
-        startProcess(params, "mvn liberty:", goal, logFile, logErrorFile);
+        startProcess(params, getMvnBin() + " liberty:", goal, logFile, logErrorFile);
     }
 
     protected static void startProcess(String params, String mavenPluginCommand, String goal, File logFile, File logErrorFile) throws IOException {
@@ -209,7 +209,7 @@ public class BaseToolchainTest {
 
         stopProcess(isDevMode, checkForShutdownMessage);
         //calling stop liberty for making sure run/dev is stopped
-        startProcess(null, "mvn liberty:", "stop", new File(basicDevProj, "logFileStop.txt"),  new File(basicDevProj, "logFileStopError.txt"));
+        startProcess(null, getMvnBin() + " liberty:", "stop", new File(basicDevProj, "logFileStop.txt"),  new File(basicDevProj, "logFileStopError.txt"));
         process.waitFor(10,TimeUnit.SECONDS);
         destroyProcess();
         if (tempProj != null && tempProj.exists()) {
@@ -255,6 +255,23 @@ public class BaseToolchainTest {
             br.close();
         }
         return false;
+    }
+
+    /**
+     * Returns the absolute path to the mvn executable that is running this build,
+     * derived from the {@code maven.home} system property injected by the Maven
+     * Invoker Plugin. Falls back to the plain {@code mvn} command (relies on PATH)
+     * if the property is not set, which preserves behaviour when tests are run
+     * directly outside of the invoker.
+     */
+    protected static String getMvnBin() {
+        String mavenHome = System.getProperty("maven.home");
+        if (mavenHome != null && !mavenHome.isEmpty()) {
+            String os = System.getProperty("os.name");
+            String cmd = (os != null && os.toLowerCase().startsWith("windows")) ? "mvn.cmd" : "mvn";
+            return new File(mavenHome, "bin/" + cmd).getAbsolutePath();
+        }
+        return "mvn";
     }
 
     protected static ProcessBuilder buildProcess(String processCommand) {

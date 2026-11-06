@@ -109,7 +109,7 @@ public class BaseGenerateFeaturesTest {
      * @param command - command to run
      */
     protected static void runProcess(String processCommand) throws IOException, InterruptedException {
-        StringBuilder command = new StringBuilder("mvn " + processCommand);
+        StringBuilder command = new StringBuilder(getMvnBin() + " " + processCommand);
         ProcessBuilder builder = buildProcess(command.toString());
         builder.redirectOutput(logFile);
         builder.redirectError(logFile);
@@ -129,6 +129,23 @@ public class BaseGenerateFeaturesTest {
         Path path = logFile.toPath();
         Charset charset = StandardCharsets.UTF_8;
         processOutput = new String(Files.readAllBytes(path), charset);
+    }
+
+    /**
+     * Returns the absolute path to the mvn executable that is running this build,
+     * derived from the {@code maven.home} system property injected by the Maven
+     * Invoker Plugin. Falls back to the plain {@code mvn} command (relies on PATH)
+     * if the property is not set, which preserves behaviour when tests are run
+     * directly outside of the invoker.
+     */
+    protected static String getMvnBin() {
+        String mavenHome = System.getProperty("maven.home");
+        if (mavenHome != null && !mavenHome.isEmpty()) {
+            String os = System.getProperty("os.name");
+            String cmd = (os != null && os.toLowerCase().startsWith("windows")) ? "mvn.cmd" : "mvn";
+            return new File(mavenHome, "bin/" + cmd).getAbsolutePath();
+        }
+        return "mvn";
     }
 
     protected static ProcessBuilder buildProcess(String processCommand) {

@@ -69,6 +69,8 @@
                         <mavenPluginVersion>@pom.version@</mavenPluginVersion>
                         <runtimeVersion>${runtimeVersion}</runtimeVersion>
                         <generatorVersion>${featureGenJar.version}</generatorVersion>
+                        <maven.home>${maven.home}</maven.home>
+
                     </systemPropertyVariables>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>

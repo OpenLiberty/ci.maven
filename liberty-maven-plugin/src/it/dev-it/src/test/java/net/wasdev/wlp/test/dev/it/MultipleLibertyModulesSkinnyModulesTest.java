@@ -43,7 +43,7 @@ public class MultipleLibertyModulesSkinnyModulesTest extends BaseMultiModuleTest
 
    @Test
    public void multipleLibertyModulesPlTest() throws Exception {
-      String mavenPluginCommand = "mvn io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear-skinny-modules -am -DhotTests=true";
+      String mavenPluginCommand = getMvnBin() + " io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":dev -pl ear-skinny-modules -am -DhotTests=true";
 
       StringBuilder command = new StringBuilder(mavenPluginCommand);
       ProcessBuilder builder = buildProcess(command.toString());

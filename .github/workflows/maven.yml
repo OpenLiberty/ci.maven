@@ -7,7 +7,7 @@ on:
   push:
     branches: '**'
   pull_request:
-    branches: [ main ]
+    branches: [ main, maven_4_rc_6 ]
 
 env:
   # server-config-props-it fix
