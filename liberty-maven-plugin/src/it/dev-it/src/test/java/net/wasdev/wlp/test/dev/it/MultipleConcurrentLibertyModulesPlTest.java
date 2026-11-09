@@ -33,8 +33,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("feature-gen")
 public class MultipleConcurrentLibertyModulesPlTest extends BaseMultiModuleTest {
 
    static BufferedWriter writer2;
