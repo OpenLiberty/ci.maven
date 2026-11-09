@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [ main, maven_4_rc_6 ]
 
-env:
-  # server-config-props-it fix
-  MAVEN_HOME: $(which mvn)
-
 jobs:
 # UNIX BUILDS
   build-unix:

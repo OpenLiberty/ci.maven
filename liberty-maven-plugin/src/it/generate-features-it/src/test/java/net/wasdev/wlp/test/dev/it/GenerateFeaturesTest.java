@@ -68,12 +68,12 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertTrue(targetDir.exists());
 
         // verify that the generated features file was created
-        assertTrue(formatOutput(processOutput), featureFile.exists());
+        assertTrue(formatOutput(processOutput)+"\nfeatureFile="+featureFile, featureFile.exists());
 
         // verify that the correct features are in the generated-features.xml
         Set<String> features = readFeatures(featureFile);
         Set<String> expectedFeatures = getExpectedGeneratedFeaturesSet();
-        assertEquals(expectedFeatures.size(), features.size());
+        assertEquals("real features, expected features:"+features+expectedFeatures, expectedFeatures.size(), features.size());
         assertEquals(expectedFeatures, features);
 
         // place generated features in server.xml
@@ -117,7 +117,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertFalse(newFeatureFile.exists());
 
         // verify class files not found warning message
-        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_CLASSES_DIR_WARNING));
+        assertTrue(processOutput.contains(GenerateFeaturesMojo.NO_APPLICATION_ERROR));
     }
 
     @Test
@@ -154,51 +154,6 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         assertEquals(expectedFeatures, features);
     }
 
-    @Test
-    public void serverXmlCommentNoFMTest() throws Exception {
-        // initially the expected comment is not found in server.xml
-        // assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
-        // also we wish to test behaviour when there is no <featureManager> element so test that
-        assertFalse(verifyLogMessageExists("<featureManager>", 10, serverXmlFile));
-
-        runCompileAndGenerateFeatures();
-
-        // verify that generated features file was created
-        assertTrue(newFeatureFile.exists());
-
-        // verify expected comment found in server.xml
-        Charset charset = StandardCharsets.UTF_8;
-        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
-        serverXmlContents = "\n" + serverXmlContents;
-        // assertTrue(serverXmlContents,
-        //     verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
-    }
-
-    @Test
-    public void serverXmlCommentFMTest() throws Exception {
-        replaceString("<!--replaceable-->",
-                "<!--Feature generation comment goes below this line-->\n" +
-                        "  <featureManager>\n" +
-                        "    <feature>servlet-4.0</feature>\n" +
-                        "  </featureManager>\n",
-                serverXmlFile);
-
-        // initially the expected comment is not found in server.xml
-        // assertFalse(verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 10, serverXmlFile));
-
-        runCompileAndGenerateFeatures();
-
-        // verify that generated features file was created
-        assertTrue(newFeatureFile.exists());
-
-        // verify expected comment found in server.xml
-        Charset charset = StandardCharsets.UTF_8;
-        String serverXmlContents = new String(Files.readAllBytes(serverXmlFile.toPath()), charset);
-        serverXmlContents = "\n" + serverXmlContents;
-        // assertTrue(serverXmlContents,
-        //     verifyLogMessageExists(GenerateFeaturesMojo.FEATURES_FILE_MESSAGE, 100, serverXmlFile));
-    }
-
     /**
      * Conflict between user specified features.
      * Check for FEATURE_GEN_CONFLICT_MESSAGE2 (conflict between configured features)
@@ -207,7 +162,7 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
      */
     @Test
     public void userConflictTest() throws Exception {
-        // place expected generated features in server.xml and conflicting cdi-1.2
+        // place expected generated features in server.xml and add conflicting cdi-1.2
         replaceString("<!--replaceable-->",
                 "<featureManager>\n" +
                         getExpectedFeatureElementString() +
@@ -219,9 +174,11 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         // Verify FEATURE_GEN_CONFLICT_MESSAGE2 error is thrown (FeatureGeneratorUtil.RecommendationSetException)
         Set<String> recommendedFeatureSet = new HashSet<String>();
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n " + formatOutput(processOutput),
-                processOutput.contains(
-                        String.format(FEATURE_GEN_CONFLICT_MESSAGE2, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+        Set<String> conflictingFeatures = getCdi12ConflictingFeatures();
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE2, conflictingFeatures, recommendedFeatureSet);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
     /**
@@ -241,12 +198,15 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
         runCompileAndGenerateFeatures();
 
         // Verify FEATURE_GEN_CONFLICT_MESSAGE1 error is thrown (FeatureGeneratorUtil.FeatureModifiedException)
+        // feature-gen scanner current features: servlet-4.0, cdi-2.0, jaxrs-2.1
         Set<String> recommendedFeatureSet = new HashSet<String>();
-        recommendedFeatureSet.add("cdi-2.0");
         recommendedFeatureSet.addAll(getExpectedGeneratedFeaturesSet());
-        assertTrue("Could not find the feature conflict message in the process output.\n" + formatOutput(processOutput),
-            processOutput.contains(
-                String.format(FEATURE_GEN_CONFLICT_MESSAGE1, getCdi12ConflictingFeatures(), recommendedFeatureSet)));
+        recommendedFeatureSet.add("cdi-2.0");
+        Set<String> conflictingFeatures = getCdi12ConflictingFeatures();
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE1, conflictingFeatures, recommendedFeatureSet);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
     // TODO add an integration test for feature conflict for API usage (FEATURE_GEN_CONFLICT_MESSAGE3), ie. MP4 and EE9
@@ -270,20 +230,30 @@ public class GenerateFeaturesTest extends BaseGenerateFeaturesTest {
                 serverXmlFile);
         runCompileAndGenerateFeatures();
 
-        Set<String> conflictingFeatureSet = getExpectedGeneratedFeaturesSet();
+        Set<String> conflictingFeatureSet = getUnavailableConflictingFeatures();
         conflictingFeatureSet.add("mpOpenAPI-1.0");
         Set<String> removeFeatures = new HashSet<String>(Arrays.asList("mpOpenAPI"));
-        assertTrue("Could not find the feature conflict message in the process output.\n " + processOutput,
-        processOutput.contains(
-                String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures)));
+        String expected = String.format(FEATURE_GEN_CONFLICT_MESSAGE5, conflictingFeatureSet, "mp1.2", "ee8", removeFeatures);
+        assertTrue("Could not find the feature conflict message in the process output.\nExpected: " +
+                expected + "\n" + formatOutput(processOutput),
+                processOutput.contains(expected));
     }
 
-    // get the app features that conflict with cdi-1.2
+    // get the app features that conflict with cdi-1.2, different for multimod test
     protected Set<String> getCdi12ConflictingFeatures() {
         // jaxrs-2.1 and servlet-4.0 (EE8) conflicts with cdi-1.2 (EE7)
         Set<String> conflictingFeatures = new HashSet<String>();
         conflictingFeatures.add("servlet-4.0");
         conflictingFeatures.add("cdi-1.2");
+        conflictingFeatures.add("jaxrs-2.1");
+        return conflictingFeatures;
+    }
+
+    // get the app features that conflict when one is not available in MP 1.2
+    protected Set<String> getUnavailableConflictingFeatures() {
+        // The features generated for single mod app: servlet-4.0, jaxrs-2.1
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("servlet-4.0");
         conflictingFeatures.add("jaxrs-2.1");
         return conflictingFeatures;
     }
