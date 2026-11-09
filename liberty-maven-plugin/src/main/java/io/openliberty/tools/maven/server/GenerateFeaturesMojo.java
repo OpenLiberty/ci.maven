@@ -307,7 +307,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
             eeVersion = getEEVersion(mavenProjects, servUtil);
             mpVersion = getMPVersion(mavenProjects, servUtil);
 
-            String logLocation = project.getBuild().getDirectory();
+            String logLocation = project.getBuild().getDirectory() + FEATURE_GEN_LOG_LOCATION;
             String eeVersionArg = composeEEVersion(eeVersion);
             String mpVersionArg = composeMPVersion(mpVersion);
 
