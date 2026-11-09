@@ -92,7 +92,7 @@ public class BaseDevTest {
    }
 
    protected static void startProcess(String params, boolean isDevMode) throws IOException, InterruptedException, FileNotFoundException {
-      startProcess(params, isDevMode, "mvn liberty:");
+      startProcess(params, isDevMode, getMvnBin() + " liberty:");
    }
 
    protected static void startProcess(String params, boolean isDevMode, String mavenPluginCommand) throws IOException, InterruptedException, FileNotFoundException {
@@ -230,6 +230,23 @@ public class BaseDevTest {
             assertTrue(getLogTail(), verifyLogMessageExists("CWWKE0036I", 20000, ++serverStoppedOccurrences));
          }
       }
+   }
+
+   /**
+    * Returns the absolute path to the mvn executable that is running this build,
+    * derived from the {@code maven.home} system property injected by the Maven
+    * Invoker Plugin. Falls back to the plain {@code mvn} command (relies on PATH)
+    * if the property is not set, which preserves behaviour when tests are run
+    * directly outside of the invoker.
+    */
+   protected static String getMvnBin() {
+      String mavenHome = System.getProperty("maven.home");
+      if (mavenHome != null && !mavenHome.isEmpty()) {
+         String os = System.getProperty("os.name");
+         String cmd = (os != null && os.toLowerCase().startsWith("windows")) ? "mvn.cmd" : "mvn";
+         return new File(mavenHome, "bin/" + cmd).getAbsolutePath();
+      }
+      return "mvn";
    }
 
    protected static ProcessBuilder buildProcess(String processCommand) {

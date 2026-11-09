@@ -104,7 +104,7 @@ public class ServerConfigPropertiesTest {
 
             Assert.assertTrue("Server not created successfully, rc=" + exitCode, exitCode == 0);
 
-            builder = buildProcess(logFile, "mvn liberty:dev");
+            builder = buildProcess(logFile, getMvnBin() + " liberty:dev");
             process = builder.start();
             OutputStream stdin = process.getOutputStream();
 
@@ -151,6 +151,23 @@ public class ServerConfigPropertiesTest {
         String appMessage = appInstalledMatches.get(0);
 
         Assert.assertTrue("server-config-props-it.war.xml was not installed correctly", appMessage.endsWith("server-config-props-it.war.xml."));
+    }
+
+    /**
+     * Returns the absolute path to the mvn executable that is running this build,
+     * derived from the {@code maven.home} system property injected by the Maven
+     * Invoker Plugin. Falls back to the plain {@code mvn} command (relies on PATH)
+     * if the property is not set, which preserves behaviour when tests are run
+     * directly outside of the invoker.
+     */
+    private static String getMvnBin() {
+        String mavenHome = System.getProperty("maven.home");
+        if (mavenHome != null && !mavenHome.isEmpty()) {
+            String os = System.getProperty("os.name");
+            String cmd = (os != null && os.toLowerCase().startsWith("windows")) ? "mvn.cmd" : "mvn";
+            return new File(mavenHome, "bin/" + cmd).getAbsolutePath();
+        }
+        return "mvn";
     }
 
     private ProcessBuilder buildProcess(File logFile, String processCommand) throws Exception {

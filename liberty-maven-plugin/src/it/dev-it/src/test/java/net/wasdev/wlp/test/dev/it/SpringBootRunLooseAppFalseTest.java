@@ -53,7 +53,7 @@ public class SpringBootRunLooseAppFalseTest extends BaseDevTest {
     */
    @Test
    public void validateRunExecutionNotSkipped() throws Exception {
-	   String mavenPluginCommand = "mvn package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run  -DlooseApplication=false  -DdeployPackages=spring-boot-project";
+    String mavenPluginCommand = getMvnBin() + " package io.openliberty.tools:liberty-maven-plugin:"+System.getProperty("mavenPluginVersion")+":run  -DlooseApplication=false  -DdeployPackages=spring-boot-project";
 
        StringBuilder command = new StringBuilder(mavenPluginCommand);
        ProcessBuilder builder = buildProcess(command.toString());

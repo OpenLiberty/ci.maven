@@ -20,7 +20,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                     "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
-            startProcess(null, true, "mvn liberty:");
+            startProcess(null, true, getMvnBin() + " liberty:");
 
             assertTrue(verifyLogMessageExists("Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.", 120000));
             // basic-dev-project uses <maven.compiler.release>, so DevMojo takes the release branch
@@ -51,7 +51,7 @@ public class DevToolchainTest extends BaseDevTest {
     public void noToolchainConfigurationDoesNotEmitToolchainMessages() throws Exception {
         setUpBeforeClass(null, "../resources/basic-dev-project", true, false, null, null);
         try {
-            startProcess(null, true, "mvn liberty:");
+            startProcess(null, true, getMvnBin() + " liberty:");
 
             assertTrue(verifyLogMessageDoesNotExist(
                     "Maven compiler plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for Java compiler options.",
@@ -95,7 +95,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                 "</plugins>";
             replaceString(pluginsEndMarker, compilerPluginReplacement, pom);
 
-            startProcess(null, true, "mvn liberty:");
+            startProcess(null, true, getMvnBin() + " liberty:");
 
             assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration matches the Maven Compiler Plugin jdkToolchain configuration: version 11.", 120000));
         } finally {
@@ -131,7 +131,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                 "   </plugins>";
             replaceString(pluginsEndMarker, compilerPluginReplacement, pom);
 
-            startProcess(null, true, "mvn liberty:");
+            startProcess(null, true, getMvnBin() + " liberty:");
 
             assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the Maven Compiler Plugin jdkToolchain configuration (version 8). The Liberty Maven Plugin jdkToolchain configuration will be used for compilation.", 120000));
         } finally {
@@ -150,7 +150,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                 "<!-- ADDITIONAL_CONFIGURATION -->";
             replaceString(additionalConfigMarker, additionalConfigReplacement, pom);
 
-            startProcess(null, true, "mvn -X liberty:");
+            startProcess(null, true, getMvnBin() + " -X liberty:");
 
             assertTrue(verifyLogMessageExists("maven-surefire-plugin is not configured with a jdkToolchain. Using Liberty Maven Plugin jdkToolchain configuration for test execution.", 120000));
         } finally {
@@ -183,7 +183,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                "        </configuration>";
             replaceString(surefirePluginMarker, surefirePluginReplacement, pom);
 
-            startProcess(null, true, "mvn -X liberty:");
+            startProcess(null, true, getMvnBin() + " -X liberty:");
 
             assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration matches the maven-surefire-plugin jdkToolchain configuration: version 11.", 120000));
         } finally {
@@ -216,7 +216,7 @@ public class DevToolchainTest extends BaseDevTest {
                                                "        </configuration>";
             replaceString(surefirePluginMarker, surefirePluginReplacement, pom);
 
-            startProcess(null, true, "mvn -X liberty:");
+            startProcess(null, true, getMvnBin() + " -X liberty:");
 
             assertTrue(verifyLogMessageExists("Liberty Maven Plugin jdkToolchain configuration (version 11) does not match the maven-surefire-plugin jdkToolchain configuration (version 8). The Liberty Maven Plugin jdkToolchain configuration will be used for test execution.", 120000));
         } finally {
