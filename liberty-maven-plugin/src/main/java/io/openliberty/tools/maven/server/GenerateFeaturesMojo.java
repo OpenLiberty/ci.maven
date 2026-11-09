@@ -17,6 +17,7 @@ package io.openliberty.tools.maven.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -307,7 +308,7 @@ public class GenerateFeaturesMojo extends LooseAppSupport {
             eeVersion = getEEVersion(mavenProjects, servUtil);
             mpVersion = getMPVersion(mavenProjects, servUtil);
 
-            String logLocation = project.getBuild().getDirectory() + FEATURE_GEN_LOG_LOCATION;
+            String logLocation = Paths.get(project.getBuild().getDirectory(), FEATURE_GEN_LOG_LOCATION).toString();
             String eeVersionArg = composeEEVersion(eeVersion);
             String mpVersionArg = composeMPVersion(mpVersion);
 
