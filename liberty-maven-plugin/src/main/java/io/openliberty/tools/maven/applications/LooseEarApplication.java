@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corporation 2017, 2025.
+ * (C) Copyright IBM Corporation 2017, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,16 @@ package io.openliberty.tools.maven.applications;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.shared.mapping.MappingUtils;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.InterpolationException;
+import org.codehaus.plexus.interpolation.ObjectBasedValueSource;
+import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
+import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.w3c.dom.Element;
 
@@ -270,11 +273,11 @@ public class LooseEarApplication extends LooseApplication {
         String outputFileNameMapping = MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins",
             "maven-ear-plugin", "outputFileNameMapping");
             try {
-                String fileNameMapping = MappingUtils.evaluateFileNameMapping( outputFileNameMapping, artifact );
+                String fileNameMapping = evaluateFileNameMapping( outputFileNameMapping, artifact );
                 if (fileNameMapping == null || fileNameMapping.isEmpty()) {
                     // default format if none is specified
                     String defaultFormat = "@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@";
-                    fileNameMapping = MappingUtils.evaluateFileNameMapping( defaultFormat, artifact );
+                    fileNameMapping = evaluateFileNameMapping( defaultFormat, artifact );
                 }
                 return fileNameMapping;
         
@@ -297,6 +300,32 @@ public class LooseEarApplication extends LooseApplication {
     public String getEarDefaultLibBundleDir() {
         return MavenProjectUtil.getPluginConfiguration(project, "org.apache.maven.plugins", "maven-ear-plugin",
                 "defaultLibBundleDir");
+    }
+
+    // Evaluates a maven-ear-plugin file name mapping such as @{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@,
+    // the same way maven-ear-plugin does: tokens are getters of the artifact or of its artifact handler, plus
+    // dashClassifier and dashClassifier?, which expand to -<classifier> or, for a blank classifier, to nothing.
+    private static String evaluateFileNameMapping(String expression, Artifact artifact) throws InterpolationException {
+        if (expression == null) {
+            return null;
+        }
+        RegexBasedInterpolator interpolator = new RegexBasedInterpolator("\\@\\{(", ")?([^}]+)\\}@");
+        interpolator.addValueSource(new ObjectBasedValueSource(artifact));
+        interpolator.addValueSource(new ObjectBasedValueSource(artifact.getArtifactHandler()));
+
+        Properties classifierMask = new Properties();
+        String classifier = artifact.getClassifier() == null ? "" : artifact.getClassifier().trim();
+        if (!classifier.isEmpty()) {
+            classifierMask.setProperty("dashClassifier?", "-" + classifier);
+            classifierMask.setProperty("dashClassifier", "-" + classifier);
+        } else {
+            classifierMask.setProperty("dashClassifier?", "");
+            classifierMask.setProperty("dashClassifier", "");
+            classifierMask.setProperty("classifier", "");
+        }
+        interpolator.addValueSource(new PropertiesBasedValueSource(classifierMask));
+
+        return interpolator.interpolate(expression, "__artifact");
     }
 
     public Boolean isEarSkinnyWars() {
