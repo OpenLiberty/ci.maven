@@ -77,8 +77,8 @@
                         </jarModule>
                         <webModule>
                             <groupId>io.openliberty.guides</groupId>
-                            <artifactId>guide-maven-multimodules-war</artifactId>
-                            <uri>/guide-maven-multimodules-war-1.0-SNAPSHOT.war</uri>
+                            <artifactId>guide-maven-multimodules-war1</artifactId>
+                            <uri>/guide-maven-multimodules-war1.war</uri>
                             <!-- Set custom context root -->
                             <contextRoot>/converter1</contextRoot>
                         </webModule>
