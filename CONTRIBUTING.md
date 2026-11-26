@@ -6,6 +6,7 @@ There are multiple ways to contribute: report bugs, fix bugs, contribute code, i
 * [Raising issues](#raising-issues)
 * [Contributor License Agreement](#contributor-license-agreement)
 * [Coding Standards](#coding-standards)
+* [Running the toolchain integration tests](#running-the-toolchain-integration-tests)
 
 ## Raising issues
 Please raise any bug reports on the [Liberty Maven Plug-in project repository's GitHub issue tracker](https://github.com/OpenLiberty/ci.maven/issues). Be sure to search the list to see if your issue has already been raised.
@@ -34,3 +35,5 @@ Please ensure you follow the coding standards used throughout the existing code 
 * Opening brace on same line as `if` / `else` / `for` / etc. statements. Closing brace on its own line.
 * All PRs must have a passing build.
 
+## Running the toolchain integration tests
+The toolchain integration tests need JDKs configured in `~/.m2/toolchains.xml`. Copy [`docs/toolchains-template.xml`](docs/toolchains-template.xml) to `~/.m2/toolchains.xml` and replace the `<jdkHome>` paths with JDKs installed on your machine. See the [toolchain-run-it README](liberty-maven-plugin/src/it/toolchain-run-it/README.md) for details.

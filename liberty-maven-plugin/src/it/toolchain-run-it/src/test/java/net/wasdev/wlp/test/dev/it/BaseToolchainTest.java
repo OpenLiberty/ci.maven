@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright IBM Corporation 2025.
+ * (c) Copyright IBM Corporation 2025, 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,9 @@ public class BaseToolchainTest {
     static final String JAVA_HOME_CONFIGURED_IN_PROPERTY="CWWKM4101W: The toolchain JDK configuration for goal %s is not honored because the JAVA_HOME property is specified in project properties.";
 
     protected static void setUpBeforeClass(String params, String projectRoot, String libertyConfigModule, String pomModule, String goal, Runnable customActionBeforeProcessStart) throws IOException {
+        // All toolchain-run-it projects are configured with a Java 8 jdkToolchain
+        ToolchainsXmlValidator.requireJdkToolchains("8");
+
         customLibertyModule = libertyConfigModule;
         customPomModule = pomModule;
 
@@ -206,6 +209,11 @@ public class BaseToolchainTest {
     }
 
     protected static void cleanUpAfterClass(boolean isDevMode, boolean checkForShutdownMessage) throws Exception {
+        if (process == null) {
+            // setUpBeforeClass failed before starting a process (for example, toolchains.xml is missing),
+            // so there is nothing to stop. Return so the original setup failure is the one reported.
+            return;
+        }
 
         stopProcess(isDevMode, checkForShutdownMessage);
         //calling stop liberty for making sure run/dev is stopped
