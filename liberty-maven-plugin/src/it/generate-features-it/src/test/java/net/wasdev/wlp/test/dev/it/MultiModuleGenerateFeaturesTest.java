@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Feature-Gen Changes failing this, temporarily disabling")
 public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
@@ -52,26 +51,27 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
     protected void runCompileAndGenerateFeatures() throws IOException, InterruptedException {
         String lmp = getLMPName();
         runProcess("clean compile");
-        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features", "ear");
+        runProcess("liberty:create liberty:deploy", "pom");
+        runProcess(lmp + ":generate-features -pl pom -am");
     }
 
     @Override
     protected void runCompileAndGenerateFeaturesToSrc() throws IOException, InterruptedException {
         String lmp = getLMPName();
         runProcess("clean compile");
-        runProcess(lmp + ":create " + lmp + ":deploy " + lmp + ":generate-features -DgenerateToSrc=true", "ear");
+        runProcess("liberty:create liberty:deploy", "pom");
+        runProcess(lmp + ":generate-features -pl pom -am -DgenerateToSrc=true");
     }
 
     @Override
     protected void runGenerateFeaturesGoal() throws IOException, InterruptedException {
-        runProcess(getLMPName() + ":generate-features", "ear");
+        runProcess(getLMPName() + ":generate-features -pl pom -am");
     }
 
     @Override
     protected void runCleanAndCreate() throws IOException, InterruptedException {
-        String lmp = getLMPName();
         runProcess("clean");
-        runProcess(lmp + ":create", "ear");
+        runProcess("liberty:create", "pom");
     }
 
     private String getLMPName() {
@@ -80,7 +80,7 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
 
     @Override
     protected Set<String> getExpectedGeneratedFeaturesSet() {
-        return new HashSet<String>(Arrays.asList("cdi-2.0", "jaxrs-2.1"));
+        return new HashSet<String>(Arrays.asList("jsp-2.3", "servlet-4.0", "cdi-2.0", "jaxrs-2.1"));
     }
 
     @Override
@@ -89,13 +89,25 @@ public class MultiModuleGenerateFeaturesTest extends GenerateFeaturesTest {
         "            <version>" + currentVersion + "</version>", "<artifactId>microprofile</artifactId>\n" + 
         "            <version>" + updatedVersion + "</version>", new File(tempProj, "war/pom.xml"));
     }
- 
+
     @Override
     protected Set<String> getCdi12ConflictingFeatures() {
         // cdi-2.0 (EE8) conflicts with cdi-1.2 (EE7)
         Set<String> conflictingFeatures = new HashSet<String>();
         conflictingFeatures.add("cdi-1.2");
         conflictingFeatures.add("cdi-2.0");
+        return conflictingFeatures;
+    }
+
+    // get the app features that conflict when one is not available in MP 1.2
+    @Override
+    protected Set<String> getUnavailableConflictingFeatures() {
+        // The features generated for multimod app: jsp-2.3, servlet-4.0, cdi-2.0, jaxrs-2.1
+        Set<String> conflictingFeatures = new HashSet<String>();
+        conflictingFeatures.add("servlet-4.0");
+        conflictingFeatures.add("cdi-2.0");
+        conflictingFeatures.add("jaxrs-2.1");
+        conflictingFeatures.add("jsp-2.3");
         return conflictingFeatures;
     }
 
