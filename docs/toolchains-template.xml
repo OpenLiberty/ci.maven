@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Template for ~/.m2/toolchains.xml, used to run the toolchain integration tests.
+
+  How to use:
+    1. Copy this file to ~/.m2/toolchains.xml (or, if you already have that file,
+       copy the <toolchain> entries below into its <toolchains> element).
+    2. Replace each <jdkHome> value with the path to a JDK of that version on your machine.
+       The path must be a directory that contains bin/java.
+    3. Remove the entries for JDK versions you do not have. Tests that need a missing
+       version will fail with a message that names it.
+
+  To provide another JDK version, copy one whole <toolchain> element and change both
+  <version> and <jdkHome>. Add one <toolchain> element for each version.
+
+  Which tests need which version:
+    8   toolchain-run-it (validated before each test class starts)
+    11  toolchain-start-status-it, toolchain-invalid-jdk-it, toolchain-java-warning-*-it,
+        deploy-loose-config-apps-with-toolchain-it, toolchain-install-feature-it and others
+
+  Example jdkHome values:
+    macOS    /Library/Java/JavaVirtualMachines/<your-jdk>/Contents/Home
+    Linux    /usr/lib/jvm/<your-jdk>
+    Windows  C:/Program Files/Java/<your-jdk>
+-->
+<toolchains>
+
+  <!-- JDK 8 -->
+  <toolchain>
+    <type>jdk</type>
+    <provides>
+      <version>8</version>
+    </provides>
+    <configuration>
+      <jdkHome>/path/to/your-jdk8</jdkHome>
+    </configuration>
+  </toolchain>
+
+  <!-- JDK 11 -->
+  <toolchain>
+    <type>jdk</type>
+    <provides>
+      <version>11</version>
+    </provides>
+    <configuration>
+      <jdkHome>/path/to/your-jdk11</jdkHome>
+    </configuration>
+  </toolchain>
+
+</toolchains>

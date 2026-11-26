@@ -4,24 +4,7 @@ These integration tests start Liberty with `mvn liberty:run` using a JDK selecte
 
 ## Prerequisites
 
-Create `~/.m2/toolchains.xml` (or add the `<toolchain>` entries to your existing file) with a JDK 8 entry, and replace the `<jdkHome>` value with the path to a JDK 8 installation on your machine:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<toolchains>
-  <toolchain>
-    <type>jdk</type>
-    <provides>
-      <version>8</version>
-    </provides>
-    <configuration>
-      <jdkHome>/Library/Java/JavaVirtualMachines/your-jdk8/Contents/Home</jdkHome>
-    </configuration>
-  </toolchain>
-</toolchains>
-```
-
-The path above is a macOS example. Use the equivalent JDK location for your operating system.
+Copy [`toolchains-template.xml`](../../../../docs/toolchains-template.xml) to `~/.m2/toolchains.xml` (or add its `<toolchain>` entries to your existing file) and replace each `<jdkHome>` value with the path to a JDK of that version on your machine. These tests require a JDK 8 entry. Other toolchain integration tests in `liberty-maven-plugin/src/it` require a JDK 11 entry. The template contains both, with comments on how to add more.
 
 ## Missing configuration
 

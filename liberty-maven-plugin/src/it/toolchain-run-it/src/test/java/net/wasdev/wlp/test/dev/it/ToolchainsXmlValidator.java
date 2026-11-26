@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
  */
 public final class ToolchainsXmlValidator {
 
-    private static final String README_PATH = "liberty-maven-plugin/src/it/toolchain-run-it/README.md";
+    private static final String TEMPLATE_PATH = "docs/toolchains-template.xml";
 
     private ToolchainsXmlValidator() {
     }
@@ -52,7 +52,7 @@ public final class ToolchainsXmlValidator {
         if (!file.isFile()) {
             Assert.fail("The toolchain integration tests require " + file.getAbsolutePath()
                     + " but it does not exist. Create it with a jdk toolchain for JDK version(s) "
-                    + String.join(", ", versions) + ". See " + README_PATH + " for an example.");
+                    + String.join(", ", versions) + ". Copy " + TEMPLATE_PATH + " to ~/.m2/toolchains.xml and update the paths.");
         }
 
         NodeList toolchains = null;
@@ -64,7 +64,7 @@ public final class ToolchainsXmlValidator {
             toolchains = doc.getElementsByTagName("toolchain");
         } catch (Exception e) {
             Assert.fail("Could not parse " + file.getAbsolutePath() + ": " + e.getMessage()
-                    + ". See " + README_PATH + " for the expected format.");
+                    + ". See " + TEMPLATE_PATH + " for the expected format.");
         }
 
         for (String version : versions) {
@@ -91,7 +91,7 @@ public final class ToolchainsXmlValidator {
                     + " has a <jdkHome> that is not a directory: " + invalidJdkHome);
         }
         Assert.fail("No jdk toolchain providing version " + version + " was found in " + file.getAbsolutePath()
-                + ". See " + README_PATH + " for an example.");
+                + ". Copy " + TEMPLATE_PATH + " to ~/.m2/toolchains.xml and update the paths.");
     }
 
     private static String text(Element parent, String tagName) {
